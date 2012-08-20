@@ -1,2 +1,2 @@
-Scraping [Chicago Legistar]{http://chicago.legistar.com}
+Scraping [Chicago Legistation](http://chicago.legistar.com)
 -
