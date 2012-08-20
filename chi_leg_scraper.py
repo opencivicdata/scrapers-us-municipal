@@ -38,13 +38,14 @@ formFields = (
    #but then we come to fields of interest: the search
    #criteria the collections to search from etc.
 
-   # Check boxes  
+   # Check boxes Comment a Check box if want to 'uncheck'
 #   (r'ctl00$ContentPlaceHolder1$chkID', 'on'),           # file number
    (r'ctl00$ContentPlaceHolder1$chkText', 'on'),         # Legislative text
 #   (r'ctl00$ContentPlaceHolder1$chkAttachments', 'on'),  # attachment
-   (r'ctl00$ContentPlaceHolder1$chkOther', 'on'),        # Other
+#   (r'ctl00$ContentPlaceHolder1$chkOther', 'on'),        # Other
                                                        # etc. (not all listed)
    (r'ctl00$ContentPlaceHolder1$txtSearch', 'zoning'),   # Search text
+
    (r'ctl00_ContentPlaceHolder1_lstYears_ClientState', '{"value":"This Year"}'), # Period to Include
    (r'ctl00$ContentPlaceHolder1$lstTypeBasic', 'All Types'),  #types to include
    (r'ctl00$ContentPlaceHolder1$btnSearch', 'Search Legislation')  # Search button itself
