@@ -9,6 +9,7 @@ Globally unique identifier is a 32 hexadecimal digits with 4 embedded hyphens, a
 Unfortunately, we cannot step through the legislative IDs, because we cannot guess the GUID.[2] So, we will have to
 interact with the sites's forms, [as described in this stack overflow question](http://stackoverflow.com/questions/1480356/how-to-submit-query-to-aspx-page-in-python).
 
+> python chi_leg_scraper.py
 
 [1]: http://www.granicus.com/Files/API/Granicus-Training-Management-Suite-API-v5.pdf
 [2]: This also means that we can't use Mjumbe Poe's [Legistar Scraper](https://scraperwiki.com/scrapers/philadelphia_legislative_files/)
