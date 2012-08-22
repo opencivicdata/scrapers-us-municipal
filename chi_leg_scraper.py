@@ -2,7 +2,6 @@ import urllib
 import urllib2
 from BeautifulSoup import BeautifulSoup
 import re
-import itertools
 
 class ChicagoLegistar :
   def __init__(self, uri) :
