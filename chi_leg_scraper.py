@@ -2,25 +2,23 @@ import urllib
 import urllib2
 from BeautifulSoup import BeautifulSoup
 import re
-from collections import defaultdict
 
 class ChicagoLegistar :
   def __init__(self, uri) :
-    self.data = defaultdict(str)
-
-    f = urllib2.urlopen(uri)
-    self.getStates(f)
+    self.data = {
+      r'__VIEWSTATE' : r'',
+      r'ctl00_RadScriptManager1_HiddenField' : r'', 
+      r'ctl00_ContentPlaceHolder1_menuMain_ClientState' : r'',
+      r'ctl00_ContentPlaceHolder1_gridMain_ClientState' : r''
+      }
 
     self.headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
       }
 
-    self.data.update({
-      r'__VIEWSTATE' : r'',
-      r'ctl00_RadScriptManager1_HiddenField' : r'', 
-      r'ctl00_ContentPlaceHolder1_menuMain_ClientState' : r'',
-      r'ctl00_ContentPlaceHolder1_gridMain_ClientState' : r''
-      })
+    f = urllib2.urlopen(uri)
+    self.getStates(f)
+
 
   def getStates(self, f) :
 
@@ -93,6 +91,24 @@ class ChicagoLegistar :
     f= urllib2.urlopen(req)     #that's the actual call to the http site.
 
     return f
+
+  def parseSearchResults(f) :
+    """Take a page of search results and return a sequence of data
+    of tuples about the legislation, of the form
+
+    ('Document ID', 'Document URL', 'Type', 'Status', 'Introduction Date'
+     'Passed Date', 'Main Sponsor', 'Title')
+    """
+    pass
+
+
+  def parseLegislationDetail(f) :
+    """Take a legislation detail page and return a dictionary of
+    the different data appearing on the page
+
+    Example URL: http://chicago.legistar.com/LegislationDetail.aspx?ID=1050678&GUID=14361244-D12A-467F-B93D-E244CB281466&Options=ID|Text|&Search=zoning
+    """
+
 
 if __name__ == '__main__' :
 
