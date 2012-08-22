@@ -2,6 +2,7 @@ import urllib
 import urllib2
 from BeautifulSoup import BeautifulSoup
 import re
+import itertools
 
 class ChicagoLegistar :
   def __init__(self, uri) :
@@ -59,38 +60,38 @@ class ChicagoLegistar :
     encoded_fields = urllib.urlencode(fields)
     
     req = urllib2.Request(uri, encoded_fields, self.headers)
-    f= urllib2.urlopen(req)     #that's the actual call to the http site.
+    f = urllib2.urlopen(req).read()  #that's the actual call to the http site.
 
-    return f
+    result_page_urls = self.resultsUrls(f)
 
-  def getResultsPages(self, f) :
+    return f, result_page_urls
+
+  def resultsUrls(self, f) :
+
     soup = BeautifulSoup(f)
-    result_pages = []
-    for match in soup.fetch('a', {'href':re.compile('ctl02\$ctl00')}) :
-      result_pages.append(match['href'].split("'")[1])
-
-    return result_pages
-
-  def nextPage(self, f, result_page) :
-    results_page = {
-      r'__EVENTTARGET' : result_page,
-      r'__EVENTARGUMENT' : ''
-      }
-
     self.getStates(f)
 
 
-    fields = dict(self.data.items()
-                  + self.search_args.items()
-                  + results_page.items()
-                  )
-    # these have to be encoded    
-    encoded_fields = urllib.urlencode(fields)
+    result_page_urls = []
 
-    req = urllib2.Request(uri, encoded_fields, self.headers)
-    f= urllib2.urlopen(req)     #that's the actual call to the http site.
+    for match in soup.fetch('a', {'href':re.compile('ctl02\$ctl00')}) :
+      result_page_args =  {
+        r'__EVENTTARGET' : match['href'].split("'")[1],
+        r'__EVENTARGUMENT' : ''
+      }
 
-    return f
+      fields = dict(self.data.items()
+                    + self.search_args.items()
+                    + result_page_args.items()
+                    )
+      # these have to be encoded    
+      encoded_fields = urllib.urlencode(fields)
+
+      req = urllib2.Request(uri, encoded_fields, self.headers)      
+
+      result_page_urls.append(req)
+
+    return result_page_urls
 
   def parseSearchResults(f) :
     """Take a page of search results and return a sequence of data
@@ -115,18 +116,16 @@ if __name__ == '__main__' :
   uri = 'http://chicago.legistar.com/Legislation.aspx'
   scraper = ChicagoLegistar(uri)
   # First page of results
-  f1 = scraper.searchLegislation('zoning', ['legislative text']).read()
-  results = scraper.getResultsPages(f1)
+  f1, results = scraper.searchLegislation('zoning', ['legislative text'])
   # Second Page of results
-  f2 = scraper.nextPage(f1, results[1])
-  # Third page of results
-  f3 = scraper.nextPage(f1, results[2])
+  f2 = urllib2.urlopen(results[1])
+
 
   try:
     fout = open('tmp.htm', 'w')
   except:
     print('Could not open output file\n')
 
-  fout.writelines(f3.readlines())
+  fout.writelines(f2.readlines())
   fout.close()
 
