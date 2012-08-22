@@ -108,7 +108,7 @@ class ChicagoLegistar :
 
     Example URL: http://chicago.legistar.com/LegislationDetail.aspx?ID=1050678&GUID=14361244-D12A-467F-B93D-E244CB281466&Options=ID|Text|&Search=zoning
     """
-
+    pass
 
 if __name__ == '__main__' :
 
