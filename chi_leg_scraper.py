@@ -75,8 +75,10 @@ class ChicagoLegistar :
     result_page_urls = []
 
     for match in soup.fetch('a', {'href':re.compile('ctl02\$ctl00')}) :
+      event_target = match['href'].split("'")[1]
+
       result_page_args =  {
-        r'__EVENTTARGET' : match['href'].split("'")[1],
+        r'__EVENTTARGET' : event_target,
         r'__EVENTARGUMENT' : ''
       }
 
