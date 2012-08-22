@@ -1,72 +1,116 @@
 import urllib
 import urllib2
-import states
+from BeautifulSoup import BeautifulSoup
+import re
+from collections import defaultdict
+
+class ChicagoLegistar :
+  def __init__(self, uri) :
+    self.data = defaultdict(str)
+
+    f = urllib2.urlopen(uri)
+    self.getStates(f)
+
+    self.headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+      }
+
+    self.data.update({
+      r'__VIEWSTATE' : r'',
+      r'ctl00_RadScriptManager1_HiddenField' : r'', 
+      r'ctl00_ContentPlaceHolder1_menuMain_ClientState' : r'',
+      r'ctl00_ContentPlaceHolder1_gridMain_ClientState' : r''
+      })
+
+  def getStates(self, f) :
+
+    soup= BeautifulSoup(f)
+
+    self.data['__VSTATE'] = soup.fetch('input', {'name' : '__VSTATE'})[0]['value']
+    self.data['__EVENTVALIDATION'] = soup.fetch('input', {'name' : '__EVENTVALIDATION'})[0]['value']
+  
+ 
+
+  def searchLegislation(self, search_text, search_fields = None) :
+    self.search_args = {
+      r'ctl00$ContentPlaceHolder1$txtSearch' : search_text,   # Search text
+      r'ctl00_ContentPlaceHolder1_lstYears_ClientState' : '{"value":"This Year"}', # Period to Include
+      r'ctl00$ContentPlaceHolder1$lstTypeBasic' : 'All Types',  #types to include
+    }
+
+    for field in search_fields:
+      if field == 'file number' :
+        self.search_args[r'ctl00$ContentPlaceHolder1$chkID'] = 'on'
+      elif field == 'legislative text' :
+        self.search_args[r'ctl00$ContentPlaceHolder1$chkText'] = 'on'
+      elif field == 'attachment' :
+        self.search_args[r'ctl00$ContentPlaceHolder1$chkAttachments'] = 'on'
+      elif field == 'other' :
+        self.search_args[r'ctl00$ContentPlaceHolder1$chkOther'] = 'on'
+
+    
+
+    fields = dict(self.data.items()
+                  + self.search_args.items()
+                  + [(r'ctl00$ContentPlaceHolder1$btnSearch',
+                      'Search Legislation')]
+                  )
+
+    # these have to be encoded    
+
+    encoded_fields = urllib.urlencode(fields)
+    
+    req = urllib2.Request(uri, encoded_fields, self.headers)
+    f= urllib2.urlopen(req)     #that's the actual call to the http site.
+
+    return f
+
+  def getResultsPages(self, f) :
+    soup = BeautifulSoup(f)
+    result_pages = []
+    for match in soup.fetch('a', {'href':re.compile('ctl02\$ctl00')}) :
+      result_pages.append(match['href'].split("'")[1])
+
+    return result_pages
+
+  def nextPage(self, f, result_page) :
+    results_page = {
+      r'__EVENTTARGET' : result_page,
+      r'__EVENTARGUMENT' : ''
+      }
+
+    self.getStates(f)
 
 
-uri = 'http://chicago.legistar.com/Legislation.aspx'
+    fields = dict(self.data.items()
+                  + self.search_args.items()
+                  + results_page.items()
+                  )
+    # these have to be encoded    
+    encoded_fields = urllib.urlencode(fields)
 
-#the http headers are useful to simulate a particular browser (some
-#sites deny access to non-browsers (bots, etc.)  also needed to pass
-#the content type.
-headers = {
-    'HTTP_USER_AGENT': 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.13) Gecko/2009073022 Firefox/3.0.13',
-    'HTTP_ACCEPT': 'text/html,application/xhtml+xml,application/xml; q=0.9,*/*; q=0.8',
-    'Content-Type': 'application/x-www-form-urlencoded'
-}
+    req = urllib2.Request(uri, encoded_fields, self.headers)
+    f= urllib2.urlopen(req)     #that's the actual call to the http site.
 
-# we group the form fields and their values in a list (any
-# iterable, actually) of name-value tuples.  This helps
-# with clarity and also makes it easy to later encoding of them.
+    return f
 
-formFields = (
-   # the viewstate is actualy 800+ characters in length! I truncated it
-   # for this sample code.  It can be lifted from the first page
-   # obtained from the site.  It may be ok to hardcode this value, or
-   # it may have to be refreshed each time / each day, by essentially
-   # running an extra page request and parse, for this specific value.
-   (r'__VSTATE', states.v_state),
+if __name__ == '__main__' :
 
+  uri = 'http://chicago.legistar.com/Legislation.aspx'
+  scraper = ChicagoLegistar(uri)
+  # First page of results
+  f1 = scraper.searchLegislation('zoning', ['legislative text']).read()
+  results = scraper.getResultsPages(f1)
+  # Second Page of results
+  f2 = scraper.nextPage(f1, results[1])
+  # Third page of results
+  f3 = scraper.nextPage(f1, results[2])
 
-   # following are more of these ASP form fields
-   (r'__VIEWSTATE', r''),
-   (r'__EVENTVALIDATION', states.event_validation), 
-   (r'ctl00_RadScriptManager1_HiddenField', ''), 
-   (r'ctl00_tabTop_ClientState', ''), 
-   (r'ctl00_ContentPlaceHolder1_menuMain_ClientState', ''),
-   (r'ctl00_ContentPlaceHolder1_gridMain_ClientState', ''),
+  try:
+    fout = open('tmp.htm', 'w')
+  except:
+    print('Could not open output file\n')
 
-   #but then we come to fields of interest: the search
-   #criteria the collections to search from etc.
-
-   # Check boxes Comment a Check box if want to 'uncheck'
-#   (r'ctl00$ContentPlaceHolder1$chkID', 'on'),           # file number
-   (r'ctl00$ContentPlaceHolder1$chkText', 'on'),         # Legislative text
-#   (r'ctl00$ContentPlaceHolder1$chkAttachments', 'on'),  # attachment
-#   (r'ctl00$ContentPlaceHolder1$chkOther', 'on'),        # Other
-                                                       # etc. (not all listed)
-   (r'ctl00$ContentPlaceHolder1$txtSearch', 'zoning'),   # Search text
-
-   (r'ctl00_ContentPlaceHolder1_lstYears_ClientState', '{"value":"This Year"}'), # Period to Include
-   (r'ctl00$ContentPlaceHolder1$lstTypeBasic', 'All Types'),  #types to include
-   (r'ctl00$ContentPlaceHolder1$btnSearch', 'Search Legislation')  # Search button itself
-)
-
-# these have to be encoded    
-encodedFields = urllib.urlencode(formFields)
-
-req = urllib2.Request(uri, encodedFields, headers)
-f= urllib2.urlopen(req)     #that's the actual call to the http site.
-
-# *** here would normally be the in-memory parsing of f 
-#     contents, but instead I store this to file
-#     this is useful during design, allowing to have a
-#     sample of what is to be parsed in a text editor, for analysis.
-
-try:
-  fout = open('tmp.htm', 'w')
-except:
-  print('Could not open output file\n')
-
-fout.writelines(f.readlines())
-fout.close()
+  fout.writelines(f3.readlines())
+  fout.close()
 
