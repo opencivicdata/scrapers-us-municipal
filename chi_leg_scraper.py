@@ -94,17 +94,32 @@ class ChicagoLegistar :
 
     return result_page_urls
 
-  def parseSearchResults(f) :
+  def parseSearchResults(self, f) :
     """Take a page of search results and return a sequence of data
     of tuples about the legislation, of the form
 
     ('Document ID', 'Document URL', 'Type', 'Status', 'Introduction Date'
      'Passed Date', 'Main Sponsor', 'Title')
     """
-    pass
+    soup= BeautifulSoup(f)
+    
+    legislation_rows = soup.fetch('tr', {'id':re.compile('ctl00_ContentPlaceHolder1_gridMain_ctl00__')})
+    print "found some legislation!"
+    print len(legislation_rows)
+    
+    
+    legislation_list = []
+    for row in legislation_rows :
+      legislation = []
+      for field in row.fetch("td") :
+        legislation.append(field.text)
+      legislation.append(row.fetch("a")[0]['href'])
+      legislation_list.append(legislation)
+      
+    return legislation_list
 
 
-  def parseLegislationDetail(f) :
+  def parseLegislationDetail(self, f) :
     """Take a legislation detail page and return a dictionary of
     the different data appearing on the page
 
@@ -112,21 +127,29 @@ class ChicagoLegistar :
     """
     pass
 
-if __name__ == '__main__' :
-
+#if __name__ == '__main__' :
+if True :
   uri = 'http://chicago.legistar.com/Legislation.aspx'
   scraper = ChicagoLegistar(uri)
   # First page of results
   f1, results = scraper.searchLegislation('zoning', ['legislative text'])
-  # Second Page of results
-  f2 = urllib2.urlopen(results[1])
+  
+  legislation_list = scraper.parseSearchResults(f1)
+  
+  for result in results[1:] :
+    # iterate through pages of results
+    f = urllib2.urlopen(result)
+    legislation_list.extend(scraper.parseSearchResults(f))
+   
+  print legislation_list  
+  print 'we gots the legislations!'
+  print len(legislation_list)
 
-
-  try:
-    fout = open('tmp.htm', 'w')
-  except:
-    print('Could not open output file\n')
-
-  fout.writelines(f2.readlines())
-  fout.close()
+  # try:
+#     fout = open('tmp.htm', 'w')
+#   except:
+#     print('Could not open output file\n')
+# 
+#   fout.writelines(f2.readlines())
+#   fout.close()
 
