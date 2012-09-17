@@ -1,7 +1,11 @@
+import sqlite3
 import urllib
 import urllib2
 from BeautifulSoup import BeautifulSoup
 import re
+
+conn = sqlite3.connect("chicago_legislation.db")
+c = conn.cursor()
 
 class ChicagoLegistar :
   def __init__(self, uri) :
@@ -153,3 +157,14 @@ if True :
 #   fout.writelines(f2.readlines())
 #   fout.close()
 
+
+[legislation.pop(4) for legislation in legislation_list]
+
+c.executemany('INSERT OR IGNORE INTO legislation '
+              '(id, type, status, intro_date, main_sponsor, title, url) '
+              'VALUES '
+              '(?, ?, ?, ?, ?, ?, ?)',
+              legislation_list)
+
+conn.commit()
+c.close()
