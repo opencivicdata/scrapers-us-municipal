@@ -123,16 +123,47 @@ class ChicagoLegistar :
     return legislation_list
 
 
-  def parseLegislationDetail(self, f) :
+  def parseLegislationDetail(self, url) :
     """Take a legislation detail page and return a dictionary of
     the different data appearing on the page
 
     Example URL: http://chicago.legistar.com/LegislationDetail.aspx?ID=1050678&GUID=14361244-D12A-467F-B93D-E244CB281466&Options=ID|Text|&Search=zoning
     """
-    pass
+    f = urllib2.urlopen(url)
+    soup = BeautifulSoup(f)
+    detail_div = soup.fetch('div', {'id' : 'ctl00_ContentPlaceHolder1_pageDetails'})
+    keys = []
+    values = []
+    i = 0
+    for cell in  detail_div[0].fetch('td')[0:25] :
+      if i % 2 :
+          values.append(cell.text)
+      else :
+        keys.append(cell.text)
+      i += 1
+
+    details = dict(zip(keys, values))
+
+    history_row = soup.fetch('tr', {'id' : re.compile('ctl00_ContentPlaceHolder1_gridLegislation_ctl00')})
+
+    history_keys = ["date", "journal_page", "action_by", "status", "results", "votes", "meeting_details"]
+
+    history = []
+
+    for row in history_row :
+      values = []
+      for cell in row.fetch('td') :
+        values.append(cell.text)
+      history.append(dict(zip(history_keys, values)))
+
+    print details
+    print history
+      
+
+
 
 #if __name__ == '__main__' :
-if True :
+if False :
   uri = 'http://chicago.legistar.com/Legislation.aspx'
   scraper = ChicagoLegistar(uri)
   # First page of results
@@ -150,21 +181,31 @@ if True :
   print len(legislation_list)
 
   # try:
-#     fout = open('tmp.htm', 'w')
-#   except:
-#     print('Could not open output file\n')
-# 
-#   fout.writelines(f2.readlines())
-#   fout.close()
+  #     fout = open('tmp.htm', 'w')
+  #   except:
+  #     print('Could not open output file\n')
+  # 
+  #   fout.writelines(f2.readlines())
+  #   fout.close()
+  
+  
+  [legislation.pop(4) for legislation in legislation_list]
+  
+  c.executemany('INSERT OR IGNORE INTO legislation '
+                '(id, type, status, intro_date, main_sponsor, title, url) '
+                'VALUES '
+                '(?, ?, ?, ?, ?, ?, ?)',
+                legislation_list)
 
+  conn.commit()
 
-[legislation.pop(4) for legislation in legislation_list]
+if True:
+    uri = 'http://chicago.legistar.com/Legislation.aspx'
+    scraper = ChicagoLegistar(uri)
+    leg_page = "http://chicago.legistar.com/LegislationDetail.aspx?ID=1050678&GUID=14361244-D12A-467F-B93D-E244CB281466"
+    
+    scraper.parseLegislationDetail(leg_page) 
 
-c.executemany('INSERT OR IGNORE INTO legislation '
-              '(id, type, status, intro_date, main_sponsor, title, url) '
-              'VALUES '
-              '(?, ?, ?, ?, ?, ?, ?)',
-              legislation_list)
-
-conn.commit()
 c.close()
+
+
