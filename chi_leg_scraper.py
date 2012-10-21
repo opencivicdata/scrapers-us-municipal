@@ -1,13 +1,9 @@
-import sqlite3
 import urllib
 import urllib2
 from BeautifulSoup import BeautifulSoup
 import re
 import time
 import mechanize
-
-conn = sqlite3.connect("chicago_legislation.db")
-c = conn.cursor()
 
 class ChicagoLegistar :
   def __init__(self, uri):
@@ -21,8 +17,6 @@ class ChicagoLegistar :
     self.br.select_form('aspnetForm')
     self.br.form['ctl00$ContentPlaceHolder1$txtTit'] = search_text
     self.br.submit(name='ctl00$ContentPlaceHolder1$btnSearch')
-
-    
 
     all_results = False
     search_results = []
@@ -139,20 +133,7 @@ class ChicagoLegistar :
       
 
 
-if True:
-  uri = 'http://chicago.legistar.com/Legislation.aspx'
-  scraper = ChicagoLegistar(uri)
-  legislation = scraper.searchLegislation('zoning')
 
-  [legs.pop(4) for legs in legislation]
-  
-  c.executemany('INSERT OR IGNORE INTO legislation '
-                '(id, type, status, intro_date, main_sponsor, title, url) '
-                'VALUES '
-                '(?, ?, ?, ?, ?, ?, ?)',
-                legislation)
-
-  conn.commit()
 
 
 
@@ -163,6 +144,6 @@ if False:
     
     scraper.parseLegislationDetail(leg_page) 
 
-c.close()
+
 
 
