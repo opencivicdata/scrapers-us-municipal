@@ -3,109 +3,87 @@ import urllib
 import urllib2
 from BeautifulSoup import BeautifulSoup
 import re
+import time
+import mechanize
 
 conn = sqlite3.connect("chicago_legislation.db")
 c = conn.cursor()
 
 class ChicagoLegistar :
-  def __init__(self, uri) :
-    self.data = {
-      r'__VIEWSTATE' : r'',
-      r'ctl00_RadScriptManager1_HiddenField' : r'', 
-      r'ctl00_ContentPlaceHolder1_menuMain_ClientState' : r'',
-      r'ctl00_ContentPlaceHolder1_gridMain_ClientState' : r''
-      }
-
-    self.headers = {
-      'Content-Type': 'application/x-www-form-urlencoded'
-      }
-
-    f = urllib2.urlopen(uri)
-    self.getStates(f)
+  def __init__(self, uri):
+    self.uri = uri
+    self.br = mechanize.Browser()
 
 
-  def getStates(self, f) :
 
-    soup= BeautifulSoup(f)
-
-    self.data['__VSTATE'] = soup.fetch('input', {'name' : '__VSTATE'})[0]['value']
-    self.data['__EVENTVALIDATION'] = soup.fetch('input', {'name' : '__EVENTVALIDATION'})[0]['value']
-  
- 
-
-  def searchLegislation(self, search_text, search_fields = None) :
-    self.search_args = {
-      r'ctl00$ContentPlaceHolder1$txtSearch' : search_text,   # Search text
-      r'ctl00_ContentPlaceHolder1_lstYears_ClientState' : '{"value":"This Year"}', # Period to Include
-      r'ctl00$ContentPlaceHolder1$lstTypeBasic' : 'All Types',  #types to include
-    }
-
-    for field in search_fields:
-      if field == 'file number' :
-        self.search_args[r'ctl00$ContentPlaceHolder1$chkID'] = 'on'
-      elif field == 'legislative text' :
-        self.search_args[r'ctl00$ContentPlaceHolder1$chkText'] = 'on'
-      elif field == 'attachment' :
-        self.search_args[r'ctl00$ContentPlaceHolder1$chkAttachments'] = 'on'
-      elif field == 'other' :
-        self.search_args[r'ctl00$ContentPlaceHolder1$chkOther'] = 'on'
+  def searchLegislation(self, search_text, num_pages = None) :
+    self.br.open(self.uri)
+    self.br.select_form('aspnetForm')
+    self.br.form['ctl00$ContentPlaceHolder1$txtTit'] = search_text
+    self.br.submit(name='ctl00$ContentPlaceHolder1$btnSearch')
 
     
 
-    fields = dict(self.data.items()
-                  + self.search_args.items()
-                  + [(r'ctl00$ContentPlaceHolder1$btnSearch',
-                      'Search Legislation')]
-                  )
+    all_results = False
+    search_results = []
 
-    # these have to be encoded    
+    while all_results is False :
+      soup = BeautifulSoup(self.br.response().read())
 
-    encoded_fields = urllib.urlencode(fields)
-    
-    req = urllib2.Request(uri, encoded_fields, self.headers)
-    f = urllib2.urlopen(req).read()  #that's the actual call to the http site.
+      legislation = self.parseSearchResults(soup)
+      search_results.extend(legislation)
 
-    result_page_urls = self.resultsUrls(f)
+      current_page = soup.fetch('a', {'class': 'rgCurrentPage'})[0]
 
-    return f, result_page_urls
-
-  def resultsUrls(self, f) :
-
-    soup = BeautifulSoup(f)
-    self.getStates(f)
+      print 'page', current_page.text
+      print legislation[0]
+      print
 
 
-    result_page_urls = []
+      next_page = current_page.findNextSibling('a')
+      
+      if next_page :
+        event_target = next_page['href'].split("'")[1]
 
-    for match in soup.fetch('a', {'href':re.compile('ctl02\$ctl00')}) :
-      event_target = match['href'].split("'")[1]
+        time.sleep(5)
+        self.br.select_form('aspnetForm')
 
-      result_page_args =  {
-        r'__EVENTTARGET' : event_target,
-        r'__EVENTARGUMENT' : ''
-      }
 
-      fields = dict(self.data.items()
-                    + self.search_args.items()
-                    + result_page_args.items()
-                    )
-      # these have to be encoded    
-      encoded_fields = urllib.urlencode(fields)
+        data = dict([(control.name, control.value)
+                     for control in self.br.form.controls
+                     if (control.name.count('$') == 2
+                         and control.type != 'submit'
+                         and control.value not in [[],
+                                                   '-Select-',
+                                                   ['=']])])
 
-      req = urllib2.Request(uri, encoded_fields, self.headers)      
+                     
+        data.update({'__VIEWSTATE': '',
+                     'ctl00_RadScriptManager1_HiddenField' : '', 
+                     'ctl00_ContentPlaceHolder1_menuMain_ClientState' : '',
+                     'ctl00_ContentPlaceHolder1_gridMain_ClientState' : '',
+                     '__VSTATE' : self.br.form['__VSTATE'],
+                     '__EVENTVALIDATION' : self.br.form['__EVENTVALIDATION'],
+                     '__EVENTTARGET' : event_target,
+                     '__EVENTARGUMENT' : ''})
 
-      result_page_urls.append(req)
 
-    return result_page_urls
+      
+        data = urllib.urlencode(data)
+        self.br.open(self.uri, data)
 
-  def parseSearchResults(self, f) :
+      else :
+        all_results = True
+
+    return search_results
+
+  def parseSearchResults(self, soup) :
     """Take a page of search results and return a sequence of data
     of tuples about the legislation, of the form
 
     ('Document ID', 'Document URL', 'Type', 'Status', 'Introduction Date'
      'Passed Date', 'Main Sponsor', 'Title')
     """
-    soup= BeautifulSoup(f)
     
     legislation_rows = soup.fetch('tr', {'id':re.compile('ctl00_ContentPlaceHolder1_gridMain_ctl00__')})
     print "found some legislation!"
@@ -161,45 +139,24 @@ class ChicagoLegistar :
       
 
 
-
-#if __name__ == '__main__' :
-if False :
+if True:
   uri = 'http://chicago.legistar.com/Legislation.aspx'
   scraper = ChicagoLegistar(uri)
-  # First page of results
-  f1, results = scraper.searchLegislation('zoning', ['legislative text'])
-  
-  legislation_list = scraper.parseSearchResults(f1)
-  
-  for result in results[1:] :
-    # iterate through pages of results
-    f = urllib2.urlopen(result)
-    legislation_list.extend(scraper.parseSearchResults(f))
-   
-  print legislation_list  
-  print 'we gots the legislations!'
-  print len(legislation_list)
+  legislation = scraper.searchLegislation('zoning')
 
-  # try:
-  #     fout = open('tmp.htm', 'w')
-  #   except:
-  #     print('Could not open output file\n')
-  # 
-  #   fout.writelines(f2.readlines())
-  #   fout.close()
-  
-  
-  [legislation.pop(4) for legislation in legislation_list]
+  [legs.pop(4) for legs in legislation]
   
   c.executemany('INSERT OR IGNORE INTO legislation '
                 '(id, type, status, intro_date, main_sponsor, title, url) '
                 'VALUES '
                 '(?, ?, ?, ?, ?, ?, ?)',
-                legislation_list)
+                legislation)
 
   conn.commit()
 
-if True:
+
+
+if False:
     uri = 'http://chicago.legistar.com/Legislation.aspx'
     scraper = ChicagoLegistar(uri)
     leg_page = "http://chicago.legistar.com/LegislationDetail.aspx?ID=1050678&GUID=14361244-D12A-467F-B93D-E244CB281466"
