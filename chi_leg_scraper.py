@@ -3,6 +3,7 @@ import urllib2
 from BeautifulSoup import BeautifulSoup
 import re
 import time
+import datetime
 import mechanize
 
 class ChicagoLegistar :
@@ -89,8 +90,15 @@ class ChicagoLegistar :
       legislation = []
       for field in row.fetch("td") :
         legislation.append(field.text)
-      legislation.append(row.fetch("a")[0]['href'])
+      legislation.append(row.fetch("a")[0]['href'].split('&Options')[0])
+      try:
+        legislation[3] = datetime.datetime.strptime(legislation[3], '%m/%d/%Y')
+      except ValueError :
+        legislation[3] = ''
+
       legislation_list.append(legislation)
+
+
       
     return legislation_list
 
@@ -107,14 +115,24 @@ class ChicagoLegistar :
     keys = []
     values = []
     i = 0
+
     for cell in  detail_div[0].fetch('td')[0:25] :
       if i % 2 :
-          values.append(cell.text)
+          values.append(cell.text.replace('&nbsp;', ' ').strip())
       else :
         keys.append(cell.text)
       i += 1
 
     details = dict(zip(keys, values))
+    details[u'Attachments:'] = soup.fetch('span', {'id' : 'ctl00_ContentPlaceHolder1_lblAttachments2' })[0].a['href']
+
+    try:
+      details[u'Related files:'] = soup.fetch('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })[0].a['href']
+    except IndexError :
+      details[u'Related files:'] = ''
+
+    if 'Topic:' not in details:
+      details['Topic:'] = ''
 
     history_row = soup.fetch('tr', {'id' : re.compile('ctl00_ContentPlaceHolder1_gridLegislation_ctl00')})
 
@@ -124,25 +142,25 @@ class ChicagoLegistar :
 
     for row in history_row :
       values = []
-      for cell in row.fetch('td') :
-        values.append(cell.text)
+      for key, cell in zip(history_keys, row.fetch('td')) :
+        if key in ['votes', 'meeting_details'] :
+          try:
+            values.append(cell.a['href'])
+          except KeyError:
+            values.append('')
+        elif key == 'date':
+          values.append(datetime.datetime.strptime(cell.text.replace('&nbsp;', ' ').strip(), '%m/%d/%Y'))
+        else:
+          values.append(cell.text.replace('&nbsp;', ' ').strip())
+
+          
       history.append(dict(zip(history_keys, values)))
 
-    print details
-    print history
+
+    return details, history
+
       
 
-
-
-
-
-
-if False:
-    uri = 'http://chicago.legistar.com/Legislation.aspx'
-    scraper = ChicagoLegistar(uri)
-    leg_page = "http://chicago.legistar.com/LegislationDetail.aspx?ID=1050678&GUID=14361244-D12A-467F-B93D-E244CB281466"
-    
-    scraper.parseLegislationDetail(leg_page) 
 
 
 
