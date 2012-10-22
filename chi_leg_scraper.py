@@ -42,30 +42,13 @@ class ChicagoLegistar :
         event_target = next_page['href'].split("'")[1]
 
         time.sleep(5)
-        self.br.select_form('aspnetForm')
 
 
-        data = dict([(control.name, control.value)
-                     for control in self.br.form.controls
-                     if (control.name.count('$') == 2
-                         and control.type != 'submit'
-                         and control.value not in [[],
-                                                   '-Select-',
-                                                   ['=']])])
-
-                     
-        data.update({'__VIEWSTATE': '',
-                     'ctl00_RadScriptManager1_HiddenField' : '', 
-                     'ctl00_ContentPlaceHolder1_menuMain_ClientState' : '',
-                     'ctl00_ContentPlaceHolder1_gridMain_ClientState' : '',
-                     '__VSTATE' : self.br.form['__VSTATE'],
-                     '__EVENTVALIDATION' : self.br.form['__EVENTVALIDATION'],
-                     '__EVENTTARGET' : event_target,
-                     '__EVENTARGUMENT' : ''})
-
+        data = self._data(event_target)
+        
 
       
-        data = urllib.urlencode(data)
+
         self.br.open(self.uri, data)
 
       else :
@@ -163,6 +146,32 @@ class ChicagoLegistar :
 
 
     return details, history
+
+  def _data(self, event_target) :
+    self.br.select_form('aspnetForm')
+    
+    data = dict([(control.name, control.value)
+                 for control in self.br.form.controls
+                 if (control.name.count('$') == 2
+                     and control.type != 'submit'
+                     and control.value not in [[],
+                                               '-Select-',
+                                               ['=']])])
+
+                     
+    data.update({'__VIEWSTATE': '',
+                 'ctl00_RadScriptManager1_HiddenField' : '', 
+                 'ctl00_ContentPlaceHolder1_menuMain_ClientState' : '',
+                 'ctl00_ContentPlaceHolder1_gridMain_ClientState' : '',
+                 '__VSTATE' : self.br.form['__VSTATE'],
+                 '__EVENTVALIDATION' : self.br.form['__EVENTVALIDATION'],
+                 '__EVENTTARGET' : event_target,
+                 '__EVENTARGUMENT' : ''})
+
+    data = urllib.urlencode(data)
+
+    return data
+
 
       
 
