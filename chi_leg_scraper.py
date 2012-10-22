@@ -35,7 +35,6 @@ class ChicagoLegistar :
       print legislation[0]
       print
 
-
       next_page = current_page.findNextSibling('a')
       
       if next_page :
@@ -43,11 +42,7 @@ class ChicagoLegistar :
 
         time.sleep(5)
 
-
         data = self._data(event_target)
-        
-
-      
 
         self.br.open(self.uri, data)
 
