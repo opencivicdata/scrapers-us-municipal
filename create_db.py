@@ -21,8 +21,8 @@ c.execute("CREATE TABLE legislation_history "
           "(id TEXT, status TEXT, "
           " votes TEXT, meeting_details TEXT, action_by TEXT, "
           " date TEXT, results TEXT, journal_page INT), "
-          " UNIQUE(id, status, votes, meeting_details, action_by,
-                   date, results, journal_page)")
+          " UNIQUE(id, status, votes, meeting_details, action_by, "
+          "        date, results, journal_page)")
 
 conn.commit()
 c.close()
