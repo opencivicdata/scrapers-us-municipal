@@ -5,6 +5,7 @@ import re
 import time
 import datetime
 import mechanize
+from collections import defaultdict
 
 class ChicagoLegistar :
   def __init__(self, uri):
@@ -123,16 +124,20 @@ class ChicagoLegistar :
         keys.append(cell.text)
       i += 1
 
-    details = dict(zip(keys, values))
-    details[u'Attachments:'] = soup.fetch('span', {'id' : 'ctl00_ContentPlaceHolder1_lblAttachments2' })[0].a['href']
+    details = defaultdict(str)
+    details.update(dict(zip(keys, values)))
+
+    try:
+      details[u'Attachments:'] = soup.fetch('span', {'id' : 'ctl00_ContentPlaceHolder1_lblAttachments2' })[0].a['href']
+    except IndexError :
+      pass
 
     try:
       details[u'Related files:'] = soup.fetch('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })[0].a['href']
     except IndexError :
-      details[u'Related files:'] = ''
+      pass
 
-    if 'Topic:' not in details:
-      details['Topic:'] = ''
+
 
     history_row = soup.fetch('tr', {'id' : re.compile('ctl00_ContentPlaceHolder1_gridLegislation_ctl00')})
 
