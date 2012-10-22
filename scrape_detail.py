@@ -12,7 +12,7 @@ c2=conn.cursor()
 c1.execute('SELECT id, url FROM legislation '
            'WHERE id '
            'NOT IN (SELECT id FROM legislation_history) '
-           'OR status IN ("Passed", "Withdrawn")')
+           'OR status NOT IN ("Passed", "Withdrawn")')
 
 
 
