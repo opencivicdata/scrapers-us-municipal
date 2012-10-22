@@ -9,8 +9,11 @@ conn = sqlite3.connect("chicago_legislation.db")
 c1 = conn.cursor()
 c2=conn.cursor()
 
-#c1.execute('SELECT id, url FROM legislation WHERE status != "Passed" AND status != "Withdrawn"')
-c1.execute('SELECT id, url FROM legislation')
+c1.execute('SELECT id, url FROM legislation '
+           'WHERE id '
+           'NOT IN (SELECT id FROM legislation_history) '
+           'OR status IN ("Passed", "Withdrawn")')
+
 
 
 for zoning_request in  c1.fetchall() :

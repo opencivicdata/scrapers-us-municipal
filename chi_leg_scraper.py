@@ -14,11 +14,26 @@ class ChicagoLegistar :
 
 
 
-  def searchLegislation(self, search_text, num_pages = None) :
+  def searchLegislation(self, search_text, last_date=None, num_pages = None) :
     self.br.open(self.uri)
     self.br.select_form('aspnetForm')
+
+
+
     self.br.form['ctl00$ContentPlaceHolder1$txtTit'] = search_text
-    self.br.submit(name='ctl00$ContentPlaceHolder1$btnSearch')
+    if last_date :
+      self.br.form.set_all_readonly(False)
+      self.br.form['ctl00$ContentPlaceHolder1$radFileCreated'] = ['>']
+      
+      self.br.form['ctl00_ContentPlaceHolder1_txtFileCreated1_dateInput_ClientState'] = '{"enabled":true,"emptyMessage":"","validationText":"%s-00-00-00","valueAsString":"%s-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00"}' % (last_date, last_date)
+
+    data = self._data(None)
+    data['ctl00$ContentPlaceHolder1$btnSearch'] = 'Search Legislation'
+
+    data = urllib.urlencode(data)
+    
+    self.br.open(self.uri, data)
+    
 
     all_results = False
     search_results = []
@@ -29,13 +44,16 @@ class ChicagoLegistar :
       legislation = self.parseSearchResults(soup)
       search_results.extend(legislation)
 
-      current_page = soup.fetch('a', {'class': 'rgCurrentPage'})[0]
+      current_page = soup.fetch('a', {'class': 'rgCurrentPage'})
+      if current_page :
+        current_page = current_page[0]
+        print 'page', current_page.text
+        print legislation[0]
+        print
 
-      print 'page', current_page.text
-      print legislation[0]
-      print
-
-      next_page = current_page.findNextSibling('a')
+        next_page = current_page.findNextSibling('a')
+      else :
+        next_page = None
       
       if next_page :
         event_target = next_page['href'].split("'")[1]
@@ -43,7 +61,8 @@ class ChicagoLegistar :
         time.sleep(5)
 
         data = self._data(event_target)
-
+        data = urllib.urlencode(data)
+            
         self.br.open(self.uri, data)
 
       else :
@@ -142,33 +161,32 @@ class ChicagoLegistar :
 
     return details, history
 
-  def _data(self, event_target) :
-    self.br.select_form('aspnetForm')
-    
-    data = dict([(control.name, control.value)
-                 for control in self.br.form.controls
-                 if (control.name.count('$') == 2
-                     and control.type != 'submit'
-                     and control.value not in [[],
-                                               '-Select-',
-                                               ['=']])])
 
                      
-    data.update({'__VIEWSTATE': '',
-                 'ctl00_RadScriptManager1_HiddenField' : '', 
-                 'ctl00_ContentPlaceHolder1_menuMain_ClientState' : '',
-                 'ctl00_ContentPlaceHolder1_gridMain_ClientState' : '',
-                 '__VSTATE' : self.br.form['__VSTATE'],
-                 '__EVENTVALIDATION' : self.br.form['__EVENTVALIDATION'],
-                 '__EVENTTARGET' : event_target,
-                 '__EVENTARGUMENT' : ''})
 
-    data = urllib.urlencode(data)
+      
+  def _unradio(self, control) :
+    if control.type in ['radio', 'checkbox'] :
+      if len(control.value) == 1 :
+        return control.value[0]
+      else :
+        return ''
+    else :
+      return control.value
+    
+  def _data(self, event_target=None) :
+    self.br.select_form('aspnetForm')
+    
+    data = dict([(control.name, self._unradio(control))
+                 for control in self.br.form.controls
+                 if control.type != 'submit'])
+
+    data.update({'__EVENTTARGET' : event_target})
+
 
     return data
 
 
-      
 
 
 
