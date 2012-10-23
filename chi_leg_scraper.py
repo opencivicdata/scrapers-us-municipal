@@ -85,16 +85,23 @@ class ChicagoLegistar :
     
     legislation_list = []
     for row in legislation_rows :
-      legislation = []
-      for field in row.fetch("td") :
-        legislation.append(field.text)
-      legislation.append(row.fetch("a")[0]['href'].split('&Options')[0])
       try:
-        legislation[3] = datetime.datetime.strptime(legislation[3], '%m/%d/%Y')
-      except ValueError :
-        legislation[3] = ''
+        legislation = []
+        for field in row.fetch("td") :
+          legislation.append(field.text)
 
-      legislation_list.append(legislation)
+        legislation.append(row.fetch("a")[0]['href'].split('&Options')[0])
+
+        try:
+          legislation[3] = datetime.datetime.strptime(legislation[3], '%m/%d/%Y')
+        except ValueError :
+          legislation[3] = ''
+
+        legislation_list.append(legislation)
+      except KeyError:
+        print 'Problem row:'
+        print row
+        pass
 
 
       
