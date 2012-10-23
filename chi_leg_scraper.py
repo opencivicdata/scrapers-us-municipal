@@ -158,7 +158,10 @@ class ChicagoLegistar :
           except KeyError:
             values.append('')
         elif key == 'votes' :
-          values.append(cell.a['onclick'].split("'")[1])
+          try:
+            values.append(cell.a['onclick'].split("'")[1])
+          except KeyError:
+            values.append('')
         elif key == 'date':
           values.append(datetime.datetime.strptime(cell.text.replace('&nbsp;', ' ').strip(), '%m/%d/%Y'))
         else:
