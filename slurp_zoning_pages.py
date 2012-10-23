@@ -6,14 +6,14 @@ scraper = ChicagoLegistar(uri)
 
 
 
-conn = sqlite3.connect("chicago_legislation.db")
+conn = sqlite3.connect("~/legistar/chicago_legislation.db")
 c = conn.cursor()
 
 c.execute('select date(max(intro_date)) from legislation')
 last_date = c.fetchone()[0]
 
 
-legislation = scraper.searchLegislation('zoning', last_date)
+legislation = scraper.searchLegislation('')
 # Remove the final date field 
 [legs.pop(4) for legs in legislation]
 
