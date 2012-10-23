@@ -13,7 +13,7 @@ c.execute('select date(max(intro_date)) from legislation')
 last_date = c.fetchone()[0]
 
 
-legislation = scraper.searchLegislation('')
+legislation = scraper.searchLegislation('', last_date)
 # Remove the final date field 
 [legs.pop(4) for legs in legislation]
 
