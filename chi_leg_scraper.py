@@ -152,11 +152,13 @@ class ChicagoLegistar :
     for row in history_row :
       values = []
       for key, cell in zip(history_keys, row.fetch('td')) :
-        if key in ['votes', 'meeting_details'] :
+        if key == 'meeting_details' :
           try:
             values.append(cell.a['href'])
           except KeyError:
             values.append('')
+        elif key == 'votes' :
+          values.append(cell.a['onclick'].split("'")[1])
         elif key == 'date':
           values.append(datetime.datetime.strptime(cell.text.replace('&nbsp;', ' ').strip(), '%m/%d/%Y'))
         else:

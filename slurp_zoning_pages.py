@@ -6,7 +6,7 @@ scraper = ChicagoLegistar(uri)
 
 
 
-conn = sqlite3.connect("~/legistar/chicago_legislation.db")
+conn = sqlite3.connect("/home/ec2-user/legistar-scrap/chicago_legislation.db")
 c = conn.cursor()
 
 c.execute('select date(max(intro_date)) from legislation')

@@ -5,7 +5,7 @@ import time
 uri = 'http://chicago.legistar.com/Legislation.aspx'
 scraper = ChicagoLegistar(uri)
 
-conn = sqlite3.connect("~/legistar-scrape/chicago_legislation.db")
+conn = sqlite3.connect("/home/ec2-user/legistar-scrape/chicago_legislation.db")
 c1 = conn.cursor()
 c2=conn.cursor()
 
