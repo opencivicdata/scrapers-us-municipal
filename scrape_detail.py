@@ -18,7 +18,8 @@ c1.execute('SELECT id, url FROM legislation '
 
 for zoning_request in  c1.fetchall() :
   id, detail_url = zoning_request
-  print time.now(), detail_url
+  print time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime()),
+  print detail_url
 
   details, history = scraper.parseLegislationDetail('http://chicago.legistar.com/' + detail_url)
 
