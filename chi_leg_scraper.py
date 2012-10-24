@@ -115,10 +115,14 @@ class ChicagoLegistar :
     Example URL: http://chicago.legistar.com/LegislationDetail.aspx?ID=1050678&GUID=14361244-D12A-467F-B93D-E244CB281466&Options=ID|Text|&Search=zoning
     """
     br = mechanize.Browser()
-    try:
-      br.open(url, timeout=30)
-    except urllib2.URLError :
-      br.open(url, timeout=30)
+    for wait in [30, 60, 90, 180] : 
+      try:
+        br.open(url, timeout=wait)
+        break
+      except urllib2.URLError :
+        pass
+    else:
+      raise
       
     f = br.response().read()
     soup = BeautifulSoup(f)
