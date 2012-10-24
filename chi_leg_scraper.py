@@ -114,7 +114,13 @@ class ChicagoLegistar :
 
     Example URL: http://chicago.legistar.com/LegislationDetail.aspx?ID=1050678&GUID=14361244-D12A-467F-B93D-E244CB281466&Options=ID|Text|&Search=zoning
     """
-    f = urllib2.urlopen(url)
+    br = mechanize.Browser()
+    try:
+      br.open(url, 30)
+    except urllib2.URLError :
+      br.open(url, 30)
+      
+    f = br.response().read()
     soup = BeautifulSoup(f)
     detail_div = soup.fetch('div', {'id' : 'ctl00_ContentPlaceHolder1_pageDetails'})
     keys = []
