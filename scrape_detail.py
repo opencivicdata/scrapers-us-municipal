@@ -11,14 +11,14 @@ c2=conn.cursor()
 
 c1.execute('SELECT id, url FROM legislation '
            'WHERE id '
-           'NOT IN (SELECT id FROM legislation_history) '
-           'OR status NOT IN ("Passed", "Withdrawn")')
+           'NOT IN (SELECT id FROM legislation_history)']
+#           'OR status NOT IN ("Passed", "Withdrawn")')
 
 
 
 for zoning_request in  c1.fetchall() :
   id, detail_url = zoning_request
-  print detail_url
+  print time.now(), detail_url
 
   details, history = scraper.parseLegislationDetail('http://chicago.legistar.com/' + detail_url)
 
