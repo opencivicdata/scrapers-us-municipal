@@ -116,9 +116,9 @@ class ChicagoLegistar :
     """
     br = mechanize.Browser()
     try:
-      br.open(url, 30)
+      br.open(url, timeout=30)
     except urllib2.URLError :
-      br.open(url, 30)
+      br.open(url, timeout=30)
       
     f = br.response().read()
     soup = BeautifulSoup(f)
