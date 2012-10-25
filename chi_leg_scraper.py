@@ -125,7 +125,7 @@ class ChicagoLegistar :
           f = response.read()
           connection_complete = True
           break
-        except Error as e :
+        except Exception as e :
           print 'Timed Out'
           print e
       else:
