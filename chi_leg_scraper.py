@@ -124,7 +124,7 @@ class ChicagoLegistar :
           connection_complete is True
           break
         except urllib2.URLError :
-          pass
+          print 'Timed Out'
       else:
         time.sleep(300)
 
