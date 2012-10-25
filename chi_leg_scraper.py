@@ -122,6 +122,7 @@ class ChicagoLegistar :
         print attempt
         try:
           response = br.open(url, timeout=30)
+          f = response.read()
           connection_complete = True
           break
         except Error as e :
@@ -130,7 +131,7 @@ class ChicagoLegistar :
       else:
         time.sleep(300)
 
-    f = response.read()
+
 
     soup = BeautifulSoup(f)
     detail_div = soup.fetch('div', {'id' : 'ctl00_ContentPlaceHolder1_pageDetails'})
