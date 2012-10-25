@@ -32,14 +32,14 @@ class ChicagoLegistar :
 
     data = urllib.urlencode(data)
     
-    self.br.open(self.uri, data)
+    response = self.br.open(self.uri, data)
     
 
     all_results = False
     search_results = []
 
     while all_results is False :
-      soup = BeautifulSoup(self.br.read())
+      soup = BeautifulSoup(response.read())
 
       legislation = self.parseSearchResults(soup)
       search_results.extend(legislation)
@@ -63,7 +63,7 @@ class ChicagoLegistar :
         data = self._data(event_target)
         data = urllib.urlencode(data)
             
-        self.br.open(self.uri, data)
+        response = self.br.open(self.uri, data)
 
       else :
         all_results = True
@@ -121,7 +121,7 @@ class ChicagoLegistar :
       for attempt in xrange(5) :
         print attempt
         try:
-          br.open(url, timeout=30)
+          response = br.open(url, timeout=30)
           connection_complete = True
           break
         except urllib2.URLError :
@@ -129,7 +129,7 @@ class ChicagoLegistar :
       else:
         time.sleep(300)
 
-    f = br.read()
+    f = response.read()
 
     soup = BeautifulSoup(f)
     detail_div = soup.fetch('div', {'id' : 'ctl00_ContentPlaceHolder1_pageDetails'})
