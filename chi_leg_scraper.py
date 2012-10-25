@@ -150,12 +150,12 @@ class ChicagoLegistar :
     details.update(dict(zip(keys, values)))
 
     try:
-      details[u'Attachments:'] = soup.fetch('span', {'id' : 'ctl00_ContentPlaceHolder1_lblAttachments2' })[0].a['href']
+      details[u'Attachments:'] = ','.join([a['href'] for a in soup.fetch('span', {'id' : 'ctl00_ContentPlaceHolder1_lblAttachments2' })[0].findAll('a')])
     except IndexError :
       pass
 
     try:
-      details[u'Related files:'] = soup.fetch('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })[0].a['href']
+      details[u'Related files:'] = ','.join([a['href'] for a in soup.fetch('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })[0].findAll('a')])
     except IndexError :
       pass
 
