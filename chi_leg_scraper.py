@@ -124,8 +124,9 @@ class ChicagoLegistar :
           response = br.open(url, timeout=30)
           connection_complete = True
           break
-        except urllib2.URLError :
+        except Error as e :
           print 'Timed Out'
+          print e
       else:
         time.sleep(300)
 
