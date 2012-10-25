@@ -39,7 +39,7 @@ class ChicagoLegistar :
     search_results = []
 
     while all_results is False :
-      soup = BeautifulSoup(self.br.response().read())
+      soup = BeautifulSoup(self.br.read())
 
       legislation = self.parseSearchResults(soup)
       search_results.extend(legislation)
@@ -129,7 +129,7 @@ class ChicagoLegistar :
       else:
         time.sleep(300)
 
-    f = br.response().read()
+    f = br.read()
 
     soup = BeautifulSoup(f)
     detail_div = soup.fetch('div', {'id' : 'ctl00_ContentPlaceHolder1_pageDetails'})
