@@ -118,7 +118,8 @@ class ChicagoLegistar :
     connection_complete = False
 
     while connection_complete is False :
-      for attempt in xrange(5) : 
+      for attempt in xrange(5) :
+        print attempt
         try:
           br.open(url, timeout=30)
           connection_complete = True
@@ -129,7 +130,7 @@ class ChicagoLegistar :
         time.sleep(300)
 
       
-    f = br.response().read()
+
     soup = BeautifulSoup(f)
     detail_div = soup.fetch('div', {'id' : 'ctl00_ContentPlaceHolder1_pageDetails'})
     keys = []
