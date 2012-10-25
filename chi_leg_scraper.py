@@ -129,7 +129,7 @@ class ChicagoLegistar :
       else:
         time.sleep(300)
 
-      
+    f = br.read().response()  
 
     soup = BeautifulSoup(f)
     detail_div = soup.fetch('div', {'id' : 'ctl00_ContentPlaceHolder1_pageDetails'})
