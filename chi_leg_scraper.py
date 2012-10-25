@@ -181,7 +181,10 @@ class ChicagoLegistar :
           except KeyError:
             values.append('')
         elif key == 'date':
-          values.append(datetime.datetime.strptime(cell.text.replace('&nbsp;', ' ').strip(), '%m/%d/%Y'))
+          try:
+            values.append(datetime.datetime.strptime(cell.text.replace('&nbsp;', ' ').strip(), '%m/%d/%Y'))
+          except ValueError:
+            values.append('')
         else:
           values.append(cell.text.replace('&nbsp;', ' ').strip())
 
