@@ -121,7 +121,7 @@ class ChicagoLegistar :
       for attempt in xrange(5) : 
         try:
           br.open(url, timeout=30)
-          connection_complete is True
+          connection_complete = True
           break
         except urllib2.URLError :
           print 'Timed Out'
