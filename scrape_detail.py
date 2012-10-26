@@ -21,7 +21,13 @@ for zoning_request in  c1.fetchall() :
   print time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime()),
   print detail_url
 
-  details, history = scraper.parseLegislationDetail('http://chicago.legistar.com/' + detail_url)
+  response = scraper.parseLegislationDetail('http://chicago.legistar.com/' + detail_url)
+  if response is None :
+    print 'Skipping ', detail_url
+    continue
+  
+  details, history = response
+  
 
 
   c2.execute('UPDATE legislation SET '
