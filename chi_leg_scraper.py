@@ -120,7 +120,7 @@ class ChicagoLegistar :
     for attempt in xrange(5) :
       print attempt
       try:
-        response = br.open(url, timeout=120)
+        response = br.open(url, timeout=30)
         f = response.read()
         connection_complete = True
         break
