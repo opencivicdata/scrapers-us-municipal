@@ -117,19 +117,18 @@ class ChicagoLegistar :
     br = mechanize.Browser()
     connection_complete = False
 
-    while connection_complete is False :
-      for attempt in xrange(5) :
-        print attempt
-        try:
-          response = br.open(url, timeout=30)
-          f = response.read()
-          connection_complete = True
-          break
-        except Exception as e :
-          print 'Timed Out'
-          print e
-      else:
-        time.sleep(300)
+    for attempt in xrange(5) :
+      print attempt
+      try:
+        response = br.open(url, timeout=30)
+        f = response.read()
+        connection_complete = True
+        break
+      except Exception as e :
+        print 'Timed Out'
+        print e
+    else:
+      return None
 
 
 
