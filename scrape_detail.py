@@ -11,7 +11,7 @@ c2=conn.cursor()
 
 c1.execute('SELECT id, url FROM legislation '
            'WHERE id '
-           'NOT IN (SELECT id FROM legislation_history)')
+           'NOT IN (SELECT id FROM legislation_history1)')
 #           'OR status NOT IN ("Passed", "Withdrawn")')
 
 
@@ -47,7 +47,7 @@ for zoning_request in  c1.fetchall() :
 
   for action in history:
     
-    c2.execute('INSERT OR IGNORE INTO legislation_history '
+    c2.execute('INSERT OR IGNORE INTO legislation_history1 '
                '(id, status, votes, meeting_details, action_by, '
                ' date, results, journal_page) '
                'VALUES '
