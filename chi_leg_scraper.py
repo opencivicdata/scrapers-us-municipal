@@ -24,16 +24,16 @@ class ChicagoLegistar :
     if last_date :
       self.br.form.set_all_readonly(False)
       self.br.form['ctl00$ContentPlaceHolder1$radFileCreated'] = ['>']
-      
+
       self.br.form['ctl00_ContentPlaceHolder1_txtFileCreated1_dateInput_ClientState'] = '{"enabled":true,"emptyMessage":"","validationText":"%s-00-00-00","valueAsString":"%s-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00"}' % (last_date, last_date)
 
     data = self._data(None)
     data['ctl00$ContentPlaceHolder1$btnSearch'] = 'Search Legislation'
 
     data = urllib.urlencode(data)
-    
+
     response = self.br.open(self.uri, data)
-    
+
 
     all_results = False
     search_results = []
@@ -54,7 +54,7 @@ class ChicagoLegistar :
         next_page = current_page.findNextSibling('a')
       else :
         next_page = None
-      
+
       if next_page :
         event_target = next_page['href'].split("'")[1]
 
@@ -62,7 +62,7 @@ class ChicagoLegistar :
 
         data = self._data(event_target)
         data = urllib.urlencode(data)
-            
+
         response = self.br.open(self.uri, data)
 
       else :
@@ -77,12 +77,12 @@ class ChicagoLegistar :
     ('Document ID', 'Document URL', 'Type', 'Status', 'Introduction Date'
      'Passed Date', 'Main Sponsor', 'Title')
     """
-    
+
     legislation_rows = soup.fetch('tr', {'id':re.compile('ctl00_ContentPlaceHolder1_gridMain_ctl00__')})
     print "found some legislation!"
     print len(legislation_rows)
-    
-    
+
+
     legislation_list = []
     for row in legislation_rows :
       try:
@@ -104,7 +104,7 @@ class ChicagoLegistar :
         pass
 
 
-      
+
     return legislation_list
 
 
@@ -187,16 +187,16 @@ class ChicagoLegistar :
         else:
           values.append(cell.text.replace('&nbsp;', ' ').strip())
 
-          
+
       history.append(dict(zip(history_keys, values)))
 
 
     return details, history
 
 
-                     
 
-      
+
+
   def _unradio(self, control) :
     if control.type in ['radio', 'checkbox'] :
       if len(control.value) == 1 :
@@ -205,10 +205,10 @@ class ChicagoLegistar :
         return ''
     else :
       return control.value
-    
+
   def _data(self, event_target=None) :
     self.br.select_form('aspnetForm')
-    
+
     data = dict([(control.name, self._unradio(control))
                  for control in self.br.form.controls
                  if control.type != 'submit'])
@@ -217,10 +217,3 @@ class ChicagoLegistar :
 
 
     return data
-
-
-
-
-
-
-
