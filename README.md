@@ -15,4 +15,4 @@ interact with the sites's forms, [as described in this stack overflow question](
 [2]: This also means that we can't use Mjumbe Poe's [Legistar Scraper](https://scraperwiki.com/scrapers/philadelphia_legislative_files/)
 
 # Nonstandard mechanize dependency
-The current stable branch of mechanize (has a bug in it)[https://github.com/jjlee/mechanize/pull/58], use https://github.com/abielr/mechanize
+The current stable branch of mechanize [has a bug in it](https://github.com/jjlee/mechanize/pull/58), use https://github.com/abielr/mechanize
