@@ -22,6 +22,22 @@ class LegistarScraper :
 
   def searchLegislation(self, search_text, last_date=None, num_pages = None) :
     self.br.open(self._legislation_uri)
+
+    try:
+      # Check for the link to the advanced search form
+      self.br.find_link(text_regex='Advanced.*')
+
+    except mechanize.LinkNotFoundError:
+      # If it's not there, then we're already on the advanced search form.
+      pass
+
+    else:
+      # If it is there, the navigate to the advanced search form.
+      data = self._data(None)
+      data['ctl00$ContentPlaceHolder1$btnSwitch'] = ''
+      data = urllib.urlencode(data)
+      self.br.open(self._legislation_uri, data)
+
     self.br.select_form('aspnetForm')
 
 
