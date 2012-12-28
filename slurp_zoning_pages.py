@@ -1,5 +1,5 @@
 import sqlite3
-from chi_leg_scraper import LegistarScraper
+from legistar_scraper import LegistarScraper
 
 uri = 'http://chicago.legistar.com/Legislation.aspx'
 scraper = LegistarScraper(uri)

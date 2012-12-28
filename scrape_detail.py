@@ -1,5 +1,5 @@
 import sqlite3
-from chi_leg_scraper import LegistarScraper
+from legistar_scraper import LegistarScraper
 import time
 
 uri = 'http://chicago.legistar.com/Legislation.aspx'
