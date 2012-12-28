@@ -1,8 +1,8 @@
 import sqlite3
 from legistar_scraper import LegistarScraper
 
-uri = 'http://chicago.legistar.com/Legislation.aspx'
-scraper = LegistarScraper(uri)
+hostname = 'chicago.legistar.com'
+scraper = LegistarScraper(hostname)
 
 
 

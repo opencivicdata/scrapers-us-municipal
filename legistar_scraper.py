@@ -8,15 +8,20 @@ import mechanize
 from collections import defaultdict
 
 class LegistarScraper :
-  def __init__(self, uri):
-    self.uri = uri
+  def __init__(self, hostname):
+    """
+    Construct a new Legistar scraper.  Pass in the host name of the Legistar
+    instance, e.g. 'phila.legistar.com'.
+    """
+    self.uri = 'http://%s/' % hostname
     self.br = mechanize.Browser()
 
-
+    # Assume that the legislation and calendar URLs are constructed regularly.
+    self._legislation_uri = self.uri + 'Legislation.aspx'
+    self._calendar_uri = self.uri + 'Calendar.aspx'
 
   def searchLegislation(self, search_text, last_date=None, num_pages = None) :
-    self.br.open(self.uri)
-    import pdb; pdb.set_trace()
+    self.br.open(self._legislation_uri)
     self.br.select_form('aspnetForm')
 
 
@@ -33,7 +38,7 @@ class LegistarScraper :
 
     data = urllib.urlencode(data)
 
-    response = self.br.open(self.uri, data)
+    response = self.br.open(self._legislation_uri, data)
 
 
     all_results = False
@@ -64,7 +69,7 @@ class LegistarScraper :
         data = self._data(event_target)
         data = urllib.urlencode(data)
 
-        response = self.br.open(self.uri, data)
+        response = self.br.open(self._legislation_uri, data)
 
       else :
         all_results = True

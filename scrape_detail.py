@@ -2,8 +2,8 @@ import sqlite3
 from legistar_scraper import LegistarScraper
 import time
 
-uri = 'http://chicago.legistar.com/Legislation.aspx'
-scraper = LegistarScraper(uri)
+hostname = 'chicago.legistar.com'
+scraper = LegistarScraper(hostname)
 
 conn = sqlite3.connect("/home/ec2-user/legistar-scrape/chicago_legislation.db")
 c1 = conn.cursor()
