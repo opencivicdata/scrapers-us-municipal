@@ -1,8 +1,8 @@
 import sqlite3
-from chi_leg_scraper import ChicagoLegistar
+from chi_leg_scraper import LegistarScraper
 
 uri = 'http://chicago.legistar.com/Legislation.aspx'
-scraper = ChicagoLegistar(uri)
+scraper = LegistarScraper(uri)
 
 
 
@@ -14,7 +14,7 @@ last_date = c.fetchone()[0]
 
 
 legislation = scraper.searchLegislation('', last_date)
-# Remove the final date field 
+# Remove the final date field
 [legs.pop(4) for legs in legislation]
 
 c.executemany('INSERT OR IGNORE INTO legislation '

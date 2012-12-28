@@ -1,9 +1,9 @@
 import sqlite3
-from chi_leg_scraper import ChicagoLegistar
+from chi_leg_scraper import LegistarScraper
 import time
 
 uri = 'http://chicago.legistar.com/Legislation.aspx'
-scraper = ChicagoLegistar(uri)
+scraper = LegistarScraper(uri)
 
 conn = sqlite3.connect("/home/ec2-user/legistar-scrape/chicago_legislation.db")
 c1 = conn.cursor()
@@ -25,9 +25,9 @@ for zoning_request in  c1.fetchall() :
   if response is None :
     print 'Skipping ', detail_url
     continue
-  
+
   details, history = response
-  
+
 
 
   c2.execute('UPDATE legislation SET '
@@ -46,7 +46,7 @@ for zoning_request in  c1.fetchall() :
                )
 
   for action in history:
-    
+
     c2.execute('INSERT OR IGNORE INTO legislation_history1 '
                '(id, status, votes, meeting_details, action_by, '
                ' date, results, journal_page) '
@@ -60,14 +60,14 @@ for zoning_request in  c1.fetchall() :
                 action['date'],
                 action['results'],
                 action['journal_page']))
-             
+
 
 
 
   time.sleep(5)
 
-  
-  
+
+
   conn.commit()
 
 

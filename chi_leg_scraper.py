@@ -7,7 +7,7 @@ import datetime
 import mechanize
 from collections import defaultdict
 
-class ChicagoLegistar :
+class LegistarScraper :
   def __init__(self, uri):
     self.uri = uri
     self.br = mechanize.Browser()
@@ -16,6 +16,7 @@ class ChicagoLegistar :
 
   def searchLegislation(self, search_text, last_date=None, num_pages = None) :
     self.br.open(self.uri)
+    import pdb; pdb.set_trace()
     self.br.select_form('aspnetForm')
 
 
