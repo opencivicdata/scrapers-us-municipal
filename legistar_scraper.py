@@ -65,20 +65,19 @@ class LegistarScraper :
     data = urllib.urlencode(data)
     response = self.br.open(self._legislation_uri, data)
 
-    # Loop through the pages, collecting the results
+    # Loop through the pages, yielding each of the results
     all_results = False
-    search_results = []
     while all_results is False :
       soup = BeautifulSoup(response.read())
 
-      legislation = self.parseSearchResults(soup)
-      search_results.extend(legislation)
+      legislation_iter = self.parseSearchResults(soup)
+      for legislation in legislation_iter:
+        yield legislation
 
       current_page = soup.fetch('a', {'class': 'rgCurrentPage'})
       if current_page :
         current_page = current_page[0]
         print 'page', current_page.text
-        print legislation[0]
         print
 
         next_page = current_page.findNextSibling('a')
@@ -88,8 +87,6 @@ class LegistarScraper :
       if next_page :
         event_target = next_page['href'].split("'")[1]
 
-        time.sleep(5)
-
         self.br.select_form('aspnetForm')
         data = self._data(self.br.form, event_target)
         data = urllib.urlencode(data)
@@ -97,8 +94,6 @@ class LegistarScraper :
 
       else :
         all_results = True
-
-    return search_results
 
   def parseSearchResults(self, soup) :
     """Take a page of search results and return a sequence of data
@@ -113,7 +108,6 @@ class LegistarScraper :
     print len(legislation_rows)
 
 
-    legislation_list = []
     for row in legislation_rows :
       try:
         legislation = []
@@ -127,15 +121,12 @@ class LegistarScraper :
         except ValueError :
           legislation[3] = ''
 
-        legislation_list.append(legislation)
+        yield legislation
       except KeyError:
         print 'Problem row:'
         print row
         pass
 
-
-
-    return legislation_list
 
 
   def parseLegislationDetail(self, url) :
