@@ -24,3 +24,11 @@ def supports_simple_initial_search_form():
     summaries.next()
   except StopIteration:
     fail('no legislation found')
+
+@istest
+def can_get_legislation_detail_using_summary_row():
+  scraper = LegistarScraper('phila.legistar.com')
+  summaries = scraper.searchLegislation('')
+  first_summary = summaries.next()
+  first_detail = scraper.expandLegislationSummary(first_summary)
+  assert_equal(first_detail[0]['Title'], first_summary[5])

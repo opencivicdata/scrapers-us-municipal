@@ -128,6 +128,14 @@ class LegistarScraper :
         pass
 
 
+  def expandLegislationSummary(self, summary):
+    """
+    Take a row as given from the searchLegislation method and retrieve the
+    details of the legislation summarized by that row.
+    """
+    path = summary[6]
+    url = self.uri + path
+    return self.parseLegislationDetail(url)
 
   def parseLegislationDetail(self, url) :
     """Take a legislation detail page and return a dictionary of
@@ -163,7 +171,7 @@ class LegistarScraper :
       if i % 2 :
           values.append(cell.text.replace('&nbsp;', ' ').strip())
       else :
-        keys.append(cell.text)
+        keys.append(cell.text.strip(':'))
       i += 1
 
     details = defaultdict(str)
