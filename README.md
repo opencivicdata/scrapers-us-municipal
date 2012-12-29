@@ -13,3 +13,6 @@ interact with the sites's forms, [as described in this stack overflow question](
 
 [1]: http://www.granicus.com/Files/API/Granicus-Training-Management-Suite-API-v5.pdf
 [2]: This also means that we can't use Mjumbe Poe's [Legistar Scraper](https://scraperwiki.com/scrapers/philadelphia_legislative_files/)
+
+# Nonstandard mechanize dependency
+The current stable branch of mechanize [has a bug in it](https://github.com/jjlee/mechanize/pull/58), use https://github.com/abielr/mechanize
