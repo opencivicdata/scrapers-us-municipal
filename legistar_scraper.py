@@ -18,7 +18,6 @@ class LegistarScraper :
     instance, e.g. 'phila.legistar.com'.
     """
     self.uri = 'http://%s/' % hostname
-    self.br = mechanize.Browser()
 
     # Assume that the legislation and calendar URLs are constructed regularly.
     self._legislation_uri = self.uri + 'Legislation.aspx'
@@ -29,12 +28,13 @@ class LegistarScraper :
     Submit a search query on the legislation search page, and return a list
     of summary results.
     """
-    self.br.open(self._legislation_uri)
-    self.br.select_form('aspnetForm')
+    br = self._get_new_browser()
+    br.open(self._legislation_uri)
+    br.select_form('aspnetForm')
 
     try:
       # Check for the link to the advanced search form
-      self.br.find_link(text_regex='Advanced.*')
+      br.find_link(text_regex='Advanced.*')
 
     except mechanize.LinkNotFoundError:
       # If it's not there, then we're already on the advanced search form.
@@ -42,28 +42,30 @@ class LegistarScraper :
 
     else:
       # If it is there, the navigate to the advanced search form.
-      data = self._data(self.br.form, None)
+      data = self._data(br.form, None)
       data['ctl00$ContentPlaceHolder1$btnSwitch'] = ''
       data = urllib.urlencode(data)
-      self.br.open(self._legislation_uri, data)
-      self.br.select_form('aspnetForm')
+
+      br.open(self._legislation_uri, data)
+      br.select_form('aspnetForm')
 
     # Enter the search parameters
     # TODO: Each of the possible form fields should be represented as keyword
     # arguments to this function. The default query string should be for the
     # the default 'Legislative text' field.
-    self.br.form['ctl00$ContentPlaceHolder1$txtTit'] = search_text
+    br.form['ctl00$ContentPlaceHolder1$txtTit'] = search_text
 
     if last_date :
-      self.br.form.set_all_readonly(False)
-      self.br.form['ctl00$ContentPlaceHolder1$radFileCreated'] = ['>']
-      self.br.form['ctl00_ContentPlaceHolder1_txtFileCreated1_dateInput_ClientState'] = '{"enabled":true,"emptyMessage":"","validationText":"%s-00-00-00","valueAsString":"%s-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00"}' % (last_date, last_date)
+      br.form.set_all_readonly(False)
+      br.form['ctl00$ContentPlaceHolder1$radFileCreated'] = ['>']
+      br.form['ctl00_ContentPlaceHolder1_txtFileCreated1_dateInput_ClientState'] = '{"enabled":true,"emptyMessage":"","validationText":"%s-00-00-00","valueAsString":"%s-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00"}' % (last_date, last_date)
 
     # Submit the form
-    data = self._data(self.br.form, None)
+    data = self._data(br.form, None)
     data['ctl00$ContentPlaceHolder1$btnSearch'] = 'Search Legislation'
     data = urllib.urlencode(data)
-    response = self.br.open(self._legislation_uri, data)
+
+    response = br.open(self._legislation_uri, data)
 
     # Loop through the pages, yielding each of the results
     all_results = False
@@ -87,10 +89,10 @@ class LegistarScraper :
       if next_page :
         event_target = next_page['href'].split("'")[1]
 
-        self.br.select_form('aspnetForm')
-        data = self._data(self.br.form, event_target)
+        br.select_form('aspnetForm')
+        data = self._data(br.form, event_target)
         data = urllib.urlencode(data)
-        response = self.br.open(self._legislation_uri, data)
+        response = br.open(self._legislation_uri, data)
 
       else :
         all_results = True
@@ -143,7 +145,7 @@ class LegistarScraper :
 
     Example URL: http://chicago.legistar.com/LegislationDetail.aspx?ID=1050678&GUID=14361244-D12A-467F-B93D-E244CB281466&Options=ID|Text|&Search=zoning
     """
-    br = mechanize.Browser()
+    br = self._get_new_browser()
     connection_complete = False
 
     for attempt in xrange(5) :
@@ -251,3 +253,6 @@ class LegistarScraper :
     data.update({'__EVENTTARGET' : event_target})
 
     return data
+
+  def _get_new_browser(self):
+      return mechanize.Browser()
