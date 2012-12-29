@@ -129,41 +129,39 @@ class LegistarScraper :
         print row
         pass
 
-
   def expandLegislationSummary(self, summary):
     """
     Take a row as given from the searchLegislation method and retrieve the
     details of the legislation summarized by that row.
     """
     path = summary[6]
-    url = self.uri + path
-    return self.parseLegislationDetail(url)
+    detail_uri = self.uri + path
 
-  def parseLegislationDetail(self, url) :
-    """Take a legislation detail page and return a dictionary of
-    the different data appearing on the page
-
-    Example URL: http://chicago.legistar.com/LegislationDetail.aspx?ID=1050678&GUID=14361244-D12A-467F-B93D-E244CB281466&Options=ID|Text|&Search=zoning
-    """
     br = self._get_new_browser()
     connection_complete = False
 
-    for attempt in xrange(5) :
-      print attempt
+    for attempt in xrange(5):
       try:
-        response = br.open(url, timeout=30)
-        f = response.read()
+        response = br.open(detail_uri, timeout=30)
         connection_complete = True
         break
       except Exception as e :
         print 'Timed Out'
         print e
-    else:
+
+    if not connection_complete:
       return None
 
-
-
+    f = response.read()
     soup = BeautifulSoup(f)
+    return self.parseLegislationDetail(soup)
+
+  def parseLegislationDetail(self, soup):
+    """Take a legislation detail page and return a dictionary of
+    the different data appearing on the page
+
+    Example URL: http://chicago.legistar.com/LegislationDetail.aspx?ID=1050678&GUID=14361244-D12A-467F-B93D-E244CB281466&Options=ID|Text|&Search=zoning
+    """
     detail_div = soup.fetch('div', {'id' : 'ctl00_ContentPlaceHolder1_pageDetails'})
     keys = []
     values = []
