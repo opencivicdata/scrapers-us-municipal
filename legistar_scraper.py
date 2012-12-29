@@ -8,6 +8,10 @@ import mechanize
 from collections import defaultdict
 
 class LegistarScraper :
+  """
+  A programatic interface onto a hosted Legistar website.
+  """
+
   def __init__(self, hostname):
     """
     Construct a new Legistar scraper.  Pass in the host name of the Legistar
@@ -20,7 +24,11 @@ class LegistarScraper :
     self._legislation_uri = self.uri + 'Legislation.aspx'
     self._calendar_uri = self.uri + 'Calendar.aspx'
 
-  def searchLegislation(self, search_text, last_date=None, num_pages = None) :
+  def searchLegislation(self, search_text, last_date=None, num_pages = None):
+    """
+    Submit a search query on the legislation search page, and return a list
+    of summary results.
+    """
     self.br.open(self._legislation_uri)
 
     try:
@@ -33,15 +41,16 @@ class LegistarScraper :
 
     else:
       # If it is there, the navigate to the advanced search form.
-      data = self._data(None)
+      data = self._data(self.br.form, None)
       data['ctl00$ContentPlaceHolder1$btnSwitch'] = ''
       data = urllib.urlencode(data)
       self.br.open(self._legislation_uri, data)
 
     self.br.select_form('aspnetForm')
 
-
-
+    # TODO: Each of the possible form fields should be represented as keyword
+    # arguments to this function. The default query string should be for the
+    # the default 'Legislative text' field.
     self.br.form['ctl00$ContentPlaceHolder1$txtTit'] = search_text
     if last_date :
       self.br.form.set_all_readonly(False)
@@ -49,7 +58,7 @@ class LegistarScraper :
 
       self.br.form['ctl00_ContentPlaceHolder1_txtFileCreated1_dateInput_ClientState'] = '{"enabled":true,"emptyMessage":"","validationText":"%s-00-00-00","valueAsString":"%s-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00"}' % (last_date, last_date)
 
-    data = self._data(None)
+    data = self._data(self.br.form, None)
     data['ctl00$ContentPlaceHolder1$btnSearch'] = 'Search Legislation'
 
     data = urllib.urlencode(data)
@@ -82,7 +91,8 @@ class LegistarScraper :
 
         time.sleep(5)
 
-        data = self._data(event_target)
+        self.br.select_form('aspnetForm')
+        data = self._data(self.br.form, event_target)
         data = urllib.urlencode(data)
 
         response = self.br.open(self._legislation_uri, data)
@@ -219,7 +229,11 @@ class LegistarScraper :
 
 
 
-  def _unradio(self, control) :
+  def _unradio(self, control):
+    """
+    For a radio button or a check box, get the value as a string instead of a
+    list. For unchecked checkboxes, simply use an empty string.
+    """
     if control.type in ['radio', 'checkbox'] :
       if len(control.value) == 1 :
         return control.value[0]
@@ -228,14 +242,15 @@ class LegistarScraper :
     else :
       return control.value
 
-  def _data(self, event_target=None) :
-    self.br.select_form('aspnetForm')
-
+  def _data(self, form, event_target=None):
+    """
+    Get a dictionary mapping {name:value} for each of the inputs in the given
+    mechanize browser form.
+    """
     data = dict([(control.name, self._unradio(control))
-                 for control in self.br.form.controls
+                 for control in form.controls
                  if control.type != 'submit'])
 
     data.update({'__EVENTTARGET' : event_target})
-
 
     return data
