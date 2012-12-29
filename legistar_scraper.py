@@ -12,16 +12,19 @@ class LegistarScraper :
   A programatic interface onto a hosted Legistar website.
   """
 
-  def __init__(self, hostname):
+  def __init__(self, config):
     """
     Construct a new Legistar scraper.  Pass in the host name of the Legistar
     instance, e.g. 'phila.legistar.com'.
     """
-    self.uri = 'http://%s/' % hostname
+    self.config = config
+    self.uri = 'http://%s/' % self.config['hostname']
 
     # Assume that the legislation and calendar URLs are constructed regularly.
-    self._legislation_uri = self.uri + 'Legislation.aspx'
-    self._calendar_uri = self.uri + 'Calendar.aspx'
+    self._legislation_uri = (
+      self.uri + self.config.get('legislation_path', 'Legislation.aspx'))
+    self._calendar_uri = (
+      self.uri + self.config.get('calendar_path', 'Calendar.aspx'))
 
   def searchLegislation(self, search_text, last_date=None, num_pages = None):
     """
@@ -114,7 +117,6 @@ class LegistarScraper :
     table = soup.find('table', id='ctl00_ContentPlaceHolder1_gridMain_ctl00')
     headers = table.fetch('th')
     legislation_rows = table.fetch('tr', {'id':re.compile('ctl00_ContentPlaceHolder1_gridMain_ctl00__')})
-    date_pattern = re.compile('^\d{1,2}/\d{1,2}/\d{4}$')
     print "found some legislation!"
     print len(legislation_rows)
 
@@ -126,13 +128,15 @@ class LegistarScraper :
     for row in legislation_rows:
       try:
         legislation = {}
+        parse_dates = ('date_format' in self.config)
         for index, field in enumerate(row.fetch("td")):
           key = keys[index]
           value = field.text.strip()
-          try:
-            value = datetime.datetime.strptime(value, '%m/%d/%Y')
-          except ValueError:
-            pass
+          if parse_dates:
+            try:
+              value = datetime.datetime.strptime(value, self.config['date_format'])
+            except ValueError:
+              pass
           legislation[key] = value
 
         path = row.fetch("a")[0]['href'].split('&Options')[0]
