@@ -104,24 +104,32 @@ class LegistarScraper :
     ('Document ID', 'Document URL', 'Type', 'Status', 'Introduction Date'
      'Passed Date', 'Main Sponsor', 'Title')
     """
-
-    legislation_rows = soup.fetch('tr', {'id':re.compile('ctl00_ContentPlaceHolder1_gridMain_ctl00__')})
+    table = soup.find('table', id='ctl00_ContentPlaceHolder1_gridMain_ctl00')
+    headers = table.fetch('th')
+    legislation_rows = table.fetch('tr', {'id':re.compile('ctl00_ContentPlaceHolder1_gridMain_ctl00__')})
+    date_pattern = re.compile('^\d{1,2}/\d{1,2}/\d{4}$')
     print "found some legislation!"
     print len(legislation_rows)
 
+    keys = {}
+    index = 0
+    for index, header in enumerate(headers):
+      keys[index] = header.text.replace('&nbsp;', ' ').strip()
 
-    for row in legislation_rows :
+    for row in legislation_rows:
       try:
-        legislation = []
-        for field in row.fetch("td") :
-          legislation.append(field.text)
+        legislation = {}
+        for index, field in enumerate(row.fetch("td")):
+          key = keys[index]
+          value = field.text.strip()
+          try:
+            value = datetime.datetime.strptime(value, '%m/%d/%Y')
+          except ValueError:
+            pass
+          legislation[key] = value
 
-        legislation.append(row.fetch("a")[0]['href'].split('&Options')[0])
-
-        try:
-          legislation[3] = datetime.datetime.strptime(legislation[3], '%m/%d/%Y')
-        except ValueError :
-          legislation[3] = ''
+        path = row.fetch("a")[0]['href'].split('&Options')[0]
+        legislation['URL'] = self.uri + path
 
         yield legislation
       except KeyError:
@@ -134,8 +142,7 @@ class LegistarScraper :
     Take a row as given from the searchLegislation method and retrieve the
     details of the legislation summarized by that row.
     """
-    path = summary[6]
-    detail_uri = self.uri + path
+    detail_uri = summary['URL']
 
     br = self._get_new_browser()
     connection_complete = False
@@ -162,17 +169,27 @@ class LegistarScraper :
 
     Example URL: http://chicago.legistar.com/LegislationDetail.aspx?ID=1050678&GUID=14361244-D12A-467F-B93D-E244CB281466&Options=ID|Text|&Search=zoning
     """
-    detail_div = soup.fetch('div', {'id' : 'ctl00_ContentPlaceHolder1_pageDetails'})
+    detail_div = soup.find('div', {'id' : 'ctl00_ContentPlaceHolder1_pageDetails'})
     keys = []
     values = []
     i = 0
 
-    for cell in  detail_div[0].fetch('td')[0:25] :
-      if i % 2 :
-          values.append(cell.text.replace('&nbsp;', ' ').strip())
-      else :
-        keys.append(cell.text.strip(':'))
-      i += 1
+    for span in detail_div.fetch('span'):
+      # key:value pairs are contained within <span> elements that have
+      # corresponding ids. The key will have id="ctl00_..._x", and the value
+      # will have id="ctl00_..._x2".
+      #
+      # Look for values and find matching keys. This is not the most
+      # efficient solution (should be N^2 time in the number of span elements),
+      # but it'll do.
+      if span.has_key('id') and span['id'].endswith('2'):
+        key = span['id'][:-1]
+        label_span = detail_div.find('span', id=key)
+        if label_span:
+          label = label_span.text.strip(':')
+          value = span.text.replace('&nbsp;', ' ').strip()
+          keys.append(label)
+          values.append(value)
 
     details = defaultdict(str)
     details.update(dict(zip(keys, values)))
