@@ -48,6 +48,7 @@ class LegistarScraper :
 
       br.open(self._legislation_uri, data)
       br.select_form('aspnetForm')
+      br.form.set_all_readonly(False)
 
     # Enter the search parameters
     # TODO: Each of the possible form fields should be represented as keyword
@@ -55,14 +56,20 @@ class LegistarScraper :
     # the default 'Legislative text' field.
     br.form['ctl00$ContentPlaceHolder1$txtTit'] = search_text
 
+
     if last_date :
-      br.form.set_all_readonly(False)
       br.form['ctl00$ContentPlaceHolder1$radFileCreated'] = ['>']
       br.form['ctl00_ContentPlaceHolder1_txtFileCreated1_dateInput_ClientState'] = '{"enabled":true,"emptyMessage":"","validationText":"%s-00-00-00","valueAsString":"%s-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00"}' % (last_date, last_date)
+      
 
     # Submit the form
     data = self._data(br.form, None)
+
+    # Return up to one million search results
+    data['ctl00_ContentPlaceHolder1_lstMax_ClientState'] = '{"value":"1000000"}'
+    
     data['ctl00$ContentPlaceHolder1$btnSearch'] = 'Search Legislation'
+
     data = urllib.urlencode(data)
 
     response = br.open(self._legislation_uri, data)
