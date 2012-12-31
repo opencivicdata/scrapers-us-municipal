@@ -171,6 +171,9 @@ class LegistarScraper :
     """
     return self.expandSummaryRow(summary, self.parseLegislationDetail)
 
+  def expandHistorySummary(self, summary):
+    return self.expandSummaryRow(summary, self.parseHistoryDetail)
+
   def expandSummaryRow(self, summary, parse_function):
     detail_uri = summary['URL']
 
@@ -192,6 +195,10 @@ class LegistarScraper :
     f = response.read()
     soup = BeautifulSoup(f)
     return parse_function(soup)
+
+  def parseHistoryDetail(self, soup):
+    # TODO: fashion after parseLegislationDetail
+    pass
 
   def parseLegislationDetail(self, soup):
     """Take a legislation detail page and return a dictionary of
