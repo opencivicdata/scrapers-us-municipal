@@ -77,3 +77,40 @@ def no_attachments_list():
   detail = scraper.expandLegislationSummary({'URL':'http://phila.legistar.com/LegislationDetail.aspx?ID=1254964&GUID=AF8A4E91-4DF6-41A2-80B4-EFC94A2AFF89&Options=ID|Text|&Search='})
   # Legislation with no attachments should have no attachment key
   assert_not_in('Attachments', detail[0])
+
+@istest
+def link_address_is_href():
+  config = {'hostname': 'phila.legistar.com'}
+  scraper = LegistarScraper(config)
+
+  from BeautifulSoup import BeautifulSoup
+  link = BeautifulSoup('<html><a href="http://www.google.com"></a></html>').find('a')
+  address = scraper._get_link_address(link)
+  assert_equal(address, 'http://www.google.com')
+
+@istest
+def link_address_is_onclick():
+  config = {'hostname': 'phila.legistar.com'}
+  scraper = LegistarScraper(config)
+
+  from BeautifulSoup import BeautifulSoup
+  link = BeautifulSoup('<html><a onclick="radopen(\'http://www.google.com\');"></a></html>').find('a')
+  address = scraper._get_link_address(link)
+  assert_equal(address, 'http://www.google.com')
+
+@istest
+def link_address_is_none():
+  config = {'hostname': 'phila.legistar.com'}
+  scraper = LegistarScraper(config)
+
+  from BeautifulSoup import BeautifulSoup
+  link = BeautifulSoup('<html><a></a></html>').find('a')
+  address = scraper._get_link_address(link)
+  assert_is_none(address)
+
+@istest
+def history_row_url():
+  config = {'hostname': 'chicago.legistar.com'}
+  scraper = LegistarScraper(config)
+  detail = scraper.expandLegislationSummary({'URL':'http://chicago.legistar.com/LegislationDetail.aspx?ID=1255978&GUID=8051C1E6-DED6-433B-AC9A-0FE436051C9F&Options=Advanced&Search='})
+  assert_equal(detail[1][0]['URL'], 'HistoryDetail.aspx?ID=6534991&GUID=253AA818-B592-4594-8237-0A617AA41766')

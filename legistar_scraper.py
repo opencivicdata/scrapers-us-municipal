@@ -108,10 +108,16 @@ class LegistarScraper :
      'Passed Date', 'Main Sponsor', 'Title')
     """
     table = soup.find('table', id='ctl00_ContentPlaceHolder1_gridMain_ctl00')
-    for legislation, row in self.parseDataTable(table):
+    for legislation, headers, row in self.parseDataTable(table):
       # Do legislation search-specific stuff
-      path = row.fetch("a")[0]['href'].split('&Options')[0]
-      legislation['URL'] = self.host + path
+      # ------------------------------------
+      # First column should be the ID of the record.
+      id_key = headers[0]
+      legislation_id = legislation[id_key]['label']
+      legislation_url = legislation[id_key]['url']
+      legislation[id_key] = legislation_id
+      legislation['URL'] = self.host + legislation_url.split('&Options')[0]
+
       yield legislation
 
   def parseDataTable(self, table_soup):
@@ -123,7 +129,6 @@ class LegistarScraper :
     rows = table_soup.fetch('tr', id=re.compile('ctl00_ContentPlaceHolder1_'))
 
     keys = {}
-    index = 0
     for index, header in enumerate(headers):
       keys[index] = header.text.replace('&nbsp;', ' ').strip()
 
@@ -135,15 +140,25 @@ class LegistarScraper :
         for index, field in enumerate(row.fetch("td")):
           key = keys[index]
           value = field.text.strip()
+
+          # Is it a date?
           if parse_dates:
             try:
               value = datetime.datetime.strptime(value, self.config['date_format'])
             except ValueError:
               pass
 
+          # Is it a link?
+          address = None
+          link = field.find('a')
+          if link is not None:
+            address = self._get_link_address(link)
+            if address is not None:
+              value = {'label': value, 'url': address}
+
           data[key] = value
 
-        yield data, row
+        yield data, keys, row
       except Exception as e:
         print 'Problem parsing row:'
         print row
@@ -218,36 +233,13 @@ class LegistarScraper :
     except IndexError :
       pass
 
-    history_row = soup.fetch('tr', {'id' : re.compile('ctl00_ContentPlaceHolder1_gridLegislation_ctl00')})
-
-    history_keys = ["date", "journal_page", "action_by", "status", "results", "votes", "meeting_details"]
-
+    history_table = soup.find('div', id='ctl00_ContentPlaceHolder1_pageHistory').fetch('table')[1]
     history = []
-
-    for row in history_row :
-      values = []
-      for key, cell in zip(history_keys, row.fetch('td')) :
-        if key == 'meeting_details' :
-          try:
-            values.append(cell.a['href'])
-          except KeyError:
-            values.append('')
-        elif key == 'votes' :
-          try:
-            values.append(cell.a['onclick'].split("'")[1])
-          except KeyError:
-            values.append('')
-        elif key == 'date':
-          try:
-            values.append(datetime.datetime.strptime(cell.text.replace('&nbsp;', ' ').strip(), '%m/%d/%Y'))
-          except ValueError:
-            values.append('')
-        else:
-          values.append(cell.text.replace('&nbsp;', ' ').strip())
-
-
-      history.append(dict(zip(history_keys, values)))
-
+    for event, headers, row in self.parseDataTable(history_table):
+      for key, val in event.items():
+        if isinstance(val, dict) and val['url'].startswith('HistoryDetail.aspx'):
+          event['URL'] = val['url']
+      history.append(event)
 
     return details, history
 
@@ -282,4 +274,21 @@ class LegistarScraper :
     return data
 
   def _get_new_browser(self):
-      return mechanize.Browser()
+    return mechanize.Browser()
+
+  def _get_link_address(self, link_soup):
+    # If the link doesn't start with a #, then it'll send the browser
+    # somewhere, and we should use the href value directly.
+    href = link_soup.get('href')
+    if href is not None and not href.startswith('#'):
+      return href
+
+    # If it does start with a hash, then it causes some sort of action
+    # and we should check the onclick handler.
+    else:
+      onclick = link_soup.get('onclick')
+      if onclick is not None and onclick.startswith("radopen('"):
+        return onclick.split("'")[1]
+
+    # Otherwise, we don't know how to find the address.
+    return None
