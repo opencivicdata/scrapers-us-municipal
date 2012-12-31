@@ -151,10 +151,10 @@ class LegistarScraper :
           data[key] = value
 
         yield data, row
-      except KeyError:
-        print 'Problem row:'
+      except Exception as e:
+        print 'Problem parsing row:'
         print row
-        pass
+        raise e
 
   def expandLegislationSummary(self, summary):
     """
