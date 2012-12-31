@@ -176,6 +176,9 @@ class LegistarScraper :
     Take a row as given from the searchLegislation method and retrieve the
     details of the legislation summarized by that row.
     """
+    return self.expandSummaryRow(summary, self.parseLegislationDetail)
+
+  def expandSummaryRow(self, summary, parse_function):
     detail_uri = summary['URL']
 
     br = self._get_new_browser()
@@ -195,7 +198,7 @@ class LegistarScraper :
 
     f = response.read()
     soup = BeautifulSoup(f)
-    return self.parseLegislationDetail(soup)
+    return parse_function(soup)
 
   def parseLegislationDetail(self, soup):
     """Take a legislation detail page and return a dictionary of
