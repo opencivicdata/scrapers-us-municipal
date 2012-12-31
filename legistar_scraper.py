@@ -172,9 +172,17 @@ class LegistarScraper :
     return self.expandSummaryRow(summary, self.parseLegislationDetail)
 
   def expandHistorySummary(self, summary):
+    """
+    Take a row as given from the parseLegislationDetail method and retrieve the
+    details of the history event summarized by that row.
+    """
     return self.expandSummaryRow(summary, self.parseHistoryDetail)
 
   def expandSummaryRow(self, summary, parse_function):
+    """
+    Take a row from a data table and use the URL value from that row to
+    retrieve more details. Parse those details with parse_function.
+    """
     detail_uri = summary['URL']
 
     br = self._get_new_browser()
@@ -220,12 +228,13 @@ class LegistarScraper :
       # efficient solution (should be N^2 time in the number of span elements),
       # but it'll do.
       if span.has_key('id') and span['id'].endswith('2'):
-        key = span['id'][:-1]
+        key = span['id'][:-1]  # strip off the '2'
         label_span = detail_div.find('span', id=key)
         if label_span:
           label = label_span.text.strip(':')
           value = span.text.replace('&nbsp;', ' ').strip()
           keys.append(label)
+          # TODO: Convert to datetime when appropriate
           values.append(value)
 
     details = defaultdict(str)
@@ -235,8 +244,7 @@ class LegistarScraper :
     if attachments_span is not None:
       details[u'Attachments'] = [
         {'url': a['href'], 'label': a.text}
-        for a in attachments_span.findAll('a')
-      ]
+        for a in attachments_span.findAll('a')]
 
     try:
       details[u'Related files:'] = ','.join([a['href'] for a in soup.fetch('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })[0].findAll('a')])
