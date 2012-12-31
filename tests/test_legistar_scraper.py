@@ -114,3 +114,16 @@ def history_row_url():
   scraper = LegistarScraper(config)
   detail = scraper.expandLegislationSummary({'URL':'http://chicago.legistar.com/LegislationDetail.aspx?ID=1255978&GUID=8051C1E6-DED6-433B-AC9A-0FE436051C9F&Options=Advanced&Search='})
   assert_equal(detail[1][0]['URL'], 'http://chicago.legistar.com/HistoryDetail.aspx?ID=6534991&GUID=253AA818-B592-4594-8237-0A617AA41766')
+
+@istest
+def can_get_history_detail_using_summary_row():
+  config = {'hostname': 'phila.legistar.com'}
+  scraper = LegistarScraper(config)
+  legislation_summary = {'URL':'http://phila.legistar.com/LegislationDetail.aspx?ID=1236768&GUID=EB92A4C2-469A-4D73-97C0-A620BBDDD5BE&Options=ID|Text|&Search='}
+  legislation_details = scraper.expandLegislationSummary(legislation_summary)
+  history_summary = legislation_details[1][2]
+
+  history_details = scraper.expandHistorySummary(history_summary)
+  ayes = [vote for vote in history_details['votes'] if vote['Vote'] == 'Ayes']
+  assert_equal(len(ayes), 14)
+  assert_equal(history_details['Result'], 'Pass')
