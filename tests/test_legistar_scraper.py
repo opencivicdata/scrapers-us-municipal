@@ -63,10 +63,17 @@ def recognize_dates():
   assert_is_instance(summary['File Created'], datetime.datetime)
 
 @istest
-def ignore_dates_when_no_date_format():
+def attachments_list():
   config = {'hostname': 'phila.legistar.com'}
   scraper = LegistarScraper(config)
-  summaries = scraper.searchLegislation('')
-  summary = summaries.next()
-  import datetime
-  assert_not_is_instance(summary['File Created'], datetime.datetime)
+  detail = scraper.expandLegislationSummary({'URL':'http://phila.legistar.com/LegislationDetail.aspx?ID=1243262&GUID=01021C5A-3624-4E5D-AA32-9822D1F5DA29&Options=ID|Text|&Search='})
+  # Attachments value should be a list
+  assert_is_instance(detail[0]['Attachments'], list)
+
+@istest
+def no_attachments_list():
+  config = {'hostname': 'phila.legistar.com'}
+  scraper = LegistarScraper(config)
+  detail = scraper.expandLegislationSummary({'URL':'http://phila.legistar.com/LegislationDetail.aspx?ID=1254964&GUID=AF8A4E91-4DF6-41A2-80B4-EFC94A2AFF89&Options=ID|Text|&Search='})
+  # Legislation with no attachments should have no attachment key
+  assert_not_in('Attachments', detail[0])
