@@ -33,7 +33,6 @@ class LegistarScraper :
     """
     br = self._get_new_browser()
     br.open(self._legislation_uri)
-    br.select_form('aspnetForm')
 
     try:
       # Check for the link to the advanced search form
@@ -45,13 +44,15 @@ class LegistarScraper :
 
     else:
       # If it is there, the navigate to the advanced search form.
+      br.select_form('aspnetForm')
       data = self._data(br.form, None)
       data['ctl00$ContentPlaceHolder1$btnSwitch'] = ''
       data = urllib.urlencode(data)
 
       br.open(self._legislation_uri, data)
-      br.select_form('aspnetForm')
-      br.form.set_all_readonly(False)
+
+    br.select_form('aspnetForm')
+    br.form.set_all_readonly(False)
 
     # Enter the search parameters
     # TODO: Each of the possible form fields should be represented as keyword
