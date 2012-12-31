@@ -214,6 +214,7 @@ class LegistarScraper :
 
     Example URL: http://chicago.legistar.com/LegislationDetail.aspx?ID=1050678&GUID=14361244-D12A-467F-B93D-E244CB281466&Options=ID|Text|&Search=zoning
     """
+    # Pull out the top matter
     detail_div = soup.find('div', {'id' : 'ctl00_ContentPlaceHolder1_pageDetails'})
     keys = []
     values = []
@@ -240,17 +241,20 @@ class LegistarScraper :
     details = defaultdict(str)
     details.update(dict(zip(keys, values)))
 
+    # Treat the attachments specially
     attachments_span = soup.find('span', id='ctl00_ContentPlaceHolder1_lblAttachments2')
     if attachments_span is not None:
       details[u'Attachments'] = [
         {'url': a['href'], 'label': a.text}
         for a in attachments_span.findAll('a')]
 
-    try:
-      details[u'Related files:'] = ','.join([a['href'] for a in soup.fetch('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })[0].findAll('a')])
-    except IndexError :
-      pass
+    related_file_span = soup.find('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })
+    if related_file_span is not None:
+      details[u'Related files:'] = ','.join([
+        a['href']
+        for a in related_file_span.findAll('a')])
 
+    # Break down the history table
     history_table = soup.find('div', id='ctl00_ContentPlaceHolder1_pageHistory').fetch('table')[1]
     history = []
     for event, headers, row in self.parseDataTable(history_table):
