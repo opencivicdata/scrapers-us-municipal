@@ -204,10 +204,6 @@ class LegistarScraper :
     soup = BeautifulSoup(f)
     return parse_function(soup)
 
-  def parseHistoryDetail(self, soup):
-    # TODO: fashion after parseLegislationDetail
-    pass
-
   def parseLegislationDetail(self, soup):
     """Take a legislation detail page and return a dictionary of
     the different data appearing on the page
@@ -216,30 +212,7 @@ class LegistarScraper :
     """
     # Pull out the top matter
     detail_div = soup.find('div', {'id' : 'ctl00_ContentPlaceHolder1_pageDetails'})
-    keys = []
-    values = []
-    i = 0
-
-    for span in detail_div.fetch('span'):
-      # key:value pairs are contained within <span> elements that have
-      # corresponding ids. The key will have id="ctl00_..._x", and the value
-      # will have id="ctl00_..._x2".
-      #
-      # Look for values and find matching keys. This is not the most
-      # efficient solution (should be N^2 time in the number of span elements),
-      # but it'll do.
-      if span.has_key('id') and span['id'].endswith('2'):
-        key = span['id'][:-1]  # strip off the '2'
-        label_span = detail_div.find('span', id=key)
-        if label_span:
-          label = label_span.text.strip(':')
-          value = span.text.replace('&nbsp;', ' ').strip()
-          keys.append(label)
-          # TODO: Convert to datetime when appropriate
-          values.append(value)
-
-    details = defaultdict(str)
-    details.update(dict(zip(keys, values)))
+    details = self._get_general_details(detail_div)
 
     # Treat the attachments specially
     attachments_span = soup.find('span', id='ctl00_ContentPlaceHolder1_lblAttachments2')
@@ -265,9 +238,41 @@ class LegistarScraper :
 
     return details, history
 
+  def parseHistoryDetail(self, soup):
+    # TODO: fashion after parseLegislationDetail
+    pass
 
 
 
+
+
+  def _get_general_details(self, detail_div):
+    """
+    Parse the data in the top section of a detail page.
+    """
+    keys = []
+    values = []
+
+    for span in detail_div.fetch('span'):
+      # key:value pairs are contained within <span> elements that have
+      # corresponding ids. The key will have id="ctl00_..._x", and the value
+      # will have id="ctl00_..._x2".
+      #
+      # Look for values and find matching keys. This is not the most
+      # efficient solution (should be N^2 time in the number of span elements),
+      # but it'll do.
+      if span.has_key('id') and span['id'].endswith('2'):
+        key = span['id'][:-1]  # strip off the '2'
+        label_span = detail_div.find('span', id=key)
+        if label_span:
+          label = label_span.text.strip(':')
+          value = span.text.replace('&nbsp;', ' ').strip()
+          keys.append(label)
+          # TODO: Convert to datetime when appropriate
+          values.append(value)
+
+    details = dict(zip(keys, values))
+    return details
 
   def _unradio(self, control):
     """
