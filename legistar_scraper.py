@@ -238,7 +238,7 @@ class LegistarScraper :
     for event, headers, row in self.parseDataTable(history_table):
       for key, val in event.items():
         if isinstance(val, dict) and val['url'].startswith('HistoryDetail.aspx'):
-          event['URL'] = val['url']
+          event['URL'] = self.host + val['url']
       history.append(event)
 
     return details, history
