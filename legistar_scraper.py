@@ -18,13 +18,13 @@ class LegistarScraper :
     instance, e.g. 'phila.legistar.com'.
     """
     self.config = config
-    self.uri = 'http://%s/' % self.config['hostname']
+    self.host = 'http://%s/' % self.config['hostname']
 
     # Assume that the legislation and calendar URLs are constructed regularly.
     self._legislation_uri = (
-      self.uri + self.config.get('legislation_path', 'Legislation.aspx'))
+      self.host + self.config.get('legislation_path', 'Legislation.aspx'))
     self._calendar_uri = (
-      self.uri + self.config.get('calendar_path', 'Calendar.aspx'))
+      self.host + self.config.get('calendar_path', 'Calendar.aspx'))
 
   def searchLegislation(self, search_text, last_date=None, num_pages = None):
     """
@@ -140,7 +140,7 @@ class LegistarScraper :
           legislation[key] = value
 
         path = row.fetch("a")[0]['href'].split('&Options')[0]
-        legislation['URL'] = self.uri + path
+        legislation['URL'] = self.host + path
 
         yield legislation
       except KeyError:
@@ -205,17 +205,17 @@ class LegistarScraper :
     details = defaultdict(str)
     details.update(dict(zip(keys, values)))
 
-    try:
-      details[u'Attachments:'] = ','.join([a['href'] for a in soup.fetch('span', {'id' : 'ctl00_ContentPlaceHolder1_lblAttachments2' })[0].findAll('a')])
-    except IndexError :
-      pass
+    attachments_span = soup.find('span', id='ctl00_ContentPlaceHolder1_lblAttachments2')
+    if attachments_span is not None:
+      details[u'Attachments'] = [
+        {'url': a['href'], 'label': a.text}
+        for a in attachments_span.findAll('a')
+      ]
 
     try:
       details[u'Related files:'] = ','.join([a['href'] for a in soup.fetch('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })[0].findAll('a')])
     except IndexError :
       pass
-
-
 
     history_row = soup.fetch('tr', {'id' : re.compile('ctl00_ContentPlaceHolder1_gridLegislation_ctl00')})
 
