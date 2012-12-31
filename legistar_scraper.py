@@ -108,19 +108,29 @@ class LegistarScraper :
      'Passed Date', 'Main Sponsor', 'Title')
     """
     table = soup.find('table', id='ctl00_ContentPlaceHolder1_gridMain_ctl00')
-    headers = table.fetch('th')
-    legislation_rows = table.fetch('tr', {'id':re.compile('ctl00_ContentPlaceHolder1_gridMain_ctl00__')})
-    print "found some legislation!"
-    print len(legislation_rows)
+    for legislation, row in self.parseDataTable(table):
+      # Do legislation search-specific stuff
+      path = row.fetch("a")[0]['href'].split('&Options')[0]
+      legislation['URL'] = self.host + path
+      yield legislation
+
+  def parseDataTable(self, table_soup):
+    """
+    Legistar uses the same kind of data table in a number of places. This will
+    return a list of dictionaries using the table headers as keys.
+    """
+    headers = table_soup.fetch('th')
+    rows = table_soup.fetch('tr', id=re.compile('ctl00_ContentPlaceHolder1_'))
 
     keys = {}
     index = 0
     for index, header in enumerate(headers):
       keys[index] = header.text.replace('&nbsp;', ' ').strip()
 
-    for row in legislation_rows:
+    for row in rows:
       try:
-        legislation = {}
+        data = {}
+
         parse_dates = ('date_format' in self.config)
         for index, field in enumerate(row.fetch("td")):
           key = keys[index]
@@ -130,12 +140,10 @@ class LegistarScraper :
               value = datetime.datetime.strptime(value, self.config['date_format'])
             except ValueError:
               pass
-          legislation[key] = value
 
-        path = row.fetch("a")[0]['href'].split('&Options')[0]
-        legislation['URL'] = self.host + path
+          data[key] = value
 
-        yield legislation
+        yield data, row
       except KeyError:
         print 'Problem row:'
         print row
