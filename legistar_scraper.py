@@ -239,14 +239,25 @@ class LegistarScraper :
     return details, history
 
   def parseHistoryDetail(self, soup):
-    # TODO: fashion after parseLegislationDetail
-    pass
+    # Pull out the top matter
+    detail_div = soup.find('div', {'id' : 'ctl00_ContentPlaceHolder1_pageTop1'})
+    details = self._get_general_details(detail_div, label_suffix='Prompt', value_suffix='')
+
+    # Break down the votes table
+    votes_table = soup.find('div', id='ctl00_ContentPlaceHolder1_gridVote').find('table')
+    votes = []
+    for vote, headers, row in self.parseDataTable(votes_table):
+      votes.append(vote)
+
+    details['votes'] = votes
+    return details
 
 
 
 
 
-  def _get_general_details(self, detail_div):
+
+  def _get_general_details(self, detail_div, label_suffix='', value_suffix='2'):
     """
     Parse the data in the top section of a detail page.
     """
@@ -261,9 +272,9 @@ class LegistarScraper :
       # Look for values and find matching keys. This is not the most
       # efficient solution (should be N^2 time in the number of span elements),
       # but it'll do.
-      if span.has_key('id') and span['id'].endswith('2'):
-        key = span['id'][:-1]  # strip off the '2'
-        label_span = detail_div.find('span', id=key)
+      if span.has_key('id') and span['id'].endswith(value_suffix):
+        key = span['id'][:-len(value_suffix)] if value_suffix else span['id']
+        label_span = detail_div.find('span', id=(key + label_suffix))
         if label_span:
           label = label_span.text.strip(':')
           value = span.text.replace('&nbsp;', ' ').strip()
