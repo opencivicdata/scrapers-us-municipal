@@ -1,5 +1,5 @@
 from nose.tools import *
-from legistar_scraper import LegistarScraper
+from legistar.scraper import LegistarScraper
 
 @istest
 def default_legislation_and_calendar_uris():

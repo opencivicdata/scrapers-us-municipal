@@ -7,7 +7,7 @@ import datetime
 import mechanize
 from collections import defaultdict
 
-class LegistarScraper :
+class LegistarScraper (object):
   """
   A programatic interface onto a hosted Legistar website.
   """
