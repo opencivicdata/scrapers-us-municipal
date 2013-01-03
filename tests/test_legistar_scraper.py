@@ -123,7 +123,7 @@ def can_get_history_detail_using_summary_row():
   legislation_details = scraper.expandLegislationSummary(legislation_summary)
   history_summary = legislation_details[1][2]
 
-  history_details = scraper.expandHistorySummary(history_summary)
-  ayes = [vote for vote in history_details['votes'] if vote['Vote'] == 'Ayes']
+  attrs, votes = scraper.expandHistorySummary(history_summary)
+  ayes = [vote for vote in votes if vote['Vote'] == 'Ayes']
   assert_equal(len(ayes), 14)
-  assert_equal(history_details['Result'], 'Pass')
+  assert_equal(attrs['Result'], 'Pass')

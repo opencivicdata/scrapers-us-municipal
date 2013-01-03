@@ -258,8 +258,7 @@ class LegistarScraper (object):
     for vote, headers, row in self.parseDataTable(votes_table):
       votes.append(vote)
 
-    details['votes'] = votes
-    return details
+    return details, votes
 
 
 

@@ -41,7 +41,6 @@ interact with the sites's forms, [as described in this stack overflow question](
     for legislation_summary in all_legislation:
       (legislation_attrs, legislation_history) = \
         scraper.expandLegislationSummary(legislation_summary)
-
       break
     # NOTE: searchLegislation returns an iterator; you may not use subscript
     # indexing (e.g., all_legislation[0]). You may, however, achieve the same
@@ -52,8 +51,7 @@ interact with the sites's forms, [as described in this stack overflow question](
     # Get details about legislation history, such as voting results
 
     for history_summary in legislation_history:
-      history_detail = scraper.expandHistorySummary(history_summary)
-      votes = history_detail.get('votes')
+      (history_detail, votes) = scraper.expandHistorySummary(history_summary)
 
 
 # Nonstandard mechanize dependency
