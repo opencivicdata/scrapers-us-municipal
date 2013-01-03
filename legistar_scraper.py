@@ -66,6 +66,7 @@ class LegistarScraper :
     # Submit the form
     data = self._data(br.form, None)
     data['ctl00$ContentPlaceHolder1$btnSearch'] = 'Search Legislation'
+    data['ctl00_ContentPlaceHolder1_lstYearsAdvanced_ClientState'] = '{"logEntries":[],"value":"All","text":"All Years","enabled":true,"checkedIndices":[],"checkedItemsTextOverflows":false}'
     data = urllib.urlencode(data)
 
     response = br.open(self._legislation_uri, data)
