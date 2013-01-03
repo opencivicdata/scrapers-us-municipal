@@ -29,6 +29,17 @@ def supports_simple_initial_search_form():
     fail('no legislation found')
 
 @istest
+def paging_through_results():
+  config = {'hostname': 'chicago.legistar.com'}
+  scraper = LegistarScraper(config)
+  summaries = list(scraper.searchLegislation('pub'))
+  # Making summaries a list forces the scraper to iterate completely through
+  # the generator
+  for s in summaries:
+    print s['Record #']
+  assert_greater(len(summaries), 100)
+
+@istest
 def can_get_legislation_detail_using_summary_row():
   config = {'hostname': 'phila.legistar.com'}
   scraper = LegistarScraper(config)

@@ -58,7 +58,7 @@ class LegistarScraper (object):
     # TODO: Each of the possible form fields should be represented as keyword
     # arguments to this function. The default query string should be for the
     # the default 'Legislative text' field.
-    br.form['ctl00$ContentPlaceHolder1$txtTit'] = search_text
+    br.form['ctl00$ContentPlaceHolder1$txtText'] = search_text
 
 
     if last_date :
