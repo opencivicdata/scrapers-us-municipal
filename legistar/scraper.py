@@ -231,7 +231,7 @@ class LegistarScraper (object):
       details[u'Attachments'] = [
         {'url': a['href'],
          'label': a.text,
-         'text' : self._extractPdfText(self.host + a['href'])}
+         'fulltext' : self._extractPdfText(self.host + a['href'])}
         for a in attachments_span.findAll('a')]
 
     related_file_span = soup.find('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })
@@ -276,6 +276,7 @@ class LegistarScraper (object):
     keys = []
     values = []
 
+    
     for span in detail_div.fetch('span'):
       # key:value pairs are contained within <span> elements that have
       # corresponding ids. The key will have id="ctl00_..._x", and the value
@@ -293,6 +294,19 @@ class LegistarScraper (object):
           keys.append(label)
           # TODO: Convert to datetime when appropriate
           values.append(value)
+
+      for a in detail_div.fetch('a'):
+        if a.has_key('id') and a['id'].endswith(value_suffix):
+          key = a['id'][:-len(value_suffix)].replace('hyp', 'lbl')
+          label_span = detail_div.find('span', id=key)
+          if label_span:
+            label = label_span.text.strip(':')
+            value = a.text.replace('&nbsp;', ' ').strip()
+            keys.append(label)
+            # TODO: Convert to datetime when appropriate
+            values.append(value)
+
+
 
     details = dict(zip(keys, values))
     return details
