@@ -2,3 +2,5 @@ BeautifulSoup
 git+https://github.com/abielr/mechanize.git#egg=mechanize
 nose
 coverage
+pdfminer
+slate

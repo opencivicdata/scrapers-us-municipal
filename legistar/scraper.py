@@ -6,6 +6,8 @@ import time
 import datetime
 import mechanize
 from collections import defaultdict
+import slate
+import cStringIO
 
 class LegistarScraper (object):
   """
@@ -227,7 +229,9 @@ class LegistarScraper (object):
     attachments_span = soup.find('span', id='ctl00_ContentPlaceHolder1_lblAttachments2')
     if attachments_span is not None:
       details[u'Attachments'] = [
-        {'url': a['href'], 'label': a.text}
+        {'url': a['href'],
+         'label': a.text,
+         'text' : self._extractPdfText(self.host + a['href'])}
         for a in attachments_span.findAll('a')]
 
     related_file_span = soup.find('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })
@@ -292,6 +296,41 @@ class LegistarScraper (object):
 
     details = dict(zip(keys, values))
     return details
+  
+  def _extractPdfText(self, pdf_data, tries_left=5):
+    """
+    Given an http[s] URL, a file URL, or a file-like object containing
+    PDF data, return the text from the PDF. Cache URLs or data that have
+    already been seen.
+    """
+    print pdf_data
+    pdf_key = pdf_data
+    if pdf_key.startswith('file://'):
+      path = pdf_key[7:]
+      pdf_data = open(path).read()
+    elif pdf_key.startswith('http://') or pdf_key.startswith('https://'):
+      try:
+        
+        pdf_data = cStringIO.StringIO(urllib2.urlopen(pdf_key).read())
+
+      # Protect against removed PDFs (ones that result in 404 HTTP
+      # response code). I don't know why they've removed some PDFs
+      # but they have.
+      except urllib2.HTTPError, err:
+        if err.code == 404:
+          return ''
+        else:
+          raise
+
+      # Been getting timeout exceptions every so often, so try again
+      # if timed out.
+      except urllib2.URLError, err:
+          if tries_left:
+            return self._extractPdfText(pdf_key, tries_left-1)
+
+    doc = slate.PDF(pdf_data)
+
+    return '\n'.join(doc)
 
   def _unradio(self, control):
     """

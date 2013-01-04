@@ -1,27 +1,13 @@
-import sqlite3
-from legistar_scraper import LegistarScraper
-
-hostname = 'chicago.legistar.com'
-scraper = LegistarScraper(hostname)
+from legistar.scraper import LegistarScraper
+from legistar.config import Config, DEFAULT_CONFIG
 
 
-
-conn = sqlite3.connect("/home/ec2-user/legistar-scrape/chicago_legislation.db")
-c = conn.cursor()
-
-c.execute('select date(max(intro_date)) from legislation')
-last_date = c.fetchone()[0]
+config = Config(
+  hostname = 'chicago.legistar.com'
+  )
+scraper = LegistarScraper(config)
 
 
-legislation = scraper.searchLegislation('', last_date)
-# Remove the final date field
-[legs.pop(4) for legs in legislation]
+zoning_legislation = scraper.searchLegislation('zoning')
 
-c.executemany('INSERT OR IGNORE INTO legislation '
-             '(id, type, status, intro_date, main_sponsor, title, url) '
-              'VALUES '
-              '(?, ?, ?, ?, ?, ?, ?)',
-              legislation)
-
-conn.commit()
-conn.close()
+print scraper.expandLegislationSummary(zoning_legislation.next())
