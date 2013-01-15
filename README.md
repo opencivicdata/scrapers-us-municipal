@@ -8,8 +8,8 @@ Legistar sites include
 This software is under active development, and currently is known to work for Chicago and Philadelphia.
 
 # Installation
-> pip install -r requirements.txt
-> python setup.py install
+    > pip install -r requirements.txt
+    > python setup.py install
 
 Note: The current stable branch of mechanize [has a bug in it](https://github.com/jjlee/mechanize/pull/58). If
 you are installing the dependencies by hand, use https://github.com/abielr/mechanize.
