@@ -10,8 +10,11 @@ This software is under active development. It is currently known to work for Chi
 
 [![Build Status](https://travis-ci.org/fgregg/legistar-scrape.png?branch=master)](https://travis-ci.org/fgregg/legistar-scrape)
 # Installation
-    > pip install -r requirements.txt
-    > python setup.py install
+
+```console
+> pip install -r requirements.txt
+> python setup.py install
+```
 
 Note: The current stable branch of mechanize [has a bug in it](https://github.com/jjlee/mechanize/pull/58). If
 you are installing the dependencies by hand, use https://github.com/abielr/mechanize.
