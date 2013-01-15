@@ -7,6 +7,7 @@ Legistar sites include
 
 This software is under active development, and currently is known to work for Chicago and Philadelphia.
 
+[![Build Status](https://travis-ci.org/fgregg/legistar-scrape.png?branch=master)](undefined)
 # Installation
     > pip install -r requirements.txt
     > python setup.py install
