@@ -1,6 +1,21 @@
 from nose.tools import *
 from legistar.scraper import LegistarScraper
 
+try:
+  from nose.tools import assert_in, assert_not_in
+except ImportError:
+  def assert_in(a, b):
+    assert a in b, '%r was not in %r' % (a, b)
+  def assert_not_in(a, b):
+    assert a not in b, '%r was in %r' % (a, b)
+  def assert_is_none(a):
+    assert a is None, '%r was not None' % (a,)
+  def assert_is_instance(a, b):
+    assert isinstance(a, b), '%r was not an instance of %r' % (a,b)
+  def assert_greater(a, b):
+    assert a > b, '%r was not greater than %r' % (a,b)
+
+
 @istest
 def default_legislation_and_calendar_uris():
   config = {'hostname': 'synecdoche.legistar.com'}
@@ -138,3 +153,4 @@ def can_get_history_detail_using_summary_row():
   ayes = [vote for vote in votes if vote['Vote'] == 'Ayes']
   assert_equal(len(ayes), 14)
   assert_equal(attrs['Result'], 'Pass')
+
