@@ -5,7 +5,7 @@ Legistar sites include
 - http://phila.legistar.com
 - and many other cities
 
-This software is under active development, and currently is known to work for Chicago and Philadelphia.
+This software is under active development. It is currently known to work for Chicago and Philadelphia.
 
 [![Build Status](https://travis-ci.org/fgregg/legistar-scrape.png?branch=master)](undefined)
 # Installation
