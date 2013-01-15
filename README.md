@@ -18,40 +18,41 @@ you are installing the dependencies by hand, use https://github.com/abielr/mecha
 
 # Example usage
 
-    from legistar.scraper import LegistarScraper
-    from legistar.config import Config, DEFAULT_CONFIG
+```python
+from legistar.scraper import LegistarScraper
+from legistar.config import Config, DEFAULT_CONFIG
 
-    #__________________________________________________________________________
-    #
-    # Configure and create a scraper
+#__________________________________________________________________________
+#
+# Configure and create a scraper
 
-    config = Config(
-      hostname = 'chicago.legistar.com',
-    ).defaults(DEFAULT_CONFIG)
-    scraper = LegistarScraper(config)
+config = Config(
+  hostname = 'chicago.legistar.com',
+).defaults(DEFAULT_CONFIG)
+scraper = LegistarScraper(config)
 
-    #__________________________________________________________________________
-    #
-    # Get a summary listing of all of the legislation
+#__________________________________________________________________________
+#
+# Get a summary listing of all of the legislation
 
-    all_legislation = scraper.searchLegislation('')
+all_legislation = scraper.searchLegislation('')
 
-    #__________________________________________________________________________
-    #
-    # Get more detail for a particular piece of legislation
+#__________________________________________________________________________
+#
+# Get more detail for a particular piece of legislation
 
-    for legislation_summary in all_legislation:
-      (legislation_attrs, legislation_history) = \
-        scraper.expandLegislationSummary(legislation_summary)
-      break
-    # NOTE: searchLegislation returns an iterator; you may not use subscript
-    # indexing (e.g., all_legislation[0]). You may, however, achieve the same
-    # thing with all_legislation.next()
+for legislation_summary in all_legislation:
+  (legislation_attrs, legislation_history) = \
+    scraper.expandLegislationSummary(legislation_summary)
+  break
+# NOTE: searchLegislation returns an iterator; you may not use subscript
+# indexing (e.g., all_legislation[0]). You may, however, achieve the same
+# thing with all_legislation.next()
 
-    #__________________________________________________________________________
-    #
-    # Get details about legislation history, such as voting results
+#__________________________________________________________________________
+#
+# Get details about legislation history, such as voting results
 
-    for history_summary in legislation_history:
-      (history_detail, votes) = scraper.expandHistorySummary(history_summary)
-
+for history_summary in legislation_history:
+  (history_detail, votes) = scraper.expandHistorySummary(history_summary)
+```
