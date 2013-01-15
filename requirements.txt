@@ -4,4 +4,3 @@ nose
 coverage
 pdfminer
 slate
-mechanize
