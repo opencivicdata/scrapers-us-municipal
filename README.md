@@ -1,8 +1,9 @@
-Legistar Scraper is a python library for scraping Legistar sites -- legislation management sites hosted by by Granicus.
+Legistar Scraper is a python library for scraping [Legistar sites](http://www.granicus.com/Legistar/Product-Overview.aspx) 
+-- legislation management sites hosted by by [Granicus](http://www.granicus.com/Streaming-Media-Government.aspx).
 
 Legistar sites include 
-- http://chicago.legistar.com
-- http://phila.legistar.com
+- [Chicago](http://chicago.legistar.com)
+- [Philadelphia](http://phila.legistar.com)
 - and many other cities
 
 This software is under active development. It is currently known to work for Chicago and Philadelphia.
