@@ -229,17 +229,19 @@ class LegistarScraper (object):
     # Treat the attachments specially
     attachments_span = soup.find('span', id='ctl00_ContentPlaceHolder1_lblAttachments2')
     if attachments_span is not None:
+      details[u'Attachments'] = []
+      for a in attachments_span.findAll('a') :
+        if self.fulltext :
+          fulltext = self._extractPdfText(self.host + a['href'])
+        else:
+          fulltext = ''
 
-      if self.fulltext :
-        fulltext = self._extractPdfText(self.host + a['href'])
-      else:
-        fulltext = ''
+        details[u'Attachments'].append(
+          {'url': a['href'],
+           'label': a.text,
+           'fulltext' : fulltext }
+          )
 
-      details[u'Attachments'] = [
-        {'url': a['href'],
-         'label': a.text,
-         'fulltext' : fulltext }
-        for a in attachments_span.findAll('a')]
 
     related_file_span = soup.find('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })
     if related_file_span is not None:
