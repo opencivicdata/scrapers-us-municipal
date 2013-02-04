@@ -21,6 +21,7 @@ class LegistarScraper (object):
     """
     self.config = config
     self.host = 'http://%s/' % self.config['hostname']
+    self.fulltext = self.config['fulltext']
 
     # Assume that the legislation and calendar URLs are constructed regularly.
     self._legislation_uri = (
@@ -228,10 +229,16 @@ class LegistarScraper (object):
     # Treat the attachments specially
     attachments_span = soup.find('span', id='ctl00_ContentPlaceHolder1_lblAttachments2')
     if attachments_span is not None:
+
+      if self.fulltext :
+        fulltext = self._extractPdfText(self.host + a['href'])
+      else:
+        fulltext = ''
+
       details[u'Attachments'] = [
         {'url': a['href'],
          'label': a.text,
-         'fulltext' : self._extractPdfText(self.host + a['href'])}
+         'fulltext' : fulltext }
         for a in attachments_span.findAll('a')]
 
     related_file_span = soup.find('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })
