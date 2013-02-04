@@ -151,7 +151,7 @@ class LegistarScraper (object):
         parse_dates = ('date_format' in self.config)
         for index, field in enumerate(row.fetch("td")):
           key = keys[index]
-          value = field.text.strip()
+          value = field.text.replace('&nbsp;', ' ').strip()
 
           # Is it a date?
           if parse_dates:
