@@ -90,6 +90,25 @@ def attachments_list():
   assert_is_instance(detail[0]['Attachments'], list)
 
 @istest
+def attachments_list():
+  config = {'hostname': 'phila.legistar.com',
+            'fulltext' : True}
+  scraper = LegistarScraper(config)
+  detail = scraper.expandLegislationSummary({'URL':'http://phila.legistar.com/LegislationDetail.aspx?ID=1243262&GUID=01021C5A-3624-4E5D-AA32-9822D1F5DA29&Options=ID|Text|&Search='})
+  # Attachments value should be a list
+  assert_not_equal(detail[0]['Attachments'][0]['fulltext'], '')
+
+@istest
+def attachments_list():
+  config = {'hostname': 'phila.legistar.com',
+            'fulltext' : False}
+  scraper = LegistarScraper(config)
+  detail = scraper.expandLegislationSummary({'URL':'http://phila.legistar.com/LegislationDetail.aspx?ID=1243262&GUID=01021C5A-3624-4E5D-AA32-9822D1F5DA29&Options=ID|Text|&Search='})
+  # Attachments value should be a list
+  assert_equal(detail[0]['Attachments'][0]['fulltext'], '')
+
+
+@istest
 def no_attachments_list():
   config = {'hostname': 'phila.legistar.com',
             'fulltext' : True}
