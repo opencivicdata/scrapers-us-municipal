@@ -172,3 +172,12 @@ def can_get_history_detail_using_summary_row():
   assert_equal(len(ayes), 14)
   assert_equal(attrs['Result'], 'Pass')
 
+
+@istest
+def parse_sponsors():
+  config = {'hostname': 'chicago.legistar.com',
+            'fulltext' : True}
+  scraper = LegistarScraper(config)
+  legislation_summary = {'URL': 'http://chicago.legistar.com/LegislationDetail.aspx?ID=1255978&GUID=8051C1E6-DED6-433B-AC9A-0FE436051C9F'}
+  legislation_details = scraper.expandLegislationSummary(legislation_summary)
+  assert_equal(legislation_details[0]["Sponsors"][1], u'Moreno, Proco Joe')

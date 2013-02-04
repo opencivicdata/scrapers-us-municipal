@@ -242,6 +242,14 @@ class LegistarScraper (object):
            'fulltext' : fulltext }
           )
 
+    sponsors_span = soup.find('span', id='ctl00_ContentPlaceHolder1_lblSponsors2')
+    sponsors = []
+    if sponsors_span is not None :
+      for a in sponsors_span.findAll('a') :
+        sponsors.append(a.text)
+
+    details[u'Sponsors'] = sponsors
+
 
     related_file_span = soup.find('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })
     if related_file_span is not None:
