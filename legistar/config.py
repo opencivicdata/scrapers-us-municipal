@@ -11,6 +11,6 @@ class Config (dict):
 
 
 DEFAULT_CONFIG = Config(
-  date_format='%m/%d/%Y'
+  date_format='%m/%d/%Y',
   fulltext=True
 )
