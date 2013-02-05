@@ -200,7 +200,7 @@ class LegistarScraper (object):
     br = self._get_new_browser()
     connection_complete = False
 
-    for attempt in xrange(6,1):
+    for attempt in xrange(1,6):
       try:
         response = br.open(detail_uri, timeout=30)
         connection_complete = True
