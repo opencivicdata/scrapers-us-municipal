@@ -80,7 +80,7 @@ class LegistarScraper (object):
 
     data = urllib.urlencode(data)
 
-    response = br.open(self._legislation_uri, data)
+    response = _try_connect(br, self._legislation_uri, data)
 
     # Loop through the pages, yielding each of the results
     all_results = False
@@ -107,7 +107,7 @@ class LegistarScraper (object):
         br.select_form('aspnetForm')
         data = self._data(br.form, event_target)
         data = urllib.urlencode(data)
-        response = br.open(self._legislation_uri, data)
+        response = _try_connect(br, self._legislation_uri, data)
 
       else :
         all_results = True
@@ -200,18 +200,9 @@ class LegistarScraper (object):
     br = self._get_new_browser()
     connection_complete = False
 
-    for attempt in xrange(1,6):
-      try:
-        response = br.open(detail_uri, timeout=30)
-        connection_complete = True
-        break
-      except Exception as e :
-        print 'Timed Out'
-        print 'sleep for', str(attempt*30)
-        time.sleep(attempt*30)
-        print e
+    response = _try_connect(br, detail_uri)
 
-    if not connection_complete:
+    if response is None :
       return None
 
     f = response.read()
@@ -410,3 +401,18 @@ class LegistarScraper (object):
 
     # Otherwise, we don't know how to find the address.
     return None
+
+def _try_connect(br, uri, data=None) :
+  response = None
+  for attempt in xrange(1,6):
+    try:
+      response = br.open(uri, data, timeout=30)
+      break
+    except Exception as e :
+      print 'Timed Out'
+      print 'sleep for', str(attempt*30)
+      time.sleep(attempt*30)
+      print e
+
+  return response
+
