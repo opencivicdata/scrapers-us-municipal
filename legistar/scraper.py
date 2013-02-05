@@ -416,6 +416,7 @@ def _try_connect(br, uri, data=None) :
   if response :
     return response
   else :
-    raise urlib2.URLError("Timed Out")
+    print uri
+    raise urllib2.URLError("Timed Out")
 
 
