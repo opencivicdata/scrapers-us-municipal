@@ -91,12 +91,12 @@ class LegistarScraper (object):
       for legislation in legislation_iter:
         yield legislation
 
+
       current_page = soup.fetch('a', {'class': 'rgCurrentPage'})
       if current_page :
         current_page = current_page[0]
         print 'page', current_page.text
         print
-
         next_page = current_page.findNextSibling('a')
       else :
         next_page = None
@@ -111,6 +111,8 @@ class LegistarScraper (object):
 
       else :
         all_results = True
+
+    raise StopIteration
 
   def parseSearchResults(self, soup) :
     """Take a page of search results and return a sequence of data
@@ -201,9 +203,6 @@ class LegistarScraper (object):
     connection_complete = False
 
     response = _try_connect(br, detail_uri)
-
-    if response is None :
-      return None
 
     f = response.read()
     soup = BeautifulSoup(f)
@@ -403,7 +402,7 @@ class LegistarScraper (object):
     return None
 
 def _try_connect(br, uri, data=None) :
-  response = None
+  response = False
   for attempt in xrange(1,6):
     try:
       response = br.open(uri, data, timeout=30)
@@ -414,5 +413,9 @@ def _try_connect(br, uri, data=None) :
       time.sleep(attempt*30)
       print e
 
-  return response
+  if response :
+    return response
+  else :
+    raise urlib2.URLError("Timed Out")
+
 
