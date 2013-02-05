@@ -200,13 +200,15 @@ class LegistarScraper (object):
     br = self._get_new_browser()
     connection_complete = False
 
-    for attempt in xrange(5):
+    for attempt in xrange(6,1):
       try:
         response = br.open(detail_uri, timeout=30)
         connection_complete = True
         break
       except Exception as e :
         print 'Timed Out'
+        print 'sleep for', str(attempt*30)
+        time.sleep(attempt*30)
         print e
 
     if not connection_complete:
