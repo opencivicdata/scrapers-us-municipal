@@ -229,7 +229,7 @@ class LegistarScraper (object):
           fulltext = ''
 
         details[u'Attachments'].append(
-          {'url': a['href'],
+          {'url': self.host + a['href'],
            'label': a.text,
            'fulltext' : fulltext }
           )
@@ -246,7 +246,7 @@ class LegistarScraper (object):
     related_file_span = soup.find('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })
     if related_file_span is not None:
       details[u'Related files:'] = ','.join([
-        a['href']
+        self.host + a['href']
         for a in related_file_span.findAll('a')])
 
     # Break down the history table
