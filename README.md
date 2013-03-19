@@ -13,7 +13,7 @@ This software is under active development. It is currently known to work for Chi
 
 ```console
 > pip install -r requirements.txt
-> python setup.py install
+> python setup.py install 
 ```
 
 Note: The current stable branch of mechanize [has a bug in it](https://github.com/jjlee/mechanize/pull/58). If
