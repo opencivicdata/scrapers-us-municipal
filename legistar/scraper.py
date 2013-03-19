@@ -31,7 +31,7 @@ class LegistarScraper (object):
     self._people_uri = (
       self.host + self.config.get('people_path', 'People.aspx'))
     
-  def searchLegislation(self, search_text, last_date=None, num_pages = None):
+  def searchLegislation(self, search_text, created_before=None, created_after=None, num_pages = None):
     """
     Submit a search query on the legislation search page, and return a list
     of summary results.
@@ -66,9 +66,16 @@ class LegistarScraper (object):
     br.form['ctl00$ContentPlaceHolder1$txtText'] = search_text
 
 
-    if last_date :
-      br.form['ctl00$ContentPlaceHolder1$radFileCreated'] = ['>']
-      br.form['ctl00_ContentPlaceHolder1_txtFileCreated1_dateInput_ClientState'] = '{"enabled":true,"emptyMessage":"","validationText":"%s-00-00-00","valueAsString":"%s-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00"}' % (last_date, last_date)
+    if created_before or created_after:
+      if created_before :
+        creation_date = created_before
+        relation = '<'
+      else:
+        creation_date = created_after
+        relation = '>'
+
+      br.form['ctl00$ContentPlaceHolder1$radFileCreated'] = [relation]
+      br.form['ctl00_ContentPlaceHolder1_txtFileCreated1_dateInput_ClientState'] = '{"enabled":true,"emptyMessage":"","validationText":"%s-00-00-00","valueAsString":"%s-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00"}' % (creation_date, creation_date)
 
 
     # Submit the form
