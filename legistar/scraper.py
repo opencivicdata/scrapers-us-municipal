@@ -28,7 +28,9 @@ class LegistarScraper (object):
       self.host + self.config.get('legislation_path', 'Legislation.aspx'))
     self._calendar_uri = (
       self.host + self.config.get('calendar_path', 'Calendar.aspx'))
-
+    self._people_uri = (
+      self.host + self.config.get('people_path', 'People.aspx'))
+    
   def searchLegislation(self, search_text, last_date=None, num_pages = None):
     """
     Submit a search query on the legislation search page, and return a list
@@ -237,7 +239,7 @@ class LegistarScraper (object):
     sponsors_span = soup.find('span', id='ctl00_ContentPlaceHolder1_lblSponsors2')
     sponsors = []
     if sponsors_span is not None :
-      for a in sponsors_span.findAll('a') :
+       for a in sponsors_span.findAll('a') :
         sponsors.append(a.text)
 
     details[u'Sponsors'] = sponsors
@@ -273,6 +275,22 @@ class LegistarScraper (object):
 
     return details, votes
 
+  def councilMembers(self) :
+    br = self._get_new_browser()
+    response = br.open(self._people_uri)
+    soup = BeautifulSoup(response.read())
+    table = soup.find('table', id='ctl00_ContentPlaceHolder1_gridPeople_ctl00')
+    for councilman, headers, row in self.parseDataTable(table):
+
+
+      detail_url = self.host + councilman['Person Name']['url']
+      response = br.open(detail_url)
+      soup = BeautifulSoup(response.read())
+      img = soup.find('img', {'id' : 'ctl00_ContentPlaceHolder1_imgPhoto'})
+      if img :
+        councilman['Photo'] = self.host + img['src']
+
+      yield councilman
 
 
 
