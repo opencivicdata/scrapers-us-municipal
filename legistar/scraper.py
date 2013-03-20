@@ -136,7 +136,11 @@ class LegistarScraper (object):
       # ------------------------------------
       # First column should be the ID of the record.
       id_key = headers[0]
-      legislation_id = legislation[id_key]['label']
+      try:
+        legislation_id = legislation[id_key]['label']
+      except:
+        print legislation
+        raise
       legislation_url = legislation[id_key]['url']
       legislation[id_key] = legislation_id
       legislation['URL'] = self.host + legislation_url.split('&Options')[0]
