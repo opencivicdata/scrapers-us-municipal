@@ -126,6 +126,7 @@ class NewYorkCityPersonScraper(Scraper):
                 print "  %s" % (person)
             c = Organization(name=name,
                              classification='committee')
+            c.add_source(url)
             # c.add_member(x) for x in info['people']
             yield c
 
