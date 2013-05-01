@@ -1,3 +1,8 @@
+# Pupa bits.
+scraped_data
+scrape_cache
+
+# Python objects
 *.py[cod]
 
 # C extensions
