@@ -150,8 +150,12 @@ class BostonPersonScraper(Scraper):
             if c.text is None:
                 continue
             name = c.text
-            info = self.scrape_committee_page(c.attrib['href'])
+            homepage = c.attrib['href']
+
+            info = self.scrape_committee_page(homepage)
             committee = Organization(name, classification='committee')
+            committee.add_source(COMMITTEE_LIST)
+            committee.add_source(homepage)
             for member in info['members']:
                 #committee.add_membership(member, role='member')
                 pass
