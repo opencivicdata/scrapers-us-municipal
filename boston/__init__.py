@@ -7,8 +7,8 @@
 
 
 from pupa.scrape import Jurisdiction, Scraper, Legislator
-from larvae.person import Person
 from larvae.organization import Organization
+from larvae.person import Person
 
 from collections import defaultdict
 import lxml.html
