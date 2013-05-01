@@ -1,4 +1,0 @@
-[pep8]
-ignore=E124,E202
-# ignore warning about alignment of last brace, it is nicer to have it
-# matching the first brace than indented an extra level
