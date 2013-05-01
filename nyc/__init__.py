@@ -122,8 +122,6 @@ class NewYorkCityPersonScraper(Scraper):
         for committee in self.get_committees():
             name, url = [committee[x] for x in ["name", "url"]]
             info = self.scrape_committee_homepage(url)
-            for person in info['people']:
-                print "  %s" % (person)
             c = Organization(name=name,
                              classification='committee')
             c.add_source(url)
