@@ -98,5 +98,9 @@ class ClevelandPersonScraper(Scraper):
                            image=img, **kwargs)
             p.add_source(page)
 
-            # person.add_committee_membership(what) for what in committees
+            #for what in scraped_info.get('committees', []):
+            #    p.add_committee_membership(what)
+            # XXX: Resulting in ValueError: cannot resolve id: {UUID}
+
+
             yield p
