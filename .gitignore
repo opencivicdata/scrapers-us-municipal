@@ -2,6 +2,9 @@
 scraped_data
 scrape_cache
 
+# vim
+*swp
+
 # Python objects
 *.py[cod]
 
