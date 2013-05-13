@@ -48,8 +48,5 @@ class PersonScraper(Scraper):
             # Add sources.
             person.add_source(urls.list.url)
             person.add_source(urls.detail.url)
-            print(repr(person))
-            print('****')
-            print(repr(council))
-            import pdb; pdb.set_trace()
+
             yield person
