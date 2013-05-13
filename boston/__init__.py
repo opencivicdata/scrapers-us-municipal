@@ -6,7 +6,7 @@
 #    - Paul Tagliamonte <paultag@sunlightfoundation.com>
 
 
-from pupa.scrape import Jurisdiction, Scraper, Legislator
+from pupa.scrape import Jurisdiction, Scraper, Legislator, Committee
 from larvae.organization import Organization
 from larvae.person import Person
 
@@ -153,24 +153,21 @@ class BostonPersonScraper(Scraper):
             homepage = c.attrib['href']
 
             info = self.scrape_committee_page(homepage)
-            committee = Organization(name, classification='committee')
+            committee = Committee(name, classification='committee')
             committee.add_source(COMMITTEE_LIST)
             committee.add_source(homepage)
             for member in info['members']:
-                #committee.add_membership(member, role='member')
-                pass
+                committee.add_member(member, role='member')
 
             chair = info.get('chair', None)
             if chair:
                 chair = chair[0]
-                #committee.add_member(chair, role='chair')
-                pass
+                committee.add_member(chair, role='chair')
 
             vchair = info.get('vice-chair', None)
             if vchair:
                 vchair = vchair[0]
-                #committee.add_member(vchair, role='vice-chair')
-                pass
+                committee.add_member(vchair, role='vice-chair')
 
             email = info.get('email', None)
             if email:

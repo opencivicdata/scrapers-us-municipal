@@ -1,4 +1,4 @@
-# Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
+#Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
 # license.
 #
 #  Contributors:
@@ -98,8 +98,8 @@ class ClevelandPersonScraper(Scraper):
                            image=img, **kwargs)
             p.add_source(page)
 
-            #for what in scraped_info.get('committees', []):
-            #    p.add_committee_membership(what)
+            for what in scraped_info.get('committees', []):
+                p.add_committee_membership(what)
             # XXX: Resulting in ValueError: cannot resolve id: {UUID}
 
 
