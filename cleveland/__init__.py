@@ -16,7 +16,7 @@ import re
 INFOSLUG = re.compile(r"Ward (?P<district>\d+) Council(?P<gender>.*)")
 
 
-class Boston(Jurisdiction):
+class Cleveland(Jurisdiction):
     jurisdiction_id = 'us-oh-cle'
 
     def get_metadata(self):
