@@ -2,7 +2,7 @@ from pupa.scrape import Jurisdiction
 from .people import PersonScraper
 
 
-class Temecula(Jurisdiction):
+class Boise(Jurisdiction):
     jurisdiction_id = 'us-id-boise'
 
     def get_metadata(self):
