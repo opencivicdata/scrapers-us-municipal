@@ -24,7 +24,7 @@ class PersonScraper(Scraper):
         people_urls = people_urls[1:]
         for url in people_urls:
 
-            urls.add('detail', url)
+            urls.add(detail=url)
             # Parse some attributes.
 
             image = urls.detail.xpath('//div[@id="content"]/p/img/@src').pop()
