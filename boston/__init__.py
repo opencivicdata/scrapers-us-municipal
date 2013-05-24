@@ -9,8 +9,10 @@
 from pupa.scrape import Jurisdiction, Scraper, Legislator, Committee
 from larvae.organization import Organization
 from larvae.person import Person
+from larvae.event import Event
 
 from collections import defaultdict
+import datetime as dt
 import lxml.html
 
 
@@ -28,17 +30,48 @@ class Boston(Jurisdiction):
                 'terms': [{'name': '2013-2014', 'sessions': ['2013'],
                            'start_year': 2013, 'end_year': 2014
                           }],
-                'provides': ['person'],
+                'provides': ['person', 'events'],
                 'parties': [],  # No parties on the city council
                 'session_details': {'2013': {'_scraped_name': '2013'}},
                 'feature_flags': [],}
 
     def get_scraper(self, term, session, scraper_type):
-        if scraper_type == 'person':
-            return BostonPersonScraper
+        bits = {
+            "person": BostonPersonScraper,
+            "events": BostonEventsScraper
+        }
+        if scraper_type in bits:
+            return bits[scraper_type]
 
     def scrape_session_list(self):
         return ['2013']
+
+
+class BostonEventsScraper(Scraper):
+
+    def lxmlize(self, url):
+        entry = self.urlopen(url)
+        page = lxml.html.fromstring(entry)
+        page.make_links_absolute(url)
+        return page
+
+    def get_events(self):
+        url = "http://meetingrecords.cityofboston.gov/sirepub/meetresults.aspx"
+
+        page = self.lxmlize(url)
+        for entry in page.xpath(
+                "//tr[@style='font-family: Verdana; font-size: 12px;']"):
+            name, when, links = entry.xpath(".//td")
+            name = name.text.strip().replace(u"\xc2\xa0", "")
+            when = when.text.strip().replace(u"\xc2\xa0", "")
+            when = dt.datetime.strptime(when, "%m/%d/%Y")
+            links = links.xpath(".//a")
+            links = {x.text: x.attrib['href'] for x in links}
+            e = Event(description=name, start=when, location='unknown')
+            e.add_source(url)
+            for note, url in links.items():
+                e.add_link(note=note, url=url)
+            yield e
 
 
 class BostonPersonScraper(Scraper):
