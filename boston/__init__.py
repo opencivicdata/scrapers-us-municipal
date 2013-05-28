@@ -29,7 +29,7 @@ class Boston(Jurisdiction):
 
     def get_scraper(self, term, session, scraper_type):
         bits = {
-            "person": BostonPersonScraper,
+            "people": BostonPersonScraper,
             "events": BostonEventsScraper
         }
         if scraper_type in bits:

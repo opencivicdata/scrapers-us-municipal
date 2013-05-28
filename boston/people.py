@@ -102,10 +102,14 @@ class BostonPersonScraper(Scraper):
             "Committee Description:": "description",
         }
 
+        def strip(entry):
+            entry = entry.replace(u"\xc2", " ").strip()
+            return entry
+
         ret = defaultdict(list)
         for entry in things:
             if entry.tag == "h4":
-                cur = flags[entry.text.strip()]
+                cur = flags[strip(entry.text)]
                 continue
 
             e = entry.text_content()
