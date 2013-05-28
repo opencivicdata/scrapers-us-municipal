@@ -67,12 +67,29 @@ class RoswellEventsScraper(Scraper):
 
         when = dt.datetime.utcnow()
         date, start, end = (x.strip() for x in ret['When:'].split("\n"))
-        start = re.sub("^@", "", start)
-        print date, start, end
+        start = re.sub("^@", "", start).strip()
+        end = end.replace("-", "").strip()
+
+        replace = [
+            ('Apr', 'April'),
+        ]
+
+        skip = ["Occurs every"]
+
+        for k, v in replace:
+            date = date.replace(k, v).strip()
+
+        if True in (x in end for x in skip):
+            return
+
+        start = "%s %s" % (date, start)
+        end = "%s %s" % (date, end)
+        start, end = (dt.datetime.strptime(x, "%B %d, %Y %I:%M %p") for x in (start, end))
 
         event = Event(
             description=title,
             location=ret['Where:'],
-            start=when,) # ret['When:'])
+            start=start,
+            end=end)
         event.add_source(url)
         yield event
