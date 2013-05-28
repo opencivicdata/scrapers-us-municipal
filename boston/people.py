@@ -159,4 +159,3 @@ class BostonPersonScraper(Scraper):
                                              value=email,
                                              note='committee email')
             yield committee
-
