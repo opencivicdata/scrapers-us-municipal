@@ -9,9 +9,13 @@
 from pupa.scrape import Jurisdiction, Scraper, Legislator
 from larvae.organization import Organization
 from larvae.person import Person
+from larvae.event import Event
 
+import datetime as dt
 import lxml.html
 import re
+
+
 
 
 MEMBER_PAGE = "http://council.nyc.gov/html/members/members.shtml"
@@ -39,8 +43,12 @@ class NewYorkCity(Jurisdiction):
                 'feature_flags': [],}
 
     def get_scraper(self, term, session, scraper_type):
-        if scraper_type == 'person':
-            return NewYorkCityPersonScraper
+        scrapers = {
+            "person": NewYorkCityPersonScraper,
+            "events": NewYorkCityEventsScraper
+        }
+        if scraper_type in scrapers:
+            return scrapers[scraper_type]
 
     def scrape_session_list(self):
         return ['2013']
@@ -151,3 +159,58 @@ class NewYorkCityPersonScraper(Scraper):
             p.add_source(homepage)
             p.add_source(MEMBER_PAGE)
             yield p
+
+
+class NewYorkCityEventsScraper(Scraper):
+
+    def lxmlize(self, url, encoding='utf-8'):
+        entry = self.urlopen(url).encode(encoding)
+        page = lxml.html.fromstring(entry)
+        page.make_links_absolute(url)
+        return page
+
+
+    def get_events(self):
+        url = "http://legistar.council.nyc.gov/Calendar.aspx"
+        page = self.lxmlize(url)
+        main = page.xpath("//table[@class='rgMasterTable']")[0]
+        rows = main.xpath(".//tr")[1:]
+        for row in rows:
+            (name, date, time, where, topic,
+             details, agenda, minutes, media) = row.xpath(".//td")
+
+            name = name.text_content().strip()  # leaving an href on the table
+            time = time.text_content().strip()
+            location = where.text_content().strip()
+            topic = topic.text_content().strip()
+
+            if "Deferred" in time:
+                continue
+
+            all_day = False
+            if time == "":
+                all_day = True
+                when = dt.datetime.strptime(date.text.strip(),
+                                            "%m/%d/%Y")
+            else:
+                when = dt.datetime.strptime("%s %s" % (date.text.strip(), time),
+                                            "%m/%d/%Y %I:%M %p")
+
+            event = Event(description=name,
+                          start=when,
+                          location=location)
+            event.add_source(url)
+
+            details = details.xpath(".//a[@href]")
+            for detail in details:
+                event.add_document(detail.text, detail.attrib['href'])
+
+            agendas = agenda.xpath(".//a[@href]")
+            for a in agendas:
+                event.add_document(a.text, a.attrib['href'])
+
+            minutes = minutes.xpath(".//a[@href]")
+            for minute in minutes:
+                event.add_document(minute.text, minute.attrib['href'])
+
+            yield event
