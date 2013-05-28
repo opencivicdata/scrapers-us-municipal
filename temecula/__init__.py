@@ -1,5 +1,7 @@
 from pupa.scrape import Jurisdiction
+
 from .people import PersonScraper
+from .events import TemeculaEventScraper
 
 
 class Temecula(Jurisdiction):
@@ -12,7 +14,7 @@ class Temecula(Jurisdiction):
                 'terms': [{'name': '2010-2014', 'sessions': ['2013'],
                            'start_year': 2010, 'end_year': 2014
                           }],
-                'provides': ['person'],
+                'provides': ['people'],
                 'parties': [{'name': 'Democratic' },
                             {'name': 'Republican' },
                            ],
@@ -21,9 +23,11 @@ class Temecula(Jurisdiction):
                }
 
     def get_scraper(self, term, session, scraper_type):
-        if scraper_type == 'person':
+        if scraper_type == 'people':
             return PersonScraper
+
+        if scraper_type == 'events':
+            return TemeculaEventScraper
 
     def scrape_session_list(self):
         return ['2013']
-
