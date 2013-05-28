@@ -14,7 +14,6 @@ import lxml.html
 import re
 
 
-
 MEMBER_PAGE = "http://council.nyc.gov/html/members/members.shtml"
 COMMITTEE_BASE = "http://council.nyc.gov/includes/scripts"
 COMMITTEE_PAGE = "{COMMITTEE_BASE}/nav_nodes.js".format(**locals())

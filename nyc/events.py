@@ -13,8 +13,6 @@ import datetime as dt
 import lxml.html
 
 
-
-
 class NewYorkCityEventsScraper(Scraper):
 
     def lxmlize(self, url, encoding='utf-8'):
@@ -68,4 +66,3 @@ class NewYorkCityEventsScraper(Scraper):
                 event.add_document(minute.text, minute.attrib['href'])
 
             yield event
-
