@@ -8,6 +8,7 @@ import mechanize
 from collections import defaultdict
 import slate
 import cStringIO
+import pdfminer
 
 class LegistarScraper (object):
   """
@@ -379,7 +380,11 @@ class LegistarScraper (object):
           if tries_left:
             return self._extractPdfText(pdf_key, tries_left-1)
 
-    doc = slate.PDF(pdf_data)
+    try:
+      doc = slate.PDF(pdf_data)
+    except pdfminer.psparser.PSException:
+      print 'not a PDF or bad PDF, ignoring it'
+      return ''
 
     return '\n'.join(doc)
 
