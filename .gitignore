@@ -2,6 +2,10 @@
 scraped_data
 scrape_cache
 
+# scraper bits
+HearingSchedule.pdf
+HearingSchedule.txt
+
 # vim
 *swp
 

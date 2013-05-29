@@ -1,4 +1,6 @@
 from pupa.scrape import Jurisdiction
+
+from .events import BoiseEventScraper
 from .people import PersonScraper
 from .bills import BillScraper
 
@@ -13,7 +15,7 @@ class Boise(Jurisdiction):
                 'terms': [{'name': '2010-2014', 'sessions': ['2013'],
                            'start_year': 2010, 'end_year': 2014
                           }],
-                'provides': ['person', 'bill'],
+                'provides': ['people', 'bills', 'events'],
                 'parties': [{'name': 'Democratic' },
                             {'name': 'Republican' },
                            ],
@@ -22,10 +24,12 @@ class Boise(Jurisdiction):
                }
 
     def get_scraper(self, term, session, scraper_type):
-        if scraper_type == 'person':
+        if scraper_type == 'people':
             return PersonScraper
-        if scraper_type == 'bill':
+        if scraper_type == 'bills':
             return BillScraper
+        if scraper_type == 'events':
+            return BoiseEventScraper
 
     def scrape_session_list(self):
         return ['2013']
