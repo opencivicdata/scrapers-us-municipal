@@ -37,4 +37,9 @@ class BostonEventsScraper(Scraper):
             e.add_source(url)
             for note, url in links.items():
                 e.add_link(note=note, url=url)
+            e.add_person('joe')
+
+            item = e.add_agenda_item("Hello, World")
+            item.add_bill("HB 101")
+
             yield e
