@@ -93,6 +93,7 @@ class TemeculaEventScraper(Scraper):
             ret['time']['start'], ret['time']['end'] = start, end
 
             event = Event(description=ret['Description:'] or "TBA",
+                          session=self.session,
                           location=ret['Location:'],
                           start=ret['time']['start'],
                           end=ret['time']['end'])

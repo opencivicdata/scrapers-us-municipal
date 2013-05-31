@@ -90,6 +90,7 @@ class RoswellEventsScraper(Scraper):
         start, end = (dt.datetime.strptime(x, "%B %d, %Y %I:%M %p") for x in (start, end))
 
         event = Event(
+            session=self.session,
             description=title,
             location=ret['Where:'],
             start=start,

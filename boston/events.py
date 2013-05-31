@@ -38,7 +38,10 @@ class BostonEventsScraper(Scraper):
             when = dt.datetime.strptime(when, "%m/%d/%Y")
             links = links.xpath(".//a")
             links = {x.text: x.attrib['href'] for x in links}
-            e = Event(description=name, start=when, location='unknown')
+            e = Event(description=name,
+                      session=self.session,
+                      start=when,
+                      location='unknown')
             e.add_source(url)
             for note, url in links.items():
                 e.add_link(note=note, url=url)

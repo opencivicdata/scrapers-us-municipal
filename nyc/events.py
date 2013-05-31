@@ -52,6 +52,7 @@ class NewYorkCityEventsScraper(Scraper):
                                             "%m/%d/%Y %I:%M %p")
 
             event = Event(description=name,
+                          session=self.session,
                           start=when,
                           location=location)
             event.add_source(url)

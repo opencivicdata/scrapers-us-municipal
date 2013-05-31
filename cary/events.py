@@ -82,6 +82,7 @@ class CaryEventsScraper(Scraper):
             kwargs['end'] = end
 
         e = Event(description=what,
+                  session=self.session,
                   location=ret['Location:'],
                   start=start,
                   **kwargs)
