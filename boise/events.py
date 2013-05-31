@@ -58,6 +58,9 @@ class BoiseEventScraper(Scraper):
         return fpath
 
     def get_events(self):
+        if self.session != self.get_current_session():
+            raise Exception("Can't do that, dude")
+
         path = self.download_file(CAL_PDF)
         target = re.sub("\.pdf$", ".txt", path)
         if not os.path.exists(target):

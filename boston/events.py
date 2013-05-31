@@ -15,6 +15,8 @@ import lxml.html
 
 class BostonEventsScraper(Scraper):
 
+    only_current = True
+
     def lxmlize(self, url):
         entry = self.urlopen(url)
         page = lxml.html.fromstring(entry)
@@ -22,6 +24,9 @@ class BostonEventsScraper(Scraper):
         return page
 
     def get_events(self):
+        if self.session != self.get_current_session():
+            raise Exception("Can't do that, dude")
+
         url = "http://meetingrecords.cityofboston.gov/sirepub/meetresults.aspx"
 
         page = self.lxmlize(url)
@@ -38,8 +43,5 @@ class BostonEventsScraper(Scraper):
             for note, url in links.items():
                 e.add_link(note=note, url=url)
             e.add_person('joe')
-
-            item = e.add_agenda_item("Hello, World")
-            item.add_bill("HB 101")
 
             yield e

@@ -23,6 +23,9 @@ class NewYorkCityEventsScraper(Scraper):
 
 
     def get_events(self):
+        if self.session != self.get_current_session():
+            raise Exception("Can't do that, dude")
+
         url = "http://legistar.council.nyc.gov/Calendar.aspx"
         page = self.lxmlize(url)
         main = page.xpath("//table[@class='rgMasterTable']")[0]

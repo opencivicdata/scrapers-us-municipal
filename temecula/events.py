@@ -33,6 +33,9 @@ class TemeculaEventScraper(Scraper):
         return foo
 
     def get_events(self):
+        if self.session != self.get_current_session():
+            raise Exception("Can't do that, dude")
+
         page = self.lxmlize(CAL_PAGE)
         form = page.xpath("//form[@name='Form1']")
         form = form[0] if form else None

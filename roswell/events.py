@@ -26,6 +26,9 @@ class RoswellEventsScraper(Scraper):
         return page
 
     def get_events(self):
+        if self.session != self.get_current_session():
+            raise Exception("Can't do that, dude")
+
         page = self.lxmlize(CAL_PAGE)
         days = page.xpath("//table[@class='evlist_month']//td")
         for day in days:

@@ -32,6 +32,9 @@ class SantaFeEventsScraper(Scraper):
         return re.sub("\s+", " ", what).strip()
 
     def get_events(self):
+        if self.session != self.get_current_session():
+            raise Exception("Can't do that, dude")
+
         curdate = None
         page = self.lxmlize(CAL_PAGE)
         for el in page.xpath("//div[@id='Section1']/*"):

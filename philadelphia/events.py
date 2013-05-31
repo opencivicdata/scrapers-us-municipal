@@ -21,6 +21,9 @@ class PhillyEventsScraper(Scraper):
         return page
 
     def get_events(self):
+        if self.session != self.get_current_session():
+            raise Exception("Can't do that, dude")
+
         url = "http://phila.legistar.com/Calendar.aspx/"
         page = self.lxmlize(url)
         main = page.xpath("//table[@class='rgMasterTable']")[0]

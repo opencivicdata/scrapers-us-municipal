@@ -27,6 +27,9 @@ class ClevelandEventScraper(Scraper):
         return page
 
     def get_events(self):
+        if self.session != self.get_current_session():
+            raise Exception("Can't do that, dude")
+
         page = self.lxmlize("http://www.clevelandcitycouncil.org/calendar/")
         events = page.xpath("//ul[contains(@class, 'committee-events')]//li")
         for event in events:

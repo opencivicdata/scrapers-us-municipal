@@ -26,6 +26,9 @@ class CaryEventsScraper(Scraper):
         return page
 
     def get_events(self):
+        if self.session != self.get_current_session():
+            raise Exception("Can't do that, dude")
+
         page = self.lxmlize(CAL_URL)
         events = page.xpath("//div[@id='ctl14_pnlCalendarAll']//td")
         for event in events:
