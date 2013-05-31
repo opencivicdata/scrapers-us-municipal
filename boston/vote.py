@@ -38,6 +38,12 @@ class BostonVoteScraper(Scraper):
 
                 for date, motion, vote in zip(dates, motions, votes):
                     when = dt.datetime.strptime(date, "%m/%d/%Y")
+                    motion = motion.strip()
+
+                    if motion == "":
+                        self.warning("Skipping vote.")
+                        continue
+
                     v = Vote(session=self.session,
                              type='vote',
                              passed=False,
