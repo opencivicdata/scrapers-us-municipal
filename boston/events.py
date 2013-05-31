@@ -15,8 +15,6 @@ import lxml.html
 
 class BostonEventsScraper(Scraper):
 
-    only_current = True
-
     def lxmlize(self, url):
         entry = self.urlopen(url)
         page = lxml.html.fromstring(entry)
@@ -42,6 +40,7 @@ class BostonEventsScraper(Scraper):
                       session=self.session,
                       start=when,
                       location='unknown')
+
             e.add_source(url)
             for note, url in links.items():
                 e.add_link(note=note, url=url)
