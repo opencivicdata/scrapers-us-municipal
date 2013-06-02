@@ -12,5 +12,6 @@ class Config (dict):
 
 DEFAULT_CONFIG = Config(
   date_format='%m/%d/%Y',
-  fulltext=True
+  fulltext=True,
+  sponsor_links=True,
 )
