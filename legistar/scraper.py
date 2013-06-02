@@ -39,6 +39,7 @@ class LegistarScraper (object):
     of summary results.
     """
     br = self._get_new_browser()
+    print self._legislation_uri
     br.open(self._legislation_uri)
 
     try:
