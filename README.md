@@ -4,6 +4,7 @@ Legistar Scraper is a python library for scraping [Legistar sites](http://www.gr
 Legistar sites include 
 - [Chicago](http://chicago.legistar.com)
 - [Philadelphia](http://phila.legistar.com)
+- [Oakland](http://oakland.legistar.com/legislation.aspx)
 - and many other cities
 
 This software is under active development. It is currently known to work for Chicago and Philadelphia.
