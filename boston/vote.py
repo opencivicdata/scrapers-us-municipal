@@ -19,7 +19,6 @@ import time
 DURL = "http://www.cityofboston.gov/cityclerk/rollcall/default.aspx"
 
 
-
 class BostonVoteScraper(Scraper):
 
     def lxmlize(self, url):
@@ -35,6 +34,9 @@ class BostonVoteScraper(Scraper):
                 motions = [x.strip() for x in subject.xpath(
                     ".//div[@style='width:260px; float:left;']/text()")]
                 votes = subject.xpath(".//div[@style='width:150px; float:right;']")
+                docket = subject.xpath(".//div[@class='HeaderContent']/b/text()")
+                docket = filter(lambda x: "docket" in x.lower(), docket)
+                docket = docket[0] if docket else None
 
                 for date, motion, vote in zip(dates, motions, votes):
                     when = dt.datetime.strptime(date, "%m/%d/%Y")
@@ -51,6 +53,9 @@ class BostonVoteScraper(Scraper):
                              motion=motion,
                              yes_count=0,
                              no_count=0,)
+
+                    if docket:
+                        v.add_bill(docket, chamber=None)
 
                     vit = iter(vote.xpath("./div"))
                     vote = zip(vit, vit, vit)
@@ -93,7 +98,7 @@ class BostonVoteScraper(Scraper):
 
 
     def next_page(self, page):
-        time.sleep(4)
+        time.sleep(5)
         form = page.xpath("//form[@name='aspnetForm']")[0]
         n = page.xpath("//a[contains(text(), 'Next Page')]")[0]
         nextable = n.attrib['style'] != 'display: none;'
