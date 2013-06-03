@@ -23,7 +23,7 @@ class LegistarScraper (object):
     self.config = config
     self.host = 'http://%s/' % self.config['hostname']
     self.fulltext = self.config['fulltext']
-    self.sponsor_links = self.config.get('sponsor_links', True)
+    self.sponsor_links = self.config['sponsor_links']
     
     # Assume that the legislation and calendar URLs are constructed regularly.
     self._legislation_uri = (
@@ -258,11 +258,6 @@ class LegistarScraper (object):
         sponsors = sponsors_span.text.split(',')
     details[u'Sponsors'] = sponsors
 
-    indexes_span = soup.find('span', id='ctl00_ContentPlaceHolder1_lblIndexes2')
-    indexes = []
-    if indexes_span is not None :
-      indexes = [index.strip() for index in indexes_span.text.split(',')]
-    details[u'Indexes'] = indexes
 
     related_file_span = soup.find('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })
     if related_file_span is not None:
