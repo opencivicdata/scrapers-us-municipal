@@ -23,7 +23,8 @@ class LegistarScraper (object):
     self.config = config
     self.host = 'http://%s/' % self.config['hostname']
     self.fulltext = self.config['fulltext']
-
+    self.sponsor_links = self.config['sponsor_links']
+    
     # Assume that the legislation and calendar URLs are constructed regularly.
     self._legislation_uri = (
       self.host + self.config.get('legislation_path', 'Legislation.aspx'))
@@ -250,9 +251,11 @@ class LegistarScraper (object):
     sponsors_span = soup.find('span', id='ctl00_ContentPlaceHolder1_lblSponsors2')
     sponsors = []
     if sponsors_span is not None :
-       for a in sponsors_span.findAll('a') :
-        sponsors.append(a.text)
-
+      if self.sponsor_links:
+        for a in sponsors_span.findAll('a') :
+          sponsors.append(a.text)
+      else:
+        sponsors = sponsors_span.text.split(',')
     details[u'Sponsors'] = sponsors
 
 
