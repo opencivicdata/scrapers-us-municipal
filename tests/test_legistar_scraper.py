@@ -206,11 +206,11 @@ def chicago_topics():
   legislation_details = scraper.expandLegislationSummary(legislation_with_topics)
 
   print legislation_details[0]
-  assert_equal(legislation_details[0]["Topic"], u'PUBLIC WAY USAGE - Awnings')
+  assert_equal(legislation_details[0]["Topics"], [u'PUBLIC WAY USAGE - Awnings'])
 
   legislation_no_topics = {'URL': 'http://chicago.legistar.com/LegislationDetail.aspx?ID=1429779&GUID=118DDF75-D698-4526-BA54-B560BB6CCB04'}
   legislation_details = scraper.expandLegislationSummary(legislation_no_topics)
-  assert_not_in("Topic", legislation_details[0])
+  assert_equal(legislation_details[0]["Topics"], [])
 
 @istest
 def philly_topics():
@@ -219,8 +219,8 @@ def philly_topics():
   scraper = LegistarScraper(config)
   legislation_with_topics = {'URL': 'http://phila.legistar.com/LegislationDetail.aspx?ID=1433307&GUID=773A9C3F-ABA5-4D6C-B901-A9EEE3B1B8B0'}
   legislation_details = scraper.expandLegislationSummary(legislation_with_topics)
-  assert_equal(legislation_details[0]["Indexes"], u'LIQUOR BY THE DRINK TAX, SCHOOL TAX AUTHORIZATION')
+  assert_equal(legislation_details[0]["Topics"], [u'LIQUOR BY THE DRINK TAX', u'SCHOOL TAX AUTHORIZATION'])
   legislation_no_topics = {'URL': 'http://phila.legistar.com/LegislationDetail.aspx?ID=1426307&GUID=E9EC8885-0DDD-4B64-AB2D-EA0503284268'}
   legislation_details = scraper.expandLegislationSummary(legislation_no_topics)
-  assert_not_in("Indexes", legislation_details[0])
+  assert_equal(legislation_details[0]["Topics"], [])
 

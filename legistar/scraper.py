@@ -258,6 +258,11 @@ class LegistarScraper (object):
         sponsors = sponsors_span.text.split(',')
     details[u'Sponsors'] = sponsors
 
+    topics_span = soup.find('span', id='ctl00_ContentPlaceHolder1_lblIndexes2')
+    topics = []
+    if topics_span is not None :
+      topics = [topic.strip() for topic in topics_span.text.split(',')]
+    details[u'Topics'] = topics
 
     related_file_span = soup.find('span', {'id' : 'ctl00_ContentPlaceHolder1_lblRelatedFiles2' })
     if related_file_span is not None:
