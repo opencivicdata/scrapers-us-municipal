@@ -79,8 +79,9 @@ class BostonVoteScraper(Scraper):
                     for obj in form.xpath(".//input")]}
         block['__EVENTTARGET'] = event_target
         block['__EVENTARGUMENT'] = event_argument
-        block['ctl00$MainContent$lblCurrentText'] = (
-            int(block['ctl00$MainContent$lblCurrentText']) + 1)
+        block['ctl00$MainContent$lblCurrentText'] = (int(
+            block['ctl00$MainContent$lblCurrentText']) + 1)
+        block.pop("ctl00$MainContent$ctl00")
 
         data = urllib.urlencode(block)
         ret = lxml.html.fromstring(urllib2.urlopen(form.action, data).read())
