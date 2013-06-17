@@ -91,9 +91,9 @@ class RoswellEventsScraper(Scraper):
 
         event = Event(
             session=self.session,
-            description=title,
+            name=title,
             location=ret['Where:'],
-            start=start,
+            when=start,
             end=end)
         event.add_source(url)
         yield event

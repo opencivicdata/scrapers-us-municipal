@@ -81,10 +81,10 @@ class CaryEventsScraper(Scraper):
         if end:
             kwargs['end'] = end
 
-        e = Event(description=what,
+        e = Event(name=what,
                   session=self.session,
                   location=ret['Location:'],
-                  start=start,
+                  when=start,
                   **kwargs)
         e.add_source(href.attrib['href'])
         yield e

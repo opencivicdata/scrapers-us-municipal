@@ -72,9 +72,9 @@ class SantaFeEventsScraper(Scraper):
                 where  = re.sub("\s+", " ", where).strip()
                 where = re.sub("agenda$", "", where).strip()
 
-                event = Event(description=info,
+                event = Event(name=info,
                               session=self.session,
-                              start=obj,
+                              when=obj,
                               location=where)
                 event.add_source(CAL_PAGE)
                 yield event

@@ -51,9 +51,9 @@ class NewYorkCityEventsScraper(Scraper):
                 when = dt.datetime.strptime("%s %s" % (date.text.strip(), time),
                                             "%m/%d/%Y %I:%M %p")
 
-            event = Event(description=name,
+            event = Event(name=name,
                           session=self.session,
-                          start=when,
+                          when=when,
                           location=location)
             event.add_source(url)
 

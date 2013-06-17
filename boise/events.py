@@ -107,9 +107,9 @@ class BoiseEventScraper(Scraper):
         buf = buf.strip()
 
         obj = dt.datetime.strptime(tbuf, fmt)
-        e = Event(description=buf,
+        e = Event(name=buf,
                   session=self.session,
-                  start=obj,
+                  when=obj,
                   location="City Hall")
         yield e
 
