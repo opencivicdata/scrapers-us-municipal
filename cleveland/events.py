@@ -9,6 +9,8 @@ from pupa.scrape import Scraper
 
 import datetime as dt
 import lxml.html
+import urllib2
+import urllib
 import re
 
 # events
