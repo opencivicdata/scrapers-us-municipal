@@ -31,8 +31,12 @@ class NewYorkCityEventsScraper(Scraper):
         main = page.xpath("//table[@class='rgMasterTable']")[0]
         rows = main.xpath(".//tr")[1:]
         for row in rows:
+            els = row.xpath(".//td")
+            if len(els) <= 2:
+                continue  # Odd one-off.
+
             (name, date, time, where, topic,
-             details, agenda, minutes, media) = row.xpath(".//td")
+             details, agenda, minutes, media) = els
 
             name = name.text_content().strip()  # leaving an href on the table
             time = time.text_content().strip()
