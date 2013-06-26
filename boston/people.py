@@ -19,6 +19,19 @@ MEMBER_LIST = "http://www.cityofboston.gov/citycouncil/"
 COMMITTEE_LIST = "http://www.cityofboston.gov/citycouncil/committees/"
 
 
+PREFIXES = [
+    "Councillors",
+    "Councillor",
+]
+
+
+def clean_name(name):
+    for thing in PREFIXES:
+        name = name.replace(thing, "")
+    name = name.encode('latin1').strip()
+    name = name.replace("\xc2\xa0", "")
+    return name
+
 
 class BostonPersonScraper(Scraper):
 
@@ -62,7 +75,7 @@ class BostonPersonScraper(Scraper):
             image = image.attrib['src']  # Fallback if we don't get one from the
             # homepage.
             homepage = name.attrib['href']
-            name = name.text
+            name = clean_name(name.text)
             info = self.scrape_homepage(homepage)
             if info.get('image', None):
                 image = info['image']
@@ -139,17 +152,21 @@ class BostonPersonScraper(Scraper):
             committee = Committee(name, classification='committee')
             committee.add_source(COMMITTEE_LIST)
             committee.add_source(homepage)
+
             for member in info['members']:
+                member = clean_name(member)
                 committee.add_member(member, role='member')
 
             chair = info.get('chair', None)
             if chair:
                 chair = chair[0]
+                chair = clean_name(chair)
                 committee.add_member(chair, role='chair')
 
             vchair = info.get('vice-chair', None)
             if vchair:
                 vchair = vchair[0]
+                vchair = clean_name(vchair)
                 committee.add_member(vchair, role='vice-chair')
 
             email = info.get('email', None)
