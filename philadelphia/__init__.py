@@ -11,7 +11,7 @@ from .events import PhillyEventsScraper
 
 
 class Philadelphia(Jurisdiction):
-    jurisdiction_id = 'us-pa-philadelphia'
+    jurisdiction_id = 'ocd-jurisdiction/ocd-division/country:us/state:pa/place:philadelphia/council'
 
     def get_metadata(self):
         return {'name': 'Philadelphia',

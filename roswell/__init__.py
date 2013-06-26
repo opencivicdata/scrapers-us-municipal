@@ -11,7 +11,7 @@ from .events import RoswellEventsScraper
 
 
 class Roswell(Jurisdiction):
-    jurisdiction_id = 'us-nm-roswell'
+    jurisdiction_id = 'ocd-jurisdiction/country:us/state:nm/place:roswell/council'
 
     def get_metadata(self):
         return {'name': 'Roswell',

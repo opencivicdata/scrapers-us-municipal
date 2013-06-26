@@ -12,7 +12,7 @@ from .events import CaryEventsScraper
 
 
 class Cary(Jurisdiction):
-    jurisdiction_id = 'us-nc-car'
+    jurisdiction_id = 'ocd-jurisdiction/country:us/state:nc/place:cary/council'
 
     def get_metadata(self):
         return {'name': 'Cary',

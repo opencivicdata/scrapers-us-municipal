@@ -13,7 +13,7 @@ from .people import NewYorkCityPersonScraper
 
 
 class NewYorkCity(Jurisdiction):
-    jurisdiction_id = 'us-ny-nyc'
+    jurisdiction_id = 'ocd-jurisdiction/country:us/state:ny/place:new_york/council'
 
     def get_metadata(self):
         return {'name': 'New York City',

@@ -12,7 +12,7 @@ from .events import ClevelandEventScraper
 
 
 class Cleveland(Jurisdiction):
-    jurisdiction_id = 'us-oh-cle'
+    jurisdiction_id = 'ocd-jurisdiction/country:us/state:oh/place:cleveland/council'
 
     def get_metadata(self):
         return {'name': 'Cleveland',

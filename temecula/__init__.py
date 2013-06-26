@@ -5,7 +5,7 @@ from .events import TemeculaEventScraper
 
 
 class Temecula(Jurisdiction):
-    jurisdiction_id = 'us-ca-temecula'
+    jurisdiction_id = 'ocd-jurisdiction/country:us/state:ca/place:temecula/council'
 
     def get_metadata(self):
         return {'name': 'Temecula',
