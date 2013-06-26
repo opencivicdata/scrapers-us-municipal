@@ -11,7 +11,7 @@ from .events import SantaFeEventsScraper
 
 
 class SantaFe(Jurisdiction):
-    jurisdiction_id = 'ocd-jurisdiction/ocd-division/country:us/state:nm/place:santa_fe/council'
+    jurisdiction_id = 'ocd-jurisdiction/country:us/state:nm/place:santa_fe/council'
 
     def get_metadata(self):
         return {'name': 'SantaFe',
