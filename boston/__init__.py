@@ -14,7 +14,7 @@ from .vote import BostonVoteScraper
 
 
 class Boston(Jurisdiction):
-    jurisdiction_id = 'us-ma-bos'
+    jurisdiction_id = 'ocd-jurisdiction/country:us/state:ma/place:boston/council'
 
     def get_metadata(self):
         return {'name': 'Boston',
@@ -23,7 +23,7 @@ class Boston(Jurisdiction):
                 'terms': [{'name': '2013-2014', 'sessions': ['2013'],
                            'start_year': 2013, 'end_year': 2014
                           }],
-                'provides': ['people', 'events', ],  # 'votes'],
+                'provides': ['people', 'events', 'votes'],
                 'parties': [],  # No parties on the city council
                 'session_details': {'2013': {'_scraped_name': '2013'}},
                 'feature_flags': [],}

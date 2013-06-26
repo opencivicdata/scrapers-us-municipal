@@ -47,7 +47,7 @@ class BostonVoteScraper(Scraper):
                         continue
 
                     v = Vote(session=self.session,
-                             type='vote',
+                             type='other',
                              passed=False,
                              date=when.strftime("%Y-%m-%d"),
                              motion=motion,
