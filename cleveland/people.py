@@ -73,7 +73,21 @@ class ClevelandPersonScraper(Scraper):
                            image=img, **kwargs)
             p.add_source(page)
 
-            for what in scraped_info.get('committees', []):
-                p.add_committee_membership(what)
+            valid_titles = [
+                "Chair",
+                "Vice Chair"
+            ]
 
+            for what in scraped_info.get('committees', []):
+                what = what.strip()
+                if what == "":
+                    continue
+
+                role = "member"
+                if "-" in what:
+                    c, title = (x.strip() for x in what.rsplit("-", 1))
+                    if title in valid_titles:
+                        what = c
+                        role = title
+                p.add_committee_membership(what, role=role)
             yield p
