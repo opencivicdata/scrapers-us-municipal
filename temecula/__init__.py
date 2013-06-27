@@ -8,7 +8,7 @@ class Temecula(Jurisdiction):
     jurisdiction_id = 'ocd-jurisdiction/country:us/state:ca/place:temecula/council'
 
     def get_metadata(self):
-        return {'name': 'Temecula',
+        return {'name': 'Temecula City Council',
                 'legislature_name': 'Temecula City Council',
                 'legislature_url': 'http://www.cityoftemecula.org/Temecula/Government/CouncilCommissions/CityCouncil/',
                 'terms': [{'name': '2010-2014', 'sessions': ['2013'],

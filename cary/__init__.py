@@ -15,7 +15,7 @@ class Cary(Jurisdiction):
     jurisdiction_id = 'ocd-jurisdiction/country:us/state:nc/place:cary/council'
 
     def get_metadata(self):
-        return {'name': 'Cary',
+        return {'name': 'Cary Town Council',
                 'legislature_name': 'Cary Town Council',
                 'legislature_url': 'http://www.townofcary.org/town_council/'
                                    'cary_town_council.htm',

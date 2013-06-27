@@ -14,7 +14,7 @@ class SantaFe(Jurisdiction):
     jurisdiction_id = 'ocd-jurisdiction/country:us/state:nm/place:santa_fe/council'
 
     def get_metadata(self):
-        return {'name': 'SantaFe',
+        return {'name': 'Santa Fe City Council',
                 'legislature_name': 'Santa Fe City Council',
                 'legislature_url': 'http://www.santafenm.gov/index.aspx?nid=72',
                 'terms': [{'name': '2013-2014', 'sessions': ['2013'],

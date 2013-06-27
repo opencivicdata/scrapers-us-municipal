@@ -14,7 +14,7 @@ class Philadelphia(Jurisdiction):
     jurisdiction_id = 'ocd-jurisdiction/country:us/state:pa/place:philadelphia/council'
 
     def get_metadata(self):
-        return {'name': 'Philadelphia',
+        return {'name': 'Philadelphia City Council',
                 'legislature_name': 'Philadelphia City Council',
                 'legislature_url': 'http://philadelphiacitycouncil.net/',
                 'terms': [{'name': '2013-2014', 'sessions': ['2013'],

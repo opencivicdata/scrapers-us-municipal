@@ -16,7 +16,7 @@ class NewYorkCity(Jurisdiction):
     jurisdiction_id = 'ocd-jurisdiction/country:us/state:ny/place:new_york/council'
 
     def get_metadata(self):
-        return {'name': 'New York City',
+        return {'name': 'New York City Council',
                 'legislature_name': 'New York City Council',
                 'legislature_url': 'http://council.nyc.gov/',
                 'terms': [{'name': '2013-2014', 'sessions': ['2013'],

@@ -15,7 +15,7 @@ class Cleveland(Jurisdiction):
     jurisdiction_id = 'ocd-jurisdiction/country:us/state:oh/place:cleveland/council'
 
     def get_metadata(self):
-        return {'name': 'Cleveland',
+        return {'name': 'Cleveland City Council',
                 'legislature_name': 'Cleveland City Council',
                 'legislature_url': 'http://www.clevelandcitycouncil.org/',
                 'terms': [{'name': '2013-2014', 'sessions': ['2013'],

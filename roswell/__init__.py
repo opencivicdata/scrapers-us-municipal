@@ -14,7 +14,7 @@ class Roswell(Jurisdiction):
     jurisdiction_id = 'ocd-jurisdiction/country:us/state:nm/place:roswell/council'
 
     def get_metadata(self):
-        return {'name': 'Roswell',
+        return {'name': 'Roswell City Council',
                 'legislature_name': 'Roswell City Council',
                 'legislature_url': 'http://www.roswell-nm.gov/staticpages/'
                                        'index.php/cc1-citycouncil',

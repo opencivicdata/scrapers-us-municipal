@@ -9,7 +9,7 @@ class Boise(Jurisdiction):
     jurisdiction_id = 'ocd-jurisdiction/country:us/state:id/place:boise_city/council'
 
     def get_metadata(self):
-        return {'name': 'Boise',
+        return {'name': 'Boise City Council',
                 'legislature_name': 'Boise City Council',
                 'legislature_url': 'http://mayor.cityofboise.org/city-council/',
                 'terms': [{'name': '2010-2014', 'sessions': ['2013'],
