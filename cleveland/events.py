@@ -6,6 +6,7 @@
 #    - Paul Tagliamonte <paultag@sunlightfoundation.com>
 
 from pupa.scrape import Scraper
+from larvae.event import Event
 
 import datetime as dt
 import lxml.html
@@ -18,6 +19,9 @@ CLICK_INFO = re.compile(r"CityCouncil\.popOverURL\('(?P<info_id>\d+)'\);")
 ORD_INFO = re.compile(r"Ord\. No\. (?P<ord_no>\d+-\d+)")
 AJAX_ENDPOINT = ("http://www.clevelandcitycouncil.org/plugins/NewsToolv7/"
                  "public/calendarPopup.ashx")
+
+URL = ("http://www.clevelandcitycouncil.org/calendar/"
+       "?from_date=06/25/2013&to_date=06/25/2013")
 
 
 class ClevelandEventScraper(Scraper):
@@ -32,10 +36,10 @@ class ClevelandEventScraper(Scraper):
         if self.session != self.get_current_session():
             raise Exception("Can't do that, dude")
 
-        page = self.lxmlize("http://www.clevelandcitycouncil.org/calendar/")
+        page = self.lxmlize(URL)
         events = page.xpath("//ul[contains(@class, 'committee-events')]//li")
+
         for event in events:
-            print(event)
             string = event.text_content()
 
             po = CLICK_INFO.match(event.xpath(".//span")[0].attrib['onclick'])
@@ -62,8 +66,17 @@ class ClevelandEventScraper(Scraper):
                         "what": t
                     })
 
-            print who, when, related
-            raise Exception  # XXX: Needs work
+            e = Event(name=who,
+                      session=self.session,
+                      when=when,
+                      location='unknown')
+            e.add_source(URL)
+
+            for o in related:
+                i = e.add_agenda_item(o['what'])
+                i.add_bill(o['ord_no'], note='consideration')
+
+            yield e
 
 
     def popOverUrl(self, poid):
