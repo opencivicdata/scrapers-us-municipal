@@ -20,7 +20,8 @@ ORD_INFO = re.compile(r"Ord\. No\. (?P<ord_no>\d+-\d+)")
 AJAX_ENDPOINT = ("http://www.clevelandcitycouncil.org/plugins/NewsToolv7/"
                  "public/calendarPopup.ashx")
 
-URL = ("http://www.clevelandcitycouncil.org/calendar/")
+URL = ("http://www.clevelandcitycouncil.org/calendar/"
+       "?from_date={from}&to_date={til}")
 
 
 class ClevelandEventScraper(Scraper):
@@ -35,7 +36,15 @@ class ClevelandEventScraper(Scraper):
         if self.session != self.get_current_session():
             raise Exception("Can't do that, dude")
 
-        page = self.lxmlize(URL)
+        start = dt.datetime.utcnow()
+        start = start - dt.timedelta(days=10)
+        end = start + dt.timedelta(days=30)
+
+        url = URL.format(**{"from": start.strftime("%Y/%m/%d"),
+                            "til": end.strftime("%Y/%m/%d")})
+
+
+        page = self.lxmlize(url)
         events = page.xpath("//ul[contains(@class, 'committee-events')]//li")
 
         for event in events:
@@ -69,7 +78,7 @@ class ClevelandEventScraper(Scraper):
                       session=self.session,
                       when=when,
                       location='unknown')
-            e.add_source(URL)
+            e.add_source(url)
 
             for o in related:
                 i = e.add_agenda_item(o['what'])
