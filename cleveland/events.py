@@ -20,8 +20,7 @@ ORD_INFO = re.compile(r"Ord\. No\. (?P<ord_no>\d+-\d+)")
 AJAX_ENDPOINT = ("http://www.clevelandcitycouncil.org/plugins/NewsToolv7/"
                  "public/calendarPopup.ashx")
 
-URL = ("http://www.clevelandcitycouncil.org/calendar/"
-       "?from_date=06/25/2013&to_date=06/25/2013")
+URL = ("http://www.clevelandcitycouncil.org/calendar/")
 
 
 class ClevelandEventScraper(Scraper):
