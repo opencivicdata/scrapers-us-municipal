@@ -145,7 +145,7 @@ class BostonPersonScraper(Scraper):
         for c in committees:
             if c.text is None:
                 continue
-            name = c.text
+            name = clean_name(c.text)
             homepage = c.attrib['href']
 
             info = self.scrape_committee_page(homepage)
