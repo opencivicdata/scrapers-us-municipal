@@ -22,6 +22,7 @@ JS_PATTERN = re.compile(r"\s+\['(?P<name>.*)','(?P<url>.*)',\],")
 BAD_CTTIES = [
     "Watch Council Hearings",
     "Hearings Calendar",
+    "Task Forces",
 ]
 
 
