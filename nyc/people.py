@@ -19,6 +19,11 @@ COMMITTEE_BASE = "http://council.nyc.gov/includes/scripts"
 COMMITTEE_PAGE = "{COMMITTEE_BASE}/nav_nodes.js".format(**locals())
 JS_PATTERN = re.compile(r"\s+\['(?P<name>.*)','(?P<url>.*)',\],")
 
+BAD_CTTIES = [
+    "Watch Council Hearings",
+    "Hearings Calendar",
+]
+
 
 class NewYorkCityPersonScraper(Scraper):
     def lxmlize(self, url, encoding='utf-8'):
@@ -96,6 +101,10 @@ class NewYorkCityPersonScraper(Scraper):
         for committee in self.get_committees():
             name, url = [committee[x] for x in ["name", "url"]]
             info = self.scrape_committee_homepage(url)
+            if name in BAD_CTTIES:
+                print "WARNING: Bad Cttie: %s" % (name)
+                continue
+
             c = Organization(name=name,
                              classification='committee')
             c.add_source(url)
