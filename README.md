@@ -60,3 +60,15 @@ for legislation_summary in all_legislation:
 for history_summary in legislation_history:
   (history_detail, votes) = scraper.expandHistorySummary(history_summary)
 ```
+
+#__________________________________________________________________________
+#
+# Get a list of all council members
+
+councilmembers = scraper.councilMembers()
+
+#__________________________________________________________________________
+#
+# Get a list of all upcoming agendas
+
+councilmembers = scraper.councilMembers()

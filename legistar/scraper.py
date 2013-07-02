@@ -312,6 +312,23 @@ class LegistarScraper (object):
 
       yield councilman
 
+  def councilCalendar(self) :
+    br = self._get_new_browser()
+    response = br.open(self._calendar_uri)
+    soup = BeautifulSoup(response.read())
+    table = soup.find('table', id='ctl00_ContentPlaceHolder1_gridCalendar_ctl00')
+
+    for event, headers, row in self.parseDataTable(table):
+
+      if type(event['Agenda']) == dict :
+        detail_url = self.host + event['Agenda']['url']
+        if self.fulltext :
+          event['fulltext'] = self._extractPdfText(detail_url)
+        else:
+          event['fulltext'] = ''
+
+      yield event
+
 
   def _get_general_details(self, detail_div, label_suffix='', value_suffix='2'):
     """
