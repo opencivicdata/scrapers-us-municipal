@@ -299,20 +299,18 @@ class LegistarScraper (object):
     response = br.open(self._people_uri)
     soup = BeautifulSoup(response.read())
     table = soup.find('table', id='ctl00_ContentPlaceHolder1_gridPeople_ctl00')
+
     for councilman, headers, row in self.parseDataTable(table):
 
-
-      detail_url = self.host + councilman['Person Name']['url']
-      response = br.open(detail_url)
-      soup = BeautifulSoup(response.read())
-      img = soup.find('img', {'id' : 'ctl00_ContentPlaceHolder1_imgPhoto'})
-      if img :
-        councilman['Photo'] = self.host + img['src']
+      if type(councilman['Person Name']) == dict :
+        detail_url = self.host + councilman['Person Name']['url']
+        response = br.open(detail_url)
+        soup = BeautifulSoup(response.read())
+        img = soup.find('img', {'id' : 'ctl00_ContentPlaceHolder1_imgPhoto'})
+        if img :
+          councilman['Photo'] = self.host + img['src']
 
       yield councilman
-
-
-
 
 
   def _get_general_details(self, detail_div, label_suffix='', value_suffix='2'):
