@@ -312,10 +312,40 @@ class LegistarScraper (object):
 
       yield councilman
 
-  def councilCalendar(self) :
+  def councilCalendar(self, search_type='upcoming') :
     br = self._get_new_browser()
-    response = br.open(self._calendar_uri)
+    br.open(self._calendar_uri)
+
+    if search_type == 'all' : 
+      print 'Scraping all event data'
+      br.select_form('aspnetForm')
+      # print '--------- before ---------'
+      # data = self._data(br.form, None)
+      # print data
+
+      br.form.set_all_readonly(False)
+      data = self._data(br.form, 'ctl00$ContentPlaceHolder1$lstYears')
+      
+      # delete extraneous form values
+      del data[None]
+      del data['ctl00$ContentPlaceHolder1$gridCalendar$ctl00$ctl02$ctl01$ctl02']
+
+      # search for all years
+      data['ctl00$ContentPlaceHolder1$lstYears'] = 'All Years'
+      data['ctl00_ContentPlaceHolder1_lstYears_ClientState'] = '{"logEntries":[],"value":"All","text":"All Years","enabled":true,"checkedIndices":[],"checkedItemsTextOverflows":false}'
+
+      # print '--------- after ---------'
+      print data
+      data = urllib.urlencode(data)
+
+      response = _try_connect(br, self._calendar_uri, data)
+
+    else :
+      response = br.open(self._people_uri)
+
+
     soup = BeautifulSoup(response.read())
+    print soup
     table = soup.find('table', id='ctl00_ContentPlaceHolder1_gridCalendar_ctl00')
 
     for event, headers, row in self.parseDataTable(table):
