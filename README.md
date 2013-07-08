@@ -71,4 +71,10 @@ councilmembers = scraper.councilMembers()
 #
 # Get a list of all upcoming agendas
 
-councilmembers = scraper.councilMembers()
+councilmembers = scraper.councilCalendar()
+
+#__________________________________________________________________________
+#
+# Get a list of all agendas (including past ones)
+
+councilmembers = scraper.councilCalendar('all')
