@@ -344,22 +344,46 @@ class LegistarScraper (object):
       response = br.open(self._people_uri)
 
 
-    soup = BeautifulSoup(response.read())
-    print soup
-    table = soup.find('table', id='ctl00_ContentPlaceHolder1_gridCalendar_ctl00')
+    # Loop through the pages, yielding each of the results
+    all_results = False
+    while all_results is False :
+      soup = BeautifulSoup(response.read())
 
-    for event, headers, row in self.parseDataTable(table):
+      table = soup.find('table', id='ctl00_ContentPlaceHolder1_gridCalendar_ctl00')
+      for event, headers, row in self.parseDataTable(table):
 
-      if type(event['Agenda']) == dict :
-        detail_url = self.host + event['Agenda']['url']
-        if self.fulltext :
-          event['fulltext'] = self._extractPdfText(detail_url)
-        else:
-          event['fulltext'] = ''
+        if type(event['Agenda']) == dict :
+          detail_url = self.host + event['Agenda']['url']
+          if self.fulltext :
+            event['fulltext'] = self._extractPdfText(detail_url)
+          else:
+            event['fulltext'] = ''
 
-      yield event
+        yield event
 
+      current_page = soup.fetch('a', {'class': 'rgCurrentPage'})
+      if current_page :
+        current_page = current_page[0]
+        print 'page', current_page.text
+        print
+        next_page = current_page.findNextSibling('a')
+      else :
+        next_page = None
 
+      if next_page :
+        event_target = next_page['href'].split("'")[1]
+
+        br.select_form('aspnetForm')
+        data = self._data(br.form, event_target)
+        data = urllib.urlencode(data)
+        response = _try_connect(br, self._calendar_uri, data)
+
+      else :
+        all_results = True
+
+    raise StopIteration
+    
+    
   def _get_general_details(self, detail_div, label_suffix='', value_suffix='2'):
     """
     Parse the data in the top section of a detail page.
