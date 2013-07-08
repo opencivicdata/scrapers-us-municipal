@@ -224,3 +224,27 @@ def philly_topics():
   legislation_details = scraper.expandLegislationSummary(legislation_no_topics)
   assert_equal(legislation_details[0]["Topics"], [])
 
+
+# Members
+@istest
+def supports_fetching_council_members():
+  config = Config(hostname = 'phila.legistar.com',
+            fulltext = True).defaults(DEFAULT_CONFIG)
+  scraper = LegistarScraper(config)
+  members = scraper.councilMembers()
+  try:
+    members.next()
+  except StopIteration:
+    fail('no council members found')
+
+# Calendar
+@istest
+def supports_fetching_calendar():
+  config = Config(hostname = 'phila.legistar.com',
+            fulltext = True).defaults(DEFAULT_CONFIG)
+  scraper = LegistarScraper(config)
+  events = scraper.councilCalendar('all')
+  try:
+    events.next()
+  except StopIteration:
+    fail('no events found')
