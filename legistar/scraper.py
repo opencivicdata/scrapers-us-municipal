@@ -319,9 +319,6 @@ class LegistarScraper (object):
     if search_type == 'all' : 
       print 'Scraping all event data'
       br.select_form('aspnetForm')
-      # print '--------- before ---------'
-      # data = self._data(br.form, None)
-      # print data
 
       br.form.set_all_readonly(False)
       data = self._data(br.form, 'ctl00$ContentPlaceHolder1$lstYears')
@@ -334,10 +331,7 @@ class LegistarScraper (object):
       data['ctl00$ContentPlaceHolder1$lstYears'] = 'All Years'
       data['ctl00_ContentPlaceHolder1_lstYears_ClientState'] = '{"logEntries":[],"value":"All","text":"All Years","enabled":true,"checkedIndices":[],"checkedItemsTextOverflows":false}'
 
-      # print '--------- after ---------'
-      print data
       data = urllib.urlencode(data)
-
       response = _try_connect(br, self._calendar_uri, data)
 
     else :
