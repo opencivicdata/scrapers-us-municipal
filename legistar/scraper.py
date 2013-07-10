@@ -358,17 +358,22 @@ class LegistarScraper (object):
       current_page = soup.fetch('a', {'class': 'rgCurrentPage'})
       if current_page :
         current_page = current_page[0]
-        print 'page', current_page.text
-        print
         next_page = current_page.findNextSibling('a')
       else :
         next_page = None
 
       if next_page :
+        print 'reading page', next_page.text
+        print
         event_target = next_page['href'].split("'")[1]
-
         br.select_form('aspnetForm')
         data = self._data(br.form, event_target)
+        
+        del data[None]
+        del data['ctl00$ContentPlaceHolder1$gridCalendar$ctl00$ctl02$ctl01$ctl02']
+        del data['ctl00$ContentPlaceHolder1$chkOptions$1']
+        del data['ctl00$ButtonRSS']
+
         data = urllib.urlencode(data)
         response = _try_connect(br, self._calendar_uri, data)
 
