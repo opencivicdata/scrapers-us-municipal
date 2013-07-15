@@ -57,6 +57,8 @@ class BostonVoteScraper(Scraper):
                     if docket:
                         v.add_bill(docket, chamber=None)
 
+                    yes, no, other = 0, 0, 0
+
                     vit = iter(vote.xpath("./div"))
                     vote = zip(vit, vit, vit)
                     for who, entry, _ in vote:
@@ -65,10 +67,20 @@ class BostonVoteScraper(Scraper):
 
                         if how == 'Y':
                             v.yes(who)
+                            yes += 1
                         elif how == 'N':
                             v.no(who)
+                            no += 1
                         else:
                             v.other(who)
+                            other += 1
+
+                    for count in v.vote_counts:
+                        count['count'] = {
+                            "yes": yes,
+                            "no": no,
+                            "other": other
+                        }[count['vote_type']]
 
                     v.add_source(DURL, note='root')
                     yield v
