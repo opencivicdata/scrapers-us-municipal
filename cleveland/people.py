@@ -45,8 +45,8 @@ class ClevelandPersonScraper(Scraper):
         return ret
 
     def cleveland_scrape_people(self):
-        page = self.lxmlize(
-            "http://www.clevelandcitycouncil.org/council-members/")
+        listing = "http://www.clevelandcitycouncil.org/council-members/"
+        page = self.lxmlize(listing)
 
         table = page.xpath("//div[@class='standard-content column']//table")[0]
         for person in table.xpath(".//td[@align='center']"):
@@ -71,7 +71,7 @@ class ClevelandPersonScraper(Scraper):
                            district=info['district'],
                            gender=info['gender'],
                            image=img, **kwargs)
-            p.add_source(page)
+            p.add_source(listing)
 
             valid_titles = [
                 "Chair",
