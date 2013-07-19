@@ -349,9 +349,16 @@ class LegistarScraper (object):
         if type(event['Agenda']) == dict :
           detail_url = self.host + event['Agenda']['url']
           if self.fulltext :
-            event['fulltext'] = self._extractPdfText(detail_url)
+            event['Agenda']['fulltext'] = self._extractPdfText(detail_url)
           else:
-            event['fulltext'] = ''
+            event['Agenda']['fulltext'] = ''
+
+        if type(event['Minutes']) == dict :
+          detail_url = self.host + event['Minutes']['url']
+          if self.fulltext :
+            event['Minutes']['fulltext'] = self._extractPdfText(detail_url)
+          else:
+            event['Minutes']['fulltext'] = ''
 
         yield event
 
