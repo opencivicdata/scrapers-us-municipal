@@ -182,7 +182,7 @@ class LegistarScraper (object):
           if link is not None:
             address = self._get_link_address(link)
             if address is not None:
-              value = {'label': value, 'url': address}
+              value = {'label': value, 'url': self.host + address}
 
           data[key] = value
 
