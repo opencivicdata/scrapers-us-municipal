@@ -37,7 +37,7 @@ class SantaFeEventsScraper(Scraper):
 
         curdate = None
         page = self.lxmlize(CAL_PAGE)
-        for el in page.xpath("//div[@id='Section1']/*"):
+        for el in page.xpath("//div[@id='Section1']/div[@class='shape']/*"):
             if el.tag[0] == 'h':
                 when = WHEN.findall(el.text_content())
                 when = when[0] if when else None
@@ -45,8 +45,7 @@ class SantaFeEventsScraper(Scraper):
                     continue
                 curdate = " ".join(when)
 
-
-            if el.tag == 'p' and el.attrib['class'] == 'MsoNormal':
+            if (el.tag == 'p' and el.attrib.get('class') == 'MsoNormal'):
 
                 els = el.xpath("./*")
                 agenda = el.xpath(".//a[contains(@href, 'Archive.aspx')]")
@@ -67,7 +66,11 @@ class SantaFeEventsScraper(Scraper):
                 tbuf = " ".join([curdate, time, ampm])
                 obj = dt.datetime.strptime(tbuf, "%B %d %Y %I:%M %p")
 
-                _, where = info.rsplit(u"–", 1)
+                try:
+                    _, where = info.rsplit(u"–", 1)
+                except ValueError:
+                    continue
+
                 where = where.replace(u" ", " ")
                 where  = re.sub("\s+", " ", where).strip()
                 where = re.sub("agenda$", "", where).strip()
