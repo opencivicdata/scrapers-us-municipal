@@ -10,9 +10,10 @@
 from pupa.scrape import Scraper
 from larvae.event import Event
 
+import requests
+
 from sh import pdftotext
 import datetime as dt
-import urllib2
 import os
 import re
 
@@ -54,7 +55,7 @@ class BoiseEventScraper(Scraper):
     def download_file(self, url):
         fpath = os.path.basename(url)
         if not os.path.exists(fpath):
-            open(fpath, 'wb').write(urllib2.urlopen(url).read())
+            open(fpath, 'wb').write(requests.get(url).content)
         return fpath
 
     def get_events(self):
