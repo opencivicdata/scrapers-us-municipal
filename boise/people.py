@@ -12,9 +12,8 @@ class PersonScraper(Scraper):
     def get_people(self):
         urls = Urls(dict(list=legislators_url), self)
 
-        council = Organization(
-            'Boise City Council',
-            classification='legislature')
+        council = Organization('Boise City Council')
+        council.add_source(legislators_url)
         yield council
 
         xpath = '//div[@id="content"]/div/a/@href'
