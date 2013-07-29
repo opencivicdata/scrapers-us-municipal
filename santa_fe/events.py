@@ -37,7 +37,7 @@ class SantaFeEventsScraper(Scraper):
 
         curdate = None
         page = self.lxmlize(CAL_PAGE)
-        for el in page.xpath("//div[@id='Section1']/div[@class='shape']/*"):
+        for el in page.xpath("//div[@id='Section1']/*"):
             if el.tag[0] == 'h':
                 when = WHEN.findall(el.text_content())
                 when = when[0] if when else None
