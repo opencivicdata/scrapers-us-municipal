@@ -347,14 +347,14 @@ class LegistarScraper (object):
       for event, headers, row in self.parseDataTable(table):
 
         if type(event['Agenda']) == dict :
-          detail_url = self.host + event['Agenda']['url']
+          detail_url = event['Agenda']['url']
           if self.fulltext :
             event['Agenda']['fulltext'] = self._extractPdfText(detail_url)
           else:
             event['Agenda']['fulltext'] = ''
 
         if type(event['Minutes']) == dict :
-          detail_url = self.host + event['Minutes']['url']
+          detail_url = event['Minutes']['url']
           if self.fulltext :
             event['Minutes']['fulltext'] = self._extractPdfText(detail_url)
           else:
