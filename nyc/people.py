@@ -98,6 +98,10 @@ class NewYorkCityPersonScraper(Scraper):
 
 
     def nyc_scrape_committees(self):
+        SUBS = [
+            (r", Chair", "")
+        ]
+
         for committee in self.get_committees():
             name, url = [committee[x] for x in ["name", "url"]]
             info = self.scrape_committee_homepage(url)
@@ -108,6 +112,8 @@ class NewYorkCityPersonScraper(Scraper):
             c = Committee(name=name, classification='committee')
             c.add_source(url)
             for x in info['people']:
+                for reg, repl in SUBS:
+                    x = re.sub(reg, repl, x)
                 c.add_member(x)
 
             yield c
