@@ -6,8 +6,7 @@
 #    - Paul Tagliamonte <paultag@sunlightfoundation.com>
 
 
-from pupa.scrape import Scraper, Legislator
-from larvae.organization import Organization
+from pupa.scrape import Scraper, Legislator, Committee
 from larvae.person import Person
 
 import lxml.html
@@ -106,10 +105,11 @@ class NewYorkCityPersonScraper(Scraper):
                 print "WARNING: Bad Cttie: %s" % (name)
                 continue
 
-            c = Organization(name=name,
-                             classification='committee')
+            c = Committee(name=name, classification='committee')
             c.add_source(url)
-            # c.add_member(x) for x in info['people']
+            for x in info['people']:
+                c.add_member(x)
+
             yield c
 
 
