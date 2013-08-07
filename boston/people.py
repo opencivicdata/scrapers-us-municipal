@@ -81,7 +81,7 @@ class BostonPersonScraper(Scraper):
                 image = info['image']
 
             p = Legislator(name=name,
-                           district=role,
+                           post_id=role,
                            image=image,
                            biography=info['bio'])
             p.add_link(homepage, 'homepage')
