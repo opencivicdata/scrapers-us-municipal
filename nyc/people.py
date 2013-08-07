@@ -134,7 +134,7 @@ class NewYorkCityPersonScraper(Scraper):
 
             info = self.scrape_homepage(homepage)
             p = Legislator(name=name,
-                           district=district,
+                           post_id=district,
                            # borough=borough,
                            party=party.strip() or "other")
             p.add_link(homepage, 'homepage')
