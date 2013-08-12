@@ -47,6 +47,7 @@ class BostonVoteScraper(Scraper):
                         continue
 
                     v = Vote(session=self.session,
+                             organization="Boston City Council",
                              type='other',
                              passed=False,
                              date=when.strftime("%Y-%m-%d"),
