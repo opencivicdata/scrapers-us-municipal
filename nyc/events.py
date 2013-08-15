@@ -35,8 +35,9 @@ class NewYorkCityEventsScraper(Scraper):
             if len(els) <= 2:
                 continue  # Odd one-off.
 
-            (name, date, time, where, topic,
+            (name, date, _, time, where, topic,
              details, agenda, minutes, media) = els
+            # _ nom's the image of the cal next to the meeting date.
 
             name = name.text_content().strip()  # leaving an href on the table
             time = time.text_content().strip()
