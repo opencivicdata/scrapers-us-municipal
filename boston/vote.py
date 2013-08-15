@@ -7,7 +7,7 @@
 
 
 from pupa.scrape import Scraper
-from larvae.vote import Vote
+from pupa.models import Vote
 
 import datetime as dt
 import urllib2
