@@ -63,14 +63,17 @@ class NewYorkCityEventsScraper(Scraper):
 
             details = details.xpath(".//a[@href]")
             for detail in details:
-                event.add_document(detail.text, detail.attrib['href'])
+                event.add_document(detail.text, detail.attrib['href'],
+                                   mimetype='text/html')
 
             agendas = agenda.xpath(".//a[@href]")
             for a in agendas:
-                event.add_document(a.text, a.attrib['href'])
+                event.add_document(a.text, a.attrib['href'],
+                                   mimetype='application/pdf')
 
             minutes = minutes.xpath(".//a[@href]")
             for minute in minutes:
-                event.add_document(minute.text, minute.attrib['href'])
+                event.add_document(minute.text, minute.attrib['href'],
+                                   mimetype='application/pdf')
 
             yield event
