@@ -29,8 +29,8 @@ class PhillyEventsScraper(Scraper):
         main = page.xpath("//table[@class='rgMasterTable']")[0]
         rows = main.xpath(".//tr")[1:]
         for row in rows:
-            print ""
-            (name, date, time, where, agenda, minutes) = row.xpath(".//td")
+            (name, date, _, time, where, agenda, minutes) = row.xpath(".//td")
+            # _ nom's the image next to the date on the page.
 
             name = name.text_content().strip()  # leaving an href on the table
             time = time.text_content().strip()
