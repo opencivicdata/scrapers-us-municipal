@@ -7,7 +7,7 @@
 
 
 from pupa.scrape import Scraper, Legislator, Committee
-from larvae.person import Person
+from pupa.models import Person
 
 import lxml.html
 import re

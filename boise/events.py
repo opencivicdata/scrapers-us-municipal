@@ -8,7 +8,7 @@
 
 
 from pupa.scrape import Scraper
-from larvae.event import Event
+from pupa.models import Event
 
 import requests
 
