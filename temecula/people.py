@@ -1,6 +1,5 @@
 from pupa.scrape import Scraper
-from larvae.person import Person
-from larvae.organization import Organization
+from pupa.models import Person, Organization
 
 from .utils import Urls
 
@@ -17,6 +16,7 @@ class PersonScraper(Scraper):
         council = Organization(
             'Temecula City Council',
             classification='legislature')
+        council.add_source(urls.list.url)
         yield council
 
         for tr in urls.list.xpath('//table[2]//tr')[1:]:
