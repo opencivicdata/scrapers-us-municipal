@@ -1,7 +1,6 @@
 from pupa.scrape import Jurisdiction
 
 from .people import PersonScraper
-from .bills import BillScraper
 
 
 class Albequerque(Jurisdiction):
@@ -18,7 +17,7 @@ class Albequerque(Jurisdiction):
                 'end_year': 2015,
                 'sessions': ['2013'],
                 }],
-            'provides': ['people', 'bills'],
+            'provides': ['people'],
             'parties': [
                 {'name': 'Democratic' },
                 {'name': 'Republican' },
@@ -32,8 +31,6 @@ class Albequerque(Jurisdiction):
     def get_scraper(self, term, session, scraper_type):
         if scraper_type == 'people':
             return PersonScraper
-        if scraper_type == 'bills':
-            return BillScraper
 
     def scrape_session_list(self):
         return ['2013']
