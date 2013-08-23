@@ -5,20 +5,18 @@ from pupa.models import Person, Organization
 class PersonScraper(Scraper):
 
     def get_people(self):
-        import pdb; pdb.set_trace()
         # committee
-        tech = Organization('Technology', classification='committee')
+        tech = Organization('Technology')
         tech.add_post('Chairman', 'chairman')
+        tech.add_source('https://example.com')
         yield tech
 
         # subcommittee
-        ecom = Organization('Subcommittee on E-Commerce',
-                            parent=tech,
-                            classification='committee')
+        ecom = Organization('Subcommittee on E-Commerce', parent=tech)
+        ecom.add_source('https://example.com')
         yield ecom
 
-        p = Person('Paul Tagliamonte', district='6', chamber='upper',
-                       party='Independent')
-        p.add_committee_membership('Finance')
+        p = Person('Paul Tagliamonte', district='6', chamber='upper')
         p.add_membership(tech, role='chairman')
+        p.add_source('https://example.com')
         yield p
