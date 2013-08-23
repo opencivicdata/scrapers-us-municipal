@@ -7,9 +7,7 @@
 
 
 from pupa.scrape import Scraper, Legislator, Committee
-from larvae.organization import Organization
-from larvae.person import Person
-from larvae.event import Event
+from pupa.models import Organization, Person, Event
 
 from collections import defaultdict
 import lxml.html
@@ -81,7 +79,7 @@ class BostonPersonScraper(Scraper):
                 image = info['image']
 
             p = Legislator(name=name,
-                           district=role,
+                           post_id=role,
                            image=image,
                            biography=info['bio'])
             p.add_link(homepage, 'homepage')

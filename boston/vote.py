@@ -7,7 +7,7 @@
 
 
 from pupa.scrape import Scraper
-from larvae.vote import Vote
+from pupa.models import Vote
 
 import datetime as dt
 import urllib2
@@ -47,6 +47,7 @@ class BostonVoteScraper(Scraper):
                         continue
 
                     v = Vote(session=self.session,
+                             organization="Boston City Council",
                              type='other',
                              passed=False,
                              date=when.strftime("%Y-%m-%d"),

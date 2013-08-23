@@ -6,7 +6,7 @@ from lxml.html import fromstring
 
 from pupa.scrape import Scraper
 from pupa.utils import convert_pdf
-from larvae.bill import Bill
+from pupa.models import Bill
 
 from .utils import Urls
 

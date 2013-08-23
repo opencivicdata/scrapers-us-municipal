@@ -7,7 +7,7 @@
 
 
 from pupa.scrape import Scraper
-from larvae.event import Event
+from pupa.models import Event
 
 import datetime as dt
 import lxml.html
@@ -35,8 +35,9 @@ class NewYorkCityEventsScraper(Scraper):
             if len(els) <= 2:
                 continue  # Odd one-off.
 
-            (name, date, time, where, topic,
+            (name, date, _, time, where, topic,
              details, agenda, minutes, media) = els
+            # _ nom's the image of the cal next to the meeting date.
 
             name = name.text_content().strip()  # leaving an href on the table
             time = time.text_content().strip()
@@ -63,14 +64,17 @@ class NewYorkCityEventsScraper(Scraper):
 
             details = details.xpath(".//a[@href]")
             for detail in details:
-                event.add_document(detail.text, detail.attrib['href'])
+                event.add_document(detail.text, detail.attrib['href'],
+                                   mimetype='text/html')
 
             agendas = agenda.xpath(".//a[@href]")
             for a in agendas:
-                event.add_document(a.text, a.attrib['href'])
+                event.add_document(a.text, a.attrib['href'],
+                                   mimetype='application/pdf')
 
             minutes = minutes.xpath(".//a[@href]")
             for minute in minutes:
-                event.add_document(minute.text, minute.attrib['href'])
+                event.add_document(minute.text, minute.attrib['href'],
+                                   mimetype='application/pdf')
 
             yield event

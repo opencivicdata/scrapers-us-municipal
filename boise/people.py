@@ -1,6 +1,5 @@
 from pupa.scrape import Scraper
-from larvae.person import Person
-from larvae.organization import Organization
+from pupa.models import Person, Organization
 
 from .utils import Urls
 

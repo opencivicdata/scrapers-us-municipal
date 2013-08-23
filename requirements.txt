@@ -1,4 +1,3 @@
--e git://github.com/opencivicdata/larvae.git#egg=larvae
 -e git://github.com/opencivicdata/pupa.git#egg=pupa
 lxml
 sh

@@ -6,7 +6,7 @@
 #    - Paul Tagliamonte <paultag@sunlightfoundation.com>
 
 from pupa.scrape import Scraper
-from larvae.event import Event
+from pupa.models import Event
 
 import datetime as dt
 import lxml.html
