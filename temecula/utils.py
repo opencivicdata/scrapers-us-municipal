@@ -7,6 +7,10 @@ from functools import partial
 import lxml.html
 import lxml.etree
 
+from six import with_metaclass
+
+from pupa.utils import convert_pdf
+
 
 class Cached(object):
     '''Computes attribute value and caches it in instance.
@@ -73,6 +77,12 @@ class UrlData(object):
         return self.doc.xpath
 
     @Cached
+    def pdf_to_lxml(self):
+        filename, resp = self.scraper.urlretrieve(self.url)
+        text = convert_pdf(filename, 'html')
+        return lxml.html.fromstring(text)
+
+    @Cached
     def etree(self):
         '''Return the documents element tree.
         '''
@@ -96,7 +106,7 @@ class UrlsMeta(type):
         return cls
 
 
-class Urls(metaclass=UrlsMeta):
+class Urls(with_metaclass(UrlsMeta)):
     '''Contains urls we need to fetch during this scrape.
     '''
 
@@ -105,9 +115,9 @@ class Urls(metaclass=UrlsMeta):
         '''
         self.urls = urls
         self.scraper = scraper
-        for url_name, url in urls.items():
-            url = UrlData(url_name, url, scraper, urls_object=self)
-            setattr(self, url_name, url)
+        for name, url in urls.items():
+            url = UrlData(name, url, scraper, urls_object=self)
+            setattr(self, name, url)
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__, self.urls)
@@ -115,11 +125,16 @@ class Urls(metaclass=UrlsMeta):
     def __iter__(self):
         '''A generator of this object's UrlData members.
         '''
-        for url_name in self.urls:
-            yield getattr(self, url_name)
+        for name in self.urls:
+            yield getattr(self, name)
+
+    def add(self, **name_to_url_map):
+        for name, url in name_to_url_map.items():
+            url_data = UrlData(name, url, self.scraper, urls_object=self)
+        setattr(self, name, url_data)
 
     @staticmethod
-    def validates(url_name, retry=False):
+    def validates(name, retry=False):
         '''A decorator to mark validator functions for use on a particular
         named url. Use like so:
 
@@ -130,15 +145,15 @@ class Urls(metaclass=UrlsMeta):
                 raise Skip('Bill had no actions yet.')
         '''
         def decorator(method):
-            method.validates = url_name
+            method.validates = name
             method.retry = retry
             return method
         return decorator
 
-    def validate(self, url_name, url, text):
+    def validate(self, name, url, text):
         '''Run each validator function for the named url and its text.
         '''
-        for validator in self._validators[url_name]:
+        for validator in self._validators[name]:
             try:
                 validator(self, url, text)
             except Exception as e:
@@ -146,26 +161,3 @@ class Urls(metaclass=UrlsMeta):
                     validator(self, url, text)
                 else:
                     raise e
-
-class PageContext(object):
-    '''A class to maintain the state of a single bill scrape. It has
-    references to the scraper, the bill object under construction,
-    the session context, shortcuts for accessing urls and their lxml
-    docs, etc.
-    '''
-    urls_dict = None
-    urls_class = Urls
-
-    def __init__(self, scraper, urls_dict=None):
-        '''
-        context: The Term188 TimespanScraper instance defined above.
-        '''
-        self.urls_dict = urls_dict or self.urls_dict or {}
-
-        # More aliases for convience later:
-        self.scraper = scraper
-
-    @Cached
-    def urls(self):
-        return self.urls_class(self.urls_dict, scraper=self.scraper)
-
