@@ -379,6 +379,7 @@ class LegistarScraper (object):
         
         del data[None]
         del data['ctl00$ContentPlaceHolder1$gridCalendar$ctl00$ctl02$ctl01$ctl02']
+        del data['ctl00$ContentPlaceHolder1$gridCalendar$ctl00$ctl02$ctl01$ctl04']
         del data['ctl00$ContentPlaceHolder1$chkOptions$1']
         del data['ctl00$ButtonRSS']
 
