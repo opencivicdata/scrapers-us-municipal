@@ -326,6 +326,7 @@ class LegistarScraper (object):
       # delete extraneous form values
       del data[None]
       del data['ctl00$ContentPlaceHolder1$gridCalendar$ctl00$ctl02$ctl01$ctl02']
+      del data['ctl00$ContentPlaceHolder1$gridCalendar$ctl00$ctl02$ctl01$ctl04']
 
       # search for all years
       data['ctl00$ContentPlaceHolder1$lstYears'] = 'All Years'
@@ -335,7 +336,7 @@ class LegistarScraper (object):
       response = _try_connect(br, self._calendar_uri, data)
 
     else :
-      response = br.open(self._people_uri)
+      response = br.open(self._calendar_uri)
 
 
     # Loop through the pages, yielding each of the results
