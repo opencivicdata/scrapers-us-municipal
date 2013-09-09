@@ -9,8 +9,7 @@ class Temecula(Jurisdiction):
 
     def get_metadata(self):
         return {'name': 'Temecula City Council',
-                'legislature_name': 'Temecula City Council',
-                'legislature_url': 'http://www.cityoftemecula.org/Temecula/Government/CouncilCommissions/CityCouncil/',
+                'url': 'http://www.cityoftemecula.org/Temecula/Government/CouncilCommissions/CityCouncil/',
                 'terms': [{'name': '2010-2014', 'sessions': ['2013'],
                            'start_year': 2010, 'end_year': 2014
                           }],

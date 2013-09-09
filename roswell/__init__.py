@@ -15,8 +15,7 @@ class Roswell(Jurisdiction):
 
     def get_metadata(self):
         return {'name': 'Roswell City Council',
-                'legislature_name': 'Roswell City Council',
-                'legislature_url': 'http://www.roswell-nm.gov/staticpages/'
+                'url': 'http://www.roswell-nm.gov/staticpages/'
                                        'index.php/cc1-citycouncil',
                 'terms': [{'name': '2013-2014', 'sessions': ['2013'],
                            'start_year': 2013, 'end_year': 2014

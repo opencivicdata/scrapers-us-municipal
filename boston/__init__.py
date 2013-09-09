@@ -18,8 +18,7 @@ class Boston(Jurisdiction):
 
     def get_metadata(self):
         return {'name': 'Boston City Council',
-                'legislature_name': 'Boston City Council',
-                'legislature_url': 'http://www.cityofboston.gov/citycouncil/',
+                'url': 'http://www.cityofboston.gov/citycouncil/',
                 'terms': [{'name': '2013-2014', 'sessions': ['2013'],
                            'start_year': 2013, 'end_year': 2014
                           }],
