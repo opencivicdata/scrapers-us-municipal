@@ -56,7 +56,7 @@ class BostonVoteScraper(Scraper):
                              no_count=0,)
 
                     if docket:
-                        v.add_bill(docket, chamber=None)
+                        v.set_bill(docket)
 
                     yes, no, other = 0, 0, 0
 

@@ -22,6 +22,12 @@ class Boston(Jurisdiction):
                 'terms': [{'name': '2013-2014', 'sessions': ['2013'],
                            'start_year': 2013, 'end_year': 2014
                           }],
+                'extras': {
+                    "social_media": {
+                        "twitter": "https://twitter.com/BOSCityCouncil",
+                        "facebook": "https://www.facebook.com/pages/Boston-City-Council/106846899335407",
+                    }
+                },
                 'provides': ['people', 'events', 'votes'],
                 'parties': [],  # No parties on the city council
                 'session_details': {'2013': {'_scraped_name': '2013'}},

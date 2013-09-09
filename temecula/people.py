@@ -16,6 +16,7 @@ class PersonScraper(Scraper):
         council = Organization(
             'Temecula City Council',
             classification='legislature')
+        council.add_source(urls.list.url)
         yield council
 
         for tr in urls.list.xpath('//table[2]//tr')[1:]:

@@ -36,6 +36,7 @@ class PersonScraper(Scraper):
 
             # Add membership on council.
             memb = person.add_membership(council, role=role)
+            memb.add_source(urls.detail.url)
 
             # Add email address.
             email_xpath = '//a[contains(@href, "mailto")]/@href'

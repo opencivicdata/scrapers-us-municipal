@@ -29,6 +29,10 @@ class PhillyEventsScraper(Scraper):
         main = page.xpath("//table[@class='rgMasterTable']")[0]
         rows = main.xpath(".//tr")[1:]
         for row in rows:
+            if "No records were found." in row.text_content():
+                self.warning("Hum. They don't seem to have events?")
+                continue
+
             (name, date, _, time, where, agenda, minutes) = row.xpath(".//td")
             # _ nom's the image next to the date on the page.
 
