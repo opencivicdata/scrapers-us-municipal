@@ -10,8 +10,7 @@ class Boise(Jurisdiction):
 
     def get_metadata(self):
         return {'name': 'Denver City Council',
-                'legislature_name': 'Denver City Council',
-                'legislature_url': 'https://www.denvergov.org/citycouncil',
+                'url': 'https://www.denvergov.org/citycouncil',
                 'terms': [{'name': '2010-2014', 'sessions': ['2013'],
                            'start_year': 2010, 'end_year': 2014
                           }],

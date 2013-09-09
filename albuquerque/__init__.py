@@ -9,8 +9,7 @@ class Albequerque(Jurisdiction):
     def get_metadata(self):
         return {
             'name': 'Albequerque City Council',
-            'legislature_name': 'Albequerque City Council',
-            'legislature_url': 'http://www.cabq.gov/council/',
+            'url': 'http://www.cabq.gov/council/',
             'terms': [{
                 'name': '2013-2015',
                 'start_year': 2013,
