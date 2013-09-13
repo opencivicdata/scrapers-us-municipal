@@ -40,6 +40,22 @@ class ChicagoPersonScraper(Scraper):
         district = page.xpath("//h1[@class='page-heading']/text()")[0]
         leg = Legislator(name=name, post_id=district)
         leg.add_source(url)
+
+        types = {
+            "City Hall Office:": ("address", "City Hall Office"),
+            "City Hall Phone:": ("phone", "City Hall Phone"),
+            "Phone:": ("phone", "Personal Phone"),
+            "Office:": ("address", "Personal Office"),
+            "Fax:": ("fax", "Fax"),
+        }
+
+        for row in page.xpath("//table//tr"):
+            type_, val = (x.text_content().strip() for x in row.xpath("./td"))
+            if val == "" or "\n" in type_:
+                continue
+            ctype, note = types[type_]
+            leg.add_contact(ctype, val, note)
+
         return leg
 
     def bos_scrape_people(self):
