@@ -41,20 +41,34 @@ class ChicagoPersonScraper(Scraper):
         leg = Legislator(name=name, post_id=district)
         leg.add_source(url)
 
-        types = {
+        type_types = {
             "City Hall Office:": ("address", "City Hall Office"),
             "City Hall Phone:": ("phone", "City Hall Phone"),
             "Phone:": ("phone", "Personal Phone"),
             "Office:": ("address", "Personal Office"),
             "Fax:": ("fax", "Fax"),
+            "Fax": ("fax", "Fax"),
         }
 
         for row in page.xpath("//table//tr"):
             type_, val = (x.text_content().strip() for x in row.xpath("./td"))
-            if val == "" or "\n" in type_:
+            if val == "":
                 continue
-            ctype, note = types[type_]
-            leg.add_contact(ctype, val, note)
+
+            types = [type_]
+            vals = [val]
+
+            if "\n" in type_:
+                if "\n" in val:
+                    types = type_.split("\n")
+                    vals = val.split("\n")
+                else:
+                    continue
+
+            for type_ in types:
+                for val in vals:
+                    ctype, note = type_types[type_]
+                    leg.add_contact(ctype, val, note)
 
         return leg
 
