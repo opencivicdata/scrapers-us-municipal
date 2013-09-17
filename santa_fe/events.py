@@ -63,6 +63,10 @@ class SantaFeEventsScraper(Scraper):
                 places = el.xpath(".//place")
                 time, ampm = when
 
+                if curdate is None:
+                    self.warning("Can't scrape, since I don't know what date it is")
+                    continue
+
                 tbuf = " ".join([curdate, time, ampm])
                 obj = dt.datetime.strptime(tbuf, "%B %d %Y %I:%M %p")
 
