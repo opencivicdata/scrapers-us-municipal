@@ -294,7 +294,7 @@ class LegistarScraper (object):
 
     return details, votes
 
-  def councilMembers(self) :
+  def councilMembers(self, follow_links=True) :
     br = self._get_new_browser()
     response = br.open(self._people_uri)
     soup = BeautifulSoup(response.read())
@@ -302,7 +302,7 @@ class LegistarScraper (object):
 
     for councilman, headers, row in self.parseDataTable(table):
 
-      if type(councilman['Person Name']) == dict :
+      if follow_links and type(councilman['Person Name']) == dict :
         detail_url = self.host + councilman['Person Name']['url']
         response = br.open(detail_url)
         soup = BeautifulSoup(response.read())
