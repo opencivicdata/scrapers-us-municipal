@@ -10,6 +10,7 @@ from pupa.scrape import Scraper, Legislator, Committee
 
 from collections import defaultdict
 import lxml.html
+import re
 
 MEMBER_LIST = "http://www.wellesleyma.gov/Pages/WellesleyMA_Clerk/elected"
 
@@ -31,5 +32,24 @@ class WellesleyPersonScraper(Scraper):
             role, whos, expire = row.xpath("./*")
             people = zip([x.text_content() for x in whos.xpath(".//font")],
                          [x.text_content() for x in expire.xpath(".//font")])
-            for person in people:
+            thing = role.text_content()
+
+            comm = Committee(name=thing)
+
+            for person, expire in people:
                 print person
+                if "TBA" in person:
+                    continue
+                info = {}
+
+                try:
+                   info = re.match("(?P<name>.*), (?P<addr>\d+\w* .*)",
+                                   person).groupdict()
+                except AttributeError:
+                    info = re.match("(?P<name>.*) (?P<addr>\d+\w* .*)",
+                                    person).groupdict()
+
+                comm.add_member(info['name'])
+
+            comm.add_source(MEMBER_LIST)
+            yield comm
