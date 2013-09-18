@@ -37,7 +37,6 @@ class WellesleyPersonScraper(Scraper):
             comm = Committee(name=thing)
 
             for person, expire in people:
-                print person
                 if "TBA" in person:
                     continue
                 info = {}
@@ -49,7 +48,13 @@ class WellesleyPersonScraper(Scraper):
                     info = re.match("(?P<name>.*) (?P<addr>\d+\w* .*)",
                                     person).groupdict()
 
-                comm.add_member(info['name'])
+                leg = Legislator(name=info['name'], post_id='member')
+                leg.add_contact_detail(type="address",
+                                       value=info['addr'],
+                                       note="Address")
+                leg.add_source(MEMBER_LIST)
+                yield leg
 
+                leg.add_membership(comm)
             comm.add_source(MEMBER_LIST)
             yield comm
