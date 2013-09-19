@@ -15,6 +15,11 @@ import re
 MEMBER_LIST = "http://www.wellesleyma.gov/Pages/WellesleyMA_Clerk/elected"
 
 
+def clean_address(where):
+    where = where.rstrip("-").strip()
+    return where
+
+
 class WellesleyPersonScraper(Scraper):
 
     def lxmlize(self, url):
@@ -50,9 +55,23 @@ class WellesleyPersonScraper(Scraper):
                     info = re.match("(?P<name>.*) (?P<addr>\d+\w* .*)",
                                     person).groupdict()
 
-                leg = Legislator(name=info['name'], post_id='member')
+                addr = info['addr']
+
+                roles = ["Vice Chair",
+                         "Chair"]
+
+                position = "member"
+
+                for role in roles:
+                    if role in addr:
+                        addr, chair = [x.strip() for x in addr.rsplit(role, 1)]
+                        position = role
+
+                addr = clean_address(addr)
+
+                leg = Legislator(name=info['name'], post_id=position)
                 leg.add_contact_detail(type="address",
-                                       value=info['addr'],
+                                       value=addr,
                                        note="Address")
                 leg.add_source(MEMBER_LIST)
                 yield leg
