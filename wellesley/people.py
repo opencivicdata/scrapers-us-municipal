@@ -16,7 +16,16 @@ MEMBER_LIST = "http://www.wellesleyma.gov/Pages/WellesleyMA_Clerk/elected"
 
 
 def clean_address(where):
-    where = where.rstrip("-").strip()
+    baddies = [
+        "-",
+        "(",
+    ]
+
+    for thing in baddies:
+        where = where.strip().rstrip(thing)
+
+    where = where.strip()
+
     return where
 
 
@@ -58,7 +67,10 @@ class WellesleyPersonScraper(Scraper):
                 addr = info['addr']
 
                 roles = ["Vice Chair",
-                         "Chair"]
+                         "Chair",
+                         "CHAIR",
+                         "Resigned",
+                         "Appt"]
 
                 position = "member"
 
@@ -68,6 +80,7 @@ class WellesleyPersonScraper(Scraper):
                         position = role
 
                 addr = clean_address(addr)
+                print addr
 
                 leg = Legislator(name=info['name'], post_id=position)
                 leg.add_contact_detail(type="address",
