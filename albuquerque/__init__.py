@@ -1,6 +1,7 @@
 from pupa.scrape import Jurisdiction
 
 from .people import PersonScraper
+from .bills import BillScraper
 
 
 class Albequerque(Jurisdiction):
@@ -9,15 +10,14 @@ class Albequerque(Jurisdiction):
     def get_metadata(self):
         return {
             'name': 'Albequerque City Council',
-            'legislature_name': 'Albequerque City Council',
-            'legislature_url': 'http://www.cabq.gov/council/',
+            'url': 'http://www.cabq.gov/council/',
             'terms': [{
                 'name': '2013-2015',
                 'start_year': 2013,
                 'end_year': 2015,
                 'sessions': ['2013'],
                 }],
-            'provides': ['people'],
+            'provides': ['people', 'bills'],
             'parties': [
                 {'name': 'Democratic' },
                 {'name': 'Republican' },
@@ -31,6 +31,8 @@ class Albequerque(Jurisdiction):
     def get_scraper(self, term, session, scraper_type):
         if scraper_type == 'people':
             return PersonScraper
+        if scraper_type == 'bills':
+            return BillScraper
 
     def scrape_session_list(self):
         return ['2013']
