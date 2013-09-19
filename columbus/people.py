@@ -34,8 +34,13 @@ class ColumbusPersonScraper(Scraper):
         name = page.xpath("//div[@id='ctl00_ctl00_Body_body_cntCommon']/h3")
         name, = name
 
+        bio = " ".join([x.text_content() for x in page.xpath(
+            "//div[@id='ctl00_ctl00_Body_body_cntCommon']/p"
+        )])
+
         leg = Legislator(name=name.text,
                          post_id='member',
+                         biography=bio,
                          image=image)
         leg.add_source(url)
         return leg
