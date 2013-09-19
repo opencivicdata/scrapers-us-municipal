@@ -66,22 +66,22 @@ class WellesleyPersonScraper(Scraper):
 
                 addr = info['addr']
 
-                roles = ["Vice Chair",
-                         "Chair",
-                         "CHAIR",
-                         "Resigned",
-                         "Appt"]
+                roles = {"Vice Chair": "Vice Chair",
+                         "Chair": "Chair",
+                         "CHAIR": "Chair",
+                         "Appt": "member",}
 
                 position = "member"
+
+                if "Resigned" in addr:
+                    continue
 
                 for role in roles:
                     if role in addr:
                         addr, chair = [x.strip() for x in addr.rsplit(role, 1)]
-                        position = role
+                        position = roles[role]
 
                 addr = clean_address(addr)
-                print addr
-
                 leg = Legislator(name=info['name'], post_id=position)
                 leg.add_contact_detail(type="address",
                                        value=addr,
