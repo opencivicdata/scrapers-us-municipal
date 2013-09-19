@@ -10,8 +10,7 @@ class Boise(Jurisdiction):
 
     def get_metadata(self):
         return {'name': 'Boise City Council',
-                'legislature_name': 'Boise City Council',
-                'legislature_url': 'http://mayor.cityofboise.org/city-council/',
+                'url': 'http://mayor.cityofboise.org/city-council/',
                 'terms': [{'name': '2010-2014', 'sessions': ['2013'],
                            'start_year': 2010, 'end_year': 2014
                           }],

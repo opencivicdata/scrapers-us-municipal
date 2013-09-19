@@ -7,27 +7,29 @@
 
 
 from pupa.scrape import Jurisdiction
-from .events import RoswellEventsScraper
+
+from .people import ChicagoPersonScraper
+from .events import ChicagoEventsScraper
 
 
-class Roswell(Jurisdiction):
-    jurisdiction_id = 'ocd-jurisdiction/country:us/state:nm/place:roswell/council'
+class Chicago(Jurisdiction):
+    jurisdiction_id = 'ocd-jurisdiction/country:us/state:il/place:chicago/council'
 
     def get_metadata(self):
-        return {'name': 'Roswell City Council',
-                'url': 'http://www.roswell-nm.gov/staticpages/'
-                                       'index.php/cc1-citycouncil',
+        return {'name': 'Chicago City Council',
+                'url': 'http://www.cityofchicago.org/city/en/about/council.html',
                 'terms': [{'name': '2013-2014', 'sessions': ['2013'],
                            'start_year': 2013, 'end_year': 2014
                           }],
-                'provides': ['events'],
+                'provides': ['people', 'events',],
                 'parties': [],  # No parties on the city council
                 'session_details': {'2013': {'_scraped_name': '2013'}},
                 'feature_flags': [],}
 
     def get_scraper(self, term, session, scraper_type):
         bits = {
-            "events": RoswellEventsScraper
+            "people": ChicagoPersonScraper,
+            "events": ChicagoEventsScraper,
         }
         if scraper_type in bits:
             return bits[scraper_type]

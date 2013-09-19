@@ -13,7 +13,7 @@ import datetime as dt
 import lxml.html
 
 
-class PhillyEventsScraper(Scraper):
+class ChicagoEventsScraper(Scraper):
     def lxmlize(self, url):
         entry = self.urlopen(url)
         page = lxml.html.fromstring(entry)
@@ -24,7 +24,7 @@ class PhillyEventsScraper(Scraper):
         if self.session != self.get_current_session():
             raise Exception("Can't do that, dude")
 
-        url = "http://phila.legistar.com/Calendar.aspx/"
+        url = "http://chicago.legistar.com/Calendar.aspx/"
         page = self.lxmlize(url)
         main = page.xpath("//table[@class='rgMasterTable']")[0]
         rows = main.xpath(".//tr")[1:]
@@ -33,7 +33,8 @@ class PhillyEventsScraper(Scraper):
                 self.warning("Hum. They don't seem to have events?")
                 continue
 
-            (name, date, _, time, where, agenda, minutes) = row.xpath(".//td")
+            (name, date, _, time, where, details, notice,
+             agenda, summary, video) = row.xpath(".//td")
             # _ nom's the image next to the date on the page.
 
             name = name.text_content().strip()  # leaving an href on the table
@@ -62,8 +63,9 @@ class PhillyEventsScraper(Scraper):
             for a in agendas:
                 event.add_link(a.text, a.attrib['href'])
 
-            minutes = minutes.xpath(".//a[@href]")
-            for minute in minutes:
+            summary = summary.xpath(".//a[@href]")
+            for minute in summary:
                 event.add_link(minute.text, minute.attrib['href'])
 
             yield event
+

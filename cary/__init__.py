@@ -16,9 +16,7 @@ class Cary(Jurisdiction):
 
     def get_metadata(self):
         return {'name': 'Cary Town Council',
-                'legislature_name': 'Cary Town Council',
-                'legislature_url': 'http://www.townofcary.org/town_council/'
-                                   'cary_town_council.htm',
+                'url': 'http://www.townofcary.org/town_council/cary_town_council.htm',
                 'terms': [{'name': '2013-2014', 'sessions': ['2013'],
                            'start_year': 2013, 'end_year': 2014
                           }],

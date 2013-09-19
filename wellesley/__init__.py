@@ -7,27 +7,27 @@
 
 
 from pupa.scrape import Jurisdiction
-from .events import RoswellEventsScraper
+
+from .people import WellesleyPersonScraper
 
 
-class Roswell(Jurisdiction):
-    jurisdiction_id = 'ocd-jurisdiction/country:us/state:nm/place:roswell/council'
+class Wellesley(Jurisdiction):
+    jurisdiction_id = 'ocd-jurisdiction/country:us/state:ma/place:wellesley/council'
 
     def get_metadata(self):
-        return {'name': 'Roswell City Council',
-                'url': 'http://www.roswell-nm.gov/staticpages/'
-                                       'index.php/cc1-citycouncil',
+        return {'name': 'Wellesley Board of Selectmen',
+                'url': 'http://www.wellesleyma.gov/Pages/WellesleyMA_Selectmen/index',
                 'terms': [{'name': '2013-2014', 'sessions': ['2013'],
                            'start_year': 2013, 'end_year': 2014
                           }],
-                'provides': ['events'],
+                'provides': ['people',],
                 'parties': [],  # No parties on the city council
                 'session_details': {'2013': {'_scraped_name': '2013'}},
                 'feature_flags': [],}
 
     def get_scraper(self, term, session, scraper_type):
         bits = {
-            "events": RoswellEventsScraper
+            "people": WellesleyPersonScraper,
         }
         if scraper_type in bits:
             return bits[scraper_type]

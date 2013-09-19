@@ -15,8 +15,7 @@ class Philadelphia(Jurisdiction):
 
     def get_metadata(self):
         return {'name': 'Philadelphia City Council',
-                'legislature_name': 'Philadelphia City Council',
-                'legislature_url': 'http://philadelphiacitycouncil.net/',
+                'url': 'http://philadelphiacitycouncil.net/',
                 'terms': [{'name': '2013-2014', 'sessions': ['2013'],
                            'start_year': 2013, 'end_year': 2014
                           }],
