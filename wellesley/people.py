@@ -35,6 +35,8 @@ class WellesleyPersonScraper(Scraper):
             thing = role.text_content()
 
             comm = Committee(name=thing)
+            url = role.xpath(".//a")[0].attrib['href']
+            comm.add_link(url=url, note='homepage')
 
             for person, expire in people:
                 if "TBA" in person:
