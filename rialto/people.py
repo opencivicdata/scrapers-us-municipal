@@ -1,17 +1,22 @@
-from pupa.scrape import Scraper
+import lxml.html
+
+from pupa.scrape import Scraper, Legislator
 from pupa.models import Person, Organization
 
 
 class PersonScraper(Scraper):
 
+    url = 'http://www.ci.rialto.ca.us/citycouncil_council-members.php'
     def get_people(self):
-        # committee
-        tech = Organization('Technology', classification='committee')
-        tech.add_post('Chairman', 'chairman')
-        tech.add_source('https://example.com')
-        yield tech
 
-        p = Person('Paul Tagliamonte', district='6', chamber='upper')
-        p.add_membership(tech, role='chairman')
-        p.add_source('https://example.com')
-        yield p
+        html = self.urlopen(self.url)
+        doc = lxml.html.fromstring(html)
+
+        title_xpath = '//div[contains(@class, "biotitle")]'
+        name_xpath = '//div[contains(@class, "bioname")]'
+        for title, name in zip(doc.xpath(title_xpath), doc.xpath(name_xpath)):
+            name = name.text_content().strip()
+            title = title.text_content().strip()
+            p = Legislator(name=name, post_id=title)
+            p.add_source(self.url)
+            yield p

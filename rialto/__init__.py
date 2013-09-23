@@ -1,6 +1,6 @@
 from pupa.scrape import Jurisdiction
 
-# from .people import PersonScraper
+from .people import PersonScraper
 from .bills import BillScraper
 
 
@@ -29,8 +29,8 @@ class Albequerque(Jurisdiction):
                }
 
     def get_scraper(self, term, session, scraper_type):
-        # if scraper_type == 'people':
-        #     return PersonScraper
+        if scraper_type == 'people':
+            return PersonScraper
         if scraper_type == 'bills':
             return BillScraper
 
