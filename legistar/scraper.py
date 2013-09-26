@@ -297,20 +297,58 @@ class LegistarScraper (object):
   def councilMembers(self, follow_links=True) :
     br = self._get_new_browser()
     response = br.open(self._people_uri)
-    soup = BeautifulSoup(response.read())
-    table = soup.find('table', id='ctl00_ContentPlaceHolder1_gridPeople_ctl00')
 
-    for councilman, headers, row in self.parseDataTable(table):
+    # Loop through the pages, yielding each of the results
+    all_results = False
+    while all_results is False :
+      soup = BeautifulSoup(response.read())
+      table = soup.find('table', id='ctl00_ContentPlaceHolder1_gridPeople_ctl00')
 
-      if follow_links and type(councilman['Person Name']) == dict :
-        detail_url = self.host + councilman['Person Name']['url']
-        response = br.open(detail_url)
-        soup = BeautifulSoup(response.read())
-        img = soup.find('img', {'id' : 'ctl00_ContentPlaceHolder1_imgPhoto'})
-        if img :
-          councilman['Photo'] = self.host + img['src']
+      for councilman, headers, row in self.parseDataTable(table):
 
-      yield councilman
+        if follow_links and type(councilman['Person Name']) == dict :
+          detail_url = self.host + councilman['Person Name']['url']
+          response = br.open(detail_url)
+          soup = BeautifulSoup(response.read())
+          img = soup.find('img', {'id' : 'ctl00_ContentPlaceHolder1_imgPhoto'})
+          if img :
+            councilman['Photo'] = self.host + img['src']
+
+        yield councilman
+
+      current_page = soup.fetch('a', {'class': 'rgCurrentPage'})
+      if current_page :
+        current_page = current_page[0]
+        next_page = current_page.findNextSibling('a')
+      else :
+        next_page = None
+
+      if next_page :
+        print 'reading page', next_page.text
+        print
+        event_target = next_page['href'].split("'")[1]
+        print event_target
+        br.select_form('aspnetForm')
+        data = self._data(br.form, event_target)
+
+        # del data['ctl00$ContentPlaceHolder1$gridPeople$ctl00$ctl02$ctl01$ctl01']
+        # data['__ASYNCPOST'] = True
+        # data['__EVENTARGUMENT'] = ''
+        # data['__LASTFOCUS'] = ''
+        # data['ctl00_ContentPlaceHolder1_tabTop_ClientState'] = '{"selectedIndexes":["0"],"logEntries":[],"scrollState":{}}'
+        # data['ctl00_RadScriptManager1_TSM'] = ';;System.Web.Extensions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35:en-US:89093640-ae6b-44c3-b8ea-010c934f8924:ea597d4b:b25378d2;Telerik.Web.UI, Version=2012.2.912.40, Culture=neutral, PublicKeyToken=121fae78165ba3d4:en-US:6aabe639-e731-432d-8e00-1a2e36f6eee0:16e4e7cd:f7645509:24ee1bba:e330518b:1e771326:8e6f0d33:ed16cbdc:6a6d718d:2003d0b8:c8618e41:58366029'
+        # data['ctl00_tabTop_ClientState'] = '{"selectedIndexes":["6"],"logEntries":[],"scrollState":{}}'
+        # data['ctl00$RadScriptManager1'] = 'ctl00$ContentPlaceHolder1$ctl00$ContentPlaceHolder1$gridPeoplePanel|ctl00$ContentPlaceHolder1$gridPeople$ctl00$ctl02$ctl00$ctl04'
+        # data['RadAJAXControlID'] = 'ctl00_ContentPlaceHolder1_RadAjaxManager1'
+
+        # print data
+        data = urllib.urlencode(data)
+        response = _try_connect(br, self._people_uri, data)
+
+      else :
+        all_results = True
+
+    raise StopIteration
 
   def councilCalendar(self, search_type='upcoming') :
     br = self._get_new_browser()
