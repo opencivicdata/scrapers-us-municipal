@@ -180,8 +180,8 @@ def can_get_history_detail_using_summary_row():
   print history_summary
 
   attrs, votes = scraper.expandHistorySummary(history_summary)
-  ayes = [vote for vote in votes if vote['Vote'] == 'Ayes']
-  assert_equal(len(ayes), 14)
+  ayes = [vote for vote in votes if vote['Vote'] == 'Yea']
+  assert_equal(len(ayes), 49)
   assert_equal(attrs['Result'], 'Pass')
 
 
