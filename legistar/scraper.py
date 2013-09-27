@@ -202,7 +202,7 @@ class LegistarScraper (object):
     Take a row from a data table and use the URL value from that row to
     retrieve more details. Parse those details with parse_function.
     """
-    detail_uri = summary['URL']
+    detail_uri = summary['url']
 
     br = self._get_new_browser()
     connection_complete = False
