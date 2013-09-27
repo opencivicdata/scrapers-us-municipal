@@ -21,7 +21,7 @@ class LegistarScraper (object):
     instance, e.g. 'phila.legistar.com'.
     """
     self.config = config
-    self.host = 'http://%s/' % self.config['hostname']
+    self.host = 'https://%s/' % self.config['hostname']
     self.fulltext = self.config['fulltext']
     self.sponsor_links = self.config['sponsor_links']
     
@@ -49,8 +49,7 @@ class LegistarScraper (object):
       # If it's not there, then we're already on the advanced search form.
       pass
 
-    else:
-      br = self._switch_to_advanced_search(br)
+    br = self._switch_to_advanced_search(br)
 
     br.select_form('aspnetForm')
     br.form.set_all_readonly(False)
@@ -561,20 +560,17 @@ class LegistarScraper (object):
     del data['ctl00$ButtonAlerts']
     del data['ctl00$ContentPlaceHolder1$chkAttachments']
     del data['ctl00$ContentPlaceHolder1$chkOther']
-    
 
-    print data
     data = urllib.urlencode(data)
     response = br.open(self._legislation_uri, data)
 
     try:
       # Check for the link to the advanced search form
-      br.find_link(text_regex='Advanced.*')
-      raise ValueError("did not switch to advanced search")
+      br.find_link(text_regex='.*Simple.*')
 
     except mechanize.LinkNotFoundError:
       # If it's not there, then we're already on the advanced search form.
-      pass
+      raise ValueError('Not on the advanced search page')
 
 
     return br
@@ -597,8 +593,3 @@ def _try_connect(br, uri, data=None) :
   else :
     print uri
     raise urllib2.URLError("Timed Out")
-
-
-
-
-
