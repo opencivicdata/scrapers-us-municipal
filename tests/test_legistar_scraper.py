@@ -1,6 +1,7 @@
 from nose.tools import *
 from legistar.scraper import LegistarScraper
 from legistar.config import Config, DEFAULT_CONFIG
+from BeautifulSoup import BeautifulSoup
 
 try:
   from nose.tools import assert_in, assert_not_in
@@ -34,7 +35,8 @@ def supports_advanced_initial_search_form():
   try:
     summaries.next()
   except StopIteration:
-    fail('no legislation found')
+    #fail('no legislation found')
+    assert False
 
 @istest
 def supports_simple_initial_search_form():
@@ -45,7 +47,8 @@ def supports_simple_initial_search_form():
   try:
     summaries.next()
   except StopIteration:
-    fail('no legislation found')
+    #fail('no legislation found')
+    assert False
 
 @istest
 def paging_through_results():
@@ -180,11 +183,12 @@ def can_get_history_detail_using_summary_row():
 
 @istest
 def parse_sponsors():
+  with open('tests/local/LegislationDetail.aspx?ID=1255978&GUID=8051C1E6-DED6-433B-AC9A-0FE436051C9F') as f :
+    soup = BeautifulSoup(f)
   config = Config(hostname = 'chicago.legistar.com',
             fulltext = True).defaults(DEFAULT_CONFIG)
   scraper = LegistarScraper(config)
-  legislation_summary = {'URL': 'http://chicago.legistar.com/LegislationDetail.aspx?ID=1255978&GUID=8051C1E6-DED6-433B-AC9A-0FE436051C9F'}
-  legislation_details = scraper.expandLegislationSummary(legislation_summary)
+  legislation_details = scraper.parseLegislationDetail(soup)
   assert_equal(legislation_details[0]["Sponsors"][1], u'Moreno, Proco Joe')
 
 

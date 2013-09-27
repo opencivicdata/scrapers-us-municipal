@@ -1,0 +1,502 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="ctl00_Head1"><title>
+	Office of the City Clerk - Record #: R2012-1118
+</title><link href="CalendarControl.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="CalendarControl.js" language="javascript"></script>
+    <script type="text/javascript">
+        var addthis_config = {
+            ui_cobrand: "powered by Legistar",
+            ui_header_color: "#660000",
+            ui_header_background: "#f7eecd",
+            ui_508_compliant: true,
+            data_track_clickback: true
+        }
+    </script>
+    <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#username=legistarinsite"></script>
+    <script type="text/javascript">
+        window.name = "MasterWindow";
+        var first = true;
+        var first2 = true;
+        function OpenTelerikWindow(url) {
+            var w = radopen(url, 'RadWindow1')
+            if (first) {
+                //w.togglePin(); 
+                first = false;
+            }
+        }
+        function OpenTelerikWindow2(url) {
+            var w = radopen(url, 'RadWindow2')
+            if (first2) {
+                //w.togglePin(); 
+                first2 = false;
+            }
+        }
+    </script>
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-24823355-1']);
+        _gaq.push(['_setDomainName', '.legistar.com']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
+    <meta name="author" content="Darius Tajanko" /><meta name="description" content="Title: Call for President Barack Obama and U.S.Congress to adopt federal budget policies that revitalize economy, maintain services and restructure tax system" /><link href="Feed.ashx?M=LD&amp;ID=1255978&amp;GUID=8051C1E6-DED6-433B-AC9A-0FE436051C9F" rel="alternate" type="application/rss+xml" title="Office of the City Clerk - File: R2012-1118" /><link href="/WebResource.axd?d=wUH2SSztBaE_gxy2fg723XHqXKx51dG0w60U265tYnB4vLIByu3wOYtKoiHJ5UHW6nEjl566Hfy-p-JxUEK4Tfw1mvx-3lAmUHyBEiLrHpQQejF8PVggSBG53WdSe5g7-46kF2knBQ4VIlWB5aOWJw2&amp;t=635035907775040000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=oVMedI7w5gJxgcQwlch0QS0t9phfYQdU0KW29LzKYpkUrO0qiLIJk9wPMkvBY1hRPhVFkduciakE6ZiR4gbMYlUlnfSf_mMWFoH-j0549jeV1bfOwusNaF1YisQ1eTa2ajWaFqi8dxRSgSjtT8lzIaWwNMEUoi8Bvw8bLNq5WjQYZTJQfiJjQe4qwPqRBRaf0&amp;t=635035907549920000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=jjiZ4_YDC2uO5FMN9kpJNshbWLQweD7SgQ2oEswkeGvy7Re_DAWfiCOQxQlPIHH5mkJzOA_U8WrCgEDSpkZIhsTUloWLTcV1lnazrnZgj0SnAS4zTU6xbG5Y_e78G-AKUdQ4zgTYo2khkGl-ZipV7w2&amp;t=635035907775040000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=7j-G2sirzHe-Q9dkOVV12Rws1nFOSjDgA1e8qHsP_dCnGaeEA7UcgNKwtMy-BuD6Ar8LLL2mAoubT9ylbBCI60PGT1dUuzOJyKpVCS1ScT16zKRM6HOpgebn3wxJF19d-fVys-QjHE0IjxgTm61vww2&amp;t=635035907775040000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=DHa1Cgg_p2vAGsNPjYTc1VX-AZhwJeIylZv83Q9ljLxEhDbHUnkSkcwfNrziP6sOgFxMYQOmsKrY7tfR57BYtU-sKDtb-bhxRSLzgoi5XYKqPN4-HgLBbPkHshSucksJ7qX49J38rMowipa8pdv31ajbnhr8_sC7F-8ceDmaYA-Xl6vtC4SbkF8CNYeCzKT_0&amp;t=635035907549920000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=2ubNPaT3EHijRfad5G-K51kN1zuKTocWlRp5LC2rgQJAHOfNcJ7rYvgFnv80-iH5tbulRJKxLgrZPEFDKoy2E9qTSbR5TgonZDLXiLSTBxx5k-4apg1OOlN--d0iAWHeU4MzKnsGrJUQU3pXfLyrJA2&amp;t=635035907775040000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=bSDPoOoPPGg16XKfK1udxyfDGMmL7V-JqyGcZB5qzj8oRigjyXKxBWZQ0cgj8qFiDB2URzC0mIzVTndXZw21f5hO7lTkTAosBQ9v8PPyaQyGE5dcMVeNWmgbSSGGSc_np4WL5J-4SeK-HVAp0gL7fQ2&amp;t=635035907775040000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=Db8tcl5vQmbAPviYgeDIEJfL4u2hfIWR2BaMX9Yh_57bTO-5oX0JOcgkxVD3NtPA30VocCAL9gVoeWkl-LvMx-ZIPHLELzfkZVuSeO-_uj0KvUrYWJU9WDmI8GzqJp8eiOdAZbHeDuJtbHTe35X33-MmPQe-ylexF7uPi7yLQtkxmbp8rXaI1r-7iUAl7Sox0&amp;t=635035907549920000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=xG0nEDlZ8TDy236vJOzdbcHYQTHxUC2VMJYr3ALmg0-cCX2R1qjNVLj_zkYoYuUAjb_PSPmHwtIPuzT_315iwDyNyCcvlueM3Ii3jHpkoSLa1ZaPjgcmWBB-B7sKBLr92XGfac0nd3CxmvqBAseraQ2&amp;t=635035907775040000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><link href="/WebResource.axd?d=LkU49fLZIHF6VjTe0RZ88BDuOZy62rwd4wMx22Z-UyVYWxKlMY6zMWRGIqXVPog6TiF3qlb-qR5Aop2ps6SsDOBG86JjyBzyAiFhK-A2nzEc6LfWqBvFZMHDjUbGceMKc7iahasOqAr82SrCNsjEgpRs_DPFfF85d_MjvTiX28L9eZOaQ1yvexvesSxOV_Ox0&amp;t=635035907549920000" type="text/css" rel="stylesheet" class="Telerik_stylesheet" /><script type="text/javascript">var NREUMQ=NREUMQ||[];NREUMQ.push(["mark","firstbyte",new Date().getTime()]);</script></head>
+<body id="ctl00_body1" style="margin: 0px; border: 0px;">
+    <form name="aspnetForm" method="post" action="LegislationDetail.aspx?ID=1255978&amp;GUID=8051C1E6-DED6-433B-AC9A-0FE436051C9F" id="aspnetForm" style="direction:ltr;">
+<input type="hidden" name="ctl00_RadScriptManager1_TSM" id="ctl00_RadScriptManager1_TSM" value="" />
+<input type="hidden" name="__VSTATE" id="__VSTATE" value="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" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="" />
+
+
+<script src="/Telerik.Web.UI.WebResource.axd?_TSM_HiddenField_=ctl00_RadScriptManager1_TSM&amp;compress=1&amp;_TSM_CombinedScripts_=%3b%3bSystem.Web.Extensions%2c+Version%3d4.0.0.0%2c+Culture%3dneutral%2c+PublicKeyToken%3d31bf3856ad364e35%3aen-US%3a89093640-ae6b-44c3-b8ea-010c934f8924%3aea597d4b%3bTelerik.Web.UI%2c+Version%3d2012.2.912.40%2c+Culture%3dneutral%2c+PublicKeyToken%3d121fae78165ba3d4%3aen-US%3a6aabe639-e731-432d-8e00-1a2e36f6eee0%3a16e4e7cd%3af7645509%3a24ee1bba%3ae330518b%3a1e771326%3a8e6f0d33%3aed16cbdc%3a874f8ea2%3af46195d3%3a19620875%3a490a9d4e%3abd8f85e4%3a6a6d718d%3a2003d0b8%3ac8618e41%3a58366029" type="text/javascript"></script>
+<input type="hidden" name="__PREVIOUSPAGE" id="__PREVIOUSPAGE" value="Rr963SWUa_WVSHWw41C7nDlN34uG7Msgyeh4PJIItvpZFt_v0mve9gxslMR6_EL7OO7435cD62RdbfsmAdBZTHc4750QoNT3_s50qICbwNI1" />
+<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="/wEWCAL+raDpAgLfteWxDQLF4JTcDQLE4JTcDQLD4JTcDQLC4JTcDQLJ4JTcDQLH4JTcDTEhfl23Pz9S8jFJURSzYjIVuaprK9vJut+tYdvU7o1v" />
+        
+        <div id="ctl00_divBody">
+            <div id="ctl00_divMyAccountOut" style="position: absolute; right: 5px; top: 5px;">
+                <a id="ctl00_hypSignIn" href="SignIn.aspx?ReturnUrl=TXlBY2NvdW50LmFzcHg%3d"><font face="Tahoma" color="White" size="2">Sign In</font></a>
+            </div>
+            
+            <div id="ctl00_divTop"><style type="text/css">
+</style>
+<table style="background-position: 50% 0%; width: 100%; border-collapse: collapse; background-image: url('http://chicityclerk.com/img/bg.png'); background-repeat: repeat no-repeat;" border="0" cellpadding="0">
+    <tbody>
+        <tr style="background-color: #000000;">
+            <td style="padding: 7px;"><a href="http://chicityclerk.com/" style="color: #ffffff; font-family: sans-serif; text-decoration: none;" onclick="return true;" target="_blank"><img alt="" style="border-width: 0px; border-style: solid;" src="http://chicityclerk.com/img/circle-arrow-left.png" /> Office of the City Clerk: Home</a></td>
+        </tr>
+        <tr>
+            <td align="center" style="padding: 5px; width: 1040px; text-align: center;"><img style="text-align: center;" alt="header-left" src="http://chicityclerk.com/img/header.png" /></td>
+        </tr>
+        <tr>
+            <td align="center" style="margin: 0px; padding: 0px; width: 1040px; text-align: center;">
+            <h4 style="color: #ffffff; text-transform: uppercase; line-height: 1; font-family: sans-serif; font-size: 28px; font-style: normal; font-weight: bold;">Legislative Information Center</h4>
+            </td>
+        </tr>
+    </tbody>
+</table></div>
+            
+            <div id="ctl00_divTabs">
+                <div id="ctl00_tabTop" class="RadTabStrip RadTabStrip_Office2007 RadTabStripTop_Office2007"><font face="Tahoma" size="2">
+	<!-- 2012.2.912.40 --><div class="rtsLevel rtsLevel1">
+		<ul class="rtsUL"><li class="rtsLI rtsFirst"><a class="rtsLink rtsBefore" href="Default.aspx"><span class="rtsOut"><span class="rtsIn"><span class="rtsTxt">Guide</span></span></span></a></li><li class="rtsLI"><a class="rtsLink rtsSelected" href="Legislation.aspx"><span class="rtsOut"><span class="rtsIn"><span class="rtsTxt">Legislation</span></span></span></a></li><li class="rtsLI"><a class="rtsLink rtsAfter" href="Calendar.aspx"><span class="rtsOut"><span class="rtsIn"><span class="rtsTxt">Meetings</span></span></span></a></li><li class="rtsLI"><a class="rtsLink" href="Departments.aspx"><span class="rtsOut"><span class="rtsIn"><span class="rtsTxt">Legislative Bodies</span></span></span></a></li><li class="rtsLI rtsLast"><a class="rtsLink" href="People.aspx"><span class="rtsOut"><span class="rtsIn"><span class="rtsTxt">Council Members</span></span></span></a></li></ul>
+	</div><input id="ctl00_tabTop_ClientState" name="ctl00_tabTop_ClientState" type="hidden" />
+</font></div>
+            </div>
+            <div id="ctl00_divLeft">
+            </div>
+            <div id="ctl00_divHeader" style="width: 100%; height: 28px">
+                <table width="100%" cellpadding="1" cellspacing="1" border="0">
+                    <tr valign="middle">
+                        <td valign="middle">
+                            
+                        </td>
+                        <td align="right" valign="middle">
+                            <!-- AddThis Button BEGIN -->
+                            <span id="ctl00_SpanShare"><a class="addthis_button" href="http://www.addthis.com/bookmark.php?v=250&amp;username=legistarinsite">
+                                <img src="Images/Share.gif" width="109" height="16" alt="Bookmark and Share" style="border: 0" /></a></span>
+                            <!-- AddThis Button END -->
+                            
+                            <input type="image" name="ctl00$ButtonAlerts" id="ctl00_ButtonAlerts" title="Office of the City Clerk - File: R2012-1118" src="Images/Alerts.gif" alt="Office of the City Clerk - File: R2012-1118" onclick="javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$ButtonAlerts&quot;, &quot;&quot;, true, &quot;&quot;, &quot;Alerts.aspx?M=LDA&amp;ID=1255978&amp;GUID=8051C1E6-DED6-433B-AC9A-0FE436051C9F&amp;Title=Office+of+the+City+Clerk+-+File%3a+R2012-1118&quot;, false, false))" border="0" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="ctl00_Div1">
+                <div id="ctl00_Div2">
+                    <div id="ctl00_divMiddle">
+                        
+    <div id="ctl00_ContentPlaceHolder1_RadAjaxManager1SU">
+	<span id="ctl00_ContentPlaceHolder1_RadAjaxManager1" style="display:none;"></span>
+</div>
+    <div id="ctl00_ContentPlaceHolder1_RadAjaxLoadingPanel1" style="display:none;height:75px;width:75px;">
+	
+        <img alt="Loading..." src='/WebResource.axd?d=f1os3qc2--Uv9tpvnfa-CboSHfMeti5wwUtMn0SufSbOndB5skLIvBa87pTINEjcE7H1BwR2d251wWJVdUIxS7AjKQkJx80CGoHeyv_zigl8LIuU0Y2Rb0obBuOD7mzTnpn145meS8aH5sc1zpekqORXWn4dqOVxgulwRxR7YdM1&amp;t=635035907775040000'
+            style="border: 0px;" />
+    
+</div>
+    <div id="ctl00_ContentPlaceHolder1_RadWindowManager1" style="display:none;z-index:100000;"><font face="Tahoma" size="2">
+	<div id="ctl00_ContentPlaceHolder1_RadWindow2" style="display:none;">
+		<div id="ctl00_ContentPlaceHolder1_RadWindow2_C">
+
+		</div><input id="ctl00_ContentPlaceHolder1_RadWindow2_ClientState" name="ctl00_ContentPlaceHolder1_RadWindow2_ClientState" type="hidden" />
+	</div><div id="ctl00_ContentPlaceHolder1_RadWindowManager1_alerttemplate" style="display:none;">
+		<div class="rwDialogPopup radalert">			
+			<div class="rwDialogText">
+			{1}				
+			</div>
+			
+			<div>
+				<a  onclick="$find('{0}').close(true);"
+				class="rwPopupButton" href="javascript:void(0);">
+					<span class="rwOuterSpan">
+						<span class="rwInnerSpan">##LOC[OK]##</span>
+					</span>
+				</a>				
+			</div>
+		</div>
+		</div><div id="ctl00_ContentPlaceHolder1_RadWindowManager1_prompttemplate" style="display:none;">
+		 <div class="rwDialogPopup radprompt">			
+			    <div class="rwDialogText">
+			    {1}				
+			    </div>		
+			    <div>
+				    <script type="text/javascript">
+				    function RadWindowprompt_detectenter(id, ev, input)
+				    {							
+					    if (!ev) ev = window.event;                
+					    if (ev.keyCode == 13)
+					    {															        
+					        var but = input.parentNode.parentNode.getElementsByTagName("A")[0];					        
+					        if (but)
+						    {							
+							    if (but.click) but.click();
+							    else if (but.onclick)
+							    {
+							        but.focus(); var click = but.onclick; but.onclick = null; if (click) click.call(but);							 
+							    }
+						    }
+					       return false;
+					    } 
+					    else return true;
+				    }	 
+				    </script>
+				    <input title="Enter Value" onkeydown="return RadWindowprompt_detectenter('{0}', event, this);" type="text"  class="rwDialogInput" value="{2}" />
+			    </div>
+			    <div>
+				    <a onclick="$find('{0}').close(this.parentNode.parentNode.getElementsByTagName('input')[0].value);"				
+					    class="rwPopupButton" href="javascript:void(0);" ><span class="rwOuterSpan"><span class="rwInnerSpan">##LOC[OK]##</span></span></a>
+				    <a onclick="$find('{0}').close(null);" class="rwPopupButton"  href="javascript:void(0);"><span class="rwOuterSpan"><span class="rwInnerSpan">##LOC[Cancel]##</span></span></a>
+			    </div>
+		    </div>				       
+		</div><div id="ctl00_ContentPlaceHolder1_RadWindowManager1_confirmtemplate" style="display:none;">
+		<div class="rwDialogPopup radconfirm">			
+			<div class="rwDialogText">
+			{1}				
+			</div>						
+			<div>
+				<a onclick="$find('{0}').close(true);"  class="rwPopupButton" href="javascript:void(0);" ><span class="rwOuterSpan"><span class="rwInnerSpan">##LOC[OK]##</span></span></a>
+				<a onclick="$find('{0}').close(false);" class="rwPopupButton"  href="javascript:void(0);"><span class="rwOuterSpan"><span class="rwInnerSpan">##LOC[Cancel]##</span></span></a>
+			</div>
+		</div>		
+		</div><input id="ctl00_ContentPlaceHolder1_RadWindowManager1_ClientState" name="ctl00_ContentPlaceHolder1_RadWindowManager1_ClientState" type="hidden" />
+</font></div>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: white">
+        <tr>
+            <td>
+                <div id="ctl00_ContentPlaceHolder1_ctl00_ContentPlaceHolder1_tblMessagePanel">
+
+</div>
+                <div id="ctl00_ContentPlaceHolder1_divTabs">
+                    <div id="ctl00_ContentPlaceHolder1_tabTop" class="RadTabStrip RadTabStrip_Office2007 RadTabStripTop_Office2007"><font face="Tahoma" size="2">
+	<div class="rtsLevel rtsLevel1">
+		<ul class="rtsUL"><li class="rtsLI rtsFirst"><a class="rtsLink rtsSelected" href="#"><span class="rtsOut"><span class="rtsIn"><span class="rtsTxt">Details</span></span></span></a></li><li class="rtsLI rtsLast"><a class="rtsLink rtsAfter" href="#"><span class="rtsOut"><span class="rtsIn"><span class="rtsTxt">Reports</span></span></span></a></li></ul>
+	</div><input id="ctl00_ContentPlaceHolder1_tabTop_ClientState" name="ctl00_ContentPlaceHolder1_tabTop_ClientState" type="hidden" />
+</font></div>
+                </div>
+                <div id="ctl00_ContentPlaceHolder1_MultiPageTop">
+	<div id="ctl00_ContentPlaceHolder1_pageDetails">
+		
+                        <table border="0" cellpadding="2" cellspacing="2" width="100%">
+                            <tr>
+                                <td style="width: 150px">
+                                    <span id="ctl00_ContentPlaceHolder1_lblFile"><font face="Tahoma" color="Navy" size="2">Record #:</font></span>
+                                </td>
+                                <td style="width: 250px">
+                                    <span id="ctl00_ContentPlaceHolder1_lblFile2"><font face="Tahoma" color="Black" size="2">R2012-1118</font></span>
+                                    &nbsp;&nbsp;
+                                    
+                                    
+                                    
+                                </td>
+                                <td style="width: 125px">
+                                    
+                                </td>
+                                <td>
+                                    
+                                </td>
+                            </tr>
+                        </table>
+                        <table border="0" cellpadding="2" cellspacing="2" width="100%">
+                            <tr>
+                                <td style="width: 150px">
+                                    <span id="ctl00_ContentPlaceHolder1_lblType"><font face="Tahoma" color="Navy" size="2">Type:</font></span>
+                                </td>
+                                <td style="width: 250px">
+                                    <span id="ctl00_ContentPlaceHolder1_lblType2"><font face="Tahoma" color="Black" size="2">Resolution</font></span>
+                                </td>
+                                <td style="width: 125px">
+                                    <span id="ctl00_ContentPlaceHolder1_lblStatus"><font face="Tahoma" color="Navy" size="2">Status:</font></span>
+                                    
+                                </td>
+                                <td>
+                                    <span id="ctl00_ContentPlaceHolder1_lblStatus2" title="Used for Resolutions that are passed"><font face="Tahoma" color="Black" size="2">Adopted</font></span>
+                                    
+                                </td>
+                            </tr>
+                        </table>
+                        <table border="0" cellpadding="2" cellspacing="2" width="100%">
+                            <tr>
+                                <td style="width: 150px">
+                                    <span id="ctl00_ContentPlaceHolder1_lblIntroduced"><font face="Tahoma" color="Navy" size="2">Intro date:</font></span>
+                                </td>
+                                <td style="width: 250px">
+                                    <span id="ctl00_ContentPlaceHolder1_lblIntroduced2"><font face="Tahoma" color="Black" size="2">12/12/2012</font></span>
+                                </td>
+                                <td style="width: 125px">
+                                    <span id="ctl00_ContentPlaceHolder1_lblInControlOf"><font face="Tahoma" color="Navy" size="2">Current Controlling Legislative Body:</font></span>
+                                </td>
+                                <td>
+                                    <a id="ctl00_ContentPlaceHolder1_hypInControlOf2"><font face="Tahoma" color="Blue" size="2"></font></a>
+                                    
+                                </td>
+                            </tr>
+                        </table>
+                        <table border="0" cellpadding="2" cellspacing="2" width="100%">
+                            <tr>
+                                <td style="width: 150px">
+                                    
+                                </td>
+                                <td style="width: 250px">
+                                    
+                                </td>
+                                <td style="width: 125px">
+                                    <span id="ctl00_ContentPlaceHolder1_lblPassed"><font face="Tahoma" color="Navy" size="2">Final action:</font></span>
+                                </td>
+                                <td>
+                                    <span id="ctl00_ContentPlaceHolder1_lblPassed2"><font face="Tahoma" color="Black" size="2">12/12/2012</font></span>
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        
+                        <table id="ctl00_ContentPlaceHolder1_tblTitle" border="0" cellpadding="2" cellspacing="2" width="100%">
+			<tr>
+				<td style="width: 150px">
+                                    <span id="ctl00_ContentPlaceHolder1_lblTitle"><font face="Tahoma" color="Navy" size="2">Title:</font></span>
+                                </td>
+				<td>
+                                    <span id="ctl00_ContentPlaceHolder1_lblTitle2"><font face="Tahoma" color="Black" size="2">Resolution calling on the President and the United States Congress to end tax cuts for the wealthy and balance the Federal Budget that will create jobs and strengthen communities</font></span>
+                                </td>
+			</tr>
+		</table>
+		
+                        <table id="ctl00_ContentPlaceHolder1_tblSponsors" border="0" cellpadding="2" cellspacing="2" width="100%">
+			<tr>
+				<td style="width: 150px">
+                                    <span id="ctl00_ContentPlaceHolder1_lblSponsors"><font face="Tahoma" color="Navy" size="2">Sponsors:</font></span>
+                                </td>
+				<td>
+                                    <span id="ctl00_ContentPlaceHolder1_lblSponsors2"><font face="Tahoma" color="Black" size="2"><a href="PersonDetail.aspx?ID=60995&GUID=FE2F5131-67D8-4FF3-8AD6-38962CDCA1EF"style="color: blue;">Moore, Joseph</a>, <a href="PersonDetail.aspx?ID=61031&GUID=5F536F64-389D-40B2-93F4-2F6F877D44E9"style="color: blue;">Moreno, Proco Joe</a>, <a href="PersonDetail.aspx?ID=60948&GUID=18CD8228-4EFF-41D7-A702-B54C72FF9B11"style="color: blue;">Fioretti, Bob</a>, <a href="PersonDetail.aspx?ID=60949&GUID=EECABA2B-D3DD-458C-A7DA-EEE315E4BCBD"style="color: blue;">Dowell, Pat</a>, <a href="PersonDetail.aspx?ID=64188&GUID=C902BD9F-F3F0-4A60-9D0A-D4789071A9B0"style="color: blue;">Burns, William D.</a>, <a href="PersonDetail.aspx?ID=64184&GUID=875783E9-DC70-42DC-89DC-B97825056D37"style="color: blue;">Sawyer, Roderick T.</a>, <a href="PersonDetail.aspx?ID=60954&GUID=9143E96C-800A-40DF-A603-811813DEBE6D"style="color: blue;">Harris, Michelle A.</a>, <a href="PersonDetail.aspx?ID=60955&GUID=970F7168-7484-438F-A713-A90F0AE710E5"style="color: blue;">Beale, Anthony</a>, <a href="PersonDetail.aspx?ID=60956&GUID=530F1755-6FE9-4D67-BC0E-5D6A34C5F4EA"style="color: blue;">Pope, John</a>, <a href="PersonDetail.aspx?ID=60957&GUID=23AFBFCC-544A-42C8-9C8F-C3A8D86FD516"style="color: blue;">Balcer, James</a>, <a href="PersonDetail.aspx?ID=60958&GUID=2A391BBA-404A-4FC8-9452-F657D55C7D9D"style="color: blue;">Cardenas, George A.</a>, <a href="PersonDetail.aspx?ID=60960&GUID=EAD8865A-816B-4471-A087-775A81E73BAC"style="color: blue;">Burke, Edward M.</a>, <a href="PersonDetail.aspx?ID=60961&GUID=386B27F4-BE91-411C-9375-61D98EC8E37B"style="color: blue;">Foulkes, Toni</a>, <a href="PersonDetail.aspx?ID=60962&GUID=5A803A1B-40AC-48F6-A40F-4D33A3B48109"style="color: blue;">Thompson, Joann</a>, <a href="PersonDetail.aspx?ID=60963&GUID=3903C1CE-27FB-43DA-B420-F1B2E98C427F"style="color: blue;">Thomas, Latasha R.</a>, <a href="PersonDetail.aspx?ID=60964&GUID=F051F071-4485-4017-882B-4A1109014169"style="color: blue;">Lane, Lona</a>, <a href="PersonDetail.aspx?ID=60978&GUID=D67DEA5D-D7AD-4C06-B094-79F7B7FA1356"style="color: blue;">Waguespack, Scott</a>, <a href="PersonDetail.aspx?ID=64191&GUID=CFD32C06-BDDB-4A82-8492-5A93EEF99C5A"style="color: blue;">Smith, Michele</a>, <a href="PersonDetail.aspx?ID=64193&GUID=FDE97551-F20C-4E12-B62A-D7BED405B033"style="color: blue;">Arena, John</a>, <a href="PersonDetail.aspx?ID=64192&GUID=5D120AF2-BA39-42AE-BE13-146C4CFBD617"style="color: blue;">Cappleman, James</a>, <a href="PersonDetail.aspx?ID=64194&GUID=948AB336-0C7E-4F0B-91C7-F7AFDAF1FC08"style="color: blue;">Pawar, Ameya</a>, <a href="PersonDetail.aspx?ID=64195&GUID=DF4E6A87-4A40-47F7-A8C2-385F2D28883B"style="color: blue;">Osterman, Harry</a>, <a href="PersonDetail.aspx?ID=64186&GUID=0D0E96CF-4CCA-4E33-8455-82D6C28B1F93"style="color: blue;">O'Shea, Matthew J.</a>, <a href="PersonDetail.aspx?ID=60967&GUID=1A93A5E0-1EFB-47B4-8291-A39A57C28CE6"style="color: blue;">Brookins, Jr., Howard</a>, <a href="PersonDetail.aspx?ID=60969&GUID=EB9F639B-6D73-42A7-A578-CCC28213FEA1"style="color: blue;">Zalewski, Michael R.</a>, <a href="PersonDetail.aspx?ID=60971&GUID=C62077FD-C9A8-41A2-ADB7-01CB11EEBBAB"style="color: blue;">Solis, Daniel</a>, <a href="PersonDetail.aspx?ID=60972&GUID=5047B7BA-995E-4385-A5D3-E31B71B72AB4"style="color: blue;">Maldonado, Roberto</a>, <a href="PersonDetail.aspx?ID=61032&GUID=C6D883F6-384D-4896-8EDB-522AE8247206"style="color: blue;">Graham, Deborah L.</a>, <a href="PersonDetail.aspx?ID=60977&GUID=BDB92724-492C-45A5-8390-5ED74ABEB22B"style="color: blue;">Suarez, Regner Ray</a>, <a href="PersonDetail.aspx?ID=60981&GUID=A3AD8544-C90E-4E6C-8E56-9E24FCFB38C8"style="color: blue;">Colón, Rey</a>, <a href="PersonDetail.aspx?ID=60953&GUID=9F752AFD-E5C4-4BEE-AD39-D752EC18443C"style="color: blue;">Jackson, Sandi</a>, <a href="PersonDetail.aspx?ID=64190&GUID=C4EF3FBC-12BD-4904-AF23-0FC3D242A1B1"style="color: blue;">O'Connor, Mary</a>, <a href="PersonDetail.aspx?ID=64196&GUID=0254E721-8ED0-4EAD-9BFF-2B927E07B0B9"style="color: blue;">Silverstein, Debra L.</a>, <a href="PersonDetail.aspx?ID=60976&GUID=0D7500EB-D494-4C11-8820-E9FFA560A837"style="color: blue;">Reboyras, Ariel</a>, <a href="PersonDetail.aspx?ID=60966&GUID=DD5CD307-9AA0-47CA-B6D4-6F0F1EC9EB54"style="color: blue;">Cochran, Willie</a>, <a href="PersonDetail.aspx?ID=60968&GUID=49AB6F30-71A8-40AE-8E12-9C22F549D2EC"style="color: blue;">Munoz, Ricardo</a>, <a href="PersonDetail.aspx?ID=64187&GUID=0CD76AE8-0006-47F7-912C-14B471AAB3F7"style="color: blue;">Chandler, Michael D.</a>, <a href="PersonDetail.aspx?ID=60973&GUID=D57906F0-FEC4-418B-AC5D-B12171AA2A6E"style="color: blue;">Burnett, Jr., Walter</a>, <a href="PersonDetail.aspx?ID=60980&GUID=430D3695-A3EA-4955-B691-B2CC21A89178"style="color: blue;">Austin, Carrie M.</a>, <a href="PersonDetail.aspx?ID=64189&GUID=5AE9271E-2678-45BA-A3C1-B680074A1C32"style="color: blue;">Sposato, Nicholas</a>, <a href="PersonDetail.aspx?ID=61047&GUID=4072F051-169B-4377-952C-D928D55D76E5"style="color: blue;">Cullerton, Timothy M.</a>, <a href="PersonDetail.aspx?ID=60983&GUID=8548C5C9-027C-4D76-BF1B-01D73B8D12DE"style="color: blue;">Mitts, Emma</a>, <a href="PersonDetail.aspx?ID=60985&GUID=6D34E9B5-E7C6-48F1-AE5C-CE894C3DF7C1"style="color: blue;">Laurino, Margaret</a>, <a href="PersonDetail.aspx?ID=60986&GUID=52A1279D-6A56-4243-A919-3B19AEBC4353"style="color: blue;">O'Connor, Patrick</a>, <a href="PersonDetail.aspx?ID=60990&GUID=6F32FA8A-DB7A-428B-9C93-A8E57054604B"style="color: blue;">Tunney, Thomas</a>, <a href="PersonDetail.aspx?ID=60988&GUID=15F273CF-872D-4DBF-B907-0528EBF88218"style="color: blue;">Reilly, Brendan</a>, <a href="PersonDetail.aspx?ID=64185&GUID=904E1743-1614-46E4-9102-E3B4378A1569"style="color: blue;">Quinn, Marty</a>, <a href="PersonDetail.aspx?ID=61046&GUID=9DE4552D-750E-4D4F-8953-0811D185B2A8"style="color: blue;">Ervin, Jason C.</a>, <a href="PersonDetail.aspx?ID=60979&GUID=BAEEE3BA-ADD0-4657-B5F6-D2F70CEF9220"style="color: blue;">Mell, Richard F.</a></font></span>
+                                </td>
+			</tr>
+		</table>
+		
+                        
+                        
+                        <table id="ctl00_ContentPlaceHolder1_tblAttachments" border="0" cellpadding="2" cellspacing="2" width="100%">
+			<tr>
+				<td style="width: 150px">
+                                    <span id="ctl00_ContentPlaceHolder1_lblAttachments"><font face="Tahoma" color="Navy" size="2">Attachments:</font></span>
+                                </td>
+				<td>
+                                    <span id="ctl00_ContentPlaceHolder1_lblAttachments2"><font face="Tahoma" color="Black" size="2">1. <a href="View.ashx?M=F&ID=2259121&GUID=DDDEF99D-2A11-4E48-93C4-B8083A1ED208" style="color: blue;">R2012-1118.pdf</a></font></span>
+                                </td>
+			</tr>
+		</table>
+		
+                        
+                        
+                        
+                        
+                        
+                        
+                        <div id="ctl00_ContentPlaceHolder1_tabBottom" class="RadTabStrip RadTabStrip_Office2007 RadTabStripTop_Office2007"><font face="Tahoma" size="2">
+			<div class="rtsLevel rtsLevel1">
+				<ul class="rtsUL"><li class="rtsLI rtsFirst"><a class="rtsLink rtsSelected" href="#"><span class="rtsOut"><span class="rtsIn"><span class="rtsTxt">History (1)</span></span></span></a></li><li class="rtsLI rtsLast"><a class="rtsLink rtsAfter" href="#"><span class="rtsOut"><span class="rtsIn"><span class="rtsTxt">Text</span></span></span></a></li></ul>
+			</div><input id="ctl00_ContentPlaceHolder1_tabBottom_ClientState" name="ctl00_ContentPlaceHolder1_tabBottom_ClientState" type="hidden" />
+		</font></div>
+                        <div id="ctl00_ContentPlaceHolder1_MultiPageBottom">
+			<div id="ctl00_ContentPlaceHolder1_pageHistory">
+				
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td>
+                                            <div id="ctl00_ContentPlaceHolder1_menuLegislation" class="RadMenu RadMenu_Office2007" style="z-index:3500;"><font face="Tahoma" size="2">
+					<ul class="rmRootGroup rmHorizontal">
+						<li class="rmItem rmFirst"><a href="#" class="rmLink rmRootLink rmDisabled rmDisabled"><font color="Black"><span class="rmText">1 record</span></font></a></li><li class="rmItem "><a href="#" class="rmLink rmRootLink"><span class="rmText">Group</span></a><div class="rmSlide">
+							<ul class="rmVertical rmGroup rmLevel1">
+								<li class="rmItem rmFirst"><a href="#" class="rmLink"><span class="rmText">Clear sorting</span></a></li><li class="rmItem "><a href="#" class="rmLink"><span class="rmText">Clear grouping</span></a></li><li class="rmItem "><a href="#" class="rmLink"><span class="rmText">Group by Date</span></a></li><li class="rmItem rmLast"><a href="#" class="rmLink"><span class="rmText">Group by Action By</span></a></li>
+							</ul>
+						</div></li><li class="rmItem rmLast"><a href="#" class="rmLink rmRootLink"><span class="rmText">Export</span></a><div class="rmSlide">
+							<ul class="rmVertical rmGroup rmLevel1">
+								<li class="rmItem rmFirst"><a href="#" class="rmLink"><span class="rmText">Export to Excel</span></a></li><li class="rmItem "><a href="#" class="rmLink"><span class="rmText">Export to PDF</span></a></li><li class="rmItem rmLast"><a href="#" class="rmLink"><span class="rmText">Export to Word</span></a></li>
+							</ul>
+						</div></li>
+					</ul><input id="ctl00_ContentPlaceHolder1_menuLegislation_ClientState" name="ctl00_ContentPlaceHolder1_menuLegislation_ClientState" type="hidden" />
+				</font></div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td>
+                                            <div id="ctl00_ContentPlaceHolder1_ctl00_ContentPlaceHolder1_gridLegislationPanel">
+					<div id="ctl00_ContentPlaceHolder1_gridLegislation" class="RadGrid RadGrid_Office2007" style="font-family:Tahoma;font-size:10pt;width:99.5%;">
+
+					<table class="rgMasterTable" border="0" id="ctl00_ContentPlaceHolder1_gridLegislation_ctl00" frame="void" style="width:100%;table-layout:auto;empty-cells:show;">
+	<colgroup>
+		<col  />
+		<col  />
+		<col  />
+		<col  />
+		<col  />
+		<col style="width:50px" />
+		<col style="width:50px" />
+	</colgroup>
+<thead>
+		<tr>
+			<th scope="col" class="rgHeader rgSorted" valign="middle" abbr="100px" style="white-space:nowrap;text-align:left;vertical-align:middle;"><a title="Click here to sort" href="javascript:__doPostBack(&#39;ctl00$ContentPlaceHolder1$gridLegislation$ctl00$ctl02$ctl01$ctl00&#39;,&#39;&#39;)">Date</a>&nbsp;<input type="button" name="ctl00$ContentPlaceHolder1$gridLegislation$ctl00$ctl02$ctl01$ctl01" value=" " onclick="javascript:__doPostBack(&#39;ctl00$ContentPlaceHolder1$gridLegislation$ctl00$ctl02$ctl01$ctl01&#39;,&#39;&#39;)" title="Sorted desc" class="rgSortDesc" /></th><th scope="col" class="rgHeader" valign="middle" abbr="50px" style="white-space:nowrap;text-align:left;vertical-align:middle;"><a title="Click here to sort" href="javascript:__doPostBack(&#39;ctl00$ContentPlaceHolder1$gridLegislation$ctl00$ctl02$ctl01$ctl02&#39;,&#39;&#39;)">Journal Page Number</a></th><th scope="col" class="rgHeader" valign="middle" abbr="200px" style="white-space:nowrap;text-align:left;vertical-align:middle;"><a title="Click here to sort" href="javascript:__doPostBack(&#39;ctl00$ContentPlaceHolder1$gridLegislation$ctl00$ctl02$ctl01$ctl03&#39;,&#39;&#39;)">Action&nbsp;By</a></th><th scope="col" class="rgHeader" valign="middle" style="white-space:nowrap;text-align:left;vertical-align:middle;"><a title="Click here to sort" href="javascript:__doPostBack(&#39;ctl00$ContentPlaceHolder1$gridLegislation$ctl00$ctl02$ctl01$ctl04&#39;,&#39;&#39;)">Action</a></th><th scope="col" class="rgHeader" valign="middle" abbr="50px" style="white-space:nowrap;text-align:left;vertical-align:middle;"><a title="Click here to sort" href="javascript:__doPostBack(&#39;ctl00$ContentPlaceHolder1$gridLegislation$ctl00$ctl02$ctl01$ctl06&#39;,&#39;&#39;)">Result</a></th><th scope="col" class="rgHeader" valign="middle" abbr="0px" style="white-space:nowrap;text-align:left;vertical-align:middle;">Action&nbsp;Details</th><th scope="col" class="rgHeader" valign="middle" abbr="0px" style="white-space:nowrap;text-align:left;vertical-align:middle;">Meeting&nbsp;Details</th>
+		</tr>
+	</thead><tbody>
+	<tr class="rgRow" valign="top" id="ctl00_ContentPlaceHolder1_gridLegislation_ctl00__0" style="font-family:Tahoma;font-size:10pt;">
+		<td class="rgSorted">12/12/2012</td><td>44787</td><td style="white-space:nowrap;">
+                                                                <a id="ctl00_ContentPlaceHolder1_gridLegislation_ctl00_ctl04_hypBody" href="DepartmentDetail.aspx?ID=12357&amp;GUID=4B24D5A9-FED0-4015-9154-6BFFFB2A8CB4" style="color:Blue;font-family:Tahoma;font-size:10pt;">City Council</a>
+                                                            </td><td>Referred</td><td>&nbsp;</td><td>
+                                                                <a id="ctl00_ContentPlaceHolder1_gridLegislation_ctl00_ctl04_hypDetails" onclick="radopen(&#39;HistoryDetail.aspx?ID=6534991&amp;GUID=253AA818-B592-4594-8237-0A617AA41766&#39;, &#39;HistoryDetail&#39;);return false;" href="#" style="color:Blue;font-family:Tahoma;font-size:10pt;">Action&nbsp;details</a>
+                                                            </td><td>
+                                                                <a id="ctl00_ContentPlaceHolder1_gridLegislation_ctl00_ctl04_hypMeetingDetail" style="color:Gray;font-family:Tahoma;font-size:10pt;">Meeting&nbsp;details</a>
+                                                            </td>
+	</tr>
+	</tbody>
+
+</table><input id="ctl00_ContentPlaceHolder1_gridLegislation_ClientState" name="ctl00_ContentPlaceHolder1_gridLegislation_ClientState" type="hidden" />
+						</div>
+
+				</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            
+			</div><div id="ctl00_ContentPlaceHolder1_pageText" class="rmpHiddenView">
+				
+                                <div id="ctl00_ContentPlaceHolder1_divText" style="margin: 10px;">Title
+Resolution calling on the President and the United States Congress to end tax cuts for the wealthy and balance the Federal Budget that will create jobs and strengthen communities  </div>
+                            
+			</div><div id="ctl00_ContentPlaceHolder1_pagePublicComments" class="rmpHiddenView">
+				
+                                
+                            
+			</div><div id="ctl00_ContentPlaceHolder1_pagePrivateComments" class="rmpHiddenView">
+				
+                                <div id="ctl00_ContentPlaceHolder1_ctl00_ContentPlaceHolder1_ucPrivateCommentsPanel">
+
+				</div>
+                            
+			</div><input id="ctl00_ContentPlaceHolder1_MultiPageBottom_ClientState" name="ctl00_ContentPlaceHolder1_MultiPageBottom_ClientState" type="hidden" />
+		</div>
+                    
+	</div><div id="ctl00_ContentPlaceHolder1_pageReports" class="rmpHiddenView">
+		
+                        <table border="0" cellpadding="4" cellspacing="4" width="100%">
+                            <tr>
+                                <td id="ctl00_ContentPlaceHolder1_tdText">
+                                    <a id="ctl00_ContentPlaceHolder1_hypText" href="ViewReport.ashx?M=R&amp;N=Text&amp;GID=106&amp;ID=1307460&amp;GUID=2A7A5F8A-CA17-4D7E-8F37-5297A5571050&amp;Title=Legislation+Text"><font face="Tahoma" color="Blue" size="2">Legislation Text</font></a>
+                                </td>
+		
+                            </tr>
+                            <tr>
+                                <td id="ctl00_ContentPlaceHolder1_tdMaster">
+                                    <a id="ctl00_ContentPlaceHolder1_hypMaster" href="ViewReport.ashx?M=R&amp;N=Master&amp;GID=106&amp;ID=1255978&amp;GUID=8051C1E6-DED6-433B-AC9A-0FE436051C9F&amp;Title=Legislation+Details"><font face="Tahoma" color="Blue" size="2">Legislation Details</font></a>
+                                </td>
+		
+                            </tr>
+                            <tr>
+                                <td id="ctl00_ContentPlaceHolder1_tdMasterWithText">
+                                    <a id="ctl00_ContentPlaceHolder1_hypMasterWithText" href="ViewReport.ashx?M=R&amp;N=Master&amp;GID=106&amp;ID=1255978&amp;GUID=8051C1E6-DED6-433B-AC9A-0FE436051C9F&amp;Extra=WithText&amp;Title=Legislation+Details+(With+Text)"><font face="Tahoma" color="Blue" size="2">Legislation Details (With Text)</font></a>
+                                </td>
+		
+                            </tr>
+                            <tr>
+                                <td id="ctl00_ContentPlaceHolder1_tdExtra1">
+                                    
+                                </td>
+		
+                            </tr>
+                            <tr>
+                                
+                            </tr>
+                            <tr>
+                                
+                            </tr>
+                        </table>
+                        <span id="ctl00_ContentPlaceHolder1_lblReport"><font face="Tahoma" color="Navy" size="2"></font></span>
+                    
+	</div><input id="ctl00_ContentPlaceHolder1_MultiPageTop_ClientState" name="ctl00_ContentPlaceHolder1_MultiPageTop_ClientState" type="hidden" />
+</div>
+            </td>
+        </tr>
+    </table>
+
+                        <br />
+                        <br />
+                        <br />
+                    </div>
+                </div>
+            </div>
+            <div id="ctl00_divRight">
+            </div>
+            <div id="ctl00_divBottom">
+            </div>
+        </div>
+        
+        
+    
+
+<script type="text/javascript">
+//<![CDATA[
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadTabStrip, {"_selectedIndex":1,"_skin":"Office2007","causesValidation":false,"clickSelectedTab":true,"clientStateFieldID":"ctl00_tabTop_ClientState","selectedIndexes":["1"],"tabData":[{"value":"Welcome"},{"value":"Legislation"},{"value":"Calendar"},{"value":"Departments"},{"value":"People"}]}, null, null, $get("ctl00_tabTop"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadAjaxManager, {"_updatePanels":"","ajaxSettings":[{InitControlID : "ctl00_ContentPlaceHolder1_gridLegislation",UpdatedControls : [{ControlID:"ctl00_ContentPlaceHolder1_gridLegislation",PanelID:""}]},{InitControlID : "ctl00_ContentPlaceHolder1_ucPrivateComments",UpdatedControls : [{ControlID:"ctl00_ContentPlaceHolder1_ucPrivateComments",PanelID:""},{ControlID:"ctl00_ContentPlaceHolder1_tblMessage",PanelID:""}]}],"clientEvents":{OnRequestStart:"",OnResponseEnd:""},"defaultLoadingPanelID":"ctl00_ContentPlaceHolder1_RadAjaxLoadingPanel1","enableAJAX":true,"enableHistory":false,"links":[],"styles":[],"uniqueID":"ctl00$ContentPlaceHolder1$RadAjaxManager1","updatePanelsRenderMode":0}, null, null, $get("ctl00_ContentPlaceHolder1_RadAjaxManager1"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadAjaxLoadingPanel, {"initialDelayTime":0,"isSticky":false,"minDisplayTime":0,"skin":"","transparency":0,"uniqueID":"ctl00$ContentPlaceHolder1$RadAjaxLoadingPanel1","zIndex":90000}, null, null, $get("ctl00_ContentPlaceHolder1_RadAjaxLoadingPanel1"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadWindow, {"_dockMode":false,"behaviors":44,"clientStateFieldID":"ctl00_ContentPlaceHolder1_RadWindow2_ClientState","formID":"aspnetForm","height":"540px","iconUrl":"","initialBehaviors":8,"minimizeIconUrl":"","name":"RadWindow2","skin":"Office2007","visibleStatusbar":false,"width":"720px"}, null, null, $get("ctl00_ContentPlaceHolder1_RadWindow2"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadWindowManager, {"behaviors":44,"clientStateFieldID":"ctl00_ContentPlaceHolder1_RadWindowManager1_ClientState","destroyOnClose":true,"formID":"aspnetForm","height":"600px","iconUrl":"","initialBehaviors":8,"minimizeIconUrl":"","name":"RadWindowManager1","skin":"Office2007","visibleStatusbar":false,"width":"800px","windowControls":"['ctl00_ContentPlaceHolder1_RadWindow2']"}, null, {"child":"ctl00_ContentPlaceHolder1_RadWindow2"}, $get("ctl00_ContentPlaceHolder1_RadWindowManager1"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadTabStrip, {"_postBackReference":"__doPostBack(\u0027ctl00$ContentPlaceHolder1$tabTop\u0027,\u0027{0}\u0027)","_selectedIndex":0,"_skin":"Office2007","causesValidation":false,"clientStateFieldID":"ctl00_ContentPlaceHolder1_tabTop_ClientState","multiPageID":"ctl00_ContentPlaceHolder1_MultiPageTop","selectedIndexes":["0"],"tabData":[{"value":"Details","pageViewID":"ctl00_ContentPlaceHolder1_pageDetails"},{"value":"Reports","pageViewID":"ctl00_ContentPlaceHolder1_pageReports"}]}, null, null, $get("ctl00_ContentPlaceHolder1_tabTop"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadTabStrip, {"_postBackReference":"WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(\u0027ctl00$ContentPlaceHolder1$tabBottom\u0027, \u0027{0}\u0027, true, \u0027\u0027, \u0027\u0027, false, true))","_selectedIndex":0,"_skin":"Office2007","clientStateFieldID":"ctl00_ContentPlaceHolder1_tabBottom_ClientState","multiPageID":"ctl00_ContentPlaceHolder1_MultiPageBottom","selectedIndexes":["0"],"tabData":[{"value":"History","pageViewID":"ctl00_ContentPlaceHolder1_pageHistory"},{"value":"Text","pageViewID":"ctl00_ContentPlaceHolder1_pageText"}]}, null, null, $get("ctl00_ContentPlaceHolder1_tabBottom"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadMenu, {"_childListElementCssClass":null,"_postBackReference":"WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(\u0027ctl00$ContentPlaceHolder1$menuLegislation\u0027, \u0027arguments\u0027, true, \u0027\u0027, \u0027\u0027, false, true))","_skin":"Office2007","attributes":{},"clientStateFieldID":"ctl00_ContentPlaceHolder1_menuLegislation_ClientState","collapseAnimation":"{\"type\":12,\"duration\":200}","collapseDelay":50,"defaultGroupSettings":"{\"flow\":0,\"expandDirection\":0}","expandAnimation":"{\"duration\":450}","expandDelay":50,"itemData":[{"groupSettings":{"flow":0,"expandDirection":0},"postBack":0,"value":"Results","enabled":false},{"groupSettings":{"flow":0,"expandDirection":0},"items":[{"groupSettings":{"flow":0,"expandDirection":0},"value":"ClearSort"},{"groupSettings":{"flow":0,"expandDirection":0},"value":"Clear"},{"groupSettings":{"flow":0,"expandDirection":0},"value":"HistoryDate"},{"groupSettings":{"flow":0,"expandDirection":0},"value":"BodyName"}],"postBack":0,"value":"Group"},{"groupSettings":{"flow":0,"expandDirection":0},"items":[{"groupSettings":{"flow":0,"expandDirection":0},"value":"Excel"},{"groupSettings":{"flow":0,"expandDirection":0},"value":"PDF"},{"groupSettings":{"flow":0,"expandDirection":0},"value":"Word"}],"postBack":0,"value":"Export"}]}, null, null, $get("ctl00_ContentPlaceHolder1_menuLegislation"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadGrid, {"ClientID":"ctl00_ContentPlaceHolder1_gridLegislation","ClientSettings":{"AllowAutoScrollOnDragDrop":true,"AllowDragToGroup":true,"AllowKeyboardNavigation":true,"ShouldCreateRows":true,"ReorderColumnsOnClient":true,"DataBinding":{},"Selecting":{"CellSelectionMode":0,"AllowRowSelect":true,"EnableDragToSelectRows":true,"UseClientSelectColumnOnly":true},"Scrolling":{},"Resizing":{"AllowColumnResize":true},"ClientMessages":{"DragToGroupOrReorder":""},"KeyboardNavigationSettings":{"AllowActiveRowCycle":true,"EnableKeyboardShortcuts":true,"FocusKey":89,"InitInsertKey":73,"RebindKey":82,"ExitEditInsertModeKey":27,"UpdateInsertItemKey":13,"DeleteActiveRow":127,"ExpandDetailTableKey":39,"CollapseDetailTableKey":37},"Animation":{}},"Skin":"Office2007","UniqueID":"ctl00$ContentPlaceHolder1$gridLegislation","ValidationSettings":{"EnableValidation":true,"ValidationGroup":"","CommandsToValidate":["PerformInsert","Update"]},"_activeRowIndex":"","_controlToFocus":"","_currentPageIndex":0,"_editIndexes":"[]","_embeddedSkin":true,"_gridTableViewsData":"[{\"ClientID\":\"ctl00_ContentPlaceHolder1_gridLegislation_ctl00\",\"UniqueID\":\"ctl00$ContentPlaceHolder1$gridLegislation$ctl00\",\"PageSize\":100,\"PageCount\":1,\"EditMode\":\"EditForms\",\"AllowPaging\":true,\"CurrentPageIndex\":0,\"VirtualItemCount\":0,\"AllowMultiColumnSorting\":false,\"AllowNaturalSort\":false,\"AllowFilteringByColumn\":false,\"PageButtonCount\":10,\"HasDetailTables\":false,\"HasMultiHeaders\":false,\"PagerAlwaysVisible\":false,\"IsItemInserted\":false,\"clientDataKeyNames\":[],\"_dataBindTemplates\":false,\"_selectedItemStyle\":\"\",\"_selectedItemStyleClass\":\"rgSelectedRow\",\"_renderActiveItemStyle\":\"\",\"_renderActiveItemStyleClass\":\"rgActiveRow\",\"_columnsData\":[{\"UniqueName\":\"HistoryDate\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":true,\"ColumnType\":\"GridBoundColumn\",\"ColumnGroupName\":\"\",\"DataTypeName\":\"System.DateTime\",\"DataField\":\"HistoryDate\",\"DataFormatString\":\"{0:M/d/yyyy}\",\"Display\":true},{\"UniqueName\":\"HistoryVersion\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":true,\"ColumnType\":\"GridBoundColumn\",\"ColumnGroupName\":\"\",\"DataTypeName\":\"System.String\",\"DataField\":\"HistoryVersion\",\"Display\":true},{\"UniqueName\":\"BodyName\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":true,\"ColumnType\":\"GridTemplateColumn\",\"ColumnGroupName\":\"\",\"DataTypeName\":\"System.String\",\"DataField\":\"\",\"Display\":true},{\"UniqueName\":\"HistoryAction\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":true,\"ColumnType\":\"GridBoundColumn\",\"ColumnGroupName\":\"\",\"DataTypeName\":\"System.String\",\"DataField\":\"HistoryAction\",\"Display\":true},{\"UniqueName\":\"HistoryPassedFlag\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":true,\"ColumnType\":\"GridBoundColumn\",\"ColumnGroupName\":\"\",\"DataTypeName\":\"System.String\",\"DataField\":\"HistoryPassedFlag\",\"Display\":true},{\"UniqueName\":\"HistoryDetails\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":false,\"ColumnType\":\"GridTemplateColumn\",\"ColumnGroupName\":\"\",\"DataTypeName\":\"System.String\",\"DataField\":\"\",\"Display\":true},{\"UniqueName\":\"MeetingDetails\",\"Resizable\":true,\"Reorderable\":true,\"Selectable\":true,\"Groupable\":false,\"ColumnType\":\"GridTemplateColumn\",\"ColumnGroupName\":\"\",\"DataTypeName\":\"System.String\",\"DataField\":\"\",\"Display\":true}]}]","_masterClientID":"ctl00_ContentPlaceHolder1_gridLegislation_ctl00","_shouldFocusOnPage":false,"allowMultiRowSelection":true,"clientStateFieldID":"ctl00_ContentPlaceHolder1_gridLegislation_ClientState","expandItems":{}}, null, null, $get("ctl00_ContentPlaceHolder1_gridLegislation"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadMultiPage, {"clientStateFieldID":"ctl00_ContentPlaceHolder1_MultiPageBottom_ClientState","pageViewData":[{"id":"ctl00_ContentPlaceHolder1_pageHistory"},{"id":"ctl00_ContentPlaceHolder1_pageText"},{"id":"ctl00_ContentPlaceHolder1_pagePublicComments"},{"id":"ctl00_ContentPlaceHolder1_pagePrivateComments"}],"selectedIndex":0}, null, null, $get("ctl00_ContentPlaceHolder1_MultiPageBottom"));
+});
+Sys.Application.add_init(function() {
+    $create(Telerik.Web.UI.RadMultiPage, {"clientStateFieldID":"ctl00_ContentPlaceHolder1_MultiPageTop_ClientState","pageViewData":[{"id":"ctl00_ContentPlaceHolder1_pageDetails"},{"id":"ctl00_ContentPlaceHolder1_pageReports"}],"selectedIndex":0}, null, null, $get("ctl00_ContentPlaceHolder1_MultiPageTop"));
+});
+//]]>
+</script>
+</form>
+<script type="text/javascript"> if (!NREUMQ.f) {NREUMQ.f=function() {NREUMQ.push(["load",new Date().getTime()]);var e=document.createElement("script"); e.type="text/javascript"; e.src=(("http:"===document.location.protocol)?"http:":"https:") + "//" + "js-agent.newrelic.com/nr-100.js"; document.body.appendChild(e);if(NREUMQ.a)NREUMQ.a();};NREUMQ.a=window.onload;window.onload=NREUMQ.f;};NREUMQ.push(["nrfj","beacon-6.newrelic.com","2fdd6b8d1a","2338512","YwdbYEZTVxYHABALW1pNeGdkHVUAAQoXDlVAC1ZaUFdNBA8PSgNHRBo=",0,687,new Date().getTime(),"6335D1DD1183846D","","","",""]);</script></body>
+</html>
