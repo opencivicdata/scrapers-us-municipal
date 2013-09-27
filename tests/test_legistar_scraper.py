@@ -173,7 +173,8 @@ def can_get_history_detail_using_summary_row():
   scraper = LegistarScraper(config)
   legislation_summary = {'URL':'https://chicago.legistar.com/LegislationDetail.aspx?ID=1450228&GUID=97689689-D0EA-47A2-8474-09B3A71C221B&Options=Advanced&Search='}
   legislation_details = scraper.expandLegislationSummary(legislation_summary)
-  history_summary = legislation_details[1][2]
+  print legislation_details
+  history_summary = legislation_details[0][2]
 
   attrs, votes = scraper.expandHistorySummary(history_summary)
   ayes = [vote for vote in votes if vote['Vote'] == 'Ayes']
