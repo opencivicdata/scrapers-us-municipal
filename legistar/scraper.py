@@ -50,13 +50,7 @@ class LegistarScraper (object):
       pass
 
     else:
-      # If it is there, the navigate to the advanced search form.
-      br.select_form('aspnetForm')
-      data = self._data(br.form, None)
-      data['ctl00$ContentPlaceHolder1$btnSwitch'] = ''
-      data = urllib.urlencode(data)
-
-      br.open(self._legislation_uri, data)
+      br = self._switch_to_advanced_search(br)
 
     br.select_form('aspnetForm')
     br.form.set_all_readonly(False)
@@ -557,6 +551,35 @@ class LegistarScraper (object):
     # Otherwise, we don't know how to find the address.
     return None
 
+  def _switch_to_advanced_search(self, br) :
+    br.select_form('aspnetForm')
+    data = self._data(br.form, 'ctl00$ContentPlaceHolder1$btnSwitch')
+    data['__EVENTARGUMENT'] = ''
+    data['ctl00_tabTop_ClientState'] = '{"selectedIndexes":["2"],"logEntries":[],"scrollState":{}}'
+    data['ctl00_RadScriptManager1_TSM'] = ';;System.Web.Extensions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35:en-US:89093640-ae6b-44c3-b8ea-010c934f8924:ea597d4b:b25378d2;Telerik.Web.UI, Version=2012.2.912.40, Culture=neutral, PublicKeyToken=121fae78165ba3d4:en-US:6aabe639-e731-432d-8e00-1a2e36f6eee0:16e4e7cd:f7645509:24ee1bba:e330518b:1e771326:8e6f0d33:ed16cbdc:f46195d3:19620875:874f8ea2:39040b5c:f85f9819:2003d0b8:aa288e2d:c8618e41:58366029'
+    del data['ctl00$ButtonRSS']
+    del data['ctl00$ButtonAlerts']
+    del data['ctl00$ContentPlaceHolder1$chkAttachments']
+    del data['ctl00$ContentPlaceHolder1$chkOther']
+    
+
+    print data
+    data = urllib.urlencode(data)
+    response = br.open(self._legislation_uri, data)
+
+    try:
+      # Check for the link to the advanced search form
+      br.find_link(text_regex='Advanced.*')
+      raise ValueError("did not switch to advanced search")
+
+    except mechanize.LinkNotFoundError:
+      # If it's not there, then we're already on the advanced search form.
+      pass
+
+
+    return br
+
+
 def _try_connect(br, uri, data=None) :
   response = False
   for attempt in xrange(1,6):
@@ -574,5 +597,8 @@ def _try_connect(br, uri, data=None) :
   else :
     print uri
     raise urllib2.URLError("Timed Out")
+
+
+
 
 
