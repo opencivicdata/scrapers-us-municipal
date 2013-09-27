@@ -164,6 +164,7 @@ def history_row_url():
             fulltext = True).defaults(DEFAULT_CONFIG)
   scraper = LegistarScraper(config)
   detail = scraper.expandLegislationSummary({'URL':'http://chicago.legistar.com/LegislationDetail.aspx?ID=1255978&GUID=8051C1E6-DED6-433B-AC9A-0FE436051C9F&Options=Advanced&Search='})
+  print detail
   assert_equal(detail[1][0]['URL'], 'http://chicago.legistar.com/HistoryDetail.aspx?ID=6534991&GUID=253AA818-B592-4594-8237-0A617AA41766')
 
 @istest
