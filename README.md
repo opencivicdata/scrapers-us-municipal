@@ -24,15 +24,20 @@ you are installing the dependencies by hand, use https://github.com/abielr/mecha
 
 To run all unit tests:
 
-``` console
+```
 nosetests
 ```
 
 To run a single test:
 
-``` console
+```
 nosetests tests/test_legistar_scraper.py:name_of_test
-# example: nosetests tests/test_legistar_scraper.py:paging_through_council_members
+```
+
+For example, if you wanted to test just the council members pagination
+
+```
+nosetests tests/test_legistar_scraper.py:paging_through_council_members
 ```
 
 # Example usage
