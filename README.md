@@ -20,7 +20,28 @@ This software is under active development. It is currently known to work for Chi
 Note: The current stable branch of mechanize [has a bug in it](https://github.com/jjlee/mechanize/pull/58). If
 you are installing the dependencies by hand, use https://github.com/abielr/mechanize.
 
+# Tests
+
+To run all unit tests:
+
+``` console
+nosetests
+```
+
+To run a single test:
+
+``` console
+nosetests tests/test_legistar_scraper.py:name_of_test
+# example: nosetests tests/test_legistar_scraper.py:paging_through_council_members
+```
+
 # Example usage
+
+* powering [Councilmatic](https://github.com/codeforamerica/councilmatic/blob/master/councilmatic/phillyleg/management/scraper_wrappers/sources/hosted_legistar_scraper.py)
+* [saving council agendas in to MongoDB](https://github.com/opengovernment/legistar-scrape)
+* [saving councilmembers to a CSV](https://github.com/datamade/legistar-people)
+
+## Sample script
 
 ```python
 from legistar.scraper import LegistarScraper

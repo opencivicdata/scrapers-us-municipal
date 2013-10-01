@@ -51,7 +51,7 @@ def supports_simple_initial_search_form():
     assert False
 
 @istest
-def paging_through_results():
+def paging_through_legislation():
   config = Config(hostname = 'chicago.legistar.com',
             fulltext = True).defaults(DEFAULT_CONFIG)
   scraper = LegistarScraper(config)
@@ -245,14 +245,32 @@ def supports_fetching_council_members():
   except StopIteration:
     fail('no council members found')
 
+# Ann Arbor, MI has a healthy number of people for some reason (4 pages)
+@istest
+def paging_through_council_members():
+  config = Config(hostname = 'a2gov.legistar.com', 
+            fulltext = False).defaults(DEFAULT_CONFIG)
+  scraper = LegistarScraper(config)
+  members = list(scraper.councilMembers(follow_links=False))
+  assert_greater(len(members), 100)
+
 # Calendar
 @istest
 def supports_fetching_calendar():
   config = Config(hostname = 'phila.legistar.com',
-            fulltext = True).defaults(DEFAULT_CONFIG)
+            fulltext = False).defaults(DEFAULT_CONFIG)
   scraper = LegistarScraper(config)
   events = scraper.councilCalendar('all')
   try:
     events.next()
   except StopIteration:
     fail('no events found')
+
+# testing pagination on Alexandria, VA since they only have ~150 events (2 pages)
+@istest
+def paging_through_calendar():
+  config = Config(hostname = 'alexandria.legistar.com', 
+            fulltext = False).defaults(DEFAULT_CONFIG)
+  scraper = LegistarScraper(config)
+  events = list(scraper.councilCalendar('all'))
+  assert_greater(len(events), 100)
