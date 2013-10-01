@@ -324,20 +324,10 @@ class LegistarScraper (object):
         print 'reading page', next_page.text
         print
         event_target = next_page['href'].split("'")[1]
-        print event_target
         br.select_form('aspnetForm')
         data = self._data(br.form, event_target)
 
-        # del data['ctl00$ContentPlaceHolder1$gridPeople$ctl00$ctl02$ctl01$ctl01']
-        # data['__ASYNCPOST'] = True
-        # data['__EVENTARGUMENT'] = ''
-        # data['__LASTFOCUS'] = ''
-        # data['ctl00_ContentPlaceHolder1_tabTop_ClientState'] = '{"selectedIndexes":["0"],"logEntries":[],"scrollState":{}}'
-        # data['ctl00_RadScriptManager1_TSM'] = ';;System.Web.Extensions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35:en-US:89093640-ae6b-44c3-b8ea-010c934f8924:ea597d4b:b25378d2;Telerik.Web.UI, Version=2012.2.912.40, Culture=neutral, PublicKeyToken=121fae78165ba3d4:en-US:6aabe639-e731-432d-8e00-1a2e36f6eee0:16e4e7cd:f7645509:24ee1bba:e330518b:1e771326:8e6f0d33:ed16cbdc:6a6d718d:2003d0b8:c8618e41:58366029'
-        # data['ctl00_tabTop_ClientState'] = '{"selectedIndexes":["6"],"logEntries":[],"scrollState":{}}'
-        # data['ctl00$RadScriptManager1'] = 'ctl00$ContentPlaceHolder1$ctl00$ContentPlaceHolder1$gridPeoplePanel|ctl00$ContentPlaceHolder1$gridPeople$ctl00$ctl02$ctl00$ctl04'
-        # data['RadAJAXControlID'] = 'ctl00_ContentPlaceHolder1_RadAjaxManager1'
-
+        del data['ctl00$ContentPlaceHolder1$gridPeople$ctl00$ctl02$ctl01$ctl01']
         # print data
         data = urllib.urlencode(data)
         response = _try_connect(br, self._people_uri, data)
