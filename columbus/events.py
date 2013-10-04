@@ -68,7 +68,12 @@ class ColumbusEventScraper(Scraper):
 
                     dtstring = ", ".join([day, time])
 
-                    etime = dt.datetime.strptime(dtstring, "%m/%d/%Y, %I:%M %p")
+                    try:
+                        etime = dt.datetime.strptime(
+                            dtstring, "%m/%d/%Y, %I:%M %p")
+                    except ValueError:
+                        etime = dt.datetime.strptime(
+                            dtstring, "%m/%d/%Y, %I%p")
 
                     e = Event(name=event,
                               when=etime,
