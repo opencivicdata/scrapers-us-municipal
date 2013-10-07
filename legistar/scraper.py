@@ -133,7 +133,7 @@ class LegistarScraper (object):
         legislation_id = legislation[id_key]['label']
       except TypeError:
         continue
-      legislation_url = legislation[id_key]['url']
+      legislation_url = legislation[id_key]['url'].split(self.host)[-1]
       legislation[id_key] = legislation_id
       legislation['URL'] = self.host + legislation_url.split('&Options')[0]
 
