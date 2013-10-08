@@ -54,6 +54,7 @@ class ColumbusEventScraper(Scraper):
                 for subevent in (x.strip() for x in event.split(";")):
                     if " in " in subevent:
                         subevent, where = subevent.rsplit(" in ", 1)
+                    subevent = subevent.replace(u'\xa0', ' ')
 
                     info = EVENT_RE.match(subevent).groupdict()
                     event, time = [info[x] for x in ['event', 'time']]
