@@ -47,7 +47,7 @@ class ColumbusPersonScraper(Scraper):
 
     def cbus_scrape_people(self):
         page = self.lxmlize(HOMEPAGE)
-        folks = page.xpath("//div[@class='col-left']//"
+        folks = page.xpath("//div[@class='col-left']/div[2]//"
                            "div[@class='gutter_text'][1]//"
                            "ul[@class='gutterlist']/li//a")
         for folk in folks:
