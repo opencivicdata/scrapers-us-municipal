@@ -3,6 +3,7 @@ from pupa.scrape.helpers import Legislator, Organization
 import lxml.html
 import datetime
 import traceback
+from collections import defaultdict
 
 MEMBERLIST = 'https://chicago.legistar.com/People.aspx'
 
@@ -43,17 +44,25 @@ class LegistarScraper(Scraper) :
         for page in self.pages(MEMBERLIST) :
             table = page.xpath("//table[@id='ctl00_ContentPlaceHolder1_gridPeople_ctl00']")[0]
 
-
             for councilman, headers, row in self.parseDataTable(table):
 
                 if follow_links and type(councilman['Person Name']) == dict :
                     detail_url = councilman['Person Name']['url']
                     councilman_details = self.lxmlize(detail_url)
-                    img = councilman_details.xpath("./img[@id='ctl00_ContentPlaceHolder1_imgPhoto']")
+                    img = councilman_details.xpath("//img[@id='ctl00_ContentPlaceHolder1_imgPhoto']")
                     if img :
-                        councilman['Photo'] = img.get['src']
+                        councilman['Photo'] = img[0].get('src')
 
-                yield councilman
+                    committee_table = councilman_details.xpath("//table[@id='ctl00_ContentPlaceHolder1_gridDepartments_ctl00']")[0]
+                    
+                    committees = self.parseDataTable(committee_table)
+
+                    yield councilman, committees
+
+                else :
+                    yield councilman
+
+                
 
     def _get_link_address(self, link_soup):
         # If the link doesn't start with a #, then it'll send the browser
@@ -78,15 +87,17 @@ class LegistarScraper(Scraper) :
         places. This will return a list of dictionaries using the
         table headers as keys.
         """
-        headers = table.xpath('//th')
-        rows = table.xpath("//tr[starts-with(@id, 'ctl00_ContentPlaceHolder1_')]")
+        headers = table.xpath('.//th')
+        rows = table.xpath(".//tr[starts-with(@id, 'ctl00_ContentPlaceHolder1_')]")
+
+
         keys = {}
         for index, header in enumerate(headers):
             keys[index] = header.text_content().replace('&nbsp;', ' ').strip()
 
         for row in rows:
           try:
-            data = {}
+            data = defaultdict(lambda : None)
 
             for index, field in enumerate(row.xpath("./td")):
                 key = keys[index]
@@ -108,6 +119,7 @@ class LegistarScraper(Scraper) :
                 data[key] = value
 
             yield data, keys, row
+
           except Exception as e:
             print 'Problem parsing row:'
             print row
@@ -122,11 +134,43 @@ class PersonScraper(LegistarScraper):
 
 
     def get_people(self):
-        for councilman in self.councilMembers() :
+        for councilman, committees in self.councilMembers() :
+            contact_types = {
+                "City Hall Office": ("address", "City Hall Office"),
+                "City Hall Phone": ("phone", "City Hall Phone"),
+                "Ward Office Phone": ("phone", "Ward Office Phone"),
+                "Ward Office Address": ("address", "Ward Office Address"),
+                "Fax": ("fax", "Fax")
+            }
             
+            contacts = []
+            for contact_type, (_type, note) in contact_types.items () :
+                if councilman[contact_type] : 
+                    contacts.append({"type": _type,
+                                     "value": councilman[contact_type],
+                                     "note": note})
+
+            if councilman["E-mail"] : 
+                contacts.append({"type" : "email",
+                                 "value" : councilman['E-mail']['label'],
+                                 'note' : 'E-mail'})
+
+
             p = Legislator(councilman['Person Name']['label'],
-                           post_id = councilman['Ward/Office'])
+                           post_id = councilman['Ward/Office'],
+                           image=councilman['Photo'],
+                           contact_details = contacts)
+
+            if councilman['Website'] :
+                p.add_link('homepage', councilman['Website']['url'])
             p.add_source(MEMBERLIST)
+
+            for committee, _, _ in committees :
+                print committee
+                if (committee['Legislative Body']['label'] 
+                    and committee['Legislative Body']['label'] not in ('City Council', 'Office of the Mayor')) :
+                    p.add_committee_membership(committee['Legislative Body']['label'], 
+                                               role= committee["Title"])
 
             yield p
 
