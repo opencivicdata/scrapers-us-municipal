@@ -128,7 +128,7 @@ class LegistarScraper(Scraper) :
     
 
 
-class PersonScraper(LegistarScraper):
+class ChicagoPersonScraper(LegistarScraper):
 
 
 

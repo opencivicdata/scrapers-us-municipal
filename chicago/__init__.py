@@ -1,7 +1,7 @@
 from pupa.scrape import Jurisdiction
 
-from .people import PersonScraper
-
+from .people import ChicagoPersonScraper
+from .events import ChicagoEventsScraper
 
 
 class Chicago(Jurisdiction):
@@ -28,8 +28,12 @@ class Chicago(Jurisdiction):
                }
 
     def get_scraper(self, term, session, scraper_type):
-        if scraper_type == 'people':
-            return PersonScraper
+        bits = {
+            "people": ChicagoPersonScraper,
+            "events": ChicagoEventsScraper,
+        }
+        if scraper_type in bits:
+            return bits[scraper_type]
 
     def scrape_session_list(self):
         return ['2011']
