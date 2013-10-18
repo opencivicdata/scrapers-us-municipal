@@ -1,4 +1,6 @@
-Legistar Scraper is a python library for scraping [Legistar sites](http://www.granicus.com/Legistar/Product-Overview.aspx) 
+# Pupa legistar
+
+Pupa compliant python library for scraping [Legistar sites](http://www.granicus.com/Legistar/Product-Overview.aspx) 
 -- legislation management sites hosted by by [Granicus](http://www.granicus.com/Streaming-Media-Government.aspx).
 
 Legistar sites include 
@@ -7,9 +9,10 @@ Legistar sites include
 - [Oakland](http://oakland.legistar.com/legislation.aspx)
 - and many other cities
 
-This software is under active development. It is currently known to work for Chicago and Philadelphia.
+Pupa framework for managing municipal data
+- [standard](https://github.com/opencivicdata/pupa)
+- [docs](http://opencivicdata.readthedocs.org/en/latest/)
 
-[![Build Status](https://travis-ci.org/fgregg/legistar-scrape.png?branch=master)](https://travis-ci.org/fgregg/legistar-scrape)
 # Installation
 
 ```console
