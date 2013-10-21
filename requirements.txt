@@ -1,6 +1,6 @@
-BeautifulSoup
-git+https://github.com/abielr/mechanize.git#egg=mechanize
+git+https://github.com/opencivicdata/pupa.git#egg=pupa
 nose
 coverage
 pdfminer
 slate
+lxml
