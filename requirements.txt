@@ -1,6 +1,7 @@
-BeautifulSoup
-git+https://github.com/abielr/mechanize.git#egg=mechanize
+git+https://github.com/opencivicdata/pupa.git#egg=pupa
+pymongo
 nose
 coverage
-pdfminer
+https://pypi.python.org/packages/source/p/pdfminer/pdfminer-20110515.tar.gz#md5=f3905f801ed469900d9e5af959c7631a
 slate
+lxml

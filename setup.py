@@ -3,7 +3,7 @@
 from distutils.core import setup, Extension
 
 setup(
-    name='legistar-scraper',
+    name='pupa-legistar',
     version='0.1',
-    packages=['legistar'],
+    packages=['chicago'],
     )

@@ -1,3 +1,6 @@
 *~
 *.pyc
 env/
+build/
+scraped_data
+src/
