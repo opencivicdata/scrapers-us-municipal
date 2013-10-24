@@ -13,23 +13,23 @@ Pupa framework for managing municipal data
 - [standard](https://github.com/opencivicdata/pupa)
 - [docs](http://opencivicdata.readthedocs.org/en/latest/)
 
-# Requirements
+## Requirements
 
 * python 2.7
 * mongo
 
-# Installation
+## Installation
 
 ```console
 > pip install -r requirements.txt
 > python setup.py install 
 ```
 
-# Setup
+## Setup
 
 Everything should be set up to run already with this repository, but if you want to change your mongo settings, edit `pupa_settings.py`
 
-# Usage
+## Usage
 
 Make sure you have mongo installed and running.
 
