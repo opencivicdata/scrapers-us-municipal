@@ -1,5 +1,5 @@
 from pupa.scrape import Scraper
-from pupa.scrape.helpers import Legislator, Organization
+from pupa.scrape.helpers import Legislator, Membership
 import lxml.html
 import datetime
 import traceback
@@ -127,9 +127,42 @@ class LegistarScraper(Scraper) :
             raise e
     
 
+class Alderman(Legislator) :
+    def __init__(self, name, **kwargs):
+        super(Alderman, self).__init__(name, None)
+        self.name = name
+        del self.biography
+        del self.summary
+        del self.birth_date
+        del self.death_date
+        del self.image
+        del self.gender
+
+        for k,v, in kwargs.items() :
+            setattr(self, k, v)
+
+
+    def add_membership(self, organization, role='member', **kwargs):
+        """
+        add a membership in an organization and return the membership
+        object in case there are more details to add
+        """
+        membership = ChicagoMembership(self._id, organization._id, role=role,
+                                       **kwargs)
+        self._related.append(membership)
+        return membership
+
+
+class ChicagoMembership(Membership) :
+    def __init__(self, person_id, organization_id, **kwargs):
+        super(ChicagoMembership, self).__init__(person_id, organization_id, **kwargs)
+        del self.contact_details 
+        del self.start_date
+
+
 
 class ChicagoPersonScraper(LegistarScraper):
-
+    
 
 
 
@@ -156,7 +189,7 @@ class ChicagoPersonScraper(LegistarScraper):
                                  'note' : 'E-mail'})
 
 
-            p = Legislator(councilman['Person Name']['label'],
+            p = Alderman(councilman['Person Name']['label'],
                            post_id = councilman['Ward/Office'],
                            image=councilman['Photo'],
                            contact_details = contacts)
@@ -167,10 +200,10 @@ class ChicagoPersonScraper(LegistarScraper):
 
             for committee, _, _ in committees :
                 print committee
-                if (committee['Legislative Body']['label'] 
-                    and committee['Legislative Body']['label'] not in ('City Council', 'Office of the Mayor')) :
-                    p.add_committee_membership(committee['Legislative Body']['label'], 
-                                               role= committee["Title"])
+                if committee['Legislative Body']['label'] :
+                    if committee['Legislative Body']['label'] not in ('City Council', 'Office of the Mayor') :
+                        p.add_committee_membership(committee['Legislative Body']['label'], 
+                                                   role= committee["Title"])
 
             yield p
 
