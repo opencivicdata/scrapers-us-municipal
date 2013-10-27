@@ -1,5 +1,5 @@
 from pupa.scrape import Scraper
-from pupa.scrape.helpers import Legislator, Membership
+from pupa.scrape.helpers import Legislator, Membership, Organization
 import lxml.html
 import datetime
 import traceback
