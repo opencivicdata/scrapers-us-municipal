@@ -1,4 +1,4 @@
-git+https://github.com/opencivicdata/pupa.git#egg=pupa
+git+https://github.com/datamade/pupa.git#egg=pupa
 pymongo
 nose
 coverage
