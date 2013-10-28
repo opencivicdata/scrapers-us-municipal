@@ -174,9 +174,6 @@ class ChicagoPersonScraper(LegistarScraper):
                     if committee['Legislative Body']['label'] not in ('City Council', 'Office of the Mayor') :
                         p.add_committee_membership(committee['Legislative Body']['label'], 
                                                    role= committee["Title"])
-                    if committee['Legislative Body']['label'] == 'City Council' :
-                        # Add membership on council.
-                        p.add_membership(council, role=committee["Title"])
                         
 
 
