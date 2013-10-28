@@ -135,10 +135,6 @@ class ChicagoPersonScraper(LegistarScraper):
 
 
     def get_people(self):
-        council = Organization('Chicago City Council')
-        council.add_source(MEMBERLIST)
-        yield council
-
 
         for councilman, committees in self.councilMembers() :
             contact_types = {
