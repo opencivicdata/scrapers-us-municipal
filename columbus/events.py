@@ -56,6 +56,9 @@ class ColumbusEventScraper(Scraper):
                         subevent, where = subevent.rsplit(" in ", 1)
                     subevent = subevent.replace(u'\xa0', ' ')
 
+                    if "NO" in subevent and "MEETING" in subevent:
+                        continue
+
                     info = EVENT_RE.match(subevent).groupdict()
                     event, time = [info[x] for x in ['event', 'time']]
 
