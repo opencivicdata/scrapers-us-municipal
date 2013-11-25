@@ -59,6 +59,9 @@ class ColumbusEventScraper(Scraper):
                     if "NO" in subevent and "MEETING" in subevent:
                         continue
 
+                    if "to follow" in subevent:
+                        continue
+
                     info = EVENT_RE.match(subevent).groupdict()
                     event, time = [info[x] for x in ['event', 'time']]
 
