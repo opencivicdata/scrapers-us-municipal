@@ -45,7 +45,7 @@ class SantaFeEventsScraper(Scraper):
                     continue
                 curdate = " ".join(when)
 
-            if (el.tag == 'p' and el.attrib.get('class') == 'MsoNormal'):
+            if (el.tag == 'p'): # and el.attrib.get('class') == 'MsoNormal'):
 
                 els = el.xpath("./*")
                 agenda = el.xpath(".//a[contains(@href, 'Archive.aspx')]")
