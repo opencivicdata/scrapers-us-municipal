@@ -4,6 +4,8 @@ import lxml.html
 import datetime
 import traceback
 from collections import defaultdict
+from lxml import etree
+from lxml.html.soupparser import fromstring
 
 MEMBERLIST = 'https://chicago.legistar.com/People.aspx'
 
@@ -45,7 +47,6 @@ class LegistarScraper(Scraper) :
             table = page.xpath("//table[@id='ctl00_ContentPlaceHolder1_gridPeople_ctl00']")[0]
 
             for councilman, headers, row in self.parseDataTable(table):
-
                 if follow_links and type(councilman['Person Name']) == dict :
                     detail_url = councilman['Person Name']['url']
                     councilman_details = self.lxmlize(detail_url)
@@ -54,7 +55,7 @@ class LegistarScraper(Scraper) :
                         councilman['Photo'] = img[0].get('src')
 
                     committee_table = councilman_details.xpath("//table[@id='ctl00_ContentPlaceHolder1_gridDepartments_ctl00']")[0]
-                    
+
                     committees = self.parseDataTable(committee_table)
 
                     yield councilman, committees
@@ -87,8 +88,8 @@ class LegistarScraper(Scraper) :
         places. This will return a list of dictionaries using the
         table headers as keys.
         """
-        headers = table.xpath('.//th')
-        rows = table.xpath(".//tr[starts-with(@id, 'ctl00_ContentPlaceHolder1_')]")
+        headers = table.xpath(".//th[starts-with(@class, 'rgHeader')]")
+        rows = table.xpath(".//tr[@class='rgRow']")
 
 
         keys = {}
@@ -103,14 +104,18 @@ class LegistarScraper(Scraper) :
                 key = keys[index]
                 value = field.text_content().replace('&nbsp;', ' ').strip()
 
+                #field = fromstring(etree.tostring(field))
+                
                 try:
                     value = datetime.datetime.strptime(value, self.date_format)
                 except ValueError:
                     pass
 
+
                 # Is it a link?
                 address = None
-                link = field.find('a')
+                link = field.find('.//a')
+
                 if link is not None:
                     address = self._get_link_address(link)
                 if address is not None:
@@ -122,7 +127,7 @@ class LegistarScraper(Scraper) :
 
           except Exception as e:
             print 'Problem parsing row:'
-            print row
+            print etree.tostring(row)
             print traceback.format_exc()
             raise e
     
@@ -135,6 +140,8 @@ class ChicagoPersonScraper(LegistarScraper):
 
 
     def get_people(self):
+        print "HELLO"
+        print self.councilMembers().next()
 
         for councilman, committees in self.councilMembers() :
             contact_types = {
@@ -169,8 +176,8 @@ class ChicagoPersonScraper(LegistarScraper):
             p.add_source(MEMBERLIST)
 
             for committee, _, _ in committees :
-                print committee
                 if committee['Legislative Body']['label'] :
+                    print committee
                     if committee['Legislative Body']['label'] not in ('City Council', 'Office of the Mayor') :
                         p.add_committee_membership(committee['Legislative Body']['label'], 
                                                    role= committee["Title"])
