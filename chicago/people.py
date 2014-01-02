@@ -103,8 +103,6 @@ class LegistarScraper(Scraper) :
             for index, field in enumerate(row.xpath("./td")):
                 key = keys[index]
                 value = field.text_content().replace('&nbsp;', ' ').strip()
-
-                #field = fromstring(etree.tostring(field))
                 
                 try:
                     value = datetime.datetime.strptime(value, self.date_format)
