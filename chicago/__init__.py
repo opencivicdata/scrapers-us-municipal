@@ -17,7 +17,7 @@ class Chicago(Jurisdiction):
                 'start_year': 2011,
                 'end_year': 2015
                 }],
-            'provides': ['people'],
+            'provides': ['people', 'events'],
             'parties': [
                 {'name': 'Democrats' }
                ],
