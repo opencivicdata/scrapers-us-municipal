@@ -1,5 +1,5 @@
 from pupa.scrape.helpers import Legislator, Membership, Organization
-from legistar import LegistarScraper
+from .legistar import LegistarScraper
 import logging
 
 
@@ -68,7 +68,7 @@ class ChicagoPersonScraper(LegistarScraper):
 
             for committee, _, _ in committees :
                 if committee['Legislative Body']['label'] :
-                    #print committee
+                    print(committee)
                     if committee['Legislative Body']['label'] not in ('City Council', 'Office of the Mayor') :
                         p.add_committee_membership(committee['Legislative Body']['label'], 
                                                    role= committee["Title"])
