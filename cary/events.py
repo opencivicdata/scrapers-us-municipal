@@ -13,8 +13,7 @@ import datetime as dt
 from functools import partial
 import lxml.html
 
-CAL_URL = ("http://www.townofcary.org/Town_Council/Meetings____"
-           "Public_Notices_Calendar.htm")
+CAL_URL = "http://www.townofcary.org/Town_Council/Meetings____Public_Notices_Calendar.htm"
 
 
 class CaryEventsScraper(Scraper):
@@ -61,7 +60,7 @@ class CaryEventsScraper(Scraper):
         agendas = page.xpath("//a[contains(@title, 'Meeting Agenda')]")
         if agendas:
             for agenda in agendas:
-                print "Agenda:", agenda.attrib['href']
+                print("Agenda:", agenda.attrib['href'])
 
         t = ret['Time:']
         start_time, end_time = t, None
@@ -81,10 +80,7 @@ class CaryEventsScraper(Scraper):
         if end:
             kwargs['end'] = end
 
-        e = Event(name=what,
-                  session=self.session,
-                  location=ret['Location:'],
-                  when=start,
+        e = Event(name=what, session=self.session, location=ret['Location:'], when=start,
                   **kwargs)
         e.add_source(href.attrib['href'])
         yield e
