@@ -136,7 +136,7 @@ class ChicagoBillScraper(LegistarScraper):
         for attachment in attachment_url :
             details[u'Attachments'].append({
                 'url' : attachment.attrib['href'],
-                'label' : attachmen.text_content()})
+                'label' : attachment.text_content()})
 
         if u'Related files' in details :
             details[u'Related files'] = details[u'Related files'].split(',')
