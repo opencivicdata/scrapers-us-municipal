@@ -1,5 +1,6 @@
 from pupa.scrape import Scraper
 import lxml.html
+import lxml.etree
 import traceback
 import datetime
 from collections import defaultdict
@@ -14,14 +15,13 @@ class LegistarScraper(Scraper) :
         page.make_links_absolute(url)
         return page
 
-
     def pages(self, url, payload=None) :
         page = self.lxmlize(url, payload)
         yield page
 
         next_page = page.xpath("//a[@class='rgCurrentPage']/following-sibling::a[1]")
 
-        while len(next_page) > 0 : 
+        while len(next_page) > 0 :
 
             payload = self.sessionSecrets(page)
             event_target = next_page[0].attrib['href'].split("'")[1]
@@ -34,14 +34,16 @@ class LegistarScraper(Scraper) :
 
             next_page = page.xpath("//a[@class='rgCurrentPage']/following-sibling::a[1]")
 
+
+
     def parseDataTable(self, table):
         """
         Legistar uses the same kind of data table in a number of
         places. This will return a list of dictionaries using the
         table headers as keys.
         """
-        headers = table.xpath('.//th')
-        rows = table.xpath(".//tr[starts-with(@id, 'ctl00_ContentPlaceHolder1_')]")
+        headers = table.xpath(".//th[starts-with(@class, 'rgHeader')]")
+        rows = table.xpath(".//tr[@class='rgRow' or @class='rgAltRow']")
 
 
         keys = {}
@@ -55,17 +57,19 @@ class LegistarScraper(Scraper) :
             for index, field in enumerate(row.xpath("./td")):
                 key = keys[index]
                 value = field.text_content().replace('&nbsp;', ' ').strip()
-
+                
                 try:
                     value = datetime.datetime.strptime(value, self.date_format)
                 except ValueError:
                     pass
 
+
                 # Is it a link?
                 address = None
-                link = field.xpath('.//a')
-                if len(link) > 0 :
-                    address = self._get_link_address(link[0])
+                link = field.find('.//a')
+
+                if link is not None:
+                    address = self._get_link_address(link)
                 if address is not None:
                     value = {'label': value, 'url': address}
                     
@@ -75,23 +79,24 @@ class LegistarScraper(Scraper) :
 
           except Exception as e:
             print 'Problem parsing row:'
-            print row
+            print etree.tostring(row)
             print traceback.format_exc()
             raise e
 
-    def _get_link_address(self, link):
+
+    def _get_link_address(self, link_soup):
         # If the link doesn't start with a #, then it'll send the browser
         # somewhere, and we should use the href value directly.
-        href = link.get('href')
-        if href is not None and href != self.base_url :
+        href = link_soup.get('href')
+        if href is not None and not href.startswith('#'):
           return href
 
         # If it does start with a hash, then it causes some sort of action
         # and we should check the onclick handler.
         else:
-          onclick = link.get('onclick')
-          if onclick is not None and 'open(' in onclick :
-            return self.base_url + onclick.split("'")[1]
+          onclick = link_soup.get('onclick')
+          if onclick is not None and onclick.startswith("radopen('"):
+            return onclick.split("'")[1]
 
         # Otherwise, we don't know how to find the address.
         return None
@@ -101,11 +106,6 @@ class LegistarScraper(Scraper) :
         payload = {}
         payload['__EVENTARGUMENT'] = None
         payload['__VIEWSTATE'] = page.xpath("//input[@name='__VIEWSTATE']/@value")[0]
-        v_state = page.xpath("//input[@name='__VSTATE']/@value")
-
-        if v_state :
-            payload['__VSTATE'] = v_state[0]
-
         payload['__EVENTVALIDATION'] = page.xpath("//input[@name='__EVENTVALIDATION']/@value")[0]
 
         return(payload)

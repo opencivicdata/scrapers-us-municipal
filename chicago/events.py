@@ -2,6 +2,8 @@ from pupa.models import Event
 from legistar import LegistarScraper
 from collections import defaultdict
 import datetime
+import lxml
+import lxml.etree
 
 EVENTSPAGE = "https://chicago.legistar.com/Calendar.aspx/"
 
@@ -21,8 +23,6 @@ class ChicagoEventsScraper(LegistarScraper):
 
             payload['__EVENTTARGET'] = 'ctl00$ContentPlaceHolder1$lstYears'
 
-            #print payload
-
             return self.pages(event_url, payload)
 
         else :
@@ -32,8 +32,8 @@ class ChicagoEventsScraper(LegistarScraper):
     def get_events(self):
         for page in self.eventPages(EVENTSPAGE) :
             events_table = page.xpath("//table[@class='rgMasterTable']")[0]
-            print events_table
             for events, headers, rows in self.parseDataTable(events_table) :
+                print events
                 location_string = events[u'Meeting\xa0Location']
                 location_list = location_string.split('--')
                 location = ', '.join(location_list[0:2])
