@@ -6,7 +6,7 @@ from .bills import BillScraper
 
 
 class Boise(Jurisdiction):
-    jurisdiction_id = 'ocd-division/country:us/state:co/place:denver/council'
+    jurisdiction_id = 'ocd-jurisdiction/country:us/state:co/place:denver/council'
 
     def get_metadata(self):
         return {'name': 'Denver City Council',
