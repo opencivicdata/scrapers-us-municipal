@@ -4,6 +4,7 @@ import lxml.etree
 
 from pupa.models import Bill
 
+
 class ChicagoBillScraper(LegistarScraper):
     base_url = 'https://chicago.legistar.com/'
     legislation_url = 'https://chicago.legistar.com/Legislation.aspx'
@@ -152,9 +153,10 @@ class ChicagoBillScraper(LegistarScraper):
 
     def get_bills(self):
         for i, page in enumerate(self.searchLegislation()) :
-            print('page', i)
             for legislation_summary in self.parseSearchResults(page) :
-                print(legislation_summary)
+                if title.strip() == "":
+                    continue
+
                 bill = Bill(name=legislation_summary['Record #'],
                             session=self.session,
                             title=legislation_summary['Title'],
@@ -191,9 +193,4 @@ class ChicagoBillScraper(LegistarScraper):
                                           mimetype="application/pdf")
 
 
-                print(bill)
-
-
                 yield bill
-
-
