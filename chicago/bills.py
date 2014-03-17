@@ -168,8 +168,8 @@ class ChicagoBillScraper(LegistarScraper):
                 for related_bill in legislation_details.get('Related files', []) :
                     bill.add_related_bill(name = related_bill,
                                           session = self.session,
-                                          chamber = None,
-                                          relation_type = None)
+                                          relation='other-session',
+                                          chamber=None)
 
                 for i, sponsor in enumerate(legislation_details.get('Sponsors', [])) :
                     if i == 0 :
