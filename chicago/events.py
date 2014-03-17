@@ -1,5 +1,5 @@
 from pupa.models import Event
-from legistar import LegistarScraper
+from .legistar import LegistarScraper
 from collections import defaultdict
 import datetime
 import lxml
@@ -12,7 +12,7 @@ class ChicagoEventsScraper(LegistarScraper):
 
     def eventPages(self, event_url, search_type='all') :
 
-        page = self.lxmlize(event_url) 
+        page = self.lxmlize(event_url)
 
         if search_type == 'all' :
             payload = self.sessionSecrets(page)
@@ -33,25 +33,25 @@ class ChicagoEventsScraper(LegistarScraper):
         for page in self.eventPages(EVENTSPAGE) :
             events_table = page.xpath("//table[@class='rgMasterTable']")[0]
             for events, headers, rows in self.parseDataTable(events_table) :
-                print events
+                print(events)
                 location_string = events[u'Meeting\xa0Location']
                 location_list = location_string.split('--')
                 location = ', '.join(location_list[0:2])
-                
+
                 status_string = location_list[-1].split('Chicago, Illinois')
                 if len(status_string) > 1 and status_string[1] :
                     status = status_string[1].lower()
                     if status not in ['cancelled', 'tentative', 'confirmed', 'passed'] :
-                        print status
+                        print(status)
                         status = 'confirmed'
                 else :
                     status = 'confirmed'
 
-                    
-                
+
+
                 when = events[u'Meeting\xa0Date']
                 time_string = events[u'Meeting\xa0Time']
-                event_time = datetime.datetime.strptime(time_string, 
+                event_time = datetime.datetime.strptime(time_string,
                                                         "%I:%M %p")
                 when = when.replace(hour=event_time.hour)
 
@@ -62,8 +62,8 @@ class ChicagoEventsScraper(LegistarScraper):
                           status=status)
                 e.add_source(EVENTSPAGE)
                 if events['Video'] != u'Not\xa0available' :
-                    print events['Video']
-                
+                    print(events['Video'])
+
                 yield e
-                
+
 

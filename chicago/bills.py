@@ -1,21 +1,22 @@
-from legistar import LegistarScraper
+from .legistar import LegistarScraper
 import lxml
 import lxml.etree
 
 from pupa.models import Bill
 
+
 class ChicagoBillScraper(LegistarScraper):
     base_url = 'https://chicago.legistar.com/'
     legislation_url = 'https://chicago.legistar.com/Legislation.aspx'
 
-    def searchLegislation(self, search_text='', created_before=None, 
+    def searchLegislation(self, search_text='', created_before=None,
                           created_after=None, num_pages = None):
         """
         Submit a search query on the legislation search page, and return a list
         of summary results.
         """
 
-        page = self.lxmlize(self.legislation_url) 
+        page = self.lxmlize(self.legislation_url)
 
         payload = self.sessionSecrets(page)
 
@@ -47,7 +48,7 @@ class ChicagoBillScraper(LegistarScraper):
     def parseSearchResults(self, page) :
         """Take a page of search results and return a sequence of data
         of tuples about the legislation, of the form
-        
+
         ('Document ID', 'Document URL', 'Type', 'Status', 'Introduction Date'
         'Passed Date', 'Main Sponsor', 'Title')
         """
@@ -58,13 +59,13 @@ class ChicagoBillScraper(LegistarScraper):
             # First column should be the ID of the record.
             id_key = headers[0]
             try:
-                legislation_id = legislation[id_key]['label']          
+                legislation_id = legislation[id_key]['label']
             except TypeError:
                 continue
             legislation_url = legislation[id_key]['url'].split(self.base_url)[-1]
             legislation[id_key] = legislation_id
             legislation['URL'] = self.base_url + legislation_url.split('&Options')[0]
-          
+
             yield legislation
 
     def expandLegislationSummary(self, summary):
@@ -72,7 +73,7 @@ class ChicagoBillScraper(LegistarScraper):
         Take a row as given from the searchLegislation method and retrieve the
         details of the legislation summarized by that row.
         """
-        return self.expandSummaryRow(summary, 
+        return self.expandSummaryRow(summary,
                                      self.parseLegislationDetail)
 
     def expandHistorySummary(self, action):
@@ -81,7 +82,7 @@ class ChicagoBillScraper(LegistarScraper):
         retrieve the details of the history event summarized by that
         row.
         """
-        return self.expandSummaryRow(action, 
+        return self.expandSummaryRow(action,
                                      self.parseHistoryDetail)
 
     def expandSummaryRow(self, row, parse_function):
@@ -89,12 +90,12 @@ class ChicagoBillScraper(LegistarScraper):
         Take a row from a data table and use the URL value from that row to
         retrieve more details. Parse those details with parse_function.
         """
-        print row['URL']
+        print(row['URL'])
         page = self.lxmlize(row['URL'])
 
         return parse_function(page)
 
-    def _get_general_details(self, detail_div) : 
+    def _get_general_details(self, detail_div) :
         """
         Parse the data in the top section of a detail page.
         """
@@ -105,13 +106,13 @@ class ChicagoBillScraper(LegistarScraper):
                       "     or contains(@id, 'ctl00_ContentPlaceHolder1_hyp')) "\
                       "     and contains(@id, '2')]"
 
-    
+
         keys = [span.text_content().replace(':', '').strip()
-                for span 
+                for span
                 in detail_div.xpath(key_query)]
 
-        values = [element.text_content().strip() 
-                  for element 
+        values = [element.text_content().strip()
+                  for element
                   in detail_div.xpath(value_query)]
 
         return dict(zip(keys, values))
@@ -152,24 +153,26 @@ class ChicagoBillScraper(LegistarScraper):
 
     def get_bills(self):
         for i, page in enumerate(self.searchLegislation()) :
-            print 'page', i
             for legislation_summary in self.parseSearchResults(page) :
-                print legislation_summary
+                title = legislation_summary['Title'].strip()
+                if title == "":
+                    continue
+
                 bill = Bill(name=legislation_summary['Record #'],
                             session=self.session,
-                            title=legislation_summary['Title'],
-                            type = [legislation_summary['Type'].lower()],
+                            title=title,
+                            type=[legislation_summary['Type'].lower()],
                             organization=self.jurisdiction.name)
 
                 bill.add_source(legislation_summary['URL'])
-                
+
                 legislation_details = self.expandLegislationSummary(legislation_summary)
-                
+
                 for related_bill in legislation_details.get('Related files', []) :
                     bill.add_related_bill(name = related_bill,
                                           session = self.session,
-                                          chamber = None,
-                                          relation = None)
+                                          relation='other-session',
+                                          chamber=None)
 
                 for i, sponsor in enumerate(legislation_details.get('Sponsors', [])) :
                     if i == 0 :
@@ -187,13 +190,8 @@ class ChicagoBillScraper(LegistarScraper):
 
                 for attachment in legislation_details.get(u'Attachments', []) :
                     bill.add_version_link('PDF',
-                                          attachment['url'], 
+                                          attachment['url'],
                                           mimetype="application/pdf")
-                    
 
-                print bill
-                
 
                 yield bill
-
-

@@ -5,19 +5,19 @@ from .bills import BillScraper
 
 
 class Albequerque(Jurisdiction):
-    jurisdiction_id = 'ocd-jurisdiction/country:us/state:nm/place:albequerque/council'
+    jurisdiction_id = 'ocd-jurisdiction/country:us/state:az/place:rialto/council'
 
     def get_metadata(self):
         return {
-            'name': 'Albequerque City Council',
-            'url': 'http://www.cabq.gov/council/',
+            'name': 'Rialto City Council',
+            'url': 'http://http://www.ci.rialto.ca.us/',
             'terms': [{
                 'name': '2013-2015',
                 'start_year': 2013,
                 'end_year': 2015,
                 'sessions': ['2013'],
                 }],
-            'provides': ['people', 'bills'],
+            'provides': ['bills'],
             'parties': [
                 {'name': 'Democratic' },
                 {'name': 'Republican' },

@@ -5,9 +5,9 @@ import traceback
 import datetime
 from collections import defaultdict
 
-class LegistarScraper(Scraper) :
+class LegistarScraper(Scraper):
     date_format='%m/%d/%Y'
-  
+
 
     def lxmlize(self, url, payload=None):
         entry = self.urlopen(url, 'POST', payload)
@@ -57,7 +57,7 @@ class LegistarScraper(Scraper) :
             for index, field in enumerate(row.xpath("./td")):
                 key = keys[index]
                 value = field.text_content().replace('&nbsp;', ' ').strip()
-                
+
                 try:
                     value = datetime.datetime.strptime(value, self.date_format)
                 except ValueError:
@@ -72,15 +72,15 @@ class LegistarScraper(Scraper) :
                     address = self._get_link_address(link)
                 if address is not None:
                     value = {'label': value, 'url': address}
-                    
+
                 data[key] = value
 
             yield data, keys, row
 
           except Exception as e:
-            print 'Problem parsing row:'
-            print etree.tostring(row)
-            print traceback.format_exc()
+            print('Problem parsing row:')
+            print(etree.tostring(row))
+            print(traceback.format_exc())
             raise e
 
 
@@ -102,7 +102,7 @@ class LegistarScraper(Scraper) :
         return None
 
     def sessionSecrets(self, page) :
-        
+
         payload = {}
         payload['__EVENTARGUMENT'] = None
         payload['__VIEWSTATE'] = page.xpath("//input[@name='__VIEWSTATE']/@value")[0]

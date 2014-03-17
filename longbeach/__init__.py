@@ -1,26 +1,25 @@
 from pupa.scrape import Jurisdiction
 
-from .people import PersonScraper
 from .bills import BillScraper
 
 
-class Albequerque(Jurisdiction):
-    jurisdiction_id = 'ocd-jurisdiction/country:us/state:nm/place:albequerque/council'
+class Jurisdiction(Jurisdiction):
+    jurisdiction_id = 'ocd-jurisdiction/country:us/state:ca/place:longbeach'
 
     def get_metadata(self):
         return {
-            'name': 'Albequerque City Council',
-            'url': 'http://www.cabq.gov/council/',
+            'name': 'Long Beach City Council',
+            'url': 'http://www.longbeach.gov/cityclerk/council_online.asp',
             'terms': [{
-                'name': '2013-2015',
-                'start_year': 2013,
-                'end_year': 2015,
+                'name': '2013-2014',
                 'sessions': ['2013'],
+                'start_year': 2013,
+                'end_year': 2014
                 }],
-            'provides': ['people', 'bills'],
+            'provides': ['people'],
             'parties': [
-                {'name': 'Democratic' },
                 {'name': 'Republican' },
+                {'name': 'Democratic' },
                ],
             'session_details': {
                 '2013': {'_scraped_name': '2013'}
@@ -29,8 +28,6 @@ class Albequerque(Jurisdiction):
                }
 
     def get_scraper(self, term, session, scraper_type):
-        if scraper_type == 'people':
-            return PersonScraper
         if scraper_type == 'bills':
             return BillScraper
 
