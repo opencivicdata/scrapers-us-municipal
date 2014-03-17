@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 MEMBERLIST = 'https://chicago.legistar.com/People.aspx'
 
+
 class ChicagoPersonScraper(LegistarScraper):
     base_url = 'https://chicago.legistar.com/'
 
@@ -32,7 +33,7 @@ class ChicagoPersonScraper(LegistarScraper):
                 else :
                     yield councilman
 
-        
+
     def get_people(self):
         for councilman, committees in self.councilMembers() :
             contact_types = {
@@ -42,15 +43,15 @@ class ChicagoPersonScraper(LegistarScraper):
                 "Ward Office Address": ("address", "Ward Office Address"),
                 "Fax": ("fax", "Fax")
             }
-            
+
             contacts = []
             for contact_type, (_type, note) in contact_types.items () :
-                if councilman[contact_type] : 
+                if councilman[contact_type] :
                     contacts.append({"type": _type,
                                      "value": councilman[contact_type],
                                      "note": note})
 
-            if councilman["E-mail"] : 
+            if councilman["E-mail"] :
                 contacts.append({"type" : "email",
                                  "value" : councilman['E-mail']['label'],
                                  'note' : 'E-mail'})
@@ -70,9 +71,9 @@ class ChicagoPersonScraper(LegistarScraper):
                 if committee['Legislative Body']['label'] :
                     print(committee)
                     if committee['Legislative Body']['label'] not in ('City Council', 'Office of the Mayor') :
-                        p.add_committee_membership(committee['Legislative Body']['label'], 
+                        p.add_committee_membership(committee['Legislative Body']['label'],
                                                    role= committee["Title"])
-                        
+
 
 
             yield p
