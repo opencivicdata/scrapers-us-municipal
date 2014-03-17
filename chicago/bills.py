@@ -154,13 +154,14 @@ class ChicagoBillScraper(LegistarScraper):
     def get_bills(self):
         for i, page in enumerate(self.searchLegislation()) :
             for legislation_summary in self.parseSearchResults(page) :
-                if title.strip() == "":
+                title = legislation_summary['Title'].strip()
+                if title == "":
                     continue
 
                 bill = Bill(name=legislation_summary['Record #'],
                             session=self.session,
-                            title=legislation_summary['Title'],
-                            type = [legislation_summary['Type'].lower()],
+                            title=title,
+                            type=[legislation_summary['Type'].lower()],
                             organization=self.jurisdiction.name)
 
                 bill.add_source(legislation_summary['URL'])
