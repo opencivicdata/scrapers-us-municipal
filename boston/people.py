@@ -38,7 +38,7 @@ class BostonPersonScraper(Scraper):
     def get_one(self, page, expr):
         ret = page.xpath(expr)
         if len(ret) != 1:
-            print page.text_content()
+            print(page.text_content())
             raise Exception("Bad xpath")
         return ret[0]
 

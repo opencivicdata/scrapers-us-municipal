@@ -4,6 +4,7 @@ import lxml.etree
 
 from pupa.models import Bill
 
+
 class ChicagoBillScraper(LegistarScraper):
     base_url = 'https://chicago.legistar.com/'
     legislation_url = 'https://chicago.legistar.com/Legislation.aspx'
@@ -152,13 +153,15 @@ class ChicagoBillScraper(LegistarScraper):
 
     def get_bills(self):
         for i, page in enumerate(self.searchLegislation()) :
-            print('page', i)
             for legislation_summary in self.parseSearchResults(page) :
-                print(legislation_summary)
+                title = legislation_summary['Title'].strip()
+                if title == "":
+                    continue
+
                 bill = Bill(name=legislation_summary['Record #'],
                             session=self.session,
-                            title=legislation_summary['Title'],
-                            type = [legislation_summary['Type'].lower()],
+                            title=title,
+                            type=[legislation_summary['Type'].lower()],
                             organization=self.jurisdiction.name)
 
                 bill.add_source(legislation_summary['URL'])
@@ -168,8 +171,8 @@ class ChicagoBillScraper(LegistarScraper):
                 for related_bill in legislation_details.get('Related files', []) :
                     bill.add_related_bill(name = related_bill,
                                           session = self.session,
-                                          chamber = None,
-                                          relation_type = None)
+                                          relation='other-session',
+                                          chamber=None)
 
                 for i, sponsor in enumerate(legislation_details.get('Sponsors', [])) :
                     if i == 0 :
@@ -191,9 +194,4 @@ class ChicagoBillScraper(LegistarScraper):
                                           mimetype="application/pdf")
 
 
-                print(bill)
-
-
                 yield bill
-
-
