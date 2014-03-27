@@ -1,12 +1,4 @@
 # ~*~ encoding: utf-8 ~*~
-# Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
-# license.
-#
-#  Contributors:
-#
-#    - Paul Tagliamonte <paultag@sunlightfoundation.com>
-
-
 from pupa.scrape import Scraper
 from pupa.models import Event
 

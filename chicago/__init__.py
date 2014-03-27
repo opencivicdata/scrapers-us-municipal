@@ -10,21 +10,15 @@ class Chicago(Jurisdiction):
 
     name = 'Chicago City Council'
     url =  'https://chicago.legistar.com/'
-    terms = [{
-        'name': '2011-2015',
-        'sessions': ['2011'],
-        'start_year': 2011,
-        'end_year': 2015
-    }]
     provides = ['people', 'events', 'bills']
     parties = [
                 {'name': 'Democrats' }
                ]
-    session_details = {
-        '2011': {'_scraped_name': '2011'}
-    }
+    sessions = [
+        {'name': '2011', '_scraped_name': '2011'}
+    ]
 
-    def get_scraper(self, term, session, scraper_type):
+    def get_scraper(self, session, scraper_type):
         bits = {
             "people": ChicagoPersonScraper,
             "events": ChicagoEventsScraper,
