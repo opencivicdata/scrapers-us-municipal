@@ -11,7 +11,6 @@ class Temecula(Jurisdiction):
     url = 'http://www.cityoftemecula.org/Temecula/Government/CouncilCommissions/CityCouncil/'
     provides = ['people']
     parties = [ {'name': 'Democratic' }, {'name': 'Republican' } ]
-    sessions = [ {'name': '2013', '_scraped_name': '2013'} ]
 
     def get_scraper(self, session, scraper_type):
         if scraper_type == 'people':
@@ -19,6 +18,3 @@ class Temecula(Jurisdiction):
 
         if scraper_type == 'events':
             return TemeculaEventScraper
-
-    def scrape_session_list(self):
-        return ['2013']

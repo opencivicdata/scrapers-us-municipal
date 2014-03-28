@@ -8,7 +8,6 @@ class SantaFe(Jurisdiction):
     name = 'Santa Fe City Council'
     url = 'http://www.santafenm.gov/index.aspx?nid=72'
     provides = ['events']
-    sessions = [ {'name': '2013', '_scraped_name': '2013'} ]
 
     def get_scraper(self, session, scraper_type):
         bits = {
@@ -16,6 +15,3 @@ class SantaFe(Jurisdiction):
         }
         if scraper_type in bits:
             return bits[scraper_type]
-
-    def scrape_session_list(self):
-        return ['2013']

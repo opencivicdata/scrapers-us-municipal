@@ -10,7 +10,6 @@ class Wellesley(Jurisdiction):
     url = 'http://www.wellesleyma.gov/Pages/WellesleyMA_Selectmen/index'
     provides = ['people']
     parties = [ {'name': 'Democratic' }, {'name': 'Republican' } ]
-    sessions = [ {'name': '2013', '_scraped_name': '2013'} ]
 
     def get_scraper(self, session, scraper_type):
         bits = {
@@ -18,6 +17,3 @@ class Wellesley(Jurisdiction):
         }
         if scraper_type in bits:
             return bits[scraper_type]
-
-    def scrape_session_list(self):
-        return ['2013']

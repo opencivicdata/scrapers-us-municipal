@@ -10,7 +10,6 @@ class Cary(Jurisdiction):
     url = 'http://www.townofcary.org/town_council/cary_town_council.htm'
     provides = ['events']
     parties = []
-    sessions = [ {'name': '2013', '_scraped_name': '2013'} ]
     feature_flags = []
 
     def get_scraper(self, session, scraper_type):
@@ -19,6 +18,3 @@ class Cary(Jurisdiction):
         }
         if scraper_type in bits:
             return bits[scraper_type]
-
-    def scrape_session_list(self):
-        return ['2013']
