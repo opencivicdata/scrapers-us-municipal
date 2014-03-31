@@ -13,7 +13,7 @@ class BostonEventsScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_events(self):
+    def scrape(self):
         url = "http://meetingrecords.cityofboston.gov/sirepub/meetresults.aspx"
 
         page = self.lxmlize(url)

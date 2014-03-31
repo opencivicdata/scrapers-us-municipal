@@ -19,7 +19,7 @@ def clean_name(name):
     for thing in PREFIXES:
         name = name.replace(thing, "")
     name = name.encode('latin1').strip()
-    name = name.replace("\xc2\xa0", "")
+    name = name.replace(b"\xc2\xa0", b"").decode()
     return name
 
 
@@ -31,7 +31,7 @@ class BostonPersonScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_people(self):
+    def scrape(self):
         yield self.bos_scrape_committees()
         yield self.bos_scrape_people()
 

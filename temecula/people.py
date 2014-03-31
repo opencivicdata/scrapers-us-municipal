@@ -10,7 +10,7 @@ legislators_url = (
 
 class PersonScraper(Scraper):
 
-    def get_people(self):
+    def scrape(self):
         urls = Urls(dict(list=legislators_url), self)
 
         council = Organization(

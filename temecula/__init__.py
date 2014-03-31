@@ -9,12 +9,5 @@ class Temecula(Jurisdiction):
 
     name = 'Temecula City Council'
     url = 'http://www.cityoftemecula.org/Temecula/Government/CouncilCommissions/CityCouncil/'
-    provides = ['people']
     parties = [ {'name': 'Democratic' }, {'name': 'Republican' } ]
-
-    def get_scraper(self, scraper_type):
-        if scraper_type == 'people':
-            return PersonScraper
-
-        if scraper_type == 'events':
-            return TemeculaEventScraper
+    scrapers = {'people': PersonScraper, 'events': TemeculaEventScraper}

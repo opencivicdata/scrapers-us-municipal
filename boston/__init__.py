@@ -16,15 +16,9 @@ class Boston(Jurisdiction):
             "facebook": "https://www.facebook.com/pages/Boston-City-Council/106846899335407",
         }
     }
-    provides = ['people', 'events', 'votes']
-    parties = []
-    feature_flags = []
 
-    def get_scraper(self, scraper_type):
-        bits = {
-            "people": BostonPersonScraper,
-            "events": BostonEventsScraper,
-            "votes": BostonVoteScraper,
-        }
-        if scraper_type in bits:
-            return bits[scraper_type]
+    scrapers = {
+        "people": BostonPersonScraper,
+        "events": BostonEventsScraper,
+        "votes": BostonVoteScraper,
+    }

@@ -2,8 +2,6 @@ from pupa.scrape import Scraper
 from pupa.models import Vote
 
 import datetime as dt
-import urllib2
-import urllib
 import lxml
 import time
 
@@ -19,7 +17,7 @@ class BostonVoteScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_votes(self):
+    def scrape(self):
         for page in self.iterpages():
             for subject in page.xpath('//div[@class="ContainerPanel"]'):
                 dates = subject.xpath(".//font[@color='#276598']/b/text()")
@@ -27,7 +25,7 @@ class BostonVoteScraper(Scraper):
                     ".//div[@style='width:260px; float:left;']/text()")]
                 votes = subject.xpath(".//div[@style='width:150px; float:right;']")
                 docket = subject.xpath(".//div[@class='HeaderContent']/b/text()")
-                docket = filter(lambda x: "docket" in x.lower(), docket)
+                docket = list(filter(lambda x: "docket" in x.lower(), docket))
                 docket = docket[0] if docket else None
 
                 for date, motion, vote in zip(dates, motions, votes):
@@ -88,8 +86,7 @@ class BostonVoteScraper(Scraper):
             block['ctl00$MainContent$lblCurrentText']) + 1)
         block.pop("ctl00$MainContent$ctl00")
 
-        data = urllib.urlencode(block)
-        ret = lxml.html.fromstring(urllib2.urlopen(form.action, data).read())
+        ret = lxml.html.fromstring(self.urlopen(form.action, block))
 
         ret.make_links_absolute(form.action)
         return ret

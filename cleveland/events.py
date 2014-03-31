@@ -3,8 +3,6 @@ from pupa.models import Event
 
 import datetime as dt
 import lxml.html
-import urllib2
-import urllib
 import re
 
 # events
@@ -25,7 +23,7 @@ class ClevelandEventScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_events(self):
+    def scrape(self):
         start = dt.datetime.utcnow()
         start = start - dt.timedelta(days=10)
         end = start + dt.timedelta(days=30)
@@ -79,7 +77,7 @@ class ClevelandEventScraper(Scraper):
             "action": "getCalendarPopup",
             "newsid": poid
         }
-        page = urllib2.urlopen(AJAX_ENDPOINT, urllib.urlencode(data))
-        page = lxml.html.fromstring(page.read())
+        page = self.urlopen(AJAX_ENDPOINT, body=data)
+        page = lxml.html.fromstring(page)
         page.make_links_absolute(AJAX_ENDPOINT)
         return page

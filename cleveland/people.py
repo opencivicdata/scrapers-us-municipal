@@ -15,7 +15,7 @@ class ClevelandPersonScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_people(self):
+    def scrape(self):
         yield self.cleveland_scrape_people()
 
     def scrape_page(self, url):

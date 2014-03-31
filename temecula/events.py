@@ -5,9 +5,6 @@ import datetime as dt
 import lxml.html
 import re
 
-import urllib2
-import urllib
-
 
 CAL_PAGE = ("http://www.cityoftemecula.org/Temecula/Visitors/Calendar.htm")
 
@@ -24,7 +21,7 @@ class TemeculaEventScraper(Scraper):
         foo = re.sub("\s+", " ", foo).strip()
         return foo
 
-    def get_events(self):
+    def scrape(self):
         page = self.lxmlize(CAL_PAGE)
         form = page.xpath("//form[@name='Form1']")
         form = form[0] if form else None
@@ -93,8 +90,7 @@ class TemeculaEventScraper(Scraper):
                     for obj in form.xpath(".//input")]}
         block.update(kwargs)
 
-        data = urllib.urlencode(block)
-        ret = lxml.html.fromstring(urllib2.urlopen(form.action, data).read())
+        ret = lxml.html.fromstring(self.urlopen(form.action, block))
 
         ret.make_links_absolute(form.action)
         return ret
