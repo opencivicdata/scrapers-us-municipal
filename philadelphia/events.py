@@ -12,10 +12,7 @@ class PhillyEventsScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_events(self):
-        if self.session != self.get_current_session():
-            raise Exception("Can't do that, dude")
-
+    def scrape(self):
         url = "http://phila.legistar.com/Calendar.aspx/"
         page = self.lxmlize(url)
         main = page.xpath("//table[@class='rgMasterTable']")[0]
@@ -44,10 +41,7 @@ class PhillyEventsScraper(Scraper):
                 when = dt.datetime.strptime("%s %s" % (date.text.strip(), time),
                                             "%m/%d/%Y %I:%M %p")
 
-            event = Event(name=name,
-                          session=self.session,
-                          when=when,
-                          location=location)
+            event = Event(name=name, when=when, location=location)
             event.add_source(url)
 
             agendas = agenda.xpath(".//a[@href]")

@@ -10,8 +10,7 @@ import os
 import re
 
 
-CAL_PDF = ("http://www.cityofboise.org/city_clerk/HearingSchedule/"
-           "HearingSchedule.pdf")
+CAL_PDF = "http://www.cityofboise.org/city_clerk/HearingSchedule/HearingSchedule.pdf"
 
 MONTHS = [
     "JANUARY",
@@ -50,10 +49,7 @@ class BoiseEventScraper(Scraper):
             open(fpath, 'wb').write(requests.get(url).content)
         return fpath
 
-    def get_events(self):
-        if self.session != self.get_current_session():
-            raise Exception("Can't do that, dude")
-
+    def scrape(self):
         path = self.download_file(CAL_PDF)
         target = re.sub("\.pdf$", ".txt", path)
         if not os.path.exists(target):
@@ -100,10 +96,7 @@ class BoiseEventScraper(Scraper):
         buf = buf.strip()
 
         obj = dt.datetime.strptime(tbuf, fmt)
-        e = Event(name=buf,
-                  session=self.session,
-                  when=obj,
-                  location="City Hall")
+        e = Event(name=buf, when=obj, location="City Hall")
         yield e
 
 

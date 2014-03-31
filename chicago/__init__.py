@@ -11,22 +11,10 @@ class Chicago(Jurisdiction):
     name = 'Chicago City Council'
     url =  'https://chicago.legistar.com/'
     provides = ['people', 'events', 'bills']
-    parties = [
-                {'name': 'Democrats' }
-               ]
-    sessions = [
-        {'name': '2011', '_scraped_name': '2011'}
-    ]
+    parties = [ {'name': 'Democrats' } ]
 
-    def get_scraper(self, session, scraper_type):
-        bits = {
-            "people": ChicagoPersonScraper,
-            "events": ChicagoEventsScraper,
-            "bills": ChicagoBillScraper,
-        }
-        if scraper_type in bits:
-            return bits[scraper_type]
-
-    def scrape_session_list(self):
-        return ['2011']
-
+    scrapers = {
+        "people": ChicagoPersonScraper,
+        "events": ChicagoEventsScraper,
+        "bills": ChicagoBillScraper,
+    }

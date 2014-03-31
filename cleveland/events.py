@@ -26,9 +26,6 @@ class ClevelandEventScraper(Scraper):
         return page
 
     def get_events(self):
-        if self.session != self.get_current_session():
-            raise Exception("Can't do that, dude")
-
         start = dt.datetime.utcnow()
         start = start - dt.timedelta(days=10)
         end = start + dt.timedelta(days=30)
@@ -67,10 +64,7 @@ class ClevelandEventScraper(Scraper):
                         "what": t
                     })
 
-            e = Event(name=who,
-                      session=self.session,
-                      when=when,
-                      location='unknown')
+            e = Event(name=who, when=when, location='unknown')
             e.add_source(url)
 
             for o in related:

@@ -13,7 +13,7 @@ class Albequerque(Jurisdiction):
     parties = [ {'name': 'Democratic' }, {'name': 'Republican' } ]
     feature_flags = []
 
-    def get_scraper(self, session, scraper_type):
+    def get_scraper(self, scraper_type):
         if scraper_type == 'people':
             return PersonScraper
         if scraper_type == 'bills':

@@ -20,7 +20,7 @@ class Boston(Jurisdiction):
     parties = []
     feature_flags = []
 
-    def get_scraper(self, session, scraper_type):
+    def get_scraper(self, scraper_type):
         bits = {
             "people": BostonPersonScraper,
             "events": BostonEventsScraper,

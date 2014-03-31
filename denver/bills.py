@@ -4,7 +4,7 @@ from io import StringIO
 
 from lxml.html import fromstring
 
-from pupa.scrape import Scraper
+from pupa.scrape import BaseBillScraper
 from pupa.utils import convert_pdf
 from pupa.models import Bill
 
@@ -16,7 +16,7 @@ search_url = (
     'stype=advanced&meettype=-%20All%20Types%20-&meetdate=This%20Year')
 
 
-class BillScraper(Scraper):
+class BillScraper(BaseBillScraper):
 
     def get_bill_ids(self):
         self.urls = Urls(dict(search=search_url), scraper=self)

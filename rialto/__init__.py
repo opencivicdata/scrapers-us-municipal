@@ -12,7 +12,7 @@ class Rialto(Jurisdiction):
     provides = ['bills']
     parties = [ {'name': 'Democratic' }, {'name': 'Republican' } ]
 
-    def get_scraper(self, session, scraper_type):
+    def get_scraper(self, scraper_type):
         if scraper_type == 'people':
             return PersonScraper
         if scraper_type == 'bills':

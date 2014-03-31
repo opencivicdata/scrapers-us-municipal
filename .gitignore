@@ -1,6 +1,6 @@
 # Pupa bits.
-scraped_data
-scrape_cache
+_data
+_cache
 
 # scraper bits
 HearingSchedule.pdf

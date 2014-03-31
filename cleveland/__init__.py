@@ -11,7 +11,7 @@ class Cleveland(Jurisdiction):
     url = 'http://www.clevelandcitycouncil.org/'
     provides = ['people', 'events']
 
-    def get_scraper(self, session, scraper_type):
+    def get_scraper(self, scraper_type):
         scrapers = {
             "people": ClevelandPersonScraper,
             "events": ClevelandEventScraper

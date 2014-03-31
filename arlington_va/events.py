@@ -27,7 +27,7 @@ class EventScraper(Scraper):
                 'audio': cells[6]
             }
 
-    def get_events(self):
+    def scrape(self):
         meetings_html = self.urlopen(self.ARLINGTON_MEETING_PAGE)
         meetings_lxml = lxml.html.fromstring(meetings_html)
         
@@ -44,7 +44,7 @@ class EventScraper(Scraper):
                 meeting_title = cell_mapping['title'].text
                 meeting_date = datetime.datetime.fromtimestamp(int(cell_mapping['date'].cssselect('span')[0].text))
 
-                e = Event(name=meeting_title, when=meeting_date, session=self.session, location='unknown')
+                e = Event(name=meeting_title, when=meeting_date, location='unknown')
                 e.add_source(self.ARLINGTON_MEETING_PAGE)                
 
                 # detect agenda url, if present

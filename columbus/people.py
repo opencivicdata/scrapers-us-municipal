@@ -13,9 +13,6 @@ class ColumbusPersonScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_people(self):
-        yield self.cbus_scrape_people()
-
     def scrape_homepage(self, folk):
         url = folk.attrib['href']
         page = self.lxmlize(url)
@@ -37,7 +34,7 @@ class ColumbusPersonScraper(Scraper):
         leg.add_source(url)
         return leg
 
-    def cbus_scrape_people(self):
+    def scrape(self):
         page = self.lxmlize(HOMEPAGE)
         folks = page.xpath("//div[@class='col-left']/div[2]//"
                            "div[@class='gutter_text'][1]//"

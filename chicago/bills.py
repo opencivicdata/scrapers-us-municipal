@@ -151,7 +151,9 @@ class ChicagoBillScraper(LegistarScraper):
         return details
 
 
-    def get_bills(self):
+    def scrape(self):
+        self.session = '2011'
+
         for i, page in enumerate(self.searchLegislation()) :
             for legislation_summary in self.parseSearchResults(page) :
                 title = legislation_summary['Title'].strip()

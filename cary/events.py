@@ -16,10 +16,7 @@ class CaryEventsScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_events(self):
-        if self.session != self.get_current_session():
-            raise Exception("Can't do that, dude")
-
+    def scrape(self):
         page = self.lxmlize(CAL_URL)
         events = page.xpath("//div[@id='ctl14_pnlCalendarAll']//td")
         for event in events:
@@ -72,7 +69,7 @@ class CaryEventsScraper(Scraper):
         if end:
             kwargs['end'] = end
 
-        e = Event(name=what, session=self.session, location=ret['Location:'], when=start,
+        e = Event(name=what, location=ret['Location:'], when=start,
                   **kwargs)
         e.add_source(href.attrib['href'])
         yield e

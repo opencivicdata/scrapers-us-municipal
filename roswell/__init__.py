@@ -9,9 +9,6 @@ class Roswell(Jurisdiction):
     url = 'http://www.roswell-nm.gov/staticpages/index.php/cc1-citycouncil'
     provides = ['events']
 
-    def get_scraper(self, session, scraper_type):
-        bits = {
-            "events": RoswellEventsScraper
-        }
-        if scraper_type in bits:
-            return bits[scraper_type]
+    scrapers = {
+        "events": RoswellEventsScraper
+    }

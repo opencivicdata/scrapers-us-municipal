@@ -29,10 +29,7 @@ class WellesleyPersonScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_people(self):
-        yield self.wellesley_scrape_people()
-
-    def wellesley_scrape_people(self):
+    def scrape(self):
         page = self.lxmlize(MEMBER_LIST)
         for row in page.xpath("//table[@frame='void']/tbody/tr")[1:]:
             role, whos, expire = row.xpath("./*")

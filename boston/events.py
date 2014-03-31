@@ -14,9 +14,6 @@ class BostonEventsScraper(Scraper):
         return page
 
     def get_events(self):
-        if self.session != self.get_current_session():
-            raise Exception("Can't do that, dude")
-
         url = "http://meetingrecords.cityofboston.gov/sirepub/meetresults.aspx"
 
         page = self.lxmlize(url)
@@ -29,7 +26,6 @@ class BostonEventsScraper(Scraper):
             links = links.xpath(".//a")
             links = {x.text: x.attrib['href'] for x in links}
             e = Event(name=name,
-                      session=self.session,
                       when=when,
                       location='unknown')
 

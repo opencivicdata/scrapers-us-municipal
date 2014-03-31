@@ -11,6 +11,6 @@ class Jurisdiction(Jurisdiction):
     provides = ['people']
     parties = [ {'name': 'Democratic' }, {'name': 'Republican' } ]
 
-    def get_scraper(self, session, scraper_type):
+    def get_scraper(self, scraper_type):
         if scraper_type == 'bills':
             return BillScraper

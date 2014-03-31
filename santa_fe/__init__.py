@@ -9,9 +9,6 @@ class SantaFe(Jurisdiction):
     url = 'http://www.santafenm.gov/index.aspx?nid=72'
     provides = ['events']
 
-    def get_scraper(self, session, scraper_type):
-        bits = {
-            "events": SantaFeEventsScraper
-        }
-        if scraper_type in bits:
-            return bits[scraper_type]
+    scrapers = {
+        "events": SantaFeEventsScraper
+    }

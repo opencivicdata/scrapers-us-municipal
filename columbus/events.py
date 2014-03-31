@@ -18,7 +18,7 @@ class ColumbusEventScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_events(self):
+    def scrape(self):
         page = self.lxmlize(PAGE)
         events = page.xpath("//div[@class='col-middle']//ul/li")
         when = None
