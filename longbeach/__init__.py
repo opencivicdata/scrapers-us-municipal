@@ -5,12 +5,7 @@ from .bills import BillScraper
 
 class Jurisdiction(Jurisdiction):
     jurisdiction_id = 'ocd-jurisdiction/country:us/state:ca/place:longbeach'
-
     name = 'Long Beach City Council'
     url = 'http://www.longbeach.gov/cityclerk/council_online.asp'
-    provides = ['people']
     parties = [ {'name': 'Democratic' }, {'name': 'Republican' } ]
-
-    def get_scraper(self, scraper_type):
-        if scraper_type == 'bills':
-            return BillScraper
+    scrapers = {'bills': BillScraper}
