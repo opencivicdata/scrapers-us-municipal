@@ -61,7 +61,7 @@ class ClevelandPersonScraper(Scraper):
                 kwargs['biography'] = biography
 
             p = Legislator(name=who,
-                           post_id=info['district'],
+                           district=info['district'],
                            gender=info['gender'],
                            image=img, **kwargs)
             p.add_source(listing)

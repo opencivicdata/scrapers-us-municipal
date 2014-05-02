@@ -17,6 +17,6 @@ class PersonScraper(Scraper):
         for title, name in zip(doc.xpath(title_xpath), doc.xpath(name_xpath)):
             name = name.text_content().strip()
             title = title.text_content().strip()
-            p = Legislator(name=name, post_id=title)
+            p = Legislator(name=name, district=title)
             p.add_source(self.url)
             yield p

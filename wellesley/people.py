@@ -71,7 +71,7 @@ class WellesleyPersonScraper(Scraper):
                         position = roles[role]
 
                 addr = clean_address(addr)
-                leg = Legislator(name=info['name'], post_id=position)
+                leg = Legislator(name=info['name'], district=position)
                 leg.add_contact_detail(type="address",
                                        value=addr,
                                        note="Address")

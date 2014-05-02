@@ -58,7 +58,7 @@ class ChicagoPersonScraper(LegistarScraper):
 
 
             p = Legislator(councilman['Person Name']['label'],
-                           post_id="Ward %s" % (councilman['Ward/Office']),
+                           district="Ward %s" % (councilman['Ward/Office']),
                            image=councilman['Photo'],
                            contact_details = contacts)
 

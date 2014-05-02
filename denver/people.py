@@ -60,7 +60,7 @@ class PersonScraper(Scraper):
             person.add_source(urls.detail.url, note='detail')
 
             # Add membership on council.
-            memb = person.add_membership(council, post_id=post_id.strip())
+            memb = person.add_membership(council, district=post_id.strip())
             memb.add_source(urls.detail.url)
 
             xpath = '//div[@id="dnn_column3"]'

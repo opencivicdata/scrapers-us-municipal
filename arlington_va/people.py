@@ -29,7 +29,7 @@ class PersonScraper(Scraper):
                 elif 'bio' in link.text.lower():
                     bio_link = link
 
-            legislator = Legislator(name=name, post_id=position, image=image)
+            legislator = Legislator(name=name, district=position, image=image)
             legislator.add_contact(type='email', value=email, note='%(name)s email address' % {'name': name} )
             legislator.add_source(self.COUNTY_BOARD_URL)
 

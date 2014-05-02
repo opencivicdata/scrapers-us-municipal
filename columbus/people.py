@@ -28,7 +28,7 @@ class ColumbusPersonScraper(Scraper):
         )])
 
         leg = Legislator(name=name.text,
-                         post_id='member',
+                         district='member',
                          biography=bio,
                          image=image)
         leg.add_source(url)
