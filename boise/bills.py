@@ -6,7 +6,7 @@ from lxml.html import fromstring
 
 from pupa.scrape import BaseBillScraper
 from pupa.utils import convert_pdf
-from pupa.models import Bill
+from pupa.scrape import Bill
 
 from .utils import Urls
 

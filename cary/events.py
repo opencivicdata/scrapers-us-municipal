@@ -1,5 +1,5 @@
 from pupa.scrape import Scraper
-from pupa.models import Event
+from pupa.scrape import Event
 
 import datetime as dt
 from functools import partial

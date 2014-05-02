@@ -1,5 +1,5 @@
 from pupa.scrape import Scraper
-from pupa.models import Vote
+from pupa.scrape import Vote
 
 import datetime as dt
 import lxml

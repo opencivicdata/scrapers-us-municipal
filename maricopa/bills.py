@@ -5,7 +5,7 @@ import lxml.html
 from libmproxy import proxy, flow
 
 from pupa.utils.legistar import LegistarScraper
-from pupa.models import Bill
+from pupa.scrape import Bill
 
 
 class BillScraper(LegistarScraper):

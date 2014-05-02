@@ -2,8 +2,8 @@ import re
 from itertools import groupby
 
 from pupa.scrape import Scraper
-from pupa.models import Person
-from pupa.models import Organization
+from pupa.scrape import Person
+from pupa.scrape import Organization
 
 from .utils import Urls
 

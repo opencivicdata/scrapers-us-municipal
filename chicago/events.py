@@ -1,4 +1,4 @@
-from pupa.models import Event
+from pupa.scrape import Event
 from .legistar import LegistarScraper
 from collections import defaultdict
 import datetime

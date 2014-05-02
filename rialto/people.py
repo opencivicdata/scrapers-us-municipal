@@ -1,7 +1,7 @@
 import lxml.html
 
 from pupa.scrape import Scraper, Legislator
-from pupa.models import Person, Organization
+from pupa.scrape import Person, Organization
 
 
 class PersonScraper(Scraper):

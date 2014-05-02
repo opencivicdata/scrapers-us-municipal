@@ -1,5 +1,5 @@
 from pupa.scrape import Scraper, Legislator, Committee
-from pupa.models import Organization, Person, Event
+from pupa.scrape import Organization, Person, Event
 
 from collections import defaultdict
 import lxml.html

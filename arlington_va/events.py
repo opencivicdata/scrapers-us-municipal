@@ -4,7 +4,7 @@ import re
 import lxml, lxml.html
 
 from pupa.scrape import Scraper
-from pupa.models import Event
+from pupa.scrape import Event
 
 class EventScraper(Scraper):
     ARLINGTON_MEETING_PAGE = 'http://arlington.granicus.com/ViewPublisher.php?view_id=2'

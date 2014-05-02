@@ -2,7 +2,7 @@ from .legistar import LegistarScraper
 import lxml
 import lxml.etree
 
-from pupa.models import Bill
+from pupa.scrape import Bill
 
 
 class ChicagoBillScraper(LegistarScraper):

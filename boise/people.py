@@ -1,5 +1,5 @@
 from pupa.scrape import Scraper
-from pupa.models import Person, Organization
+from pupa.scrape import Person, Organization
 
 from .utils import Urls
 

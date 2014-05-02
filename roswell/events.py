@@ -1,6 +1,6 @@
 # ~*~ encoding: utf-8 ~*~
 from pupa.scrape import Scraper
-from pupa.models import Event
+from pupa.scrape import Event
 import datetime as dt
 import lxml.html
 import re
