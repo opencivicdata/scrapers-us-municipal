@@ -3,4 +3,5 @@ from pupa.scrape import Scraper
 
 
 class NewYorkCityPersonScraper(Scraper):
+    # This also scrapes orgs.
     scrape = PupaGenerator('people')
