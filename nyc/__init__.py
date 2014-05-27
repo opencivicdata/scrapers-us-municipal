@@ -1,7 +1,7 @@
 from pupa.scrape import Jurisdiction
 
 # from .events import NewYorkCityEventsScraper
-from .people import NewYorkCityPersonScraper
+from legistar.ext.pupa import LegistarPeopleScraper
 
 
 class NewYorkCity(Jurisdiction):
@@ -12,6 +12,6 @@ class NewYorkCity(Jurisdiction):
     parties = [ {'name': 'Democratic' }, {'name': 'Republican' } ]
 
     scrapers = {
-        "people": NewYorkCityPersonScraper,
+        "people": LegistarPeopleScraper,
         # "events": NewYorkCityEventsScraper
     }
