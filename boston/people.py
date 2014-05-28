@@ -1,13 +1,5 @@
-# Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
-# license.
-#
-#  Contributors:
-#
-#    - Paul Tagliamonte <paultag@sunlightfoundation.com>
-
-
 from pupa.scrape import Scraper, Legislator, Committee
-from pupa.models import Organization, Person, Event
+from pupa.scrape import Organization, Person, Event
 
 from collections import defaultdict
 import lxml.html
@@ -27,7 +19,7 @@ def clean_name(name):
     for thing in PREFIXES:
         name = name.replace(thing, "")
     name = name.encode('latin1').strip()
-    name = name.replace("\xc2\xa0", "")
+    name = name.replace(b"\xc2\xa0", b"").decode()
     return name
 
 
@@ -39,14 +31,14 @@ class BostonPersonScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_people(self):
+    def scrape(self):
         yield self.bos_scrape_committees()
         yield self.bos_scrape_people()
 
     def get_one(self, page, expr):
         ret = page.xpath(expr)
         if len(ret) != 1:
-            print page.text_content()
+            print(page.text_content())
             raise Exception("Bad xpath")
         return ret[0]
 
@@ -79,7 +71,7 @@ class BostonPersonScraper(Scraper):
                 image = info['image']
 
             p = Legislator(name=name,
-                           post_id=role,
+                           district=role,
                            image=image,
                            biography=info['bio'])
             p.add_link(homepage, 'homepage')

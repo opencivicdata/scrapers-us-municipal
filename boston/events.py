@@ -1,13 +1,5 @@
-# Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
-# license.
-#
-#  Contributors:
-#
-#    - Paul Tagliamonte <paultag@sunlightfoundation.com>
-
-
 from pupa.scrape import Scraper
-from pupa.models import Event
+from pupa.scrape import Event
 
 import datetime as dt
 import lxml.html
@@ -21,10 +13,7 @@ class BostonEventsScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_events(self):
-        if self.session != self.get_current_session():
-            raise Exception("Can't do that, dude")
-
+    def scrape(self):
         url = "http://meetingrecords.cityofboston.gov/sirepub/meetresults.aspx"
 
         page = self.lxmlize(url)
@@ -37,7 +26,6 @@ class BostonEventsScraper(Scraper):
             links = links.xpath(".//a")
             links = {x.text: x.attrib['href'] for x in links}
             e = Event(name=name,
-                      session=self.session,
                       when=when,
                       location='unknown')
 

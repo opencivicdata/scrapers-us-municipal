@@ -1,80 +1,82 @@
-# Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
-# license.
-#
-#  Contributors:
-#
-#    - Paul Tagliamonte <paultag@sunlightfoundation.com>
+from pupa.scrape.helpers import Legislator, Membership, Organization
+from .legistar import LegistarScraper
+import logging
 
 
-from pupa.scrape import Scraper, Legislator, Committee
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-from collections import defaultdict
-import lxml.html
-
-
-MEMBER_LIST = "http://www.cityofchicago.org/city/en/about/wards.html"
+MEMBERLIST = 'https://chicago.legistar.com/People.aspx'
 
 
-class ChicagoPersonScraper(Scraper):
+class ChicagoPersonScraper(LegistarScraper):
+    base_url = 'https://chicago.legistar.com/'
 
-    def lxmlize(self, url):
-        entry = self.urlopen(url)
-        page = lxml.html.fromstring(entry)
-        page.make_links_absolute(url)
-        return page
+    def councilMembers(self, follow_links=True) :
+        for page in self.pages(MEMBERLIST) :
+            table = page.xpath("//table[@id='ctl00_ContentPlaceHolder1_gridPeople_ctl00']")[0]
 
-    def get_people(self):
-        yield self.bos_scrape_people()
+            for councilman, headers, row in self.parseDataTable(table):
+                if follow_links and type(councilman['Person Name']) == dict :
+                    detail_url = councilman['Person Name']['url']
+                    councilman_details = self.lxmlize(detail_url)
+                    img = councilman_details.xpath("//img[@id='ctl00_ContentPlaceHolder1_imgPhoto']")
+                    if img :
+                        councilman['Photo'] = img[0].get('src')
 
-    def scrape_ward(self, el):
-        url = el.attrib['href']
-        page = self.lxmlize(url)
-        name = page.xpath("//div[@id='content-content']/h3")[0].text_content()
-        badthings = [
-            "Alderman"
-        ]
-        for thing in badthings:
-            if name.startswith(thing):
-                name = name[len(thing):].strip()
+                    committee_table = councilman_details.xpath("//table[@id='ctl00_ContentPlaceHolder1_gridDepartments_ctl00']")[0]
 
-        district = page.xpath("//h1[@class='page-heading']/text()")[0]
-        leg = Legislator(name=name, post_id=district)
-        leg.add_source(url)
+                    committees = self.parseDataTable(committee_table)
 
-        type_types = {
-            "City Hall Office:": ("address", "City Hall Office"),
-            "City Hall Phone:": ("phone", "City Hall Phone"),
-            "Phone:": ("phone", "Personal Phone"),
-            "Office:": ("address", "Personal Office"),
-            "Fax:": ("fax", "Fax"),
-            "Fax": ("fax", "Fax"),
-        }
+                    yield councilman, committees
 
-        for row in page.xpath("//table//tr"):
-            type_, val = (x.text_content().strip() for x in row.xpath("./td"))
-            if val == "":
-                continue
+                else :
+                    yield councilman
 
-            types = [type_]
-            vals = [val]
 
-            if "\n" in type_:
-                if "\n" in val:
-                    types = type_.split("\n")
-                    vals = val.split("\n")
-                else:
-                    continue
+    def scrape(self):
+        for councilman, committees in self.councilMembers() :
+            contact_types = {
+                "City Hall Office": ("address", "City Hall Office"),
+                "City Hall Phone": ("phone", "City Hall Phone"),
+                "Ward Office Phone": ("phone", "Ward Office Phone"),
+                "Ward Office Address": ("address", "Ward Office Address"),
+                "Fax": ("fax", "Fax")
+            }
 
-            for type_ in types:
-                for val in vals:
-                    ctype, note = type_types[type_]
-                    leg.add_contact(ctype, val, note)
+            contacts = []
+            for contact_type, (_type, note) in contact_types.items () :
+                if councilman[contact_type] :
+                    contacts.append({"type": _type,
+                                     "value": councilman[contact_type],
+                                     "note": note})
 
-        return leg
+            if councilman["E-mail"] :
+                contacts.append({"type" : "email",
+                                 "value" : councilman['E-mail']['label'],
+                                 'note' : 'E-mail'})
 
-    def bos_scrape_people(self):
-        page = self.lxmlize(MEMBER_LIST)
-        wards = page.xpath("//div[@id='content-content']/h4/"
-                           "a[contains(@href, 'city/en/about/wards')]")
-        for ward in wards:
-            yield self.scrape_ward(ward)
+
+            p = Legislator(councilman['Person Name']['label'],
+                           district="Ward %s" % (councilman['Ward/Office']),
+                           image=councilman['Photo'],
+                           contact_details = contacts)
+
+
+            if councilman['Website'] :
+                p.add_link('homepage', councilman['Website']['url'])
+            p.add_source(MEMBERLIST)
+
+            for committee, _, _ in committees :
+                if committee['Legislative Body']['label'] :
+                    print(committee)
+                    if committee['Legislative Body']['label'] not in ('City Council', 'Office of the Mayor') :
+                        p.add_committee_membership(committee['Legislative Body']['label'],
+                                                   role= committee["Title"])
+
+
+
+            yield p
+
+
+

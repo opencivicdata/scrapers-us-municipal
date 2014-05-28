@@ -1,11 +1,3 @@
-# Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
-# license.
-#
-#  Contributors:
-#
-#    - Paul Tagliamonte <paultag@sunlightfoundation.com>
-
-
 from pupa.scrape import Scraper, Legislator, Committee
 
 from collections import defaultdict
@@ -37,10 +29,7 @@ class WellesleyPersonScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_people(self):
-        yield self.wellesley_scrape_people()
-
-    def wellesley_scrape_people(self):
+    def scrape(self):
         page = self.lxmlize(MEMBER_LIST)
         for row in page.xpath("//table[@frame='void']/tbody/tr")[1:]:
             role, whos, expire = row.xpath("./*")
@@ -82,7 +71,7 @@ class WellesleyPersonScraper(Scraper):
                         position = roles[role]
 
                 addr = clean_address(addr)
-                leg = Legislator(name=info['name'], post_id=position)
+                leg = Legislator(name=info['name'], district=position)
                 leg.add_contact_detail(type="address",
                                        value=addr,
                                        note="Address")

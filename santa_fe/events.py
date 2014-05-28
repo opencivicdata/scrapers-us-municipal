@@ -1,14 +1,6 @@
 # ~*~ encoding: utf-8 ~*~
-# Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
-# license.
-#
-#  Contributors:
-#
-#    - Paul Tagliamonte <paultag@sunlightfoundation.com>
-
-
 from pupa.scrape import Scraper
-from pupa.models import Event
+from pupa.scrape import Event
 
 import datetime as dt
 import lxml.html
@@ -31,10 +23,7 @@ class SantaFeEventsScraper(Scraper):
     def cleanup(self, what):
         return re.sub("\s+", " ", what).strip()
 
-    def get_events(self):
-        if self.session != self.get_current_session():
-            raise Exception("Can't do that, dude")
-
+    def scrape(self):
         curdate = None
         page = self.lxmlize(CAL_PAGE)
         for el in page.xpath("//div[@id='Section1']/*"):
@@ -79,9 +68,6 @@ class SantaFeEventsScraper(Scraper):
                 where  = re.sub("\s+", " ", where).strip()
                 where = re.sub("agenda$", "", where).strip()
 
-                event = Event(name=info,
-                              session=self.session,
-                              when=obj,
-                              location=where)
+                event = Event(name=info, when=obj, location=where)
                 event.add_source(CAL_PAGE)
                 yield event

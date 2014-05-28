@@ -1,11 +1,3 @@
-# Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
-# license.
-#
-#  Contributors:
-#
-#    - Paul Tagliamonte <paultag@sunlightfoundation.com>
-
-
 from pupa.scrape import Scraper, Legislator, Committee
 
 from collections import defaultdict
@@ -20,9 +12,6 @@ class ColumbusPersonScraper(Scraper):
         page = lxml.html.fromstring(entry)
         page.make_links_absolute(url)
         return page
-
-    def get_people(self):
-        yield self.cbus_scrape_people()
 
     def scrape_homepage(self, folk):
         url = folk.attrib['href']
@@ -39,13 +28,13 @@ class ColumbusPersonScraper(Scraper):
         )])
 
         leg = Legislator(name=name.text,
-                         post_id='member',
+                         district='member',
                          biography=bio,
                          image=image)
         leg.add_source(url)
         return leg
 
-    def cbus_scrape_people(self):
+    def scrape(self):
         page = self.lxmlize(HOMEPAGE)
         folks = page.xpath("//div[@class='col-left']/div[2]//"
                            "div[@class='gutter_text'][1]//"

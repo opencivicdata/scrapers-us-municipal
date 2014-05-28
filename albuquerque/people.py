@@ -57,7 +57,7 @@ class PersonScraper(Scraper):
                 "//div[@class='featureContent']//div[@class='stx']/p")))
 
             p = Legislator(name=name,
-                           post_id=district,
+                           district=district,
                            image=photo,
                            biography=bio)
 

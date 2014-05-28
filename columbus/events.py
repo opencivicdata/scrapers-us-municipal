@@ -1,13 +1,5 @@
-# Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
-# license.
-#
-#  Contributors:
-#
-#    - Paul Tagliamonte <paultag@sunlightfoundation.com>
-
-
 from pupa.scrape import Scraper
-from pupa.models import Event
+from pupa.scrape import Event
 
 import datetime as dt
 import lxml.html
@@ -26,7 +18,7 @@ class ColumbusEventScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_events(self):
+    def scrape(self):
         page = self.lxmlize(PAGE)
         events = page.xpath("//div[@class='col-middle']//ul/li")
         when = None
