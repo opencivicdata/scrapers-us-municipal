@@ -1,6 +1,7 @@
 from pupa.scrape import Jurisdiction
 
 from .people import ChattanoogaCouncilPersonScraper
+from .events import ChattanoogaEventsScraper
 
 class Chattanooga(Jurisdiction):
     jurisdiction_id = 'ocd-jurisdiction/country:us/state:tn/place:chattanooga/council'
@@ -12,7 +13,10 @@ class Chattanooga(Jurisdiction):
         'start_year': 2013,
         'end_year': 2017
     }]
-    provides = ['people']
+    provides = [
+        'people',
+        'events',
+    ]
     parties = [
         {'name': 'Independent' },
         {'name': 'Republican' },
@@ -29,3 +33,5 @@ class Chattanooga(Jurisdiction):
     def get_scraper(self, term, session, scraper_type):
         if scraper_type == 'people':
             return ChattanoogaCouncilPersonScraper
+        elif scraper_type == 'events':
+            return ChattanoogaEventsScraper

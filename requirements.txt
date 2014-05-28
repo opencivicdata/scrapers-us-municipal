@@ -1,3 +1,4 @@
 -e git://github.com/opencivicdata/pupa.git#egg=pupa
 lxml
 sh
+python-dateutil==2.2
