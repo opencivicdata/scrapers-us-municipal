@@ -1,4 +1,4 @@
-from pupa.models import Event
+from pupa.scrape import Event
 from .legistar import LegistarScraper
 from collections import defaultdict
 import datetime
@@ -29,8 +29,8 @@ class ChicagoEventsScraper(LegistarScraper):
             return self.pages(page)
 
 
-    def get_events(self):
-        for page in self.eventPages(EVENTSPAGE) :
+    def scrape(self):
+        for page in self.eventPages(EVENTSPAGE):
             events_table = page.xpath("//table[@class='rgMasterTable']")[0]
             for events, headers, rows in self.parseDataTable(events_table) :
                 print(events)
@@ -56,7 +56,6 @@ class ChicagoEventsScraper(LegistarScraper):
                 when = when.replace(hour=event_time.hour)
 
                 e = Event(name=events["Name"]["label"],
-                          session=self.session,
                           when=when,
                           location=location,
                           status=status)

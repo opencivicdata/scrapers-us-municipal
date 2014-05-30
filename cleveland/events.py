@@ -1,17 +1,8 @@
-# Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
-# license.
-#
-#  Contributors:
-#
-#    - Paul Tagliamonte <paultag@sunlightfoundation.com>
-
 from pupa.scrape import Scraper
-from pupa.models import Event
+from pupa.scrape import Event
 
 import datetime as dt
 import lxml.html
-import urllib2
-import urllib
 import re
 
 # events
@@ -32,10 +23,7 @@ class ClevelandEventScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_events(self):
-        if self.session != self.get_current_session():
-            raise Exception("Can't do that, dude")
-
+    def scrape(self):
         start = dt.datetime.utcnow()
         start = start - dt.timedelta(days=10)
         end = start + dt.timedelta(days=30)
@@ -74,10 +62,7 @@ class ClevelandEventScraper(Scraper):
                         "what": t
                     })
 
-            e = Event(name=who,
-                      session=self.session,
-                      when=when,
-                      location='unknown')
+            e = Event(name=who, when=when, location='unknown')
             e.add_source(url)
 
             for o in related:
@@ -92,7 +77,7 @@ class ClevelandEventScraper(Scraper):
             "action": "getCalendarPopup",
             "newsid": poid
         }
-        page = urllib2.urlopen(AJAX_ENDPOINT, urllib.urlencode(data))
-        page = lxml.html.fromstring(page.read())
+        page = self.urlopen(AJAX_ENDPOINT, body=data)
+        page = lxml.html.fromstring(page)
         page.make_links_absolute(AJAX_ENDPOINT)
         return page

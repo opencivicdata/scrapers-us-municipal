@@ -1,5 +1,5 @@
 from pupa.scrape import Scraper
-from pupa.models import Person, Organization
+from pupa.scrape import Person, Organization
 
 from .utils import Urls
 
@@ -10,7 +10,7 @@ legislators_url = (
 
 class PersonScraper(Scraper):
 
-    def get_people(self):
+    def scrape(self):
         urls = Urls(dict(list=legislators_url), self)
 
         council = Organization(

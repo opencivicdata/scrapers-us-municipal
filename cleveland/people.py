@@ -1,10 +1,3 @@
-# Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
-# license.
-#
-#  Contributors:
-#
-#    - Paul Tagliamonte <paultag@sunlightfoundation.com>
-
 from pupa.scrape import Scraper, Legislator
 
 import lxml.html
@@ -22,7 +15,7 @@ class ClevelandPersonScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_people(self):
+    def scrape(self):
         yield self.cleveland_scrape_people()
 
     def scrape_page(self, url):
@@ -68,7 +61,7 @@ class ClevelandPersonScraper(Scraper):
                 kwargs['biography'] = biography
 
             p = Legislator(name=who,
-                           post_id=info['district'],
+                           district=info['district'],
                            gender=info['gender'],
                            image=img, **kwargs)
             p.add_source(listing)

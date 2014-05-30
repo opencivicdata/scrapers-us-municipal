@@ -1,14 +1,6 @@
 # ~*~ encoding: utf-8 ~*~
-# Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
-# license.
-#
-#  Contributors:
-#
-#    - Paul Tagliamonte <paultag@sunlightfoundation.com>
-
-
 from pupa.scrape import Scraper
-from pupa.models import Event
+from pupa.scrape import Event
 import datetime as dt
 import lxml.html
 import re
@@ -25,10 +17,7 @@ class RoswellEventsScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_events(self):
-        if self.session != self.get_current_session():
-            raise Exception("Can't do that, dude")
-
+    def scrape(self):
         page = self.lxmlize(CAL_PAGE)
         days = page.xpath("//table[@class='evlist_month']//td")
         for day in days:
@@ -89,11 +78,6 @@ class RoswellEventsScraper(Scraper):
         end = "%s %s" % (date, end)
         start, end = (dt.datetime.strptime(x, "%B %d, %Y %I:%M %p") for x in (start, end))
 
-        event = Event(
-            session=self.session,
-            name=title,
-            location=ret['Where:'],
-            when=start,
-            end=end)
+        event = Event( name=title, location=ret['Where:'], when=start, end=end)
         event.add_source(url)
         yield event

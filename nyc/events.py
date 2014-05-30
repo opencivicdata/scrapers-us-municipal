@@ -1,11 +1,3 @@
-# Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
-# license.
-#
-#  Contributors:
-#
-#    - Paul Tagliamonte <paultag@sunlightfoundation.com>
-
-
 from pupa.scrape import Scraper
 from pupa.models import Event
 
@@ -22,10 +14,7 @@ class NewYorkCityEventsScraper(Scraper):
         return page
 
 
-    def get_events(self):
-        if self.session != self.get_current_session():
-            raise Exception("Can't do that, dude")
-
+    def scrape(self):
         url = "http://legistar.council.nyc.gov/Calendar.aspx"
         page = self.lxmlize(url)
         main = page.xpath("//table[@class='rgMasterTable']")[0]
@@ -56,10 +45,7 @@ class NewYorkCityEventsScraper(Scraper):
                 when = dt.datetime.strptime("%s %s" % (date.text.strip(), time),
                                             "%m/%d/%Y %I:%M %p")
 
-            event = Event(name=name,
-                          session=self.session,
-                          when=when,
-                          location=location)
+            event = Event(name=name, when=when, location=location)
             event.add_source(url)
 
             details = details.xpath(".//a[@href]")

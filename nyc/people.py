@@ -1,11 +1,3 @@
-# Copyright (c) Sunlight Labs, 2013, under the terms of the BSD-3 clause
-# license.
-#
-#  Contributors:
-#
-#    - Paul Tagliamonte <paultag@sunlightfoundation.com>
-
-
 from pupa.scrape import Scraper, Legislator, Committee
 from pupa.models import Person
 
@@ -32,7 +24,7 @@ class NewYorkCityPersonScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-    def get_people(self):
+    def scrape(self):
         yield self.nyc_scrape_committees()
         yield self.nyc_scrape_people()
 
@@ -89,7 +81,7 @@ class NewYorkCityPersonScraper(Scraper):
         page = self.lxmlize(url, encoding='utf-8')
         people = page.xpath("//td[@class='inside_sub_feature']//p")
         if len(people) != 3:
-            print "EMPTY COMMITTEE: ", url
+            print("EMPTY COMMITTEE: " + url)
             return ret
 
         people = people[1]
@@ -106,7 +98,7 @@ class NewYorkCityPersonScraper(Scraper):
             name, url = [committee[x] for x in ["name", "url"]]
             info = self.scrape_committee_homepage(url)
             if name in BAD_CTTIES:
-                print "WARNING: Bad Cttie: %s" % (name)
+                print("WARNING: Bad Cttie: " + name)
                 continue
 
             c = Committee(name=name, classification='committee')
@@ -134,7 +126,7 @@ class NewYorkCityPersonScraper(Scraper):
 
             info = self.scrape_homepage(homepage)
             p = Legislator(name=name,
-                           post_id=district,
+                           district=district,
                            # borough=borough,
                            party=party.strip() or "other")
             p.add_link(homepage, 'homepage')

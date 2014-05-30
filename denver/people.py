@@ -2,8 +2,8 @@ import re
 from itertools import groupby
 
 from pupa.scrape import Scraper
-from pupa.models import Person
-from pupa.models import Organization
+from pupa.scrape import Person
+from pupa.scrape import Organization
 
 from .utils import Urls
 
@@ -15,7 +15,7 @@ legislators_url = (
 
 class PersonScraper(Scraper):
 
-    def get_people(self):
+    def scrape(self):
         urls = Urls(dict(list=legislators_url), self)
 
         council = Organization('Denver City Council')
@@ -60,7 +60,7 @@ class PersonScraper(Scraper):
             person.add_source(urls.detail.url, note='detail')
 
             # Add membership on council.
-            memb = person.add_membership(council, post_id=post_id.strip())
+            memb = person.add_membership(council, district=post_id.strip())
             memb.add_source(urls.detail.url)
 
             xpath = '//div[@id="dnn_column3"]'

@@ -34,7 +34,7 @@ class ChicagoPersonScraper(LegistarScraper):
                     yield councilman
 
 
-    def get_people(self):
+    def scrape(self):
         for councilman, committees in self.councilMembers() :
             contact_types = {
                 "City Hall Office": ("address", "City Hall Office"),
@@ -58,7 +58,7 @@ class ChicagoPersonScraper(LegistarScraper):
 
 
             p = Legislator(councilman['Person Name']['label'],
-                           post_id="Ward %s" % (councilman['Ward/Office']),
+                           district="Ward %s" % (councilman['Ward/Office']),
                            image=councilman['Photo'],
                            contact_details = contacts)
 
