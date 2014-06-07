@@ -29,10 +29,13 @@ class HolyokePersonScraper(Scraper):
         who, = page.xpath("//h3[@class='subtitle']/text()")
         district, = page.xpath("//div[@class='right-bar']//h2/text()")
         image, = page.xpath(
-            "//div[@class='left-bar']//a[@class='image lightbox']"
+            "//div[@class='left-bar']//a[@class='image lightbox']//img"
         )
 
-        member = Legislator(name=who, district=district, image=image)
+        member = Legislator(
+            name=who, district=district,
+            image=image.attrib['src']
+        )
         member.add_source(url, CITY_COUNCIL)
 
         details = page.xpath("//table[@align='center']//td")
@@ -46,7 +49,7 @@ class HolyokePersonScraper(Scraper):
                 "Home Phone": "voice",
                 "Address": "address",
                 "Email": "email",
-                "Cell Phone": "cell",
+                "Cell Phone": "voice",
             }[type_]
             member.add_contact_detail(type=cdtype,
                                       note=type_,
