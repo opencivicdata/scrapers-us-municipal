@@ -5,6 +5,7 @@ import lxml.html
 CITY_CLERK = "http://www.holyoke.org/departments/city-clerk/"
 CITY_TREASURER = "http://www.holyoke.org/departments/treasurer/"
 CITY_COUNCIL = "http://www.holyoke.org/councilors/"
+CITY_MAYOR = "http://www.holyoke.org/departments/mayors-office"
 
 
 class HolyokePersonScraper(Scraper):
@@ -16,17 +17,26 @@ class HolyokePersonScraper(Scraper):
         return page
 
     def scrape_clerk(self):
-        page = self.lxmlize(CITY_CLERK)
+        yield from self.scrape_staff(CITY_CLERK, 'clerk')
+
+    def scrape_treasurer(self):
+        yield from self.scrape_staff(CITY_CLERK, 'treasurer')
+
+    def scrape_mayor(self):
+        yield from self.scrape_staff(CITY_MAYOR, 'mayor')
+
+    def scrape_staff(self, url, role):
+        page = self.lxmlize(url)
         bar, = page.xpath("//div[@class='right-bar']")
         head, office, contact, _ = bar.xpath(".//div[@class='module']")
         name, = head.xpath(".//h4")
         title, social = head.xpath(".//p")
 
         clerk = Person(name=name.text_content())
-        clerk.add_source(CITY_CLERK)
+        clerk.add_source(url)
 
         membership = Membership(
-            role='clerk',
+            role=role,
             label=title.text_content(),
             person_id=clerk._id,
             organization_id=make_psuedo_id(
@@ -49,6 +59,7 @@ class HolyokePersonScraper(Scraper):
         for contact in contacts:
             class_ = contact.attrib['class']
             type_ = {"icon-phone": "voice",
+                     "icon-fax": "fax",
                      "icon-email": "email"}[class_]
 
             value = contact.tail
@@ -69,9 +80,23 @@ class HolyokePersonScraper(Scraper):
             "//div[@class='table-item clearfix remove-clickable']"
         ):
             name, = member.xpath(".//span[@class='title1']")
-            staffer = Person(name=name.text)
-            staffer.add_source(CITY_CLERK)
+            name = name.text
+            name, staff_role = name.rsplit("-", 1)
+            name = name.strip()
+            staff_role = staff_role.strip()
+
+            staffer = Person(name=name)
+            staffer.add_source(url)
             details = member.xpath(".//p/span")
+
+            membership = Membership(
+                role=staff_role,
+                label=title.text_content(),
+                person_id=staffer._id,
+                organization_id=make_psuedo_id(
+                    classification="legislature",
+                    name=self.jurisdiction.name))
+
 
             for detail in details:
                 type_ = {
@@ -94,3 +119,5 @@ class HolyokePersonScraper(Scraper):
 
     def scrape(self):
         yield from self.scrape_clerk()
+        yield from self.scrape_treasurer()
+        yield from self.scrape_mayor()
