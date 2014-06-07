@@ -52,8 +52,7 @@ class HolyokePersonScraper(Scraper):
                                       note=type_,
                                       value=value)
 
-        if False:
-            yield member
+        yield member
 
     def scrape_clerk(self):
         yield from self.scrape_staff(CITY_CLERK, 'clerk')
