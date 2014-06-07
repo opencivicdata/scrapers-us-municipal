@@ -4,7 +4,7 @@ import lxml.html
 
 CITY_CLERK = "http://www.holyoke.org/departments/city-clerk/"
 CITY_TREASURER = "http://www.holyoke.org/departments/treasurer/"
-CITY_COUNCIL = "http://www.holyoke.org/councilors/"
+CITY_COUNCIL = "http://www.holyoke.org/departments/city-council/"
 CITY_MAYOR = "http://www.holyoke.org/departments/mayors-office"
 
 
@@ -15,6 +15,45 @@ class HolyokePersonScraper(Scraper):
         page = lxml.html.fromstring(entry)
         page.make_links_absolute(url)
         return page
+
+
+    def scrape_council(self):
+        page = self.lxmlize(CITY_COUNCIL)
+        for member in page.xpath(
+            "//a[contains(@href, 'holyoke.org/city-council/')]"
+        ):
+            yield from self.scrape_counciler(member.attrib['href'])
+
+    def scrape_counciler(self, url):
+        page = self.lxmlize(url)
+        who, = page.xpath("//h3[@class='subtitle']/text()")
+        district, = page.xpath("//div[@class='right-bar']//h2/text()")
+        image, = page.xpath(
+            "//div[@class='left-bar']//a[@class='image lightbox']"
+        )
+
+        member = Legislator(name=who, district=district, image=image)
+        member.add_source(url, CITY_COUNCIL)
+
+        details = page.xpath("//table[@align='center']//td")
+        for detail in details:
+            detail = detail.text_content().strip()
+            if detail is None or detail == "":
+                continue
+
+            type_, value = detail.split(":", 1)
+            cdtype = {
+                "Home Phone": "voice",
+                "Address": "address",
+                "Email": "email",
+                "Cell Phone": "cell",
+            }[type_]
+            member.add_contact_detail(type=cdtype,
+                                      note=type_,
+                                      value=value)
+
+        if False:
+            yield member
 
     def scrape_clerk(self):
         yield from self.scrape_staff(CITY_CLERK, 'clerk')
@@ -32,26 +71,27 @@ class HolyokePersonScraper(Scraper):
         name, = head.xpath(".//h4")
         title, social = head.xpath(".//p")
 
-        clerk = Person(name=name.text_content())
-        clerk.add_source(url)
+        head = Person(name=name.text_content())
+        head.add_source(url)
 
         membership = Membership(
             role=role,
             label=title.text_content(),
-            person_id=clerk._id,
+            person_id=head._id,
             organization_id=make_psuedo_id(
                 classification="legislature",
                 name=self.jurisdiction.name))
+        yield membership
 
         emails = social.xpath(".//a[contains(@href, 'mailto:')]")
         for email in emails:
-            clerk.add_contact_detail(type='email',
+            head.add_contact_detail(type='email',
                                      value=email.attrib['href'],
                                      note='Office Email')
 
         offices = office.xpath(".//p")
         for office in offices:
-            clerk.add_contact_detail(type='address',
+            head.add_contact_detail(type='address',
                                      value=office.text_content(),
                                      note='Office Address')
 
@@ -70,10 +110,10 @@ class HolyokePersonScraper(Scraper):
             if value is None:
                 continue
 
-            clerk.add_contact_detail(type=type_,
-                                     value=value,
-                                     note="Office Contact Detail")
-        yield clerk
+            head.add_contact_detail(type=type_,
+                                    value=value,
+                                    note="Office Contact Detail")
+        yield head
 
         staff, = page.xpath("//div[@id='staff']")
         for member in staff.xpath(
@@ -96,6 +136,7 @@ class HolyokePersonScraper(Scraper):
                 organization_id=make_psuedo_id(
                     classification="legislature",
                     name=self.jurisdiction.name))
+            yield membership
 
 
             for detail in details:
@@ -121,3 +162,4 @@ class HolyokePersonScraper(Scraper):
         yield from self.scrape_clerk()
         yield from self.scrape_treasurer()
         yield from self.scrape_mayor()
+        yield from self.scrape_council()
