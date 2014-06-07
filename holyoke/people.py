@@ -77,6 +77,7 @@ class HolyokePersonScraper(Scraper):
         head.add_source(url)
 
         membership = Membership(
+            post_id=make_psuedo_id(role=role,),
             role=role,
             label=title.text_content(),
             person_id=head._id,
