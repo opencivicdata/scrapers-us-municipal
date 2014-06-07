@@ -134,7 +134,7 @@ class HolyokePersonScraper(Scraper):
 
             membership = Membership(
                 role=staff_role,
-                label=title.text_content(),
+                label="%s-staff" % (role),
                 person_id=staffer._id,
                 organization_id=make_psuedo_id(
                     classification="legislature",
