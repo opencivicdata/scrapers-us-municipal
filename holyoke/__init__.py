@@ -13,7 +13,7 @@ NAME = "Holyoke City"
 
 class Holyoke(Jurisdiction):
     division_id = 'ocd-division/country:us/state:ma/place:holyoke'
-    jurisdiction_id = 'ocd-jurisdiction/country:us/state:ma/place:holyoke/government'
+    classification = 'government'
     name = NAME
     url = 'http://www.holyoke.org/elected-officials/'
 

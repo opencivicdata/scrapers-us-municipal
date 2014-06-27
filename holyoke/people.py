@@ -36,7 +36,7 @@ class HolyokePersonScraper(Scraper):
             name=who, district=district,
             image=image.attrib['src']
         )
-        member.add_source(url, CITY_COUNCIL)
+        member.add_source(url)
 
         details = page.xpath("//table[@align='center']//td")
         for detail in details:
