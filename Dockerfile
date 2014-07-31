@@ -1,4 +1,4 @@
-FROM        paultag/pupa:latest
+FROM        sunlightlabs/pupa:latest
 MAINTAINER  Paul R. Tagliamonte <paultag@sunlightfoundation.com>
 
 RUN mkdir -p /opt/sunlightfoundation.com/
