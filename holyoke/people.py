@@ -1,4 +1,4 @@
-from pupa.scrape import Scraper, Legislator, Committee, Person, Membership
+from pupa.scrape import Scraper, Person, Membership
 from pupa.utils import make_psuedo_id
 import lxml.html
 
@@ -32,7 +32,8 @@ class HolyokePersonScraper(Scraper):
             "//div[@class='left-bar']//a[@class='image lightbox']//img"
         )
 
-        member = Legislator(
+        member = Person(
+            primary_org='legislature',
             name=who, district=district,
             image=image.attrib['src']
         )
