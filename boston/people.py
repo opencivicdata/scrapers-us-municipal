@@ -129,6 +129,7 @@ class BostonPersonScraper(Scraper):
         page = self.lxmlize(COMMITTEE_LIST)
         committees = page.xpath(
             "//a[contains(@href, 'committee') and contains(@href, 'asp')]")
+        comms = {}
         for c in committees:
             if c.text is None:
                 continue
@@ -136,7 +137,10 @@ class BostonPersonScraper(Scraper):
             homepage = c.attrib['href']
 
             info = self.scrape_committee_page(homepage)
-            committee = Organization(name, classification='committee')
+            if name not in comms:
+                comms[name] = Organization(name, classification='committee')
+            committee = comms[name]
+
             committee.add_source(COMMITTEE_LIST)
             committee.add_source(homepage)
 
