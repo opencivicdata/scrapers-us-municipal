@@ -1,4 +1,4 @@
-from pupa.scrape import Jurisdiction
+from pupa.scrape import Jurisdiction, Organization
 
 from .events import BostonEventsScraper
 from .people import BostonPersonScraper
@@ -6,7 +6,8 @@ from .vote import BostonVoteScraper
 
 
 class Boston(Jurisdiction):
-    jurisdiction_id = 'ocd-jurisdiction/country:us/state:ma/place:boston/council'
+    division_id = 'ocd-jurisdiction/country:us/state:ma/place:boston'
+    classification = 'council'
 
     name = 'Boston City Council'
     url = 'http://www.cityofboston.gov/citycouncil/'
@@ -22,3 +23,7 @@ class Boston(Jurisdiction):
         "events": BostonEventsScraper,
         "votes": BostonVoteScraper,
     }
+
+    def get_organizations(self):
+        org = Organization(name="Boston City Council", classification="legislature")
+        yield org
