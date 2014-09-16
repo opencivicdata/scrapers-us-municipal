@@ -1,5 +1,4 @@
-from pupa.scrape import Scraper, Legislator, Committee
-from pupa.scrape import Organization, Person, Event
+from pupa.scrape import Organization, Person, Event, Scraper
 
 from collections import defaultdict
 import lxml.html
@@ -70,11 +69,9 @@ class BostonPersonScraper(Scraper):
             if info.get('image', None):
                 image = info['image']
 
-            p = Legislator(name=name,
-                           district=role,
-                           image=image,
-                           biography=info['bio'])
-            p.add_link(homepage, 'homepage')
+            p = Person(name=name, district=role, image=image,
+                       primary_org="legislature", biography=info['bio'])
+            p.add_link(url=homepage, note='homepage')
             p.add_source(homepage)
             p.add_source(MEMBER_LIST)
             yield p
@@ -132,6 +129,7 @@ class BostonPersonScraper(Scraper):
         page = self.lxmlize(COMMITTEE_LIST)
         committees = page.xpath(
             "//a[contains(@href, 'committee') and contains(@href, 'asp')]")
+        comms = {}
         for c in committees:
             if c.text is None:
                 continue
@@ -139,7 +137,10 @@ class BostonPersonScraper(Scraper):
             homepage = c.attrib['href']
 
             info = self.scrape_committee_page(homepage)
-            committee = Committee(name, classification='committee')
+            if name not in comms:
+                comms[name] = Organization(name, classification='committee')
+            committee = comms[name]
+
             committee.add_source(COMMITTEE_LIST)
             committee.add_source(homepage)
 
