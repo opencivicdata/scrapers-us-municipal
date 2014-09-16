@@ -1,4 +1,4 @@
-from pupa.scrape.helpers import Legislator, Membership, Organization
+from pupa.scrape import Person, Organization
 from .legistar import LegistarScraper
 import logging
 
@@ -35,48 +35,62 @@ class ChicagoPersonScraper(LegistarScraper):
 
 
     def scrape(self):
+        committee_d = {}
+        non_committees = ('City Council', 'Office of the Mayor')
+
         for councilman, committees in self.councilMembers() :
+
+
+            p = Person(councilman['Person Name']['label'],
+                       district="Ward %s" % (councilman['Ward/Office']),
+                       primary_org="legislature")
+
+            if councilman['Photo'] :
+                p.image = councilman['Photo']
+
             contact_types = {
                 "City Hall Office": ("address", "City Hall Office"),
-                "City Hall Phone": ("phone", "City Hall Phone"),
-                "Ward Office Phone": ("phone", "Ward Office Phone"),
+                "City Hall Phone": ("voice", "City Hall Phone"),
+                "Ward Office Phone": ("voice", "Ward Office Phone"),
                 "Ward Office Address": ("address", "Ward Office Address"),
                 "Fax": ("fax", "Fax")
             }
-
-            contacts = []
-            for contact_type, (_type, note) in contact_types.items () :
+            
+            for contact_type, (_type, _note) in contact_types.items () :
                 if councilman[contact_type] :
-                    contacts.append({"type": _type,
-                                     "value": councilman[contact_type],
-                                     "note": note})
+                    p.add_contact_detail(type = _type, 
+                                         value =  councilman[contact_type],
+                                         note = _note) 
 
             if councilman["E-mail"] :
-                contacts.append({"type" : "email",
-                                 "value" : councilman['E-mail']['label'],
-                                 'note' : 'E-mail'})
+                p.add_contact_detail(type = "email",
+                                     value = councilman['E-mail']['label'],
+                                     note = 'E-mail')
 
-
-            p = Legislator(councilman['Person Name']['label'],
-                           district="Ward %s" % (councilman['Ward/Office']),
-                           image=councilman['Photo'],
-                           contact_details = contacts)
 
 
             if councilman['Website'] :
-                p.add_link('homepage', councilman['Website']['url'])
+                p.add_link(councilman['Website']['url'])
             p.add_source(MEMBERLIST)
 
             for committee, _, _ in committees :
-                if committee['Legislative Body']['label'] :
-                    print(committee)
-                    if committee['Legislative Body']['label'] not in ('City Council', 'Office of the Mayor') :
-                        p.add_committee_membership(committee['Legislative Body']['label'],
-                                                   role= committee["Title"])
+                committee_name = committee['Legislative Body']['label']
+                if committee_name and committee_name not in non_committees :
+                    o = committee_d.get(committee_name, None)
+                    if o is None :
+                        o = Organization(committee_name, 
+                                         classification = 'committee')
+                        o.add_source("https://chicago.legistar.com/Departments.aspx")
+                        committee_d[committee_name] = o
+
+                    o.add_member(p, role = committee["Title"])
 
 
 
             yield p
+
+        for o in committee_d.values() :
+            yield o
 
 
 
