@@ -6,8 +6,7 @@ from .bills import ChicagoBillScraper
 
 
 class Chicago(Jurisdiction):
-    jurisdiction_id = 'ocd-jurisdiction/country:us/state:il/place:chicago/council'
-    division_id = 'ocd-jurisdiction/country:us/state:il/place:chicago'
+    division_id = 'ocd-division/country:us/state:il/place:chicago'
     classification='council'
     name = 'Chicago City Council'
     url =  'https://chicago.legistar.com/'
@@ -24,15 +23,15 @@ class Chicago(Jurisdiction):
         org = Organization(name="Chicago City Council", classification="legislature")
 
         org.add_post("Clerk", "Clerk",
-             division_id="ocd-jurisdiction/country:us/state:il/place:chicago")
+             division_id="ocd-division/country:us/state:il/place:chicago")
 
         org.add_post("Mayor", "Mayor",
-             division_id="ocd-jurisdiction/country:us/state:il/place:chicago")
+             division_id="ocd-division/country:us/state:il/place:chicago")
 
         for x in range(1, 51):
             org.add_post(
                 "Ward {}".format(x),
                 "Alderman",
-                division_id="ocd-jurisdiction/country:us/state:il/place:chicago"
+                division_id="ocd-division/country:us/state:il/place:chicago"
             )
         yield org
