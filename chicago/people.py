@@ -41,10 +41,18 @@ class ChicagoPersonScraper(LegistarScraper):
         non_committees = ('City Council', 'Office of the Mayor')
 
         for councilman, committees in self.councilMembers() :
+            if councilman['Ward/Office'] == "":
+                continue
 
+            ward = councilman['Ward/Office']
+            if ward not in [
+                "Mayor",
+                "Clerk",
+            ]:
+                ward = "Ward {}".format(int(ward))
 
             p = Person(councilman['Person Name']['label'],
-                       district="Ward %s" % (councilman['Ward/Office']),
+                       district=ward,
                        primary_org="legislature")
 
             if councilman['Photo'] :
