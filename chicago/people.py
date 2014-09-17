@@ -14,18 +14,20 @@ class ChicagoPersonScraper(LegistarScraper):
 
     def councilMembers(self, follow_links=True) :
         for page in self.pages(MEMBERLIST) :
-            table = page.xpath("//table[@id='ctl00_ContentPlaceHolder1_gridPeople_ctl00']")[0]
+            table = page.xpath(
+                "//table[@id='ctl00_ContentPlaceHolder1_gridPeople_ctl00']")[0]
 
             for councilman, headers, row in self.parseDataTable(table):
-                if follow_links and type(councilman['Person Name']) == dict :
+                if follow_links and type(councilman['Person Name']) == dict:
                     detail_url = councilman['Person Name']['url']
                     councilman_details = self.lxmlize(detail_url)
-                    img = councilman_details.xpath("//img[@id='ctl00_ContentPlaceHolder1_imgPhoto']")
+                    img = councilman_details.xpath(
+                        "//img[@id='ctl00_ContentPlaceHolder1_imgPhoto']")
                     if img :
                         councilman['Photo'] = img[0].get('src')
 
-                    committee_table = councilman_details.xpath("//table[@id='ctl00_ContentPlaceHolder1_gridDepartments_ctl00']")[0]
-
+                    committee_table = councilman_details.xpath(
+                        "//table[@id='ctl00_ContentPlaceHolder1_gridDepartments_ctl00']")[0]
                     committees = self.parseDataTable(committee_table)
 
                     yield councilman, committees
@@ -55,42 +57,35 @@ class ChicagoPersonScraper(LegistarScraper):
                 "Ward Office Address": ("address", "Ward Office Address"),
                 "Fax": ("fax", "Fax")
             }
-            
-            for contact_type, (_type, _note) in contact_types.items () :
-                if councilman[contact_type] :
-                    p.add_contact_detail(type = _type, 
-                                         value =  councilman[contact_type],
-                                         note = _note) 
 
-            if councilman["E-mail"] :
-                p.add_contact_detail(type = "email",
-                                     value = councilman['E-mail']['label'],
-                                     note = 'E-mail')
+            for contact_type, (type_, _note) in contact_types.items():
+                if councilman[contact_type]:
+                    p.add_contact_detail(type=type_,
+                                         value= councilman[contact_type],
+                                         note=_note)
+
+            if councilman["E-mail"]:
+                p.add_contact_detail(type="email",
+                                     value=councilman['E-mail']['label'],
+                                     note='E-mail')
 
 
-
-            if councilman['Website'] :
+            if councilman['Website']:
                 p.add_link(councilman['Website']['url'])
             p.add_source(MEMBERLIST)
 
-            for committee, _, _ in committees :
+            for committee, _, _ in committees:
                 committee_name = committee['Legislative Body']['label']
-                if committee_name and committee_name not in non_committees :
+                if committee_name and committee_name not in non_committees:
                     o = committee_d.get(committee_name, None)
-                    if o is None :
-                        o = Organization(committee_name, 
-                                         classification = 'committee')
+                    if o is None:
+                        o = Organization(committee_name,
+                                         classification='committee')
                         o.add_source("https://chicago.legistar.com/Departments.aspx")
                         committee_d[committee_name] = o
 
-                    o.add_member(p, role = committee["Title"])
-
-
-
+                    o.add_member(p, role=committee["Title"])
             yield p
 
         for o in committee_d.values() :
             yield o
-
-
-
