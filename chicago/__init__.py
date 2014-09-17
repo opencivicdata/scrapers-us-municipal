@@ -22,6 +22,13 @@ class Chicago(Jurisdiction):
 
     def get_organizations(self):
         org = Organization(name="Chicago City Council", classification="legislature")
+
+        org.add_post("Clerk", "Clerk",
+             division_id="ocd-jurisdiction/country:us/state:il/place:chicago")
+
+        org.add_post("Mayor", "Mayor",
+             division_id="ocd-jurisdiction/country:us/state:il/place:chicago")
+
         for x in range(1, 51):
             org.add_post(
                 "Ward {}".format(x),
