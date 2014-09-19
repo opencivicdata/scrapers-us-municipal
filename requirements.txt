@@ -2,3 +2,4 @@
 lxml
 sh
 -e git://github.com/paultag/python-granicus.git#egg=granicus
+-e git://github.com/opencivicdata/python-legistar-scraper#egg=legistar
