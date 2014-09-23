@@ -16,7 +16,6 @@ class HolyokePersonScraper(Scraper):
         page.make_links_absolute(url)
         return page
 
-
     def scrape_council(self):
         page = self.lxmlize(CITY_COUNCIL)
         seen = set()
@@ -82,15 +81,14 @@ class HolyokePersonScraper(Scraper):
         head = Person(name=name.text_content())
         head.add_source(url)
 
-        # membership = Membership(
-        #     post_id=make_psuedo_id(role=role,),
-        #     role=role,
-        #     label=title.text_content(),
-        #     person_id=head._id,
-        #     organization_id=make_psuedo_id(
-        #         classification="legislature",
-        #         name=self.jurisdiction.name))
-        # yield membership
+        membership = Membership(
+            post_id=make_psuedo_id(role=role,),
+            role=role,
+            label=title.text_content(),
+            person_id=head._id,
+            organization_id=make_psuedo_id(
+                classification="legislature"))
+        yield membership
 
         emails = social.xpath(".//a[contains(@href, 'mailto:')]")
         for email in emails:
