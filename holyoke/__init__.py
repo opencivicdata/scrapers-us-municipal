@@ -5,7 +5,7 @@
 # to all the civic hackers and the Hack for Western Mass folks.
 
 from pupa.utils import make_psuedo_id
-from pupa.scrape import Jurisdiction, Post
+from pupa.scrape import Jurisdiction, Post, Organization
 from .people import HolyokePersonScraper
 
 NAME = "Holyoke City"
@@ -21,21 +21,25 @@ class Holyoke(Jurisdiction):
         "people": HolyokePersonScraper
     }
 
-    # XXX: Add divison IDs
-    posts = [Post(organization_id=make_psuedo_id(
-        name=NAME,
-        classification="legislature",
-    ), **x) for x in [
-        {"label": "Mayor", "role": "mayor",},
-        {"label": "City Clerk", "role": "clerk",},
-        {"label": "City Treasurer", "role": "treasurer",},
-        {"label": "At Large", "role": "councilmember",},
+    def get_organizations(self):
+        # XXX: Add divison IDs
+        org = Organization(name='Holyoke City Council',
+                          classification='legislature')
 
-        {"label": "Ward 1", "role": "councilmember"},
-        {"label": "Ward 2", "role": "councilmember"},
-        {"label": "Ward 3", "role": "councilmember"},
-        {"label": "Ward 4", "role": "councilmember"},
-        {"label": "Ward 5", "role": "councilmember"},
-        {"label": "Ward 6", "role": "councilmember"},
-        {"label": "Ward 7", "role": "councilmember"},
-    ]]
+        for x in [
+            {"label": "Mayor", "role": "mayor",},
+            {"label": "City Clerk", "role": "clerk",},
+            {"label": "City Treasurer", "role": "treasurer",},
+            {"label": "At Large", "role": "councilmember",},
+
+            {"label": "Ward 1", "role": "councilmember"},
+            {"label": "Ward 2", "role": "councilmember"},
+            {"label": "Ward 3", "role": "councilmember"},
+            {"label": "Ward 4", "role": "councilmember"},
+            {"label": "Ward 5", "role": "councilmember"},
+            {"label": "Ward 6", "role": "councilmember"},
+            {"label": "Ward 7", "role": "councilmember"},
+        ]:
+            org.add_post(**x)
+
+        yield org
