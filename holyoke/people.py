@@ -19,9 +19,14 @@ class HolyokePersonScraper(Scraper):
 
     def scrape_council(self):
         page = self.lxmlize(CITY_COUNCIL)
+        seen = set()
         for member in page.xpath(
             "//a[contains(@href, 'holyoke.org/city-council/')]"
         ):
+            url = member.attrib['href']
+            if url in seen:
+                continue
+            seen.add(url)
             yield from self.scrape_counciler(member.attrib['href'])
 
     def scrape_counciler(self, url):
@@ -133,15 +138,13 @@ class HolyokePersonScraper(Scraper):
             staffer.add_source(url)
             details = member.xpath(".//p/span")
 
-            # membership = Membership(
-            #     role=staff_role,
-            #     label="%s-staff" % (role),
-            #     person_id=staffer._id,
-            #     organization_id=make_psuedo_id(
-            #         classification="legislature",
-            #         name=self.jurisdiction.name))
-            # yield membership
-
+            membership = Membership(
+                role=staff_role,
+                label="%s-staff" % (role),
+                person_id=staffer._id,
+                organization_id=make_psuedo_id(
+                    classification="legislature",))
+            yield membership
 
             for detail in details:
                 type_ = {
