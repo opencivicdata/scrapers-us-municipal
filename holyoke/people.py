@@ -1,5 +1,5 @@
 from pupa.scrape import Scraper, Person, Membership
-from pupa.utils import make_psuedo_id
+from pupa.utils import make_pseudo_id
 import lxml.html
 
 CITY_CLERK = "http://www.holyoke.org/departments/city-clerk/"
@@ -82,11 +82,11 @@ class HolyokePersonScraper(Scraper):
         head.add_source(url)
 
         membership = Membership(
-            post_id=make_psuedo_id(role=role,),
+            post_id=make_pseudo_id(role=role,),
             role=role,
             label=title.text_content(),
             person_id=head._id,
-            organization_id=make_psuedo_id(
+            organization_id=make_pseudo_id(
                 classification="legislature"))
         yield membership
 
@@ -140,7 +140,7 @@ class HolyokePersonScraper(Scraper):
                 role=staff_role,
                 label="%s-staff" % (role),
                 person_id=staffer._id,
-                organization_id=make_psuedo_id(
+                organization_id=make_pseudo_id(
                     classification="legislature",))
             yield membership
 

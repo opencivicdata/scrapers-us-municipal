@@ -4,7 +4,6 @@
 # This scraper was done at Hack for Western Mass, a huge shoutout
 # to all the civic hackers and the Hack for Western Mass folks.
 
-from pupa.utils import make_psuedo_id
 from pupa.scrape import Jurisdiction, Post, Organization
 from .people import HolyokePersonScraper
 
