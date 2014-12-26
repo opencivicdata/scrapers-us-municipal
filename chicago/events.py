@@ -4,6 +4,7 @@ from collections import defaultdict
 import datetime
 import lxml
 import lxml.etree
+import pytz
 
 EVENTSPAGE = "https://chicago.legistar.com/Calendar.aspx/"
 
@@ -29,11 +30,19 @@ class ChicagoEventsScraper(LegistarScraper):
             return self.pages(page)
 
 
-    def scrape(self):
+    def scrape(self, follow_links=True):
         for page in self.eventPages(EVENTSPAGE):
             events_table = page.xpath("//table[@class='rgMasterTable']")[0]
             for events, headers, rows in self.parseDataTable(events_table) :
-                print(events)
+                if follow_links and type(events['Meeting\xa0Details']) == dict :
+                    detail_url = events['Meeting\xa0Details']['url']
+                    meeting_details = self.lxmlize(detail_url)
+
+                    agenda_table = meeting_details.xpath(
+                        "//table[@id='ctl00_ContentPlaceHolder1_gridMain_ctl00']")[0]
+                    agenda = self.parseDataTable(agenda_table)
+
+                    
                 location_string = events[u'Meeting\xa0Location']
                 location_list = location_string.split('--')
                 location = ', '.join(location_list[0:2])
@@ -42,7 +51,6 @@ class ChicagoEventsScraper(LegistarScraper):
                 if len(status_string) > 1 and status_string[1] :
                     status = status_string[1].lower()
                     if status not in ['cancelled', 'tentative', 'confirmed', 'passed'] :
-                        print(status)
                         status = 'confirmed'
                 else :
                     status = 'confirmed'
@@ -54,15 +62,38 @@ class ChicagoEventsScraper(LegistarScraper):
                 event_time = datetime.datetime.strptime(time_string,
                                                         "%I:%M %p")
                 when = when.replace(hour=event_time.hour)
+                when = when.replace(tzinfo=pytz.timezone("US/Central"))
 
                 e = Event(name=events["Name"]["label"],
-                          when=when,
+                          start_time=when,
+                          timezone='US/Central',
                           location=location,
                           status=status)
                 e.add_source(EVENTSPAGE)
-                if events['Video'] != u'Not\xa0available' :
-                    print(events['Video'])
+                if events['Video'] != 'Not\xa0available' : 
+                    e.add_media_link(note='Recording',
+                                     url = events['Video']['url'],
+                                     type="recording",
+                                     media_type = '???')
+
+                addDocs(e, events, 'Agenda')
+                addDocs(e, events, 'Notice')
+                addDocs(e, events, 'Transcript')
+                addDocs(e, events, 'Summary')
+
+
+                if events["Name"]["label"] != "City Council" :
+                    for item, _, _ in agenda :
+                        e.add_agenda_item(item["Title"])
 
                 yield e
 
-
+def addDocs(e, events, doc_type) :
+    try :
+        if events[doc_type] != 'Not\xa0available' : 
+            e.add_document(note= events[doc_type]['label'],
+                           url = events[doc_type]['url'],
+                           media_type="application/pdf")
+    except ValueError :
+        pass
+        

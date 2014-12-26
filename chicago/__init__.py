@@ -15,7 +15,7 @@ class Chicago(Jurisdiction):
     scrapers = {
         "people": ChicagoPersonScraper,
         "events": ChicagoEventsScraper,
-        "bills": ChicagoBillScraper,
+        #"bills": ChicagoBillScraper,
     }
 
 
