@@ -47,22 +47,38 @@ class ChicagoEventsScraper(LegistarScraper):
                 location_list = location_string.split('--')
                 location = ', '.join(location_list[0:2])
 
-                status_string = location_list[-1].split('Chicago, Illinois')
-                if len(status_string) > 1 and status_string[1] :
-                    status = status_string[1].lower()
-                    if status not in ['cancelled', 'tentative', 'confirmed', 'passed'] :
-                        status = 'confirmed'
-                else :
-                    status = 'confirmed'
-
-
-
                 when = events[u'Meeting\xa0Date']
                 time_string = events[u'Meeting\xa0Time']
                 event_time = datetime.datetime.strptime(time_string,
                                                         "%I:%M %p")
                 when = when.replace(hour=event_time.hour)
                 when = when.replace(tzinfo=pytz.timezone("US/Central"))
+
+                
+
+                status_string = location_list[-1].split('Chicago, Illinois')
+                if len(status_string) > 1 and status_string[1] :
+                    status_text = status_string[1].lower()
+                    if any(phrase in status_text 
+                           for phrase in ('rescheduled to',
+                                          'postponed to',
+                                          'reconvened to',
+                                          'recessed',
+                                          'cancelled',
+                                          'new date and time',
+                                          'rescheduled indefinitely',
+                                          'rescheduled for')) :
+                        status = 'cancelled'
+                    elif status_text in ('rescheduled') :
+                        status = 'cancelled'
+                    else :
+                        print(status_text)
+                elif datetime.datetime.utcnow().replace(tzinfo = pytz.utc) > when :
+                    status = 'confirmed'
+                else :
+                    status = 'passed'
+                            
+
 
                 e = Event(name=events["Name"]["label"],
                           start_time=when,
