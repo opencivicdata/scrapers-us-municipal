@@ -54,8 +54,6 @@ class ChicagoEventsScraper(LegistarScraper):
                 when = when.replace(hour=event_time.hour)
                 when = when.replace(tzinfo=pytz.timezone("US/Central"))
 
-                
-
                 status_string = location_list[-1].split('Chicago, Illinois')
                 if len(status_string) > 1 and status_string[1] :
                     status_text = status_string[1].lower()
@@ -79,13 +77,12 @@ class ChicagoEventsScraper(LegistarScraper):
                     status = 'passed'
                             
 
-
                 e = Event(name=events["Name"]["label"],
                           start_time=when,
                           timezone='US/Central',
                           location=location,
                           status=status)
-                e.add_source(EVENTSPAGE)
+                e.add_source(detail_url)
                 if events['Video'] != 'Not\xa0available' : 
                     e.add_media_link(note='Recording',
                                      url = events['Video']['url'],
@@ -97,10 +94,14 @@ class ChicagoEventsScraper(LegistarScraper):
                 addDocs(e, events, 'Transcript')
                 addDocs(e, events, 'Summary')
 
-
                 if events["Name"]["label"] != "City Council" :
                     for item, _, _ in agenda :
-                        e.add_agenda_item(item["Title"])
+                        agenda_item = e.add_agenda_item(item["Title"])
+                        agenda_item.add_bill(item["Record #"]['label'])
+
+                
+                e.add_participant(name=events["Name"]["label"],
+                                  type="organization")
 
                 yield e
 
