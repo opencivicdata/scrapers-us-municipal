@@ -2,12 +2,14 @@ from .legistar import LegistarScraper
 import lxml
 import lxml.etree
 
-from pupa.scrape import Bill
+from pupa.scrape import Bill, Vote
 
 
 class ChicagoBillScraper(LegistarScraper):
     base_url = 'https://chicago.legistar.com/'
     legislation_url = 'https://chicago.legistar.com/Legislation.aspx'
+    timezone = "US/Central"
+
 
     def searchLegislation(self, search_text='', created_before=None,
                           created_after=None, num_pages = None):
@@ -148,8 +150,12 @@ class ChicagoBillScraper(LegistarScraper):
         if u'Topics' in details :
             details[u'Topics'] = details[u'Topics'].split(',')
 
-        return details
+        history_table = page.xpath(
+            "//table[@id='ctl00_ContentPlaceHolder1_gridLegislation_ctl00']")[0]
+        details['history'] = self.parseDataTable(history_table)
+        
 
+        return details
 
     def scrape(self):
         self.session = '2011'
@@ -160,21 +166,31 @@ class ChicagoBillScraper(LegistarScraper):
                 if title == "":
                     continue
 
-                bill = Bill(name=legislation_summary['Record #'],
-                            session=self.session,
+                if legislation_summary['Type'].lower() in ('order', 'ordinance', 'claim', 'communication', 'report', 'oath of office') :
+                    bill_type = 'concurrent order'
+                else :
+                    bill_type = legislation_summary['Type'].lower()
+
+                bill = Bill(identifier=legislation_summary['Record #'],
+                            legislative_session=self.session,
                             title=title,
-                            type=[legislation_summary['Type'].lower()],
-                            organization=self.jurisdiction.name)
+                            #classification=[legislation_summary['Type'].lower()],
+                            classification=bill_type,
+                            from_organization=self.jurisdiction.name)
 
                 bill.add_source(legislation_summary['URL'])
 
-                legislation_details = self.expandLegislationSummary(legislation_summary)
+                try :
+                    legislation_details = self.expandLegislationSummary(legislation_summary)
+                except IndexError :
+                    print(legislation_summary)
+                    continue
 
                 for related_bill in legislation_details.get('Related files', []) :
-                    bill.add_related_bill(name = related_bill,
-                                          session = self.session,
-                                          relation='other-session',
-                                          chamber=None)
+                    # need different relation_type
+                    bill.add_related_bill(identifier = related_bill,
+                                          legislative_session = self.session,
+                                          relation_type='replaces')
 
                 for i, sponsor in enumerate(legislation_details.get('Sponsors', [])) :
                     if i == 0 :
@@ -184,8 +200,8 @@ class ChicagoBillScraper(LegistarScraper):
                         primary = False
                         sponsorship_type = "Regular"
 
-                    bill.add_sponsor(sponsor, sponsorship_type,
-                                     'person', primary)
+                    bill.add_sponsorship(sponsor, sponsorship_type,
+                                         'person', primary)
 
                 for subject in legislation_details.get(u'Topics', []) :
                     bill.add_subject(subject)
@@ -195,5 +211,36 @@ class ChicagoBillScraper(LegistarScraper):
                                           attachment['url'],
                                           mimetype="application/pdf")
 
+                for action, _, _ in legislation_details['history'] :
+                    action_description = action['Action']
+                    try :
+                        if action_description :
+                            bill.add_action(action_description,
+                                            action['Date'].date().isoformat(),
+                                            organization=action['Action\xa0By'],
+                                            classification=action_classification[action_description])
+                    except KeyError :
+                        if action_description not in ('Direct Introduction',
+                                                      'Remove Co-Sponsor(s)',
+                                                      'Held in Committee',
+                                                      'Deferred and Published') :
+                            print(action_description)
+                            raise
+                                    
 
                 yield bill
+
+
+action_classification = {'Referred' : 'committee-referral',
+                         'Recommended to Pass' : 'committee-passage-favorable',
+                         'Passed as Substitute' : 'passage',
+                         'Adopted' : 'passage',
+                         'Approved' : 'passage',
+                         'Passed'  : 'passage',
+                         'Substituted in Committee' : 'substitution',
+                         'Failed to Pass' : 'failure',
+                         'Recommended Do Not Pass' : 'committee-passage-unfavorable',
+                         'Amended in Committee' : 'amendment-passage',
+                         'Placed on File' : 'filing',
+                         'Signed by Mayor' : 'executive-signature',
+                         'Appointment' : 'appointment'}

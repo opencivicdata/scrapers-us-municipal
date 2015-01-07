@@ -4,10 +4,10 @@ import lxml.etree
 import traceback
 import datetime
 from collections import defaultdict
+import pytz
 
 class LegistarScraper(Scraper):
     date_format='%m/%d/%Y'
-
 
     def lxmlize(self, url, payload=None):
         entry = self.urlopen(url, 'POST', payload)
@@ -60,6 +60,8 @@ class LegistarScraper(Scraper):
 
                 try:
                     value = datetime.datetime.strptime(value, self.date_format)
+                    value = value.replace(tzinfo=pytz.timezone(self.timezone))
+
                 except ValueError:
                     pass
 

@@ -13,9 +13,9 @@ class Chicago(Jurisdiction):
     parties = [ {'name': 'Democrats' } ]
 
     scrapers = {
-        "people": ChicagoPersonScraper,
-        "events": ChicagoEventsScraper,
-        #"bills": ChicagoBillScraper,
+        #"people": ChicagoPersonScraper,
+        #"events": ChicagoEventsScraper,
+        "bills": ChicagoBillScraper,
     }
 
 

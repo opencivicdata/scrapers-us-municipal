@@ -4,12 +4,12 @@ from collections import defaultdict
 import datetime
 import lxml
 import lxml.etree
-import pytz
 
 EVENTSPAGE = "https://chicago.legistar.com/Calendar.aspx/"
 
 class ChicagoEventsScraper(LegistarScraper):
     base_url = "https://chicago.legistar.com/"
+    timezone = "US/Central"
 
     def eventPages(self, event_url, search_type='all') :
 
@@ -52,7 +52,6 @@ class ChicagoEventsScraper(LegistarScraper):
                 event_time = datetime.datetime.strptime(time_string,
                                                         "%I:%M %p")
                 when = when.replace(hour=event_time.hour)
-                when = when.replace(tzinfo=pytz.timezone("US/Central"))
 
                 status_string = location_list[-1].split('Chicago, Illinois')
                 if len(status_string) > 1 and status_string[1] :
