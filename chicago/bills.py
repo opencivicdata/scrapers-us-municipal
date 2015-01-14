@@ -70,55 +70,6 @@ class ChicagoBillScraper(LegistarScraper):
 
             yield legislation
 
-    def expandLegislationSummary(self, summary):
-        """
-        Take a row as given from the searchLegislation method and retrieve the
-        details of the legislation summarized by that row.
-        """
-        return self.expandSummaryRow(summary,
-                                     self.parseLegislationDetail)
-
-    def expandHistorySummary(self, action):
-        """
-        Take a row as given from the parseLegislationDetail method and
-        retrieve the details of the history event summarized by that
-        row.
-        """
-        return self.expandSummaryRow(action,
-                                     self.parseHistoryDetail)
-
-    def expandSummaryRow(self, row, parse_function):
-        """
-        Take a row from a data table and use the URL value from that row to
-        retrieve more details. Parse those details with parse_function.
-        """
-        print(row['URL'])
-        page = self.lxmlize(row['URL'])
-
-        return parse_function(page)
-
-    def _get_general_details(self, detail_div) :
-        """
-        Parse the data in the top section of a detail page.
-        """
-        key_query = ".//span[contains(@id, 'ctl00_ContentPlaceHolder1_lbl') "\
-                    "        and not(contains(@id, '2'))]"
-
-        value_query = ".//*[(contains(@id, 'ctl00_ContentPlaceHolder1_lbl') "\
-                      "     or contains(@id, 'ctl00_ContentPlaceHolder1_hyp')) "\
-                      "     and contains(@id, '2')]"
-
-
-        keys = [span.text_content().replace(':', '').strip()
-                for span
-                in detail_div.xpath(key_query)]
-
-        values = [element.text_content().strip()
-                  for element
-                  in detail_div.xpath(value_query)]
-
-        return dict(zip(keys, values))
-
 
     def parseLegislationDetail(self, page):
         """
@@ -130,29 +81,8 @@ class ChicagoBillScraper(LegistarScraper):
 
         # Pull out the top matter
         detail_div = page.xpath("//div[@id='ctl00_ContentPlaceHolder1_pageDetails']")[0]
-        details = self._get_general_details(detail_div)
+        details = self.parseDetails(detail_div)
 
-        details[u'Attachments'] = []
-
-        attachment_url = detail_div.xpath(".//span[@id='ctl00_ContentPlaceHolder1_lblAttachments2']/a")
-
-        for attachment in attachment_url :
-            details[u'Attachments'].append({
-                'url' : attachment.attrib['href'],
-                'label' : attachment.text_content()})
-
-        if u'Related files' in details :
-            details[u'Related files'] = details[u'Related files'].split(',')
-
-        if u'Sponsors' in details :
-            details[u'Sponsors'] = details[u'Sponsors'].split(',')
-
-        if u'Topics' in details :
-            details[u'Topics'] = details[u'Topics'].split(',')
-
-        history_table = page.xpath(
-            "//table[@id='ctl00_ContentPlaceHolder1_gridLegislation_ctl00']")[0]
-        details['history'] = self.parseDataTable(history_table)
         
 
         return details
@@ -180,11 +110,18 @@ class ChicagoBillScraper(LegistarScraper):
 
                 bill.add_source(legislation_summary['URL'])
 
+
                 try :
-                    legislation_details = self.expandLegislationSummary(legislation_summary)
+                    detail_page = self.lxmlize(legislation_summary['URL'])
+                    detail_div = detail_page.xpath(".//div[@id='ctl00_ContentPlaceHolder1_pageDetails']")[0]
                 except IndexError :
                     print(legislation_summary)
                     continue
+
+                legislation_details = self.parseDetails(detail_div)
+                history_table = detail_page.xpath(
+                        "//table[@id='ctl00_ContentPlaceHolder1_gridLegislation_ctl00']")[0]
+                history = self.parseDataTable(history_table)
 
                 for related_bill in legislation_details.get('Related files', []) :
                     # need different relation_type
@@ -200,18 +137,19 @@ class ChicagoBillScraper(LegistarScraper):
                         primary = False
                         sponsorship_type = "Regular"
 
-                    bill.add_sponsorship(sponsor, sponsorship_type,
+                    bill.add_sponsorship(sponsor['label'], sponsorship_type,
                                          'person', primary)
 
-                for subject in legislation_details.get(u'Topics', []) :
-                    bill.add_subject(subject)
+                if u'Topics' in legislation_details :
+                    for subjuct in legislation_details[u'Topics'].split(',') :
+                        bill.add_subject(subject)
 
                 for attachment in legislation_details.get(u'Attachments', []) :
                     bill.add_version_link('PDF',
                                           attachment['url'],
                                           mimetype="application/pdf")
 
-                for action, _, _ in legislation_details['history'] :
+                for action, _, _ in history :
                     action_description = action['Action']
                     try :
                         if action_description :

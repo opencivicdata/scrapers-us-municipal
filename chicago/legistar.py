@@ -5,6 +5,7 @@ import traceback
 import datetime
 from collections import defaultdict
 import pytz
+import re
 
 class LegistarScraper(Scraper):
     date_format='%m/%d/%Y'
@@ -34,6 +35,32 @@ class LegistarScraper(Scraper):
 
             next_page = page.xpath("//a[@class='rgCurrentPage']/following-sibling::a[1]")
 
+
+    def parseDetails(self, detail_div) :
+        """
+        Parse the data in the top section of a detail page.
+        """
+        detail_query = ".//*[starts-with(@id, 'ctl00_ContentPlaceHolder1_lbl')"\
+                       "     or starts-with(@id, 'ctl00_ContentPlaceHolder1_hyp')]"
+        details = {}
+
+        for field_1, field_2 in chunks(detail_div.xpath(detail_query), 2) :
+            key = field_1.text_content().replace(':', '').strip()
+            is_link = '_hyp' in field_2.attrib["id"]
+            if is_link :
+                value = {'label' : field_2.text_content().strip(),
+                         'url' : self._get_link_address(field_2)}
+            elif field_2.find('.//a') is not None :
+                value = []
+                for link in field_2.xpath('.//a') :
+                    value.append({'label' : link.text_content().strip(),
+                                  'url' : self._get_link_address(link)})
+            else :
+                value = field_2.text_content().strip()
+
+            details[key] = value
+
+        return details
 
 
     def parseDataTable(self, table):
@@ -113,3 +140,8 @@ class LegistarScraper(Scraper):
         return(payload)
 
 
+def chunks(l, n):
+    """ Yield successive n-sized chunks from l.
+    """
+    for i in range(0, len(l), n):
+        yield l[i:i+n]
