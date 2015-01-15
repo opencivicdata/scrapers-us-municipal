@@ -225,4 +225,5 @@ ACTION_CLASSIFICATION = {'Referred' : 'committee-referral',
                          'Signed by Mayor' : 'executive-signature',
                          'Appointment' : 'appointment'}
 
-VOTE_OPTIONS = {'yea' : 'yes'}
+VOTE_OPTIONS = {'yea' : 'yes',
+                'nay' : 'no'}
