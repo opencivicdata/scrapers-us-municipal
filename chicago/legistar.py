@@ -1,9 +1,10 @@
 from pupa.scrape import Scraper
 import lxml.html
-import lxml.etree
+import lxml.etree as etree
 import traceback
 import datetime
 from collections import defaultdict
+import itertools
 import pytz
 import re
 
@@ -42,15 +43,15 @@ class LegistarScraper(Scraper):
         """
         detail_query = ".//*[starts-with(@id, 'ctl00_ContentPlaceHolder1_lbl')"\
                        "     or starts-with(@id, 'ctl00_ContentPlaceHolder1_hyp')]"
+        fields = detail_div.xpath(detail_query)
         details = {}
-
-        for field_1, field_2 in chunks(detail_div.xpath(detail_query), 2) :
+        
+        for field_key, field in itertools.groupby(fields, 
+                                                  fieldKey) :
+            field = list(field)
+            field_1, field_2 = field[0], field[-1]
             key = field_1.text_content().replace(':', '').strip()
-            is_link = '_hyp' in field_2.attrib["id"]
-            if is_link :
-                value = {'label' : field_2.text_content().strip(),
-                         'url' : self._get_link_address(field_2)}
-            elif field_2.find('.//a') is not None :
+            if field_2.find('.//a') is not None :
                 value = []
                 for link in field_2.xpath('.//a') :
                     value.append({'label' : link.text_content().strip(),
@@ -113,22 +114,17 @@ class LegistarScraper(Scraper):
             raise e
 
 
-    def _get_link_address(self, link_soup):
-        # If the link doesn't start with a #, then it'll send the browser
-        # somewhere, and we should use the href value directly.
-        href = link_soup.get('href')
-        if href is not None and not href.startswith('#'):
-          return href
+    def _get_link_address(self, link):
+        if 'onclick' in link.attrib :
+            onclick = link.attrib['onclick']
+            if onclick is not None and onclick.startswith("radopen('"):
+                url = self.base_url + onclick.split("'")[1]
+        elif 'href' in link.attrib : 
+            url = link.attrib['href']
+        else :
+            url = None
 
-        # If it does start with a hash, then it causes some sort of action
-        # and we should check the onclick handler.
-        else:
-          onclick = link_soup.get('onclick')
-          if onclick is not None and onclick.startswith("radopen('"):
-            return onclick.split("'")[1]
-
-        # Otherwise, we don't know how to find the address.
-        return None
+        return url
 
     def sessionSecrets(self, page) :
 
@@ -140,8 +136,8 @@ class LegistarScraper(Scraper):
         return(payload)
 
 
-def chunks(l, n):
-    """ Yield successive n-sized chunks from l.
-    """
-    for i in range(0, len(l), n):
-        yield l[i:i+n]
+def fieldKey(x) :
+    field_id = x.attrib['id']
+    field = re.split(r'hyp|lbl', field_id)[-1]
+    field = field.rstrip('X2')
+    return field

@@ -89,6 +89,12 @@ class ChicagoBillScraper(LegistarScraper):
 
     def scrape(self):
         self.session = '2011'
+        # while True :
+        #     while True :
+        #         bill = Bill('1','2','3')
+        #         bill.add_source('foo')
+        #         legislation_summary = {'URL' : 'https://chicago.legistar.com/LegislationDetail.aspx?ID=2070798&GUID=050A4B12-756C-4CD2-BFEC-168D9EE7DF10'}
+        #         bill, votes = self.addDetails(bill, legislation_summary['URL'])
 
         for i, page in enumerate(self.searchLegislation()) :
             for legislation_summary in self.parseSearchResults(page) :
@@ -104,72 +110,125 @@ class ChicagoBillScraper(LegistarScraper):
                 bill = Bill(identifier=legislation_summary['Record #'],
                             legislative_session=self.session,
                             title=title,
-                            #classification=[legislation_summary['Type'].lower()],
                             classification=bill_type,
                             from_organization=self.jurisdiction.name)
 
                 bill.add_source(legislation_summary['URL'])
 
-
-                try :
-                    detail_page = self.lxmlize(legislation_summary['URL'])
-                    detail_div = detail_page.xpath(".//div[@id='ctl00_ContentPlaceHolder1_pageDetails']")[0]
-                except IndexError :
-                    print(legislation_summary)
-                    continue
-
-                legislation_details = self.parseDetails(detail_div)
-                history_table = detail_page.xpath(
-                        "//table[@id='ctl00_ContentPlaceHolder1_gridLegislation_ctl00']")[0]
-                history = self.parseDataTable(history_table)
-
-                for related_bill in legislation_details.get('Related files', []) :
-                    # need different relation_type
-                    bill.add_related_bill(identifier = related_bill,
-                                          legislative_session = self.session,
-                                          relation_type='replaces')
-
-                for i, sponsor in enumerate(legislation_details.get('Sponsors', [])) :
-                    if i == 0 :
-                        primary = True
-                        sponsorship_type = "Primary"
-                    else :
-                        primary = False
-                        sponsorship_type = "Regular"
-
-                    bill.add_sponsorship(sponsor['label'], sponsorship_type,
-                                         'person', primary)
-
-                if u'Topics' in legislation_details :
-                    for subjuct in legislation_details[u'Topics'].split(',') :
-                        bill.add_subject(subject)
-
-                for attachment in legislation_details.get(u'Attachments', []) :
-                    bill.add_version_link('PDF',
-                                          attachment['url'],
-                                          mimetype="application/pdf")
-
-                for action, _, _ in history :
-                    action_description = action['Action']
-                    try :
-                        if action_description :
-                            bill.add_action(action_description,
-                                            action['Date'].date().isoformat(),
-                                            organization=action['Action\xa0By'],
-                                            classification=action_classification[action_description])
-                    except KeyError :
-                        if action_description not in ('Direct Introduction',
-                                                      'Remove Co-Sponsor(s)',
-                                                      'Held in Committee',
-                                                      'Deferred and Published') :
-                            print(action_description)
-                            raise
-                                    
+                bill, votes = self.addDetails(bill, legislation_summary['URL'])
 
                 yield bill
+                for vote in votes :
+                    yield vote
+        
 
 
-action_classification = {'Referred' : 'committee-referral',
+    def extractVotes(self, action_detail_url) :
+        action_detail_page = self.lxmlize(action_detail_url)
+        vote_table = action_detail_page.xpath("//table[@id='ctl00_ContentPlaceHolder1_gridVote_ctl00']")[0]
+        votes = list(self.parseDataTable(vote_table))
+        vote_list = []
+        for vote, _, _ in votes :
+            raw_option = vote['Vote'].lower()
+            vote_list.append((VOTE_OPTIONS.get(raw_option, raw_option), 
+                              vote['Person Name']['label']))
+
+        action_detail_div = action_detail_page.xpath(".//div[@id='ctl00_ContentPlaceHolder1_pageTop1']")[0]
+        action_details = self.parseDetails(action_detail_div)
+        
+        result = action_details['Result'].lower()
+
+        return result, vote_list
+
+
+
+    def addBillHistory(self, bill, history_table) :
+        all_votes = []
+        
+        history = self.parseDataTable(history_table)
+
+        for action, _, _ in history :
+            action_description = action['Action']
+            action_date =  action['Date'].date().isoformat()
+            try :
+                if action_description :
+                    bill.add_action(action_description,
+                                    action_date,
+                                    organization=action['Action\xa0By'],
+                                    classification=ACTION_CLASSIFICATION[action_description])
+                    if 'url' in action['Action\xa0Details'] :
+                        action_detail_url = action['Action\xa0Details']['url']
+                        result, votes = self.extractVotes(action_detail_url)
+
+                        if votes :
+                            action_vote = Vote(legislative_session=self.session, 
+                                               motion_text=action_description,
+                                               classification='bill-passage',
+                                               start_date=action_date,
+                                               result=result,
+                                               bill=bill.identifier)
+                            action_vote.add_source(action_detail_url)
+                            for option, voter in votes :
+                                action_vote.vote(option, voter)
+                        
+                            all_votes.append(action_vote)
+
+            except KeyError :
+                if action_description not in ('Direct Introduction',
+                                              'Remove Co-Sponsor(s)',
+                                              'Held in Committee',
+                                              'Deferred and Published') :
+                    print(action_description)
+                    raise
+
+
+        return all_votes
+
+
+    def addDetails(self, bill, detail_url) :
+        detail_page = self.lxmlize(detail_url)
+        detail_div = detail_page.xpath(".//div[@id='ctl00_ContentPlaceHolder1_pageDetails']")[0]
+
+        legislation_details = self.parseDetails(detail_div)
+        
+
+        for related_bill in legislation_details.get('Related files', []) :
+            # need different relation_type
+            bill.add_related_bill(identifier = related_bill['label'],
+                                  legislative_session = self.session,
+                                  relation_type='replaces')
+
+        for i, sponsor in enumerate(legislation_details.get('Sponsors', [])) :
+            if i == 0 :
+                primary = True
+                sponsorship_type = "Primary"
+            else :
+                primary = False
+                sponsorship_type = "Regular"
+
+            bill.add_sponsorship(sponsor['label'], sponsorship_type,
+                                 'person', primary)
+
+        if u'Topics' in legislation_details :
+            for subjuct in legislation_details[u'Topics'].split(',') :
+                bill.add_subject(subject)
+
+        for attachment in legislation_details.get(u'Attachments', []) :
+            bill.add_version_link(attachment['label'],
+                                  attachment['url'],
+                                  media_type="application/pdf")
+
+        history_table = detail_page.xpath("//table[@id='ctl00_ContentPlaceHolder1_gridLegislation_ctl00']")[0]
+
+        
+        votes = self.addBillHistory(bill, history_table)
+
+        return bill, votes
+
+        
+
+
+ACTION_CLASSIFICATION = {'Referred' : 'committee-referral',
                          'Recommended to Pass' : 'committee-passage-favorable',
                          'Passed as Substitute' : 'passage',
                          'Adopted' : 'passage',
@@ -182,3 +241,5 @@ action_classification = {'Referred' : 'committee-referral',
                          'Placed on File' : 'filing',
                          'Signed by Mayor' : 'executive-signature',
                          'Appointment' : 'appointment'}
+
+VOTE_OPTIONS = {'yea' : 'yes'}
