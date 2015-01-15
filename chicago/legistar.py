@@ -139,5 +139,6 @@ class LegistarScraper(Scraper):
 def fieldKey(x) :
     field_id = x.attrib['id']
     field = re.split(r'hyp|lbl', field_id)[-1]
+    field = field.split('Prompt')[0]
     field = field.rstrip('X2')
     return field

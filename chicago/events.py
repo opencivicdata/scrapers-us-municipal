@@ -4,6 +4,7 @@ from collections import defaultdict
 import datetime
 import lxml
 import lxml.etree
+import pytz
 
 EVENTSPAGE = "https://chicago.legistar.com/Calendar.aspx/"
 

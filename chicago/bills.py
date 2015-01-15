@@ -66,26 +66,10 @@ class ChicagoBillScraper(LegistarScraper):
                 continue
             legislation_url = legislation[id_key]['url'].split(self.base_url)[-1]
             legislation[id_key] = legislation_id
-            legislation['URL'] = self.base_url + legislation_url.split('&Options')[0]
+            legislation['url'] = self.base_url + legislation_url.split('&Options')[0]
 
             yield legislation
 
-
-    def parseLegislationDetail(self, page):
-        """
-        Take a legislation detail page and return a dictionary of
-        the different data appearing on the page
-
-        Example URL: http://chicago.legistar.com/LegislationDetail.aspx?ID=1050678&GUID=14361244-D12A-467F-B93D-E244CB281466&Options=ID|Text|&Search=zoning
-        """
-
-        # Pull out the top matter
-        detail_div = page.xpath("//div[@id='ctl00_ContentPlaceHolder1_pageDetails']")[0]
-        details = self.parseDetails(detail_div)
-
-        
-
-        return details
 
     def scrape(self):
         self.session = '2011'
@@ -93,8 +77,8 @@ class ChicagoBillScraper(LegistarScraper):
         #     while True :
         #         bill = Bill('1','2','3')
         #         bill.add_source('foo')
-        #         legislation_summary = {'URL' : 'https://chicago.legistar.com/LegislationDetail.aspx?ID=2070798&GUID=050A4B12-756C-4CD2-BFEC-168D9EE7DF10'}
-        #         bill, votes = self.addDetails(bill, legislation_summary['URL'])
+        #         url = 'https://chicago.legistar.com/LegislationDetail.aspx?ID=2102554&GUID=34916110-5459-47D7-887C-629CC2784FBB'
+        #         bill, votes = self.addDetails(bill, url)
 
         for i, page in enumerate(self.searchLegislation()) :
             for legislation_summary in self.parseSearchResults(page) :
@@ -113,9 +97,9 @@ class ChicagoBillScraper(LegistarScraper):
                             classification=bill_type,
                             from_organization=self.jurisdiction.name)
 
-                bill.add_source(legislation_summary['URL'])
+                bill.add_source(legislation_summary['url'])
 
-                bill, votes = self.addDetails(bill, legislation_summary['URL'])
+                bill, votes = self.addDetails(bill, legislation_summary['url'])
 
                 yield bill
                 for vote in votes :
@@ -135,7 +119,6 @@ class ChicagoBillScraper(LegistarScraper):
 
         action_detail_div = action_detail_page.xpath(".//div[@id='ctl00_ContentPlaceHolder1_pageTop1']")[0]
         action_details = self.parseDetails(action_detail_div)
-        
         result = action_details['Result'].lower()
 
         return result, vote_list
