@@ -87,17 +87,16 @@ class ChicagoEventsScraper(LegistarScraper):
                     e.add_media_link(note='Recording',
                                      url = events['Video']['url'],
                                      type="recording",
-                                     media_type = '???')
+                                     media_type = 'text/html')
 
                 addDocs(e, events, 'Agenda')
                 addDocs(e, events, 'Notice')
                 addDocs(e, events, 'Transcript')
                 addDocs(e, events, 'Summary')
 
-                if events["Name"]["label"] != "City Council" :
-                    for item, _, _ in agenda :
-                        agenda_item = e.add_agenda_item(item["Title"])
-                        agenda_item.add_bill(item["Record #"]['label'])
+                for item, _, _ in agenda :
+                    agenda_item = e.add_agenda_item(item["Title"])
+                    agenda_item.add_bill(item["Record #"]['label'])
 
                 
                 e.add_participant(name=events["Name"]["label"],

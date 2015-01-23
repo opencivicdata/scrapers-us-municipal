@@ -73,12 +73,6 @@ class ChicagoBillScraper(LegistarScraper):
 
     def scrape(self):
         self.session = '2011'
-        # while True :
-        #     while True :
-        #         bill = Bill('1','2','3')
-        #         bill.add_source('foo')
-        #         url = 'https://chicago.legistar.com/LegislationDetail.aspx?ID=2102554&GUID=34916110-5459-47D7-887C-629CC2784FBB'
-        #         bill, votes = self.addDetails(bill, url)
 
         for i, page in enumerate(self.searchLegislation()) :
             for legislation_summary in self.parseSearchResults(page) :
@@ -86,8 +80,12 @@ class ChicagoBillScraper(LegistarScraper):
                 if title == "":
                     continue
 
-                if legislation_summary['Type'].lower() in ('order', 'ordinance', 'claim', 'communication', 'report', 'oath of office') :
-                    bill_type = 'concurrent order'
+                if legislation_summary['Type'].lower() in ('order', 
+                                                           'claim', 
+                                                           'communication', 
+                                                           'report', 
+                                                           'oath of office') :
+                    continue
                 else :
                     bill_type = legislation_summary['Type'].lower()
 
@@ -132,7 +130,10 @@ class ChicagoBillScraper(LegistarScraper):
 
         for action, _, _ in history :
             action_description = action['Action']
-            action_date =  action['Date'].date().isoformat()
+            try :
+                action_date =  action['Date'].date().isoformat()
+            except AttributeError : # https://chicago.legistar.com/LegislationDetail.aspx?ID=1424866&GUID=CEC53337-B991-4268-AE8A-D4D174F8D492
+                continue
             try :
                 if action_description :
                     bill.add_action(action_description,
@@ -143,7 +144,7 @@ class ChicagoBillScraper(LegistarScraper):
                         action_detail_url = action['Action\xa0Details']['url']
                         result, votes = self.extractVotes(action_detail_url)
 
-                        if votes :
+                        if votes and result : # see https://github.com/datamade/municipal-scrapers-us/issues/15
                             action_vote = Vote(legislative_session=self.session, 
                                                motion_text=action_description,
                                                classification='bill-passage',
@@ -159,7 +160,14 @@ class ChicagoBillScraper(LegistarScraper):
             except KeyError :
                 if action_description not in ('Direct Introduction',
                                               'Remove Co-Sponsor(s)',
+                                              'Add Co-Sponsor(s)',
+                                              'Tabled',
+                                              'Rules Suspended - Immediate Consideration',
+                                              'Committee Discharged',
                                               'Held in Committee',
+                                              'Recommended for Re-Referral',
+                                              'Published in Special Pamphlet',
+                                              'Adopted as Substitute',
                                               'Deferred and Published') :
                     print(action_description)
                     raise
@@ -176,10 +184,9 @@ class ChicagoBillScraper(LegistarScraper):
         
 
         for related_bill in legislation_details.get('Related files', []) :
-            # need different relation_type
             bill.add_related_bill(identifier = related_bill['label'],
                                   legislative_session = self.session,
-                                  relation_type='replaces')
+                                  relation_type='pending')
 
         for i, sponsor in enumerate(legislation_details.get('Sponsors', [])) :
             if i == 0 :
@@ -197,9 +204,10 @@ class ChicagoBillScraper(LegistarScraper):
                 bill.add_subject(subject)
 
         for attachment in legislation_details.get(u'Attachments', []) :
-            bill.add_version_link(attachment['label'],
-                                  attachment['url'],
-                                  media_type="application/pdf")
+            if attachment['label'] :
+                bill.add_version_link(attachment['label'],
+                                      attachment['url'],
+                                      media_type="application/pdf")
 
         history_table = detail_page.xpath("//table[@id='ctl00_ContentPlaceHolder1_gridLegislation_ctl00']")[0]
 
@@ -212,6 +220,7 @@ class ChicagoBillScraper(LegistarScraper):
 
 
 ACTION_CLASSIFICATION = {'Referred' : 'committee-referral',
+                         'Re-Referred' : 'committee-referral',
                          'Recommended to Pass' : 'committee-passage-favorable',
                          'Passed as Substitute' : 'passage',
                          'Adopted' : 'passage',
@@ -222,8 +231,11 @@ ACTION_CLASSIFICATION = {'Referred' : 'committee-referral',
                          'Recommended Do Not Pass' : 'committee-passage-unfavorable',
                          'Amended in Committee' : 'amendment-passage',
                          'Placed on File' : 'filing',
+                         'Withdrawn' : 'withdrawal',
                          'Signed by Mayor' : 'executive-signature',
                          'Appointment' : 'appointment'}
 
 VOTE_OPTIONS = {'yea' : 'yes',
-                'nay' : 'no'}
+                'rising vote' : 'yes',
+                'nay' : 'no',
+                'recused' : 'excused'}
