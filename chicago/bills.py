@@ -1,6 +1,8 @@
 from .legistar import LegistarScraper
 import lxml
 import lxml.etree
+import datetime
+import pytz
 
 from pupa.scrape import Bill, Vote
 
@@ -9,6 +11,17 @@ class ChicagoBillScraper(LegistarScraper):
     base_url = 'https://chicago.legistar.com/'
     legislation_url = 'https://chicago.legistar.com/Legislation.aspx'
     timezone = "US/Central"
+
+    def session(self, action_date) :
+        if action_date < datetime.datetime(2011, 5, 18, 
+                                           tzinfo=pytz.timezone(self.timezone)) :
+            return "2007"
+        elif action_date < datetime.datetime(2015, 5, 18,
+                                             tzinfo=pytz.timezone(self.timezone)) :
+            return "2011"
+        else :
+            return "2015"
+
 
 
     def searchLegislation(self, search_text='', created_before=None,
@@ -72,7 +85,6 @@ class ChicagoBillScraper(LegistarScraper):
 
 
     def scrape(self):
-        self.session = '2011'
 
         for i, page in enumerate(self.searchLegislation()) :
             for legislation_summary in self.parseSearchResults(page) :
@@ -90,8 +102,10 @@ class ChicagoBillScraper(LegistarScraper):
                 else :
                     bill_type = legislation_summary['Type'].lower()
 
+                bill_session = self.session(legislation_summary['Intro\xa0Date'])
+
                 bill = Bill(identifier=legislation_summary['Record #'],
-                            legislative_session=self.session,
+                            legislative_session=bill_session,
                             title=title,
                             classification=bill_type,
                             from_organization=self.jurisdiction.name)
@@ -146,7 +160,7 @@ class ChicagoBillScraper(LegistarScraper):
                     result, votes = self.extractVotes(action_detail_url)
 
                     if votes and result : # see https://github.com/datamade/municipal-scrapers-us/issues/15
-                        action_vote = Vote(legislative_session=self.session, 
+                        action_vote = Vote(legislative_session=bill.legislative_session, 
                                            motion_text=action_description,
                                            classification=None,
                                            start_date=action_date,
@@ -171,7 +185,7 @@ class ChicagoBillScraper(LegistarScraper):
 
         for related_bill in legislation_details.get('Related files', []) :
             bill.add_related_bill(identifier = related_bill['label'],
-                                  legislative_session = self.session,
+                                  legislative_session = bill.legislative_session,
                                   relation_type='pending')
 
         for i, sponsor in enumerate(legislation_details.get('Sponsors', [])) :
@@ -237,3 +251,6 @@ VOTE_OPTIONS = {'yea' : 'yes',
                 'rising vote' : 'yes',
                 'nay' : 'no',
                 'recused' : 'excused'}
+
+        
+    
