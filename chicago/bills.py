@@ -81,6 +81,7 @@ class ChicagoBillScraper(LegistarScraper):
                     continue
 
                 if legislation_summary['Type'].lower() in ('order', 
+                                                           'ordinance',
                                                            'claim', 
                                                            'communication', 
                                                            'report', 
@@ -134,43 +135,28 @@ class ChicagoBillScraper(LegistarScraper):
                 action_date =  action['Date'].date().isoformat()
             except AttributeError : # https://chicago.legistar.com/LegislationDetail.aspx?ID=1424866&GUID=CEC53337-B991-4268-AE8A-D4D174F8D492
                 continue
-            try :
-                if action_description :
-                    bill.add_action(action_description,
-                                    action_date,
-                                    organization=action['Action\xa0By'],
-                                    classification=ACTION_CLASSIFICATION[action_description])
-                    if 'url' in action['Action\xa0Details'] :
-                        action_detail_url = action['Action\xa0Details']['url']
-                        result, votes = self.extractVotes(action_detail_url)
 
-                        if votes and result : # see https://github.com/datamade/municipal-scrapers-us/issues/15
-                            action_vote = Vote(legislative_session=self.session, 
-                                               motion_text=action_description,
-                                               classification='bill-passage',
-                                               start_date=action_date,
-                                               result=result,
-                                               bill=bill.identifier)
-                            action_vote.add_source(action_detail_url)
-                            for option, voter in votes :
-                                action_vote.vote(option, voter)
+            if action_description :
+                bill.add_action(action_description,
+                                action_date,
+                                organization=action['Action\xa0By'],
+                                classification=ACTION_CLASSIFICATION[action_description])
+                if 'url' in action['Action\xa0Details'] :
+                    action_detail_url = action['Action\xa0Details']['url']
+                    result, votes = self.extractVotes(action_detail_url)
+
+                    if votes and result : # see https://github.com/datamade/municipal-scrapers-us/issues/15
+                        action_vote = Vote(legislative_session=self.session, 
+                                           motion_text=action_description,
+                                           classification=None,
+                                           start_date=action_date,
+                                           result=result,
+                                           bill=bill.identifier)
+                        action_vote.add_source(action_detail_url)
+                        for option, voter in votes :
+                            action_vote.vote(option, voter)
                         
-                            all_votes.append(action_vote)
-
-            except KeyError :
-                if action_description not in ('Direct Introduction',
-                                              'Remove Co-Sponsor(s)',
-                                              'Add Co-Sponsor(s)',
-                                              'Tabled',
-                                              'Rules Suspended - Immediate Consideration',
-                                              'Committee Discharged',
-                                              'Held in Committee',
-                                              'Recommended for Re-Referral',
-                                              'Published in Special Pamphlet',
-                                              'Adopted as Substitute',
-                                              'Deferred and Published') :
-                    print(action_description)
-                    raise
+                        all_votes.append(action_vote)
 
 
         return all_votes
@@ -233,7 +219,19 @@ ACTION_CLASSIFICATION = {'Referred' : 'committee-referral',
                          'Placed on File' : 'filing',
                          'Withdrawn' : 'withdrawal',
                          'Signed by Mayor' : 'executive-signature',
-                         'Appointment' : 'appointment'}
+                         'Appointment' : 'appointment',
+                         'Direct Introduction' : None,
+                         'Remove Co-Sponsor(s)' : None,
+                         'Add Co-Sponsor(s)' : None,
+                         'Tabled' : None,
+                         'Rules Suspended - Immediate Consideration' : None,
+                         'Committee Discharged' : None,
+                         'Held in Committee' : None,
+                         'Recommended for Re-Referral' : None,
+                         'Published in Special Pamphlet' : None,
+                         'Adopted as Substitute' : None,
+                         'Deferred and Published' : None,
+}
 
 VOTE_OPTIONS = {'yea' : 'yes',
                 'rising vote' : 'yes',
