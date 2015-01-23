@@ -93,7 +93,6 @@ class ChicagoBillScraper(LegistarScraper):
                     continue
 
                 if legislation_summary['Type'].lower() in ('order', 
-                                                           'ordinance',
                                                            'claim', 
                                                            'communication', 
                                                            'report', 
