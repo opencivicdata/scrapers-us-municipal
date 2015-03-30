@@ -24,8 +24,8 @@ class Ferguson(Jurisdiction):
         )
 
         org.add_post(
-            "Mayor",
-            "Mayor",
+            label="Mayor",
+            role="Mayor",
             division_id=self.division_id
         )
 
@@ -34,8 +34,8 @@ class Ferguson(Jurisdiction):
         for ward in range(1, WARDS + 1):
             for _ in range(POSTS_PER_WARD):
                 org.add_post(
-                    "Ward {}".format(ward),
-                    "Council Member",
+                    label="Council Member Ward {}".format(ward),
+                    role="Council Member Ward {}".format(ward),
                     division_id=self.division_id
                 )
         yield org

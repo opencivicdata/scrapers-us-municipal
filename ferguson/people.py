@@ -32,7 +32,7 @@ class FergusonPersonScraper(Scraper):
             (title, ) = member_doc.xpath(
                 '//a[@class="BioLink"]/following-sibling::text()')
             (title, ) = re.findall(
-                r'^Title: (Council Member|Mayor)(?: Ward \d)?\s*$', title)
+                r'^Title: (Council Member(?: Ward \d)|Mayor)\s*$', title)
 
             try:
                 (image_url, ) = member_doc.xpath(
