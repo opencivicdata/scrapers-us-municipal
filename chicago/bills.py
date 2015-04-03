@@ -181,11 +181,16 @@ class ChicagoBillScraper(LegistarScraper):
 
         legislation_details = self.parseDetails(detail_div)
         
-
         for related_bill in legislation_details.get('Related files', []) :
-            bill.add_related_bill(identifier = related_bill['label'],
+            title = bill.title
+            if ("sundry" in title.lower()
+                or "miscellaneous" in title.lower()): #these are ominbus
+                bill.add_related_bill(identifier = related_bill['label'],
                                   legislative_session = bill.legislative_session,
-                                  relation_type='pending')
+                                  relation_type='replaces')
+            #for now we're skipping related bills if they
+            #don't contain words that make us think they're
+            #in a ominbus relationship with each other
 
         for i, sponsor in enumerate(legislation_details.get('Sponsors', [])) :
             if i == 0 :
