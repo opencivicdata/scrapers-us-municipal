@@ -121,7 +121,11 @@ class ChicagoBillScraper(LegistarScraper):
 
     def extractVotes(self, action_detail_url) :
         action_detail_page = self.lxmlize(action_detail_url)
-        vote_table = action_detail_page.xpath("//table[@id='ctl00_ContentPlaceHolder1_gridVote_ctl00']")[0]
+        try:
+            vote_table = action_detail_page.xpath("//table[@id='ctl00_ContentPlaceHolder1_gridVote_ctl00']")[0]
+        except IndexError:
+            self.warning("No votes found in table")
+            return None, []
         votes = list(self.parseDataTable(vote_table))
         vote_list = []
         for vote, _, _ in votes :
@@ -249,6 +253,7 @@ ACTION_CLASSIFICATION = {'Referred' : 'committee-referral',
                          'Published in Special Pamphlet' : None,
                          'Adopted as Substitute' : None,
                          'Deferred and Published' : None,
+                         'Approved as Amended' : 'passage',
 }
 
 VOTE_OPTIONS = {'yea' : 'yes',
