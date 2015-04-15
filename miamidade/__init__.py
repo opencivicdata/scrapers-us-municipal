@@ -1,0 +1,40 @@
+# encoding=utf-8
+from pupa.scrape import Jurisdiction, Organization
+from .events import MiamidadeEventScraper
+from .bills import MiamidadeBillScraper
+from .votes import MiamidadeVoteScraper
+from .people import MiamidadePersonScraper
+
+
+class Miamidade(Jurisdiction):
+    division_id = "ocd-division/country:us/state:fl/place:miamidade"
+    classification = "legislature"
+    name = "Miami-Dade County Commission"
+    url = "http://miamidade.gov/wps/portal/Main/government"
+    parties = []
+
+    scrapers = {
+        #"events": MiamidadeEventScraper,
+        #"bills": MiamidadeBillScraper,
+        #"votes": MiamidadeVoteScraper,
+        "people": MiamidadePersonScraper,
+    }
+
+    def get_organizations(self):
+        org = Organization(name="Miami-Dade County Commission", classification="legislature")
+        
+        org.add_post("Clerk, Circuit and County Courts","Clerk, Circuit and County Courts",
+            division_id=self.division_id)
+        
+        org.add_post("Mayor","Mayor",
+            division_id=self.division_id)
+
+        org.add_post("Property Appraiser","Property Appraiser",
+            division_id=self.division_id)
+
+        for x in range(1,14):
+            org.add_post("District {dist}".format(dist=x),
+                "Commissioner",
+                division_id=self.division_id)
+        
+        yield org
