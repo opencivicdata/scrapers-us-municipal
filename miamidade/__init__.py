@@ -15,7 +15,7 @@ class Miamidade(Jurisdiction):
 
     scrapers = {
         #"events": MiamidadeEventScraper,
-        #"bills": MiamidadeBillScraper,
+        "bills": MiamidadeBillScraper,
         #"votes": MiamidadeVoteScraper,
         "people": MiamidadePersonScraper,
     }

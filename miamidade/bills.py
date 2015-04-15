@@ -1,9 +1,114 @@
 from pupa.scrape import Scraper
 from pupa.scrape import Bill
+import lxml.html
+from datetime import datetime
 
 
 class MiamidadeBillScraper(Scraper):
 
+    def lxmlize(self, url):
+        html = self.get(url).text
+        doc = lxml.html.fromstring(html)
+        doc.make_links_absolute(url)
+        return doc
+
+    def key_and_value(self,content,info_dict):
+        if content.strip():
+            key,val = content.split(":",1)
+            if val.strip():
+                info_dict[key.strip()] = val.strip()
+
+
+
+    def matter_table_to_dict(self, page):
+        info_dict = {}
+        info_table = page.xpath("//body/table")[1]
+        table_rows = info_table.xpath("./tr")
+        for row in table_rows:
+            tds = row.xpath("./td")
+            for td in tds:
+                inner_table = td.xpath("./table")
+                if len(inner_table) == 0:
+                    self.key_and_value(td.text_content(),info_dict)
+
+                else:
+                    for inner_row in inner_table[0].xpath("./tr"):
+                        innermost_tables = inner_row.xpath(".//table")
+                        if len(innermost_tables) > 0:
+                            #deal with weird multi-row values
+                            #which have extra tables.
+                            for t in innermost_tables:
+                                innermost_trs = t.xpath(".//tr")
+                                for innermost_tr in innermost_trs:
+                                    innermost_tds = innermost_tr.xpath(".//td")
+                                    potential_key = innermost_tds[0].text_content()
+                                    if ":" in potential_key:
+                                        key = potential_key.replace(":","").strip()
+                                        info_dict[key.strip()] = []
+                                    value = innermost_tds[1].text_content().strip()
+                                    if value:
+                                        info_dict[key].append(value)
+
+                        else:
+                            multirow = False #sometimes fields span two TDs. arg.
+                            for inner_td in inner_row.xpath("./td"):
+                                content = inner_td.text_content()
+                                if multirow:
+                                    self.key_and_value(prev_content+content,
+                                        info_dict)
+                                    multirow = False
+                                elif "Title:" in content or "Notes:" in content:
+                                    prev_content = content
+                                    multirow = True
+                                else:
+                                    self.key_and_value(content, info_dict)
+
+
+                                
+
+
+        return info_dict
+
+
+
     def scrape(self):
-        # needs to be implemented
-        pass
+        #need to figure out reasonable dates for each session
+        #for now just throwing in recent ones.
+        start_date = "11-24-2014"
+        end_date = "11-24-2015"
+        base_url = ("http://www.miamidade.gov/govaction/Legislative.asp?begdate={start_date}" +
+                    "&enddate={end_date}&MatterType=AllMatters&submit1=Submit")
+        scrape_url = base_url.format(start_date=start_date,end_date=end_date)
+        doc = self.lxmlize(scrape_url)
+        matters = doc.xpath("//a[contains(@href,'matter.asp')]/@href")
+        for matter_link in matters:
+            yield self.scrape_matter(matter_link)
+
+    def scrape_matter(self, matter_link):
+        matter_doc = self.lxmlize(matter_link)
+        info_dict = self.matter_table_to_dict(matter_doc)
+        print(info_dict)
+        #we're going to use the year of the intro date as the session
+        #until/unless we come up with something better
+        intro_date = datetime.strptime(info_dict["Introduced"],"%m/%d/%Y")
+        session = str(intro_date.year)
+        bill = Bill(identifier=info_dict["File Number"],
+            legislative_session=session,
+            title=info_dict["File Name"]
+            )
+        for spons in info_dict["Sponsors"]:
+            if spons == "NONE":
+                continue
+            try:
+                name,spons_type = spons.rsplit(",",1)
+            except ValueError:
+                name = spons
+                spons_type = "Sponsor"
+            primary = True if "Prime Sponsor" in spons_type else False
+            entity = "person"
+            if "committee" in name:
+                entity = committee
+            bill.add_sponsorship(name,spons_type,entity,primary)
+        bill.add_source(matter_link)
+
+        yield bill
