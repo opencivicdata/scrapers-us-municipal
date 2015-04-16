@@ -175,7 +175,6 @@ class MiamidadeBillScraper(Scraper):
         }
         matter_doc = self.lxmlize(matter_link)
         info_dict = self.matter_table_to_dict(matter_doc)
-        print(info_dict)
         #we're going to use the year of the intro date as the session
         #until/unless we come up with something better
         intro_date = datetime.strptime(info_dict["Introduced"],"%m/%d/%Y")
