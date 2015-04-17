@@ -1,11 +1,6 @@
-import logging
 import lxml.html
 from pupa.scrape import Person, Scraper
 import re
-
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 class FergusonPersonScraper(Scraper):
