@@ -32,7 +32,6 @@ class FergusonPersonScraper(Scraper):
             try:
                 (image_url, ) = member_doc.xpath(
                     '//span[@class="BioText"]//img/@src')
-                print(image_url)
             except ValueError:
                 image_url = ''
 
