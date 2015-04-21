@@ -13,9 +13,9 @@ class LegistarScraper(Scraper):
 
     def lxmlize(self, url, payload=None):
         if payload :
-            entry = self.urlopen(url, 'POST', payload)
+            entry = self.post(url, payload).text
         else :
-            entry = self.urlopen(url)
+            entry = self.get(url).text
         page = lxml.html.fromstring(entry)
         page.make_links_absolute(url)
         return page
@@ -118,14 +118,15 @@ class LegistarScraper(Scraper):
 
 
     def _get_link_address(self, link):
-        if 'onclick' in link.attrib :
+        url = None
+        if 'onclick' in link.attrib:
             onclick = link.attrib['onclick']
-            if onclick is not None and onclick.startswith("radopen('"):
+            if (onclick is not None 
+                and (onclick.startswith("radopen('")
+                    or onclick.startswith("window.open"))):
                 url = self.base_url + onclick.split("'")[1]
         elif 'href' in link.attrib : 
             url = link.attrib['href']
-        else :
-            url = None
 
         return url
 
