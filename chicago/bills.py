@@ -30,7 +30,6 @@ class ChicagoBillScraper(LegistarScraper):
         Submit a search query on the legislation search page, and return a list
         of summary results.
         """
-
         page = self.lxmlize(self.legislation_url)
 
         payload = self.sessionSecrets(page)
@@ -97,11 +96,15 @@ class ChicagoBillScraper(LegistarScraper):
                                                            'communication', 
                                                            'report', 
                                                            'oath of office') :
-                    continue
+                    bill_type = None
                 else :
                     bill_type = legislation_summary['Type'].lower()
 
-                bill_session = self.session(legislation_summary['Intro\xa0Date'])
+                try :
+                    bill_session = self.session(self.toTime(legislation_summary['Intro\xa0Date']))
+                except :
+                    print(legislation_summary)
+                    raise
 
                 bill = Bill(identifier=legislation_summary['Record #'],
                             legislative_session=bill_session,
@@ -149,7 +152,7 @@ class ChicagoBillScraper(LegistarScraper):
         for action, _, _ in history :
             action_description = action['Action']
             try :
-                action_date =  action['Date'].date().isoformat()
+                action_date =  self.toTime(action['Date']).date().isoformat()
             except AttributeError : # https://chicago.legistar.com/LegislationDetail.aspx?ID=1424866&GUID=CEC53337-B991-4268-AE8A-D4D174F8D492
                 continue
 

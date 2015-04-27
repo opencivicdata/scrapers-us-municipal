@@ -43,17 +43,22 @@ class ChicagoEventsScraper(LegistarScraper):
                         "//table[@id='ctl00_ContentPlaceHolder1_gridMain_ctl00']")[0]
                     agenda = self.parseDataTable(agenda_table)
 
+                else :
+                    meeting_details = False
                     
                 location_string = events[u'Meeting\xa0Location']
                 location_list = location_string.split('--')
                 location = ', '.join(location_list[0:2])
+                if not location :
+                    continue
 
-                when = events[u'Meeting\xa0Date']
+                when = self.toTime(events[u'Meeting\xa0Date'])
                 time_string = events[u'Meeting\xa0Time']
-                event_time = datetime.datetime.strptime(time_string,
-                                                        "%I:%M %p")
-                when = when.replace(hour=event_time.hour)
-
+                if time_string :
+                    event_time = datetime.datetime.strptime(time_string,
+                                                            "%I:%M %p")
+                    when = when.replace(hour=event_time.hour)
+                    
                 status_string = location_list[-1].split('Chicago, Illinois')
                 if len(status_string) > 1 and status_string[1] :
                     status_text = status_string[1].lower()
@@ -82,7 +87,8 @@ class ChicagoEventsScraper(LegistarScraper):
                           timezone='US/Central',
                           location=location,
                           status=status)
-                e.add_source(detail_url)
+
+
                 if events['Video'] != 'Not\xa0available' : 
                     e.add_media_link(note='Recording',
                                      url = events['Video']['url'],
@@ -94,13 +100,18 @@ class ChicagoEventsScraper(LegistarScraper):
                 addDocs(e, events, 'Transcript')
                 addDocs(e, events, 'Summary')
 
-                for item, _, _ in agenda :
-                    agenda_item = e.add_agenda_item(item["Title"])
-                    agenda_item.add_bill(item["Record #"]['label'])
-
-                
                 e.add_participant(name=events["Name"]["label"],
                                   type="organization")
+
+                if meeting_details :
+                    e.add_source(detail_url)
+
+                    for item, _, _ in agenda :
+                        agenda_item = e.add_agenda_item(item["Title"])
+                        agenda_item.add_bill(item["Record #"]['label'])
+
+                else :
+                    e.add_source("EVENTSPAGE")
 
                 yield e
 
