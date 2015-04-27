@@ -2,7 +2,6 @@
 from pupa.scrape import Jurisdiction, Organization
 from .events import MiamidadeEventScraper
 from .bills import MiamidadeBillScraper
-from .votes import MiamidadeVoteScraper
 from .people import MiamidadePersonScraper
 
 
@@ -14,9 +13,8 @@ class Miamidade(Jurisdiction):
     parties = []
 
     scrapers = {
-        #"events": MiamidadeEventScraper,
+        "events": MiamidadeEventScraper,
         "bills": MiamidadeBillScraper,
-        #"votes": MiamidadeVoteScraper,
         "people": MiamidadePersonScraper,
     }
 

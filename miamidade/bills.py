@@ -82,11 +82,7 @@ class MiamidadeBillScraper(Scraper):
                 actor = tds[0].text_content().strip()
                 date = tds[1].text_content().strip()
                 if date:
-                    date = datetime.strptime(date,"%m/%d/%Y")
-                    date = "-".join([str(date.year),
-                                    str(date.month).zfill(2),
-                                    str(date.day).zfill(2)])
-
+                    date = datetime.strptime(date,"%m/%d/%Y").strftime('%Y-%m-%d')
                 else:
                     self.warning("Action without a date, skipping")
                     continue
