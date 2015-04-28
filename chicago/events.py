@@ -111,7 +111,7 @@ class ChicagoEventsScraper(LegistarScraper):
                         agenda_item.add_bill(item["Record #"]['label'])
 
                 else :
-                    e.add_source("EVENTSPAGE")
+                    e.add_source(EVENTSPAGE)
 
                 yield e
 
