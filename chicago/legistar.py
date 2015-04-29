@@ -26,13 +26,16 @@ class LegistarScraper(Scraper):
 
     def pages(self, url, payload=None) :
         page = self.lxmlize(url, payload)
+        
         yield page
 
         next_page = page.xpath("//a[@class='rgCurrentPage']/following-sibling::a[1]")
+        del payload['ctl00$ContentPlaceHolder1$btnSearch']
 
         while len(next_page) > 0 :
+            
+            payload.update(self.sessionSecrets(page))
 
-            payload = self.sessionSecrets(page)
             event_target = next_page[0].attrib['href'].split("'")[1]
 
             payload['__EVENTTARGET'] = event_target
