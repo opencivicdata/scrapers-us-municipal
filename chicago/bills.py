@@ -32,7 +32,7 @@ class ChicagoBillScraper(LegistarScraper):
         """
         page = self.lxmlize(self.legislation_url)
 
-        payload = self.sessionSecrets(page)
+        payload = {}
 
         # Enter the search parameters TODO: Each of the possible form
         # fields should be represented as keyword arguments to this
@@ -40,22 +40,28 @@ class ChicagoBillScraper(LegistarScraper):
         # default 'Legislative text' field.
         payload['ctl00$ContentPlaceHolder1$txtText'] = search_text
 
-        if created_before or created_after:
-            if created_before :
-                creation_date = created_before
-                relation = '[<]'
-            else:
-                creation_date = created_after
-                relation = '[>]'
 
-            payload['ctl00$ContentPlaceHolder1$radFileCreated'] = relation
-            payload['ctl00_ContentPlaceHolder1_txtFileCreated1_dateInput_ClientState'] = '{"enabled":true,"emptyMessage":"","validationText":"%s-00-00-00","valueAsString":"%s-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00"}' % (creation_date, creation_date)
+        if created_before and created_after :
+            payload.update(timeWithin(created_after, created_before))
+
+        elif created_before :
+            payload.update(timeBound(created_before))
+            payload['ctl00$ContentPlaceHolder1$radFileCreated'] = '<'
+
+        elif created_after :
+            payload.update(timeBound(created_after))
+            payload['ctl00$ContentPlaceHolder1$radFileCreated'] = '>'
+
 
         # Return up to one million search results
-        payload['ctl00_ContentPlaceHolder1_lstMax_ClientState'] = '{"value":"1000000"}'
+        payload['ctl00$ContentPlaceHolder1$lstMax'] = '1000000'
+        payload['ctl00$ContentPlaceHolder1$lstYearsAdvanced'] = 'All Years'
 
-        payload['ctl00$ContentPlaceHolder1$btnSearch'] = 'Search Legislation'
-        payload['ctl00_ContentPlaceHolder1_lstYearsAdvanced_ClientState'] = '{"logEntries":[],"value":"All","text":"All Years","enabled":true,"checkedIndices":[],"checkedItemsTextOverflows":false}'
+
+        payload['ctl00$ContentPlaceHolder1$btnSearch2'] = 'Search Legislation'
+        #payload['ctl00_ContentPlaceHolder1_lstYearsAdvanced_ClientState'] = '{"logEntries":[],"value":"All","text":"All Years","enabled":true,"checkedIndices":[],"checkedItemsTextOverflows":false}'
+
+        payload.update(self.sessionSecrets(page))
 
         return self.pages(self.legislation_url, payload)
 
@@ -85,7 +91,7 @@ class ChicagoBillScraper(LegistarScraper):
 
     def scrape(self):
 
-        for i, page in enumerate(self.searchLegislation()) :
+        for page in self.searchLegislation(created_after=datetime.datetime(2014, 1, 1), created_before=datetime.datetime(2014, 2, 1)) :
             for legislation_summary in self.parseSearchResults(page) :
                 title = legislation_summary['Title'].strip()
                 if title == "":
@@ -263,6 +269,33 @@ VOTE_OPTIONS = {'yea' : 'yes',
                 'rising vote' : 'yes',
                 'nay' : 'no',
                 'recused' : 'excused'}
-
         
     
+def timeWithin(created_after, created_before) :
+    payload = timeBound(created_after)
+
+    payload['ctl00$ContentPlaceHolder1$txtFileCreated2'] =\
+        '{d.year}-{d.month:02}-{d.day:02}'.format(d=created_before)
+    payload['ctl00$ContentPlaceHolder1$txtFileCreated2$dateInput'] =\
+        '{d.month}/{d.day}/{d.year}'.format(d=created_before)
+
+    payload['ctl00_ContentPlaceHolder1_txtFileCreated2_dateInput_ClientState'] =\
+        '{{"enabled":true, "emptyMessage":"","validationText":"{d.year}-{d.month:02}-{d.day:02}-00-00-00","valueAsString":"{d.year}-{d.month:02}-{d.day:02}-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00", "lastSetTextBoxValue":"{d.month}/{d.day}/{d.year}"}}'.format(d=created_before)
+
+    payload['ctl00$ContentPlaceHolder1$radFileCreated'] = 'between'
+
+    return payload
+
+
+def timeBound(creation_date) :
+    payload = {}
+
+    payload['ctl00$ContentPlaceHolder1$txtFileCreated1'] =\
+        '{d.year}-{d.month:02}-{d.day:02}'.format(d=creation_date)
+    payload['ctl00$ContentPlaceHolder1$txtFileCreated1$dateInput'] =\
+        '{d.month}/{d.day}/{d.year}'.format(d=creation_date)
+
+    payload['ctl00_ContentPlaceHolder1_txtFileCreated1_dateInput_ClientState'] =\
+        '{{"enabled":true, "emptyMessage":"","validationText":"{d.year}-{d.month:02}-{d.day:02}-00-00-00","valueAsString":"{d.year}-{d.month:02}-{d.day:02}-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00", "lastSetTextBoxValue":"{d.month}/{d.day}/{d.year}"}}'.format(d=creation_date)
+
+    return payload
