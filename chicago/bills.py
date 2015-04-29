@@ -24,8 +24,8 @@ class ChicagoBillScraper(LegistarScraper):
 
 
 
-    def searchLegislation(self, search_text='', created_before=None,
-                          created_after=None, num_pages = None):
+    def searchLegislation(self, search_text='', created_after=None,
+                          created_before=None, num_pages = None):
         """
         Submit a search query on the legislation search page, and return a list
         of summary results.
@@ -40,8 +40,7 @@ class ChicagoBillScraper(LegistarScraper):
         # default 'Legislative text' field.
         payload['ctl00$ContentPlaceHolder1$txtText'] = search_text
 
-
-        if created_before and created_after :
+        if created_after and created_before :
             payload.update(dateWithin(created_after, created_before))
 
         elif created_before :
@@ -55,10 +54,9 @@ class ChicagoBillScraper(LegistarScraper):
 
         # Return up to one million search results
         payload['ctl00_ContentPlaceHolder1_lstMax_ClientState'] = '{"value":"1000000"}'
+        payload['ctl00$ContentPlaceHolder1$btnSearch'] = 'Search Legislation'
         payload['ctl00$ContentPlaceHolder1$lstYearsAdvanced'] = 'All Years'
 
-
-        payload['ctl00$ContentPlaceHolder1$btnSearch2'] = 'Search Legislation'
 
         payload.update(self.sessionSecrets(page))
 
@@ -271,7 +269,7 @@ VOTE_OPTIONS = {'yea' : 'yes',
         
     
 def dateWithin(created_after, created_before) :
-    payload = timeBound(created_after)
+    payload = dateBound(created_after)
 
     payload['ctl00$ContentPlaceHolder1$txtFileCreated2'] =\
         '{d.year}-{d.month:02}-{d.day:02}'.format(d=created_before)
@@ -286,6 +284,7 @@ def dateWithin(created_after, created_before) :
     return payload
 
 
+
 def dateBound(creation_date) :
     payload = {}
 
@@ -298,3 +297,4 @@ def dateBound(creation_date) :
         '{{"enabled":true, "emptyMessage":"","validationText":"{d.year}-{d.month:02}-{d.day:02}-00-00-00","valueAsString":"{d.year}-{d.month:02}-{d.day:02}-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00", "lastSetTextBoxValue":"{d.month}/{d.day}/{d.year}"}}'.format(d=creation_date)
 
     return payload
+
