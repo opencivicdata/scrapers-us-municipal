@@ -42,24 +42,23 @@ class ChicagoBillScraper(LegistarScraper):
 
 
         if created_before and created_after :
-            payload.update(timeWithin(created_after, created_before))
+            payload.update(dateWithin(created_after, created_before))
 
         elif created_before :
-            payload.update(timeBound(created_before))
+            payload.update(dateBound(created_before))
             payload['ctl00$ContentPlaceHolder1$radFileCreated'] = '<'
 
         elif created_after :
-            payload.update(timeBound(created_after))
+            payload.update(dateBound(created_after))
             payload['ctl00$ContentPlaceHolder1$radFileCreated'] = '>'
 
 
         # Return up to one million search results
-        payload['ctl00$ContentPlaceHolder1$lstMax'] = '1000000'
+        payload['ctl00_ContentPlaceHolder1_lstMax_ClientState'] = '{"value":"1000000"}'
         payload['ctl00$ContentPlaceHolder1$lstYearsAdvanced'] = 'All Years'
 
 
         payload['ctl00$ContentPlaceHolder1$btnSearch2'] = 'Search Legislation'
-        #payload['ctl00_ContentPlaceHolder1_lstYearsAdvanced_ClientState'] = '{"logEntries":[],"value":"All","text":"All Years","enabled":true,"checkedIndices":[],"checkedItemsTextOverflows":false}'
 
         payload.update(self.sessionSecrets(page))
 
@@ -271,7 +270,7 @@ VOTE_OPTIONS = {'yea' : 'yes',
                 'recused' : 'excused'}
         
     
-def timeWithin(created_after, created_before) :
+def dateWithin(created_after, created_before) :
     payload = timeBound(created_after)
 
     payload['ctl00$ContentPlaceHolder1$txtFileCreated2'] =\
@@ -287,7 +286,7 @@ def timeWithin(created_after, created_before) :
     return payload
 
 
-def timeBound(creation_date) :
+def dateBound(creation_date) :
     payload = {}
 
     payload['ctl00$ContentPlaceHolder1$txtFileCreated1'] =\
