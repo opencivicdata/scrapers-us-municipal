@@ -91,8 +91,12 @@ class ChicagoBillScraper(LegistarScraper):
         for page in self.searchLegislation(created_after=datetime.datetime(2014, 1, 1), created_before=datetime.datetime(2014, 2, 1)) :
             for legislation_summary in self.parseSearchResults(page) :
                 title = legislation_summary['Title'].strip()
-                if title == "":
+
+                if not title or not legislation_summary['Intro\xa0Date'] :
                     continue
+                    # https://chicago.legistar.com/LegislationDetail.aspx?ID=1800754&GUID=29575A7A-5489-4D8B-8347-4FC91808B201&Options=Advanced&Search=
+                    # doesn't have an intro date
+                    
 
                 if legislation_summary['Type'].lower() in ('order', 
                                                            'claim', 
@@ -103,11 +107,7 @@ class ChicagoBillScraper(LegistarScraper):
                 else :
                     bill_type = legislation_summary['Type'].lower()
 
-                try :
-                    bill_session = self.session(self.toTime(legislation_summary['Intro\xa0Date']))
-                except :
-                    print(legislation_summary)
-                    raise
+                bill_session = self.session(self.toTime(legislation_summary['Intro\xa0Date']))
 
                 bill = Bill(identifier=legislation_summary['Record #'],
                             legislative_session=bill_session,
