@@ -11,6 +11,10 @@ import re
 class LegistarScraper(Scraper):
     date_format='%m/%d/%Y'
 
+    def __init__(self, *args, **kwargs) :
+        super(LegistarScraper, self).__init__(*args, **kwargs)
+        self.timeout = 600
+
     def lxmlize(self, url, payload=None):
         if payload :
             entry = self.post(url, payload).text
@@ -22,13 +26,16 @@ class LegistarScraper(Scraper):
 
     def pages(self, url, payload=None) :
         page = self.lxmlize(url, payload)
+        
         yield page
 
         next_page = page.xpath("//a[@class='rgCurrentPage']/following-sibling::a[1]")
+        del payload['ctl00$ContentPlaceHolder1$btnSearch']
 
         while len(next_page) > 0 :
+            
+            payload.update(self.sessionSecrets(page))
 
-            payload = self.sessionSecrets(page)
             event_target = next_page[0].attrib['href'].split("'")[1]
 
             payload['__EVENTTARGET'] = event_target
@@ -77,44 +84,35 @@ class LegistarScraper(Scraper):
         rows = table.xpath(".//tr[@class='rgRow' or @class='rgAltRow']")
 
 
-        keys = {}
-        for index, header in enumerate(headers):
-            keys[index] = header.text_content().replace('&nbsp;', ' ').strip()
+        keys = [header.text_content().replace('&nbsp;', ' ').strip()
+                for header in headers]
 
         for row in rows:
-          try:
-            data = defaultdict(lambda : None)
+            try:
+                data = defaultdict(lambda : None)
 
-            for index, field in enumerate(row.xpath("./td")):
-                key = keys[index]
-                value = field.text_content().replace('&nbsp;', ' ').strip()
+                for key, field in zip(keys, row.xpath("./td")):
+                    text_content = self._stringify(field)
 
-                try:
-                    value = datetime.datetime.strptime(value, self.date_format)
-                    value = value.replace(tzinfo=pytz.timezone(self.timezone))
+                    if field.find('.//a') is not None :
+                        address = self._get_link_address(field.find('.//a'))
+                        if address :
+                            value = {'label': text_content, 
+                                     'url': address}
+                        else :
+                            value = text_content
+                    else :
+                        value = text_content
 
-                except ValueError:
-                    pass
+                    data[key] = value
 
+                yield data, keys, row
 
-                # Is it a link?
-                address = None
-                link = field.find('.//a')
-
-                if link is not None:
-                    address = self._get_link_address(link)
-                if address is not None:
-                    value = {'label': value, 'url': address}
-
-                data[key] = value
-
-            yield data, keys, row
-
-          except Exception as e:
-            print('Problem parsing row:')
-            print(etree.tostring(row))
-            print(traceback.format_exc())
-            raise e
+            except Exception as e:
+                print('Problem parsing row:')
+                print(etree.tostring(row))
+                print(traceback.format_exc())
+                raise e
 
 
     def _get_link_address(self, link):
@@ -129,6 +127,14 @@ class LegistarScraper(Scraper):
             url = link.attrib['href']
 
         return url
+
+    def _stringify(self, field) :
+        return field.text_content().replace('&nbsp;', ' ').strip()
+
+    def toTime(self, text) :
+        time = datetime.datetime.strptime(text, self.date_format)
+        time = time.replace(tzinfo=pytz.timezone(self.timezone))
+        return time
 
     def sessionSecrets(self, page) :
 
