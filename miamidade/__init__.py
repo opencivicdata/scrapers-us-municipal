@@ -6,7 +6,7 @@ from .people import MiamidadePersonScraper
 
 
 class Miamidade(Jurisdiction):
-    division_id = "ocd-division/country:us/state:fl/place:miamidade"
+    division_id = "ocd-division/country:us/state:fl/county:miami-dade"
     classification = "legislature"
     name = "Miami-Dade County Commission"
     url = "http://miamidade.gov/wps/portal/Main/government"
