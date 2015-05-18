@@ -72,7 +72,7 @@ class ChicagoEventsScraper(LegistarScraper):
                                           'rescheduled indefinitely',
                                           'rescheduled for')) :
                         status = 'cancelled'
-                    elif status_text in ('rescheduled') :
+                    elif status_text in ('rescheduled', "changing time") :
                         status = 'cancelled'
                     else :
                         print(status_text)

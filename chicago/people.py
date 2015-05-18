@@ -50,10 +50,13 @@ class ChicagoPersonScraper(LegistarScraper):
                 "Clerk",
             ]:
                 ward = "Ward {}".format(int(ward))
-
+                role = "Alderman"
+            else:
+                role = ward
             p = Person(councilman['Person Name']['label'],
                        district=ward,
-                       primary_org="legislature")
+                       primary_org="legislature",
+                       role=role)
 
             if councilman['Photo'] :
                 p.image = councilman['Photo']

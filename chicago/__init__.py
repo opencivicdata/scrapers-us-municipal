@@ -7,7 +7,7 @@ from .bills import ChicagoBillScraper
 
 class Chicago(Jurisdiction):
     division_id = 'ocd-division/country:us/state:il/place:chicago'
-    classification='council'
+    classification='legislature'
     name = 'Chicago City Council'
     url =  'https://chicago.legistar.com/'
     parties = [ {'name': 'Democrats' } ]
