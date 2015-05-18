@@ -18,6 +18,13 @@ class Miamidade(Jurisdiction):
         "people": MiamidadePersonScraper,
     }
 
+    legislative_sessions = [{"identifier":"2014",
+            "name":"2014 Regular Session",
+            "start_date": "2014-11-20",
+            "end_date": "2016-11-20"},
+            ]
+
+
     def get_organizations(self):
         org = Organization(name="Miami-Dade County Commission",
             classification="legislature")

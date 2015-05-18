@@ -2,7 +2,7 @@ from pupa.scrape import Scraper
 from pupa.scrape import Bill
 import lxml.html
 from lxml import etree
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class MiamidadeBillScraper(Scraper):
@@ -106,22 +106,33 @@ class MiamidadeBillScraper(Scraper):
                     bill.add_action("Returned by {sent_to}".format(sent_to=sent_to),
                         return_date)
 
-
-
     def scrape(self):
-        #need to figure out reasonable dates for each session
-        #for now just throwing in recent ones.
-        start_date = "11-24-2014"
-        end_date = "11-24-2015"
+        sess = self.jurisdiction.legislative_sessions[0]
         base_url = ("http://www.miamidade.gov/govaction/Legislative.asp?begdate={start_date}" +
                     "&enddate={end_date}&MatterType=AllMatters&submit1=Submit")
-        scrape_url = base_url.format(start_date=start_date,end_date=end_date)
-        doc = self.lxmlize(scrape_url)
-        matters = doc.xpath("//a[contains(@href,'matter.asp')]/@href")
-        for matter_link in matters:
-            yield self.scrape_matter(matter_link)
+        #we're going to search in one-month chunks because
+        #it's failing with very long date ranges
+        #we'll scrape from the 15th to the 14th to avoid month-length issues
+        sess_start = datetime.strptime(sess["start_date"], "%Y-%m-%d")
+        sess_end = datetime.strptime(sess["end_date"], "%Y-%m-%d")
+        sess_end = min(sess_end, datetime.now())
+        start_date = sess_start.strftime("%m-%d-%Y")
+        end_date = start_date
+        year = sess_start.year
+        month = sess_start.month
+        while datetime.strptime(end_date, "%m-%d-%Y") < sess_end:
+            if month == 12:
+                year += 1
+            month = (month % 12) + 1
+            end_date = "{0:02d}-14-{1}".format(month, year)
+            scrape_url = base_url.format(start_date=start_date,end_date=end_date)
+            doc = self.lxmlize(scrape_url)
+            matters = doc.xpath("//a[contains(@href,'matter.asp')]/@href")
+            for matter_link in matters:
+                yield self.scrape_matter(matter_link, sess)
+            start_date = "{0:02d}-15-{1}".format(month, year)
 
-    def scrape_matter(self, matter_link):
+    def scrape_matter(self, matter_link, sess):
         matter_types = {
         "Additions":"other",
         "Administrative Order":"order",
@@ -174,7 +185,7 @@ class MiamidadeBillScraper(Scraper):
         #we're going to use the year of the intro date as the session
         #until/unless we come up with something better
         intro_date = datetime.strptime(info_dict["Introduced"],"%m/%d/%Y")
-        session = str(intro_date.year)
+        session = sess["identifier"]
         category = matter_types[info_dict["File Type"]]
         if category == 'other':
             bill = Bill(identifier=info_dict["File Number"],
