@@ -47,7 +47,7 @@ class ChicagoEventsScraper(LegistarScraper):
                     meeting_details = False
                     
                 location_string = events[u'Meeting\xa0Location']
-                location_list = location_string.split('--')
+                location_list = location_string.split('--', 2)
                 location = ', '.join(location_list[0:2])
                 if not location :
                     continue
@@ -62,7 +62,13 @@ class ChicagoEventsScraper(LegistarScraper):
                 status_string = location_list[-1].split('Chicago, Illinois')
                 if len(status_string) > 1 and status_string[1] :
                     status_text = status_string[1].lower()
-                    if any(phrase in status_text 
+                    print(status_text)
+                    if any(phrase in status_text
+                            for phrase in ('public hearing',
+                                            'budget hearing',
+                                            'special meeting')):
+                        continue
+                    elif any(phrase in status_text 
                            for phrase in ('rescheduled to',
                                           'postponed to',
                                           'reconvened to',
@@ -70,12 +76,16 @@ class ChicagoEventsScraper(LegistarScraper):
                                           'cancelled',
                                           'new date and time',
                                           'rescheduled indefinitely',
-                                          'rescheduled for')) :
+                                          'rescheduled for',
+                                          'changing time',)) :
                         status = 'cancelled'
                     elif status_text in ('rescheduled') :
                         status = 'cancelled'
                     else :
                         print(status_text)
+                        #we are skipping these for now because
+                        #they are almost all duplictes.
+                        continue
                 elif datetime.datetime.utcnow().replace(tzinfo = pytz.utc) > when :
                     status = 'confirmed'
                 else :

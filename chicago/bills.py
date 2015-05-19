@@ -113,7 +113,7 @@ class ChicagoBillScraper(LegistarScraper):
                             legislative_session=bill_session,
                             title=title,
                             classification=bill_type,
-                            from_organization=self.jurisdiction.name)
+                            from_organization={"name":"Chicago City Council"})
 
                 bill.add_source(legislation_summary['url'])
 
@@ -160,10 +160,11 @@ class ChicagoBillScraper(LegistarScraper):
                 continue
 
             if action_description :
-                bill.add_action(action_description,
+                act = bill.add_action(action_description,
                                 action_date,
-                                organization=action['Action\xa0By'],
                                 classification=ACTION_CLASSIFICATION[action_description])
+                act.add_related_entity(action['Action\xa0By']['label'],
+                                      entity_type="organization")
                 if 'url' in action['Action\xa0Details'] :
                     action_detail_url = action['Action\xa0Details']['url']
                     result, votes = self.extractVotes(action_detail_url)
@@ -174,7 +175,7 @@ class ChicagoBillScraper(LegistarScraper):
                                            classification=None,
                                            start_date=action_date,
                                            result=result,
-                                           bill=bill.identifier)
+                                           bill=bill)
                         action_vote.add_source(action_detail_url)
                         for option, voter in votes :
                             action_vote.vote(option, voter)
