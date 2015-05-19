@@ -17,7 +17,10 @@ class MiamidadeEventScraper(Scraper):
     def scrape(self):
         local_timezone =  pytz.timezone("US/Eastern")
         base_calendar_url = "http://www.miamidade.gov/cob/county-commission-calendar.asp"
-        months = ["cur","nex","nxw","nxx","nxy","nxz"]
+        #things get messy more than a few months out
+        #so we're just pulling 3 months. If we want three
+        #more, they are called "nxx", "nxy" and "nxz"
+        months = ["cur","nex","nxw"]
         for m in months:
             doc = self.lxmlize(base_calendar_url + "?next={}".format(m))
             events = doc.xpath("//table[contains(@style,'dotted #ccc')]")
