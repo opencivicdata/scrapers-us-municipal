@@ -46,7 +46,7 @@ class MiamidadeEventScraper(Scraper):
                 e = Event(name=title,
                             start_time=when,
                             timezone="US/Eastern",
-                            location=where,
+                            location_name=where,
                             description=description)
                 
                 e.add_source(link)
