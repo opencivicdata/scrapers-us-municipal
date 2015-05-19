@@ -95,7 +95,7 @@ class ChicagoEventsScraper(LegistarScraper):
                 e = Event(name=events["Name"]["label"],
                           start_time=when,
                           timezone='US/Central',
-                          location=location,
+                          location_name=location,
                           status=status)
 
 
