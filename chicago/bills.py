@@ -88,7 +88,7 @@ class ChicagoBillScraper(LegistarScraper):
 
     def scrape(self):
 
-        for page in self.searchLegislation() :
+        for page in self.searchLegislation(created_after=datetime.datetime(2014, 1, 1), created_before=datetime.datetime(2014, 2, 1)) :
             for legislation_summary in self.parseSearchResults(page) :
                 title = legislation_summary['Title'].strip()
 
