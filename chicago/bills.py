@@ -214,8 +214,8 @@ class ChicagoBillScraper(LegistarScraper):
             bill.add_sponsorship(sponsor['label'], sponsorship_type,
                                  'person', primary)
 
-        if u'Topics' in legislation_details :
-            for subjuct in legislation_details[u'Topics'].split(',') :
+        if u'Topic' in legislation_details :
+            for subject in legislation_details[u'Topic'].split(',') :
                 bill.add_subject(subject)
 
         for attachment in legislation_details.get(u'Attachments', []) :
