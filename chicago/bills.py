@@ -122,7 +122,6 @@ class ChicagoBillScraper(LegistarScraper):
                 yield bill
                 for vote in votes :
                     yield vote
-        
 
 
     def extractVotes(self, action_detail_url) :
@@ -160,11 +159,13 @@ class ChicagoBillScraper(LegistarScraper):
                 continue
 
             if action_description :
+                responsible_org = action['Action\xa0By']['label']
+                if responsible_org == 'City Council' :
+                    responsible_org = 'Chicago City Council'
                 act = bill.add_action(action_description,
-                                action_date,
-                                classification=ACTION_CLASSIFICATION[action_description])
-                act.add_related_entity(action['Action\xa0By']['label'],
-                                      entity_type="organization")
+                                      action_date,
+                                      organization={'name': responsible_org},
+                                      classification=ACTION_CLASSIFICATION[action_description])
                 if 'url' in action['Action\xa0Details'] :
                     action_detail_url = action['Action\xa0Details']['url']
                     result, votes = self.extractVotes(action_detail_url)
@@ -172,6 +173,7 @@ class ChicagoBillScraper(LegistarScraper):
                     if votes and result : # see https://github.com/datamade/municipal-scrapers-us/issues/15
                         action_vote = Vote(legislative_session=bill.legislative_session, 
                                            motion_text=action_description,
+                                           organization={'name': responsible_org},
                                            classification=None,
                                            start_date=action_date,
                                            result=result,
