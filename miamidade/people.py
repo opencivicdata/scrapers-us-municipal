@@ -22,7 +22,6 @@ class MiamidadePersonScraper(Scraper):
         titles = ["Chairman","Vice Chair"]
         for person in person_list:
             info = person.text_content().strip().split("\r")
-            print(info)
             position = info[0].strip()
             name = " ".join(info[1:-1])
             name = name.replace("Website | Contact", "")
@@ -31,7 +30,6 @@ class MiamidadePersonScraper(Scraper):
             name = name.strip()
             url = person.xpath(".//a[contains(text(),'Website')]/@href")[0]
             image = person.xpath(".//img/@src")[0]
-            print(name)
             pers = Person(name=name,
                             image=image,
                             primary_org='legislature',
