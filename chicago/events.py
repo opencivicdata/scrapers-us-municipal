@@ -35,6 +35,7 @@ class ChicagoEventsScraper(LegistarScraper):
         for page in self.eventPages(EVENTSPAGE):
             events_table = page.xpath("//table[@class='rgMasterTable']")[0]
             for events, headers, rows in self.parseDataTable(events_table) :
+                description = None
                 if follow_links and type(events['Meeting\xa0Details']) == dict :
                     detail_url = events['Meeting\xa0Details']['url']
                     meeting_details = self.lxmlize(detail_url)
@@ -43,17 +44,22 @@ class ChicagoEventsScraper(LegistarScraper):
                         "//table[@id='ctl00_ContentPlaceHolder1_gridMain_ctl00']")[0]
                     agenda = self.parseDataTable(agenda_table)
 
+                else :
+                    meeting_details = False
                     
                 location_string = events[u'Meeting\xa0Location']
-                location_list = location_string.split('--')
+                location_list = location_string.split('--', 2)
                 location = ', '.join(location_list[0:2])
+                if not location :
+                    continue
 
-                when = events[u'Meeting\xa0Date']
+                when = self.toTime(events[u'Meeting\xa0Date'])
                 time_string = events[u'Meeting\xa0Time']
-                event_time = datetime.datetime.strptime(time_string,
-                                                        "%I:%M %p")
-                when = when.replace(hour=event_time.hour)
-
+                if time_string :
+                    event_time = datetime.datetime.strptime(time_string,
+                                                            "%I:%M %p")
+                    when = when.replace(hour=event_time.hour)
+                    
                 status_string = location_list[-1].split('Chicago, Illinois')
                 if len(status_string) > 1 and status_string[1] :
                     status_text = status_string[1].lower()
@@ -61,28 +67,62 @@ class ChicagoEventsScraper(LegistarScraper):
                            for phrase in ('rescheduled to',
                                           'postponed to',
                                           'reconvened to',
-                                          'recessed',
+                                          'rescheduled to',
+                                          'meeting recessed',
+                                          'recessed meeting',
+                                          'postponed to',
+                                          'recessed until',
+                                          'deferred',
+                                          'time change',
+                                          'date change',
+                                          'recessed meeting - reconvene',
                                           'cancelled',
                                           'new date and time',
                                           'rescheduled indefinitely',
-                                          'rescheduled for')) :
+                                          'rescheduled for',)) :
                         status = 'cancelled'
-                    elif status_text in ('rescheduled') :
+                    elif status_text in ('rescheduled', 'recessed') :
                         status = 'cancelled'
+                    elif status_text in ('meeting reconvened',
+                                         'reconvened meeting',
+                                         'recessed meeting',
+                                         'reconvene meeting',
+                                         'rescheduled hearing',
+                                         'rescheduled meeting',) :
+                        status = confirmedOrPassed(when)
+                    elif status_text in ('amended notice of meeting',
+                                         'room change',
+                                         'amended notice',
+                                         'change of location',
+                                         'revised - meeting date and time') :
+                        status = confirmedOrPassed(when)
+                    elif 'room' in status_text :
+                        location = status_string[1] + ', ' + location
+                    elif status_text in ('wrong meeting date',) :
+                        continue
                     else :
                         print(status_text)
-                elif datetime.datetime.utcnow().replace(tzinfo = pytz.utc) > when :
-                    status = 'confirmed'
+                        description = status_string[1]
+                        status = confirmedOrPassed(when)
                 else :
-                    status = 'passed'
+                    status = confirmedOrPassed(when)
                             
 
-                e = Event(name=events["Name"]["label"],
-                          start_time=when,
-                          timezone='US/Central',
-                          location=location,
-                          status=status)
-                e.add_source(detail_url)
+                if description :
+                    e = Event(name=events["Name"]["label"],
+                              start_time=when,
+                              description=description,
+                              timezone='US/Central',
+                              location_name=location,
+                              status=status)
+                else :
+                    e = Event(name=events["Name"]["label"],
+                              start_time=when,
+                              timezone='US/Central',
+                              location_name=location,
+                              status=status)
+
+
                 if events['Video'] != 'Not\xa0available' : 
                     e.add_media_link(note='Recording',
                                      url = events['Video']['url'],
@@ -94,13 +134,19 @@ class ChicagoEventsScraper(LegistarScraper):
                 addDocs(e, events, 'Transcript')
                 addDocs(e, events, 'Summary')
 
-                for item, _, _ in agenda :
-                    agenda_item = e.add_agenda_item(item["Title"])
-                    agenda_item.add_bill(item["Record #"]['label'])
-
-                
                 e.add_participant(name=events["Name"]["label"],
                                   type="organization")
+
+                if meeting_details :
+                    e.add_source(detail_url)
+
+                    for item, _, _ in agenda :
+                        agenda_item = e.add_agenda_item(item["Title"])
+                        if item["Record #"] :
+                            agenda_item.add_bill(item["Record #"]['label'])
+
+                else :
+                    e.add_source(EVENTSPAGE)
 
                 yield e
 
@@ -113,3 +159,10 @@ def addDocs(e, events, doc_type) :
     except ValueError :
         pass
         
+def confirmedOrPassed(when) :
+    if datetime.datetime.utcnow().replace(tzinfo = pytz.utc) > when :
+        status = 'confirmed'
+    else :
+        status = 'passed'
+    
+    return status

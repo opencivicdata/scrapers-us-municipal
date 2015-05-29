@@ -50,10 +50,13 @@ class ChicagoPersonScraper(LegistarScraper):
                 "Clerk",
             ]:
                 ward = "Ward {}".format(int(ward))
-
+                role = "Alderman"
+            else:
+                role = ward
             p = Person(councilman['Person Name']['label'],
                        district=ward,
-                       primary_org="legislature")
+                       primary_org="legislature",
+                       role=role)
 
             if councilman['Photo'] :
                 p.image = councilman['Photo']
@@ -88,7 +91,8 @@ class ChicagoPersonScraper(LegistarScraper):
                     o = committee_d.get(committee_name, None)
                     if o is None:
                         o = Organization(committee_name,
-                                         classification='committee')
+                                         classification='committee',
+                                         parent_id={'name' : 'Chicago City Council'})
                         o.add_source("https://chicago.legistar.com/Departments.aspx")
                         committee_d[committee_name] = o
 

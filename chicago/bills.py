@@ -24,16 +24,15 @@ class ChicagoBillScraper(LegistarScraper):
 
 
 
-    def searchLegislation(self, search_text='', created_before=None,
-                          created_after=None, num_pages = None):
+    def searchLegislation(self, search_text='', created_after=None,
+                          created_before=None, num_pages = None):
         """
         Submit a search query on the legislation search page, and return a list
         of summary results.
         """
-
         page = self.lxmlize(self.legislation_url)
 
-        payload = self.sessionSecrets(page)
+        payload = {}
 
         # Enter the search parameters TODO: Each of the possible form
         # fields should be represented as keyword arguments to this
@@ -41,22 +40,25 @@ class ChicagoBillScraper(LegistarScraper):
         # default 'Legislative text' field.
         payload['ctl00$ContentPlaceHolder1$txtText'] = search_text
 
-        if created_before or created_after:
-            if created_before :
-                creation_date = created_before
-                relation = '[<]'
-            else:
-                creation_date = created_after
-                relation = '[>]'
+        if created_after and created_before :
+            payload.update(dateWithin(created_after, created_before))
 
-            payload['ctl00$ContentPlaceHolder1$radFileCreated'] = relation
-            payload['ctl00_ContentPlaceHolder1_txtFileCreated1_dateInput_ClientState'] = '{"enabled":true,"emptyMessage":"","validationText":"%s-00-00-00","valueAsString":"%s-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00"}' % (creation_date, creation_date)
+        elif created_before :
+            payload.update(dateBound(created_before))
+            payload['ctl00$ContentPlaceHolder1$radFileCreated'] = '<'
+
+        elif created_after :
+            payload.update(dateBound(created_after))
+            payload['ctl00$ContentPlaceHolder1$radFileCreated'] = '>'
+
 
         # Return up to one million search results
         payload['ctl00_ContentPlaceHolder1_lstMax_ClientState'] = '{"value":"1000000"}'
-
         payload['ctl00$ContentPlaceHolder1$btnSearch'] = 'Search Legislation'
-        payload['ctl00_ContentPlaceHolder1_lstYearsAdvanced_ClientState'] = '{"logEntries":[],"value":"All","text":"All Years","enabled":true,"checkedIndices":[],"checkedItemsTextOverflows":false}'
+        payload['ctl00$ContentPlaceHolder1$lstYearsAdvanced'] = 'All Years'
+
+
+        payload.update(self.sessionSecrets(page))
 
         return self.pages(self.legislation_url, payload)
 
@@ -86,28 +88,32 @@ class ChicagoBillScraper(LegistarScraper):
 
     def scrape(self):
 
-        for i, page in enumerate(self.searchLegislation()) :
+        for page in self.searchLegislation(created_after=datetime.datetime(2015, 5, 17)) :
             for legislation_summary in self.parseSearchResults(page) :
                 title = legislation_summary['Title'].strip()
-                if title == "":
+
+                if not title or not legislation_summary['Intro\xa0Date'] :
                     continue
+                    # https://chicago.legistar.com/LegislationDetail.aspx?ID=1800754&GUID=29575A7A-5489-4D8B-8347-4FC91808B201&Options=Advanced&Search=
+                    # doesn't have an intro date
+                    
 
                 if legislation_summary['Type'].lower() in ('order', 
                                                            'claim', 
                                                            'communication', 
                                                            'report', 
                                                            'oath of office') :
-                    continue
+                    bill_type = None
                 else :
                     bill_type = legislation_summary['Type'].lower()
 
-                bill_session = self.session(legislation_summary['Intro\xa0Date'])
+                bill_session = self.session(self.toTime(legislation_summary['Intro\xa0Date']))
 
                 bill = Bill(identifier=legislation_summary['Record #'],
                             legislative_session=bill_session,
                             title=title,
                             classification=bill_type,
-                            from_organization=self.jurisdiction.name)
+                            from_organization={"name":"Chicago City Council"})
 
                 bill.add_source(legislation_summary['url'])
 
@@ -116,7 +122,6 @@ class ChicagoBillScraper(LegistarScraper):
                 yield bill
                 for vote in votes :
                     yield vote
-        
 
 
     def extractVotes(self, action_detail_url) :
@@ -149,15 +154,18 @@ class ChicagoBillScraper(LegistarScraper):
         for action, _, _ in history :
             action_description = action['Action']
             try :
-                action_date =  action['Date'].date().isoformat()
+                action_date =  self.toTime(action['Date']).date().isoformat()
             except AttributeError : # https://chicago.legistar.com/LegislationDetail.aspx?ID=1424866&GUID=CEC53337-B991-4268-AE8A-D4D174F8D492
                 continue
 
             if action_description :
-                bill.add_action(action_description,
-                                action_date,
-                                organization=action['Action\xa0By'],
-                                classification=ACTION_CLASSIFICATION[action_description])
+                responsible_org = action['Action\xa0By']['label']
+                if responsible_org == 'City Council' :
+                    responsible_org = 'Chicago City Council'
+                act = bill.add_action(action_description,
+                                      action_date,
+                                      organization={'name': responsible_org},
+                                      classification=ACTION_CLASSIFICATION[action_description])
                 if 'url' in action['Action\xa0Details'] :
                     action_detail_url = action['Action\xa0Details']['url']
                     result, votes = self.extractVotes(action_detail_url)
@@ -165,10 +173,11 @@ class ChicagoBillScraper(LegistarScraper):
                     if votes and result : # see https://github.com/datamade/municipal-scrapers-us/issues/15
                         action_vote = Vote(legislative_session=bill.legislative_session, 
                                            motion_text=action_description,
+                                           organization={'name': responsible_org},
                                            classification=None,
                                            start_date=action_date,
                                            result=result,
-                                           bill=bill.identifier)
+                                           bill=bill)
                         action_vote.add_source(action_detail_url)
                         for option, voter in votes :
                             action_vote.vote(option, voter)
@@ -207,8 +216,8 @@ class ChicagoBillScraper(LegistarScraper):
             bill.add_sponsorship(sponsor['label'], sponsorship_type,
                                  'person', primary)
 
-        if u'Topics' in legislation_details :
-            for subjuct in legislation_details[u'Topics'].split(',') :
+        if u'Topic' in legislation_details :
+            for subject in legislation_details[u'Topic'].split(',') :
                 bill.add_subject(subject)
 
         for attachment in legislation_details.get(u'Attachments', []) :
@@ -260,6 +269,35 @@ VOTE_OPTIONS = {'yea' : 'yes',
                 'rising vote' : 'yes',
                 'nay' : 'no',
                 'recused' : 'excused'}
-
         
     
+def dateWithin(created_after, created_before) :
+    payload = dateBound(created_after)
+
+    payload['ctl00$ContentPlaceHolder1$txtFileCreated2'] =\
+        '{d.year}-{d.month:02}-{d.day:02}'.format(d=created_before)
+    payload['ctl00$ContentPlaceHolder1$txtFileCreated2$dateInput'] =\
+        '{d.month}/{d.day}/{d.year}'.format(d=created_before)
+
+    payload['ctl00_ContentPlaceHolder1_txtFileCreated2_dateInput_ClientState'] =\
+        '{{"enabled":true, "emptyMessage":"","validationText":"{d.year}-{d.month:02}-{d.day:02}-00-00-00","valueAsString":"{d.year}-{d.month:02}-{d.day:02}-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00", "lastSetTextBoxValue":"{d.month}/{d.day}/{d.year}"}}'.format(d=created_before)
+
+    payload['ctl00$ContentPlaceHolder1$radFileCreated'] = 'between'
+
+    return payload
+
+
+
+def dateBound(creation_date) :
+    payload = {}
+
+    payload['ctl00$ContentPlaceHolder1$txtFileCreated1'] =\
+        '{d.year}-{d.month:02}-{d.day:02}'.format(d=creation_date)
+    payload['ctl00$ContentPlaceHolder1$txtFileCreated1$dateInput'] =\
+        '{d.month}/{d.day}/{d.year}'.format(d=creation_date)
+
+    payload['ctl00_ContentPlaceHolder1_txtFileCreated1_dateInput_ClientState'] =\
+        '{{"enabled":true, "emptyMessage":"","validationText":"{d.year}-{d.month:02}-{d.day:02}-00-00-00","valueAsString":"{d.year}-{d.month:02}-{d.day:02}-00-00-00","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00", "lastSetTextBoxValue":"{d.month}/{d.day}/{d.year}"}}'.format(d=creation_date)
+
+    return payload
+
