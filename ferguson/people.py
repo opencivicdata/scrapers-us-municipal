@@ -12,7 +12,7 @@ class FergusonPersonScraper(Scraper):
         doc.make_links_absolute(url)
         return doc
 
-    def get_council(self, council):
+    def get_council(self):
         council_doc = self.lxmlize(self.COUNCIL_URL)
 
         member_urls = council_doc.xpath(
@@ -36,15 +36,13 @@ class FergusonPersonScraper(Scraper):
                 image_url = ''
 
             member = Person(name=name,
-                            image=image_url)
+                            image=image_url,
+                            primary_org='legislature',
+                            role=title)
 
-            member.add_membership(
-                organization=council,
-                role=title)
             member.add_source(member_url)
 
             yield member
 
     def scrape(self):
-        (council, ) = tuple(self.jurisdiction.get_organizations())
-        yield from self.get_council(council)
+        yield from self.get_council()

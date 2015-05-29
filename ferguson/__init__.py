@@ -35,6 +35,7 @@ class Ferguson(Jurisdiction):
                 label="Council Member Ward {}".format(ward),
                 role="Council Member Ward {}".format(ward),
                 division_id=self.division_id,
-                num_seats=2
+                # num_seats=2,
             )
+
         yield org
