@@ -160,6 +160,7 @@ class MiamidadeBillScraper(Scraper):
         "Omnibus Reserve":"bill",
         "Ordinance":"ordinance",
         "Plaque":"commemoration",
+        "Presentation":"other",
         "Proclamation":"proclamation",
         "Professional Service Agreement":"contract",
         "Public Hearing":"other",
