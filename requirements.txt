@@ -1,3 +1,4 @@
 -e git://github.com/opencivicdata/pupa.git#egg=pupa
+-e git://github.com/opencivicdata/python-legistar-scraper.git#egg=python-legistar-scraper
 lxml
 sh
