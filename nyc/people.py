@@ -13,8 +13,8 @@ class NYCPersonScraper(LegistarPersonScraper):
         committee_d = {}
 
         for councilman, committees in self.councilMembers() :
-            district, role, _ = councilman['Notes'].split(' - ', maxsplit=2)
-
+            district = re.search('.*(District \d+).*?',
+                                 councilman['Notes']).group(1)
             if ('Democrat' in councilman['Notes'] 
                 or 'Democratic' in councilman['Notes']) :
                 party = 'Democratic'
@@ -28,7 +28,7 @@ class NYCPersonScraper(LegistarPersonScraper):
             p = Person(councilman['Person Name']['label'],
                        district=district,
                        primary_org="legislature",
-                       role=role)
+                       role='Council Member')
 
             if councilman['Photo'] :
                 p.image = councilman['Photo']
@@ -49,7 +49,8 @@ class NYCPersonScraper(LegistarPersonScraper):
                     o = committee_d.get(committee_name, None)
                     if o is None:
                         o = Organization(committee_name,
-                                         classification='committee')
+                                         classification='committee',
+                                         parent_id={'name' : 'New York City Council'})
                         o.add_source("http://legistar.council.nyc.gov/Departments.aspx")
                         committee_d[committee_name] = o
 

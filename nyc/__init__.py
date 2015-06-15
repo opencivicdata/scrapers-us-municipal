@@ -18,7 +18,8 @@ class NYC(Jurisdiction):
     def get_organizations(self):
         council = Organization('New York City Council', classification='legislature')
         for x in range(1,52):
-            council.add_post(str(x), role='Council Member')
+            council.add_post("District {}".format(x),
+                             role='Council Member')
         yield council
 
     LEGISTAR_ROOT_URL = 'http://legistar.council.nyc.gov/'
