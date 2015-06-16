@@ -2,3 +2,4 @@
 -e git://github.com/opencivicdata/python-legistar-scraper.git#egg=python-legistar-scraper
 lxml
 sh
+-e git://github.com/opencivicdata/python-legistar-scraper#egg=legistar
