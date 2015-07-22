@@ -2,6 +2,7 @@
 from pupa.scrape import Jurisdiction, Organization
 from .people import NYCPersonScraper
 from .events import NYCEventsScraper
+from .bills import NYCBillScraper
 
 class NYC(Jurisdiction):
     classification = 'government'
@@ -14,8 +15,10 @@ class NYC(Jurisdiction):
         {'name': 'Democratic'},
         {'name': 'Republican'}
     ]
-    scrapers = {'people': NYCPersonScraper,
-                'events': NYCEventsScraper}
+    scrapers = {#'people': NYCPersonScraper,
+                'bills' : NYCBillScraper,
+                #'events': NYCEventsScraper
+    }
 
     def get_organizations(self):
         council = Organization('New York City Council', classification='legislature')
