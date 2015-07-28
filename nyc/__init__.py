@@ -15,10 +15,25 @@ class NYC(Jurisdiction):
         {'name': 'Democratic'},
         {'name': 'Republican'}
     ]
-    scrapers = {#'people': NYCPersonScraper,
+    scrapers = {'people': NYCPersonScraper,
                 'bills' : NYCBillScraper,
-                #'events': NYCEventsScraper
+                'events': NYCEventsScraper
     }
+
+    legislative_sessions = [{"identifier":"2015",
+            "name":"2015 Regular Session",
+            "start_date": "2015-05-18",
+            "end_date": "2019-05-17"},
+            {"identifier":"2011",
+            "name":"2011 Regular Session",
+            "start_date": "2011-05-18",
+            "end_date": "2015-05-17"},
+            {"identifier":"2007",
+            "name":"2007 Regular Session",
+            "start_date": "2007-05-18",
+            "end_date": "2011-05-17"}
+            ]
+
 
     def get_organizations(self):
         council = Organization('New York City Council', classification='legislature')
@@ -26,6 +41,10 @@ class NYC(Jurisdiction):
             council.add_post("District {}".format(x),
                              role='Council Member')
         yield council
+
+        mayor = Organization('Mayor', classification='executive')
+
+        yield mayor
 
     LEGISTAR_ROOT_URL = 'http://legistar.council.nyc.gov/'
 
