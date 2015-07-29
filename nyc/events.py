@@ -7,7 +7,7 @@ import re
 class NYCEventsScraper(LegistarEventsScraper):
     TIMEZONE = 'America/New_York'
     EVENTSPAGE = "http://legistar.council.nyc.gov/Calendar.aspx/"
-    BASEURL = "http://legistar.council.nyc.gov/"
+    BASE_URL = "http://legistar.council.nyc.gov/"
 
     def scrape(self):
         for event, agenda in self.events() :
