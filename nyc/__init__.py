@@ -20,20 +20,12 @@ class NYC(Jurisdiction):
                 'events': NYCEventsScraper
     }
 
-    legislative_sessions = [{"identifier":"2015",
-            "name":"2015 Regular Session",
-            "start_date": "2015-05-18",
-            "end_date": "2019-05-17"},
-            {"identifier":"2011",
-            "name":"2011 Regular Session",
-            "start_date": "2011-05-18",
-            "end_date": "2015-05-17"},
-            {"identifier":"2007",
-            "name":"2007 Regular Session",
-            "start_date": "2007-05-18",
-            "end_date": "2011-05-17"}
-            ]
-
+    legislative_sessions = [{"identifier": str(start_year),
+                             "name": ("%s Regular Session" % str(start_year)),
+                             "start_date": ("%s-01-01" % str(start_year)),
+                             "end_date": ("%s-12-31" % str(start_year + 3))}
+                            for start_year
+                            in range(1978, 2015, 4)]
 
     def get_organizations(self):
         council = Organization('New York City Council', classification='legislature')
