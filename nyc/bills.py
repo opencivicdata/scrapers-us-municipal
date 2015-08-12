@@ -3,6 +3,7 @@ from pupa.scrape import Bill, Vote
 import datetime
 from collections import defaultdict
 import pytz
+import json
 
 class NYCBillScraper(LegistarBillScraper):
     LEGISLATION_URL = 'http://legistar.council.nyc.gov/Legislation.aspx'
@@ -37,7 +38,8 @@ class NYCBillScraper(LegistarBillScraper):
             for sponsorship in self._sponsors(leg_details.get('Sponsors', [])) :
                 sponsor, sponsorship_type, primary = sponsorship
                 bill.add_sponsorship(sponsor, sponsorship_type,
-                                     'person', primary)
+                                     'person', primary, 
+                                     entity_id = '~' + json.dumps({'name' : sponsor}))
 
 
             for i, attachment in enumerate(leg_details.get(u'Attachments', [])) :
@@ -94,8 +96,9 @@ class NYCBillScraper(LegistarBillScraper):
                 sponsorship_type = "Regular"
             
             sponsor_name = sponsor['label']
-            if sponsor_name == '(in conjunction with the Mayor)' :
-                sponsor_name = 'Mayor'
+            if sponsor_name.startswith(('(in conjunction with',
+                                        '(by request of')) :
+                continue 
 
             yield sponsor_name, sponsorship_type, primary
                 
