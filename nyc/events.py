@@ -70,8 +70,7 @@ class NYCEventsScraper(LegistarEventsScraper):
                 participating_orgs += re.split(' and the |, the ', other_orgs)
 
             for org in participating_orgs :
-                e.add_participant(name=org,
-                                  type="organization")
+                e.add_committee(name=org)
 
             if agenda :
                 e.add_source(event["Meeting\xa0Details"]['url'])
@@ -85,4 +84,3 @@ class NYCEventsScraper(LegistarEventsScraper):
                 e.add_source(self.EVENTSPAGE)
 
             yield e
-
