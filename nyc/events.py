@@ -1,6 +1,5 @@
 from legistar.events import LegistarEventsScraper
 from pupa.scrape import Event
-from pupa.utils import make_pseudo_id
 
 import datetime
 import re
