@@ -1,5 +1,6 @@
 from legistar.events import LegistarEventsScraper
 from pupa.scrape import Event
+from pupa.utils import make_pseudo_id
 
 import datetime
 import re
@@ -7,7 +8,7 @@ import re
 class NYCEventsScraper(LegistarEventsScraper):
     TIMEZONE = 'America/New_York'
     EVENTSPAGE = "http://legistar.council.nyc.gov/Calendar.aspx/"
-    BASEURL = "http://legistar.council.nyc.gov/"
+    BASE_URL = "http://legistar.council.nyc.gov/"
 
     def scrape(self):
         for event, agenda in self.events() :
@@ -70,8 +71,7 @@ class NYCEventsScraper(LegistarEventsScraper):
                 participating_orgs += re.split(' and the |, the ', other_orgs)
 
             for org in participating_orgs :
-                e.add_participant(name=org,
-                                  type="organization")
+                e.add_committee(name=org)
 
             if agenda :
                 e.add_source(event["Meeting\xa0Details"]['url'])
@@ -85,4 +85,3 @@ class NYCEventsScraper(LegistarEventsScraper):
                 e.add_source(self.EVENTSPAGE)
 
             yield e
-
