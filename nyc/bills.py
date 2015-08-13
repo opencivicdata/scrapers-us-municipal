@@ -4,7 +4,6 @@ from pupa.utils import make_pseudo_id
 import datetime
 from collections import defaultdict
 import pytz
-import json
 
 class NYCBillScraper(LegistarBillScraper):
     LEGISLATION_URL = 'http://legistar.council.nyc.gov/Legislation.aspx'
