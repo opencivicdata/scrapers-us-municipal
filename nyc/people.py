@@ -10,7 +10,6 @@ class NYCPersonScraper(LegistarPersonScraper):
 
     def scrape(self):
         noncommittees = {'Committee of the Whole'}
-        committee_types = {'Committee', 'Subcommittee', 'Land Use'}
         committee_d = {}
 
         p = Person('Mark S. Weprin',
@@ -72,7 +71,7 @@ class NYCPersonScraper(LegistarPersonScraper):
             for committee, _, _ in committees:
                 committee_name = committee['Department Name']['label']
                 org_type = committee['Type']
-                if committee_name not in noncommittees and org_type in committee_types :
+                if committee_name not in noncommittees and 'committee' in committee_name.lower():
                     o = committee_d.get(committee_name, None)
                     if o is None:
                         parent_id = PARENT_ORGS.get(committee_name,
@@ -86,9 +85,16 @@ class NYCPersonScraper(LegistarPersonScraper):
                     membership = o.add_member(p, role=committee["Title"])
                     membership.start_date = self.mdY2Ymd(committee["Start Date"])
             yield p
+            
 
         for o in committee_d.values() :
-            yield o
+            if 'Committee' in o.name :
+                yield o
+
+        for o in committee_d.values() :
+            if 'Subcommittee' in o.name :
+                yield o
+            
 
 
 PARENT_ORGS = {
