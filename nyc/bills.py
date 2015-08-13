@@ -1,5 +1,6 @@
 from legistar.bills import LegistarBillScraper
 from pupa.scrape import Bill, Vote
+from pupa.utils import make_pseudo_id
 import datetime
 from collections import defaultdict
 import pytz
@@ -14,8 +15,10 @@ class NYCBillScraper(LegistarBillScraper):
                     'absent' : 'absent',
                     'medical' : 'absent'}
 
+    SESSION_STARTS = (2014, 2010, 2006, 2002, 1996)
+
     def sessions(self, action_date) :
-        for session in (2014, 2010, 2006, 2002, 1996) :
+        for session in self.SESSION_STARTS :
             if action_date >= datetime.datetime(session, 1, 1, 
                                                tzinfo=pytz.timezone(self.TIMEZONE)) :
                 return str(session)
@@ -39,7 +42,7 @@ class NYCBillScraper(LegistarBillScraper):
                 sponsor, sponsorship_type, primary = sponsorship
                 bill.add_sponsorship(sponsor, sponsorship_type,
                                      'person', primary, 
-                                     entity_id = '~' + json.dumps({'name' : sponsor}))
+                                     entity_id = make_pseudo_id(name=sponsor))
 
 
             for i, attachment in enumerate(leg_details.get(u'Attachments', [])) :
@@ -52,13 +55,20 @@ class NYCBillScraper(LegistarBillScraper):
                                            attachment['url'],
                                            media_type="application/pdf")
 
-            earliest_action = min(self.toTime(action['Date']) 
-                                  for action in history)
+            history = list(history)
 
-            bill.legislative_session = self.sessions(earliest_action)
+            if history :
+                earliest_action = min(self.toTime(action['Date']) 
+                                      for action in history)
+
+                bill.legislative_session = self.sessions(earliest_action)
+            else :
+                bill.legislative_session = str(self.SESSION_STARTS[0])
 
             for action in history :
                 action_description = action['Action']
+                if not action_description :
+                    continue
                 action_date = self.toDate(action['Date'])
                 responsible_org = action['Action\xa0By']
                 if responsible_org == 'City Council' :
