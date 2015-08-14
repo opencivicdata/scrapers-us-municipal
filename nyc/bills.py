@@ -35,7 +35,18 @@ class NYCBillScraper(LegistarBillScraper):
                         from_organization={"name":"New York City Council"})
             bill.add_source(leg_summary['url'])
 
-            leg_details, history = self.details(leg_summary['url'])
+            leg_details = self.legDetails(leg_summary['url'])
+            history = self.history(leg_summary['url'])
+
+            bill.add_title(leg_details['Name'], 
+                           note='created by administrative staff')
+
+            if 'Summary' in leg_details :
+                bill.add_abstract(leg_details['Summary'], note='')
+
+            if leg_details['Law number'] :
+                bill.add_identifier(leg_details['Law number'], 
+                                    note='law number')
 
             for sponsorship in self._sponsors(leg_details.get('Sponsors', [])) :
                 sponsor, sponsorship_type, primary = sponsorship
@@ -43,16 +54,11 @@ class NYCBillScraper(LegistarBillScraper):
                                      'person', primary, 
                                      entity_id = make_pseudo_id(name=sponsor))
 
-
-            for i, attachment in enumerate(leg_details.get(u'Attachments', [])) :
-                if i == 0 :
-                    bill.add_version_link(attachment['label'],
-                                          attachment['url'],
-                                          media_type="application/pdf")
-                else :
-                    bill.add_document_link(attachment['label'],
-                                           attachment['url'],
-                                           media_type="application/pdf")
+            
+            for attachment in leg_details.get('Attachments', []) :
+                bill.add_document_link(attachment['label'],
+                                       attachment['url'],
+                                       media_type="application/pdf")
 
             history = list(history)
 
@@ -68,6 +74,7 @@ class NYCBillScraper(LegistarBillScraper):
                 action_description = action['Action']
                 if not action_description :
                     continue
+                action_class = ACTION_CLASSIFICATION[action_description]
                 action_date = self.toDate(action['Date'])
                 responsible_org = action['Action\xa0By']
                 if responsible_org == 'City Council' :
@@ -75,22 +82,30 @@ class NYCBillScraper(LegistarBillScraper):
                 act = bill.add_action(action_description,
                                       action_date,
                                       organization={'name': responsible_org},
-                                      classification=None)
+                                      classification=action_class)
 
                 if 'url' in action['Action\xa0Details'] :
                     action_detail_url = action['Action\xa0Details']['url']
+                    if action_class == 'committee-referral' :
+                        action_details = self.actionDetails(action_detail_url)
+                        referred_committee = action_details['Action text'].rsplit(' to the ', 1)[-1]
+                        act.add_related_entity(referred_committee,
+                                               'organization',
+                                               entity_id = make_pseudo_id(name=referred_committee))
                     result, votes = self.extractVotes(action_detail_url)
                     if votes :
                         action_vote = Vote(legislative_session=bill.legislative_session, 
                                            motion_text=action_description,
                                            organization={'name': responsible_org},
-                                           classification=None,
+                                           classification=action_class,
                                            start_date=action_date,
                                            result=result,
                                            bill=bill)
                         action_vote.add_source(action_detail_url)
 
                         yield action_vote
+
+            bill.extras = {'local_classification' : leg_summary['Type']}
 
             yield bill
 
@@ -150,7 +165,7 @@ ACTION_CLASSIFICATION = {
     'Filed by Subcommittee' : 'filing',
     'Filed by Committee with Companion Resolution' : 'filing',
     'Hearing Held by Committee' : None,
-    'Approved by Committee' : 'committee-referral',
+    'Approved by Committee' : 'committee-passage',
     'Approved with Modifications and Referred to the City Planning Commission pursuant to Rule 11.70(b) of the Rules of the Council and Section 197-(d) of the New York City Charter.' : None,
     'Filed, by Committee' : 'filing',
     'Recved from Mayor by Council' : 'executive-received',
