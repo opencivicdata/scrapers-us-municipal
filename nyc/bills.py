@@ -25,7 +25,7 @@ class NYCBillScraper(LegistarBillScraper):
 
     def scrape(self):
 
-        for leg_summary in self.legislation() :
+        for leg_summary in self.legislation(created_after=datetime.datetime(2014, 1, 1)) :
             leg_type = BILL_TYPES[leg_summary['Type']]
             
             bill = Bill(identifier=leg_summary['File\xa0#'],
@@ -80,6 +80,8 @@ class NYCBillScraper(LegistarBillScraper):
                 responsible_org = action['Action\xa0By']
                 if responsible_org == 'City Council' :
                     responsible_org = 'New York City Council'
+                elif responsible_org == 'Administration' :
+                    responsible_org = 'Mayor'
                 act = bill.add_action(action_description,
                                       action_date,
                                       organization={'name': responsible_org},
@@ -169,7 +171,7 @@ ACTION_CLASSIFICATION = {
     'Approved, by Council' : 'passage',
     'Introduced by Council' : 'introduction',
     'Approved by Committee with Companion Resolution' : 'committee-passage',
-    'Rcvd, Ord, Prnt, Fld by Council' : None,
+    'Rcvd, Ord, Prnt, Fld by Council' : 'filing',
     'Laid Over by Subcommittee' : 'deferred',
     'Laid Over by Committee' : 'deferred',
     'Filed by Council' : 'filing',
