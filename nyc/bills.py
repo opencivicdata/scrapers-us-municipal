@@ -143,6 +143,7 @@ ACTION_CLASSIFICATION = {
     'Approved by Committee with Modifications and Referred to CPC' : 'committee-passage',
     'Hearing Scheduled by Mayor' : None,
     'P-C Item Approved by Comm' : 'committee-passage',
+    'P-C Item Approved by Subcommittee with Companion Resolution' : 'committee-passage',
     'Recessed' : None,
     'Amendment Proposed by Comm' : 'amendment-introduction',
     'P-C Item Laid Over by Comm' : 'deferred',
