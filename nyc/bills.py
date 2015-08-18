@@ -25,9 +25,9 @@ class NYCBillScraper(LegistarBillScraper):
 
     def scrape(self):
 
-        for leg_summary in self.legislation(created_after=datetime.datetime(2015, 1, 1)) :
+        for leg_summary in self.legislation() :
             leg_type = BILL_TYPES[leg_summary['Type']]
-
+            
             bill = Bill(identifier=leg_summary['File\xa0#'],
                         title=leg_summary['Title'],
                         legislative_session=None,
@@ -75,6 +75,7 @@ class NYCBillScraper(LegistarBillScraper):
                 if not action_description :
                     continue
                 action_class = ACTION_CLASSIFICATION[action_description]
+
                 action_date = self.toDate(action['Date'])
                 responsible_org = action['Action\xa0By']
                 if responsible_org == 'City Council' :
@@ -104,8 +105,14 @@ class NYCBillScraper(LegistarBillScraper):
                         action_vote.add_source(action_detail_url)
 
                         yield action_vote
+            
+            text = self.text(leg_summary['url'])
 
-            bill.extras = {'local_classification' : leg_summary['Type']}
+            if text :
+                bill.extras = {'local_classification' : leg_summary['Type'],
+                               'full_text' : text}
+            else :
+                bill.extras = {'local_classification' : leg_summary['Type']}
 
             yield bill
 
@@ -134,9 +141,12 @@ BILL_TYPES = {'Introduction' : 'bill',
               'Land Use Call-Up': None, 
               'Communication': None, 
               "Mayor's Message": None, 
+              'Local Laws 2015': 'bill', 
+              'Commissioner of Deeds' : None,
               'Tour': None, 
               'Petition': 'petition', 
               'SLR': None}
+
 
 ACTION_CLASSIFICATION = {
     'Hearing on P-C Item by Comm' : None,
@@ -171,7 +181,10 @@ ACTION_CLASSIFICATION = {
     'Filed, by Committee' : 'filing',
     'Recved from Mayor by Council' : 'executive-received',
     'Signed Into Law by Mayor' : 'executive-signature',
-    'Filed by Committee' : 'filing'
+    'Filed by Committee' : 'filing',
+    'City Charter Rule Adopted' : None,
+    'Withdrawn by Mayor' : None,
+    'Laid Over by Council' : 'deferred'
 }
 
 
