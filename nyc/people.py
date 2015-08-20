@@ -10,8 +10,34 @@ class NYCPersonScraper(LegistarPersonScraper):
 
     def scrape(self):
         noncommittees = {'Committee of the Whole'}
-        committee_types = {'Committee', 'Subcommittee', 'Land Use'}
         committee_d = {}
+
+        p = Person('Mark S. Weprin',
+                   district = 'District 23',
+                   primary_org = 'legislature',
+                   role='Council Member',
+                   end_date='2015-06-14')
+        p.add_source('https://en.wikipedia.org/wiki/Mark_Weprin')
+
+        yield p
+
+        p = Person('Letitia Ms. James',
+                   district = 'District 35',
+                   primary_org = 'legislature',
+                   role='Council Member',
+                   end_date='2013-12-31')
+        p.add_source('https://en.wikipedia.org/wiki/Letitia_James')
+
+        yield p
+
+        p = Person('Vincent Ignizio',
+                   district = 'District 51',
+                   primary_org = 'legislature',
+                   role='Council Member',
+                   end_date='2015-05-31')
+        p.add_source('https://en.wikipedia.org/wiki/Vincent_M._Ignizio')
+
+        yield p
 
         for councilman, committees in self.councilMembers() :
             district = re.search('.*(District \d+).*?',
@@ -45,7 +71,7 @@ class NYCPersonScraper(LegistarPersonScraper):
             for committee, _, _ in committees:
                 committee_name = committee['Department Name']['label']
                 org_type = committee['Type']
-                if committee_name not in noncommittees and org_type in committee_types :
+                if committee_name not in noncommittees and 'committee' in committee_name.lower():
                     o = committee_d.get(committee_name, None)
                     if o is None:
                         parent_id = PARENT_ORGS.get(committee_name,
@@ -59,9 +85,16 @@ class NYCPersonScraper(LegistarPersonScraper):
                     membership = o.add_member(p, role=committee["Title"])
                     membership.start_date = self.mdY2Ymd(committee["Start Date"])
             yield p
+            
 
         for o in committee_d.values() :
-            yield o
+            if 'Committee' in o.name :
+                yield o
+
+        for o in committee_d.values() :
+            if 'Subcommittee' in o.name :
+                yield o
+            
 
 
 PARENT_ORGS = {

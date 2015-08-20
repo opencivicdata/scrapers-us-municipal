@@ -43,11 +43,16 @@ class MiamidadeEventScraper(Scraper):
                 if not description:
                     description = ""
 
+                status = "confirmed"
+                if "cancelled" in title.lower():
+                    status = "cancelled"
+
                 e = Event(name=title,
                             start_time=when,
                             timezone="US/Eastern",
                             location_name=where,
-                            description=description)
+                            description=description,
+                            status=status)
                 
                 e.add_source(link)
                 yield e

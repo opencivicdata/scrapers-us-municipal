@@ -160,6 +160,7 @@ class MiamidadeBillScraper(Scraper):
         "Omnibus Reserve":"bill",
         "Ordinance":"ordinance",
         "Plaque":"commemoration",
+        "Presentation":"other",
         "Proclamation":"proclamation",
         "Professional Service Agreement":"contract",
         "Public Hearing":"other",
@@ -187,15 +188,22 @@ class MiamidadeBillScraper(Scraper):
         intro_date = datetime.strptime(info_dict["Introduced"],"%m/%d/%Y")
         session = sess["identifier"]
         category = matter_types[info_dict["File Type"]]
+        if 'File Name' in info_dict:
+            title = info_dict["File Name"]
+        elif "Title" in info_dict and info_dict["Title"].strip():
+            title = info_dict["Title"].strip()
+        else:
+            self.warning("bill has no title")
+            return
         if category == 'other':
             bill = Bill(identifier=info_dict["File Number"],
                 legislative_session=session,
-                title=info_dict["File Name"]
+                title=title
                 )
         else:
             bill = Bill(identifier=info_dict["File Number"],
                 legislative_session=session,
-                title=info_dict["File Name"],
+                title=title,
                 classification=category
                 )
         for spons in info_dict["Sponsors"]:

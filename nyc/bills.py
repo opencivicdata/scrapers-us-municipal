@@ -1,5 +1,6 @@
 from legistar.bills import LegistarBillScraper
 from pupa.scrape import Bill, Vote
+from pupa.utils import make_pseudo_id
 import datetime
 from collections import defaultdict
 import pytz
@@ -13,8 +14,10 @@ class NYCBillScraper(LegistarBillScraper):
                     'absent' : 'absent',
                     'medical' : 'absent'}
 
+    SESSION_STARTS = (2014, 2010, 2006, 2002, 1996)
+
     def sessions(self, action_date) :
-        for session in (2014, 2010, 2006, 2002, 1996) :
+        for session in self.SESSION_STARTS :
             if action_date >= datetime.datetime(session, 1, 1, 
                                                tzinfo=pytz.timezone(self.TIMEZONE)) :
                 return str(session)
@@ -22,9 +25,9 @@ class NYCBillScraper(LegistarBillScraper):
 
     def scrape(self):
 
-        for leg_summary in self.legislation(created_after=datetime.datetime(2015, 1, 1)) :
+        for leg_summary in self.legislation(created_after=datetime.datetime(2014, 1, 1)) :
             leg_type = BILL_TYPES[leg_summary['Type']]
-
+            
             bill = Bill(identifier=leg_summary['File\xa0#'],
                         title=leg_summary['Title'],
                         legislative_session=None,
@@ -32,54 +35,86 @@ class NYCBillScraper(LegistarBillScraper):
                         from_organization={"name":"New York City Council"})
             bill.add_source(leg_summary['url'])
 
-            leg_details, history = self.details(leg_summary['url'])
+            leg_details = self.legDetails(leg_summary['url'])
+            history = self.history(leg_summary['url'])
+
+            bill.add_title(leg_details['Name'], 
+                           note='created by administrative staff')
+
+            if 'Summary' in leg_details :
+                bill.add_abstract(leg_details['Summary'], note='')
+
+            if leg_details['Law number'] :
+                bill.add_identifier(leg_details['Law number'], 
+                                    note='law number')
 
             for sponsorship in self._sponsors(leg_details.get('Sponsors', [])) :
                 sponsor, sponsorship_type, primary = sponsorship
                 bill.add_sponsorship(sponsor, sponsorship_type,
-                                     'person', primary)
+                                     'person', primary, 
+                                     entity_id = make_pseudo_id(name=sponsor))
 
+            
+            for attachment in leg_details.get('Attachments', []) :
+                bill.add_document_link(attachment['label'],
+                                       attachment['url'],
+                                       media_type="application/pdf")
 
-            for i, attachment in enumerate(leg_details.get(u'Attachments', [])) :
-                if i == 0 :
-                    bill.add_version_link(attachment['label'],
-                                          attachment['url'],
-                                          media_type="application/pdf")
-                else :
-                    bill.add_document_link(attachment['label'],
-                                           attachment['url'],
-                                           media_type="application/pdf")
+            history = list(history)
 
-            earliest_action = min(self.toTime(action['Date']) 
-                                  for action in history)
+            if history :
+                earliest_action = min(self.toTime(action['Date']) 
+                                      for action in history)
 
-            bill.legislative_session = self.sessions(earliest_action)
+                bill.legislative_session = self.sessions(earliest_action)
+            else :
+                bill.legislative_session = str(self.SESSION_STARTS[0])
 
             for action in history :
                 action_description = action['Action']
+                if not action_description :
+                    continue
+                action_class = ACTION_CLASSIFICATION[action_description]
+
                 action_date = self.toDate(action['Date'])
                 responsible_org = action['Action\xa0By']
                 if responsible_org == 'City Council' :
                     responsible_org = 'New York City Council'
+                elif responsible_org == 'Administration' :
+                    responsible_org = 'Mayor'
                 act = bill.add_action(action_description,
                                       action_date,
                                       organization={'name': responsible_org},
-                                      classification=None)
+                                      classification=action_class)
 
                 if 'url' in action['Action\xa0Details'] :
                     action_detail_url = action['Action\xa0Details']['url']
+                    if action_class == 'committee-referral' :
+                        action_details = self.actionDetails(action_detail_url)
+                        referred_committee = action_details['Action text'].rsplit(' to the ', 1)[-1]
+                        act.add_related_entity(referred_committee,
+                                               'organization',
+                                               entity_id = make_pseudo_id(name=referred_committee))
                     result, votes = self.extractVotes(action_detail_url)
                     if votes :
                         action_vote = Vote(legislative_session=bill.legislative_session, 
                                            motion_text=action_description,
                                            organization={'name': responsible_org},
-                                           classification=None,
+                                           classification=action_class,
                                            start_date=action_date,
                                            result=result,
                                            bill=bill)
                         action_vote.add_source(action_detail_url)
 
                         yield action_vote
+            
+            text = self.text(leg_summary['url'])
+
+            if text :
+                bill.extras = {'local_classification' : leg_summary['Type'],
+                               'full_text' : text}
+            else :
+                bill.extras = {'local_classification' : leg_summary['Type']}
 
             yield bill
 
@@ -94,8 +129,9 @@ class NYCBillScraper(LegistarBillScraper):
                 sponsorship_type = "Regular"
             
             sponsor_name = sponsor['label']
-            if sponsor_name == '(in conjunction with the Mayor)' :
-                sponsor_name = 'Mayor'
+            if sponsor_name.startswith(('(in conjunction with',
+                                        '(by request of')) :
+                continue 
 
             yield sponsor_name, sponsorship_type, primary
                 
@@ -107,15 +143,19 @@ BILL_TYPES = {'Introduction' : 'bill',
               'Land Use Call-Up': None, 
               'Communication': None, 
               "Mayor's Message": None, 
+              'Local Laws 2015': 'bill', 
+              'Commissioner of Deeds' : None,
               'Tour': None, 
               'Petition': 'petition', 
               'SLR': None}
+
 
 ACTION_CLASSIFICATION = {
     'Hearing on P-C Item by Comm' : None,
     'Approved by Committee with Modifications and Referred to CPC' : 'committee-passage',
     'Hearing Scheduled by Mayor' : None,
     'P-C Item Approved by Comm' : 'committee-passage',
+    'P-C Item Approved by Subcommittee with Companion Resolution' : 'committee-passage',
     'Recessed' : None,
     'Amendment Proposed by Comm' : 'amendment-introduction',
     'P-C Item Laid Over by Comm' : 'deferred',
@@ -131,19 +171,22 @@ ACTION_CLASSIFICATION = {
     'Approved, by Council' : 'passage',
     'Introduced by Council' : 'introduction',
     'Approved by Committee with Companion Resolution' : 'committee-passage',
-    'Rcvd, Ord, Prnt, Fld by Council' : None,
+    'Rcvd, Ord, Prnt, Fld by Council' : 'filing',
     'Laid Over by Subcommittee' : 'deferred',
     'Laid Over by Committee' : 'deferred',
     'Filed by Council' : 'filing',
     'Filed by Subcommittee' : 'filing',
     'Filed by Committee with Companion Resolution' : 'filing',
     'Hearing Held by Committee' : None,
-    'Approved by Committee' : 'committee-referral',
+    'Approved by Committee' : 'committee-passage',
     'Approved with Modifications and Referred to the City Planning Commission pursuant to Rule 11.70(b) of the Rules of the Council and Section 197-(d) of the New York City Charter.' : None,
     'Filed, by Committee' : 'filing',
     'Recved from Mayor by Council' : 'executive-received',
     'Signed Into Law by Mayor' : 'executive-signature',
-    'Filed by Committee' : 'filing'
+    'Filed by Committee' : 'filing',
+    'City Charter Rule Adopted' : None,
+    'Withdrawn by Mayor' : None,
+    'Laid Over by Council' : 'deferred'
 }
 
 
