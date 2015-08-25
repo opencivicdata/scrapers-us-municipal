@@ -11,8 +11,12 @@ class NYCBillScraper(LegistarBillScraper):
     TIMEZONE = "US/Eastern"
 
     VOTE_OPTIONS = {'affirmative' : 'yes',
+                    'negative' : 'no',
+                    'conflict' : 'absent',
+                    'bereavement': 'excused',
+                    'non-voting' : 'not voting',
                     'absent' : 'absent',
-                    'medical' : 'absent'}
+                    'medical' : 'excused'}
 
     SESSION_STARTS = (2014, 2010, 2006, 2002, 1996)
 
@@ -105,6 +109,10 @@ class NYCBillScraper(LegistarBillScraper):
                                            result=result,
                                            bill=bill)
                         action_vote.add_source(action_detail_url)
+
+                        for option, voter in votes :
+                            action_vote.vote(option, voter)
+
 
                         yield action_vote
             
