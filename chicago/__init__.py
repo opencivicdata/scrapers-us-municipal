@@ -34,14 +34,19 @@ class Chicago(Jurisdiction):
 
     def get_organizations(self):
         org = Organization(name="Chicago City Council", classification="legislature")
-
-        org.add_post("Clerk", "Clerk")
-
-        org.add_post("Mayor", "Mayor")
-
         for x in range(1, 51):
             org.add_post(
                 "Ward {}".format(x),
                 "Alderman")
 
         yield org
+
+        mayor = Organization('Office of the Mayor', classification='executive')
+
+        yield mayor
+
+        # I'm not sure how to model the office of the city clerk it's
+        # a seperately elected executive I think.
+        # clerk = Organization('Office of the City Clerk', classification='executive')
+        # yield clerk
+
