@@ -28,6 +28,7 @@ class NYCBillScraper(LegistarBillScraper):
 
 
     def scrape(self):
+        unaliased_actions = defaultdict(int)
 
         for leg_summary in self.legislation(created_after=datetime.datetime(2014, 1, 1)) :
             leg_type = BILL_TYPES[leg_summary['Type']]
@@ -78,7 +79,13 @@ class NYCBillScraper(LegistarBillScraper):
                 action_description = action['Action']
                 if not action_description :
                     continue
-                action_class = ACTION_CLASSIFICATION[action_description]
+                    
+                if action_description in ACTION_CLASSIFICATION :
+                    action_class = ACTION_CLASSIFICATION[action_description]
+                else :
+                    action_class = None
+                    unaliased_actions[action_description] += 1
+
 
                 action_date = self.toDate(action['Date'])
                 responsible_org = action['Action\xa0By']
@@ -153,6 +160,7 @@ BILL_TYPES = {'Introduction' : 'bill',
               "Mayor's Message": None, 
               'Local Laws 2015': 'bill', 
               'Commissioner of Deeds' : None,
+              'Town Hall Meeting' : None,
               'Tour': None, 
               'Petition': 'petition', 
               'SLR': None}
@@ -174,6 +182,7 @@ ACTION_CLASSIFICATION = {
     'Referred to Comm by Council' : 'committee-referral',
     'Sent to Mayor by Council' : None,
     'P-C Item Approved by Committee with Companion Resolution' : 'committee-passage',
+    'P-C Item Filed by Subcommittee with Companion Resolution' : 'filing',
     'Approved by Council' : 'passage',
     'Hearing Held by Mayor' : None,
     'Approved, by Council' : 'passage',
@@ -182,7 +191,9 @@ ACTION_CLASSIFICATION = {
     'Rcvd, Ord, Prnt, Fld by Council' : 'filing',
     'Laid Over by Subcommittee' : 'deferred',
     'Laid Over by Committee' : 'deferred',
+    'Town Hall Meeting Filed' : None,
     'Filed by Council' : 'filing',
+    'Town Hall Meeting Held' : None,
     'Filed by Subcommittee' : 'filing',
     'Filed by Committee with Companion Resolution' : 'filing',
     'Hearing Held by Committee' : None,
@@ -194,7 +205,8 @@ ACTION_CLASSIFICATION = {
     'Filed by Committee' : 'filing',
     'City Charter Rule Adopted' : None,
     'Withdrawn by Mayor' : None,
-    'Laid Over by Council' : 'deferred'
+    'Laid Over by Council' : 'deferred',
+    'Disapproved by Council' : 'failure'
 }
 
 
