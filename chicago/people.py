@@ -38,25 +38,23 @@ class ChicagoPersonScraper(LegistarScraper):
 
     def scrape(self):
         committee_d = {}
-        non_committees = ('City Council', 'Office of the Mayor')
+        non_committees = {'City Council', 'Office of the Mayor',
+                          'Office of the City Clerk'}
 
         for councilman, committees in self.councilMembers() :
             if councilman['Ward/Office'] == "":
                 continue
 
             ward = councilman['Ward/Office']
-            if ward not in [
-                "Mayor",
-                "Clerk",
-            ]:
+            if ward not in {"Mayor", "Clerk"} :
+
                 ward = "Ward {}".format(int(ward))
                 role = "Alderman"
-            else:
-                role = ward
-            p = Person(councilman['Person Name']['label'],
-                       district=ward,
-                       primary_org="legislature",
-                       role=role)
+                p = Person(councilman['Person Name']['label'],
+                           district=ward,
+                           primary_org="legislature",
+                           role=role)
+                
 
             if councilman['Photo'] :
                 p.image = councilman['Photo']
@@ -97,7 +95,27 @@ class ChicagoPersonScraper(LegistarScraper):
                         committee_d[committee_name] = o
 
                     o.add_member(p, role=committee["Title"])
+
             yield p
 
         for o in committee_d.values() :
             yield o
+
+
+        o = Organization('Council Office of Financial Analysis Oversight Committee', 
+                         classification='committee',
+                         parent_id={'name' : 'Chicago City Council'})
+
+        o.add_source("https://chicago.legistar.com/Departments.aspx")
+        
+        yield o
+
+        o = Organization('Committee on Parks and Recreation', 
+                         classification='committee',
+                         parent_id={'name' : 'Chicago City Council'})
+
+        o.add_source("https://chicago.legistar.com/Departments.aspx")
+        
+        yield o
+
+        
