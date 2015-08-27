@@ -30,6 +30,10 @@ class NYCPersonScraper(LegistarPersonScraper):
             councilman = person_entries[-1]
             
             p = Person(councilman['Person Name']['label'])
+            
+            if p.name == 'Letitia James' :
+                p.name = 'Letitia Ms. James'
+                p.add_name('Letitia James')
 
             spans = [(self.toTime(entry['Start Date']).date(), 
                       self.toTime(entry['End Date']).date(),
@@ -111,6 +115,21 @@ class NYCPersonScraper(LegistarPersonScraper):
         for o in committee_d.values() :
             if 'Subcommittee' in o.name :
                 yield o
+
+        o = Organization('Committee on Mental Health, Developmental Disability, Alcoholism, Drug Abuse and Disability Services',
+                         classification='committee',
+                         parent_id={'name' : 'New York City Council'})
+        o.add_source("http://legistar.council.nyc.gov/Departments.aspx")
+
+        yield o
+
+        o = Organization('Subcommittee on Drug Abuse',
+                         classification='committee',
+                         parent_id={'name' : 'Committee on Mental Health, Developmental Disability, Alcoholism, Drug Abuse and Disability Services'})
+        o.add_source("http://legistar.council.nyc.gov/Departments.aspx")
+
+        yield o
+
             
 
 
