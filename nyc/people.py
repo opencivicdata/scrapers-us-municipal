@@ -2,65 +2,86 @@ import re
 
 from pupa.scrape import Person, Organization
 from legistar.people import LegistarPersonScraper
-
-
+import datetime
 
 class NYCPersonScraper(LegistarPersonScraper):
-    MEMBERLIST = 'http://legistar.council.nyc.gov/People.aspx'
+    MEMBERLIST = 'http://legistar.council.nyc.gov/DepartmentDetail.aspx?ID=6897&GUID=CDC6E691-8A8C-4F25-97CB-86F31EDAB081'
+    TIMEZONE = 'US/Eastern'
 
     def scrape(self):
         noncommittees = {'Committee of the Whole'}
         committee_d = {}
 
-        p = Person('Mark S. Weprin',
-                   district = 'District 23',
-                   primary_org = 'legislature',
-                   role='Council Member',
-                   end_date='2015-06-14')
-        p.add_source('https://en.wikipedia.org/wiki/Mark_Weprin')
+        people_d = {}
 
-        yield p
+        for councilman, committees in self.councilMembers(all_members=True) :
 
-        p = Person('Letitia Ms. James',
-                   district = 'District 35',
-                   primary_org = 'legislature',
-                   role='Council Member',
-                   end_date='2013-12-31')
-        p.add_source('https://en.wikipedia.org/wiki/Letitia_James')
-
-        yield p
-
-        p = Person('Vincent Ignizio',
-                   district = 'District 51',
-                   primary_org = 'legislature',
-                   role='Council Member',
-                   end_date='2015-05-31')
-        p.add_source('https://en.wikipedia.org/wiki/Vincent_M._Ignizio')
-
-        yield p
-
-        for councilman, committees in self.councilMembers() :
-            district = re.search('.*(District \d+).*?',
-                                 councilman['Notes']).group(1)
-            if ('Democrat' in councilman['Notes'] 
-                or 'Democratic' in councilman['Notes']) :
-                party = 'Democratic'
-            elif 'Republican' in councilman ['Notes'] :
-                party = 'Republican'
-            else :
-                party = None
             
-            p = Person(councilman['Person Name']['label'],
-                       district=district,
-                       primary_org="legislature",
-                       role='Council Member')
+            if 'url' in councilman['Person Name'] :
+                councilman_url = councilman['Person Name']['url']
+
+                if councilman_url in people_d :
+                    people_d[councilman_url][0].append(councilman) 
+                else :
+                    people_d[councilman_url] = [councilman], committees
+
+        for person_entries, committees in people_d.values() :
+
+            councilman = person_entries[-1]
+            
+            p = Person(councilman['Person Name']['label'])
+            
+            if p.name == 'Letitia James' :
+                p.name = 'Letitia Ms. James'
+                p.add_name('Letitia James')
+
+            spans = [(self.toTime(entry['Start Date']).date(), 
+                      self.toTime(entry['End Date']).date(),
+                      entry['District'])
+                     for entry in person_entries]
+
+            merged_spans = []
+            last_end_date = None
+            last_district = None
+            for start_date, end_date, district in sorted(spans) :
+                if last_end_date is None :
+                    span = [start_date, end_date, district]
+                elif (start_date - last_end_date) == datetime.timedelta(1) and district == last_district :
+                    span[1] = end_date
+                else :
+                    merged_spans.append(span)
+                    span = [start_date, end_date, district]
+
+                last_end_date = end_date
+                last_district = district
+
+            merged_spans.append(span)
+
+            for start_date, end_date, district in merged_spans :
+                district = councilman['District'].replace(' 0', ' ')
+                if end_date == datetime.date(2017, 12, 31) :
+                    end_date = ''
+                else :
+                    end_date = end_date.isoformat()
+                print(start_date, end_date)
+                p.add_term('Council Member', 'legislature', 
+                           district=district, 
+                           start_date=start_date.isoformat(),
+                           end_date=end_date)
+
+            party = councilman['Political Party']
+            if party == 'Democrat' :
+                party = 'Democratic'
+            
+            if party :
+                p.add_party(party)
 
             if councilman['Photo'] :
                 p.image = councilman['Photo']
 
             if councilman["E-mail"]:
                 p.add_contact_detail(type="email",
-                                     value=councilman['E-mail'],
+                                     value=councilman['E-mail']['url'],
                                      note='E-mail')
 
             if councilman['Website']:
@@ -94,6 +115,21 @@ class NYCPersonScraper(LegistarPersonScraper):
         for o in committee_d.values() :
             if 'Subcommittee' in o.name :
                 yield o
+
+        o = Organization('Committee on Mental Health, Developmental Disability, Alcoholism, Drug Abuse and Disability Services',
+                         classification='committee',
+                         parent_id={'name' : 'New York City Council'})
+        o.add_source("http://legistar.council.nyc.gov/Departments.aspx")
+
+        yield o
+
+        o = Organization('Subcommittee on Drug Abuse',
+                         classification='committee',
+                         parent_id={'name' : 'Committee on Mental Health, Developmental Disability, Alcoholism, Drug Abuse and Disability Services'})
+        o.add_source("http://legistar.council.nyc.gov/Departments.aspx")
+
+        yield o
+
             
 
 

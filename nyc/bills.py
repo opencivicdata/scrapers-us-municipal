@@ -28,7 +28,6 @@ class NYCBillScraper(LegistarBillScraper):
 
 
     def scrape(self):
-
         for leg_summary in self.legislation(created_after=datetime.datetime(2014, 1, 1)) :
             leg_type = BILL_TYPES[leg_summary['Type']]
             
@@ -78,6 +77,7 @@ class NYCBillScraper(LegistarBillScraper):
                 action_description = action['Action']
                 if not action_description :
                     continue
+                    
                 action_class = ACTION_CLASSIFICATION[action_description]
 
                 action_date = self.toDate(action['Date'])
@@ -86,10 +86,14 @@ class NYCBillScraper(LegistarBillScraper):
                     responsible_org = 'New York City Council'
                 elif responsible_org == 'Administration' :
                     responsible_org = 'Mayor'
-                act = bill.add_action(action_description,
-                                      action_date,
-                                      organization={'name': responsible_org},
-                                      classification=action_class)
+                   
+                if responsible_org == 'Town Hall Meeting' :
+                    continue
+                else :
+                    act = bill.add_action(action_description,
+                                          action_date,
+                                          organization={'name': responsible_org},
+                                          classification=action_class)
 
                 if 'url' in action['Action\xa0Details'] :
                     action_detail_url = action['Action\xa0Details']['url']
@@ -141,6 +145,9 @@ class NYCBillScraper(LegistarBillScraper):
                                         '(by request of')) :
                 continue 
 
+            if sponsor_name == 'Letitia James' :
+                sponsor_name = 'Letitia Ms. James'
+
             yield sponsor_name, sponsorship_type, primary
                 
 
@@ -153,6 +160,7 @@ BILL_TYPES = {'Introduction' : 'bill',
               "Mayor's Message": None, 
               'Local Laws 2015': 'bill', 
               'Commissioner of Deeds' : None,
+              'Town Hall Meeting' : None,
               'Tour': None, 
               'Petition': 'petition', 
               'SLR': None}
@@ -174,15 +182,21 @@ ACTION_CLASSIFICATION = {
     'Referred to Comm by Council' : 'committee-referral',
     'Sent to Mayor by Council' : None,
     'P-C Item Approved by Committee with Companion Resolution' : 'committee-passage',
+    'P-C Item Filed by Subcommittee with Companion Resolution' : 'filing',
     'Approved by Council' : 'passage',
     'Hearing Held by Mayor' : None,
     'Approved, by Council' : 'passage',
     'Introduced by Council' : 'introduction',
     'Approved by Committee with Companion Resolution' : 'committee-passage',
     'Rcvd, Ord, Prnt, Fld by Council' : 'filing',
+    'Disapproved by Committee with Companion Resolution' : 'committee-failure',
+    'Disapproved by Committee' : 'committee-failure',
+    'Disapproved by Subcommittee' : 'committee-failure',
     'Laid Over by Subcommittee' : 'deferred',
     'Laid Over by Committee' : 'deferred',
+    'Town Hall Meeting Filed' : None,
     'Filed by Council' : 'filing',
+    'Town Hall Meeting Held' : None,
     'Filed by Subcommittee' : 'filing',
     'Filed by Committee with Companion Resolution' : 'filing',
     'Hearing Held by Committee' : None,
@@ -194,7 +208,8 @@ ACTION_CLASSIFICATION = {
     'Filed by Committee' : 'filing',
     'City Charter Rule Adopted' : None,
     'Withdrawn by Mayor' : None,
-    'Laid Over by Council' : 'deferred'
+    'Laid Over by Council' : 'deferred',
+    'Disapproved by Council' : 'failure'
 }
 
 
