@@ -28,8 +28,6 @@ class NYCBillScraper(LegistarBillScraper):
 
 
     def scrape(self):
-        unaliased_actions = defaultdict(int)
-
         for leg_summary in self.legislation(created_after=datetime.datetime(2014, 1, 1)) :
             leg_type = BILL_TYPES[leg_summary['Type']]
             
@@ -80,12 +78,7 @@ class NYCBillScraper(LegistarBillScraper):
                 if not action_description :
                     continue
                     
-                if action_description in ACTION_CLASSIFICATION :
-                    action_class = ACTION_CLASSIFICATION[action_description]
-                else :
-                    action_class = None
-                    unaliased_actions[action_description] += 1
-
+                action_class = ACTION_CLASSIFICATION[action_description]
 
                 action_date = self.toDate(action['Date'])
                 responsible_org = action['Action\xa0By']
@@ -93,10 +86,14 @@ class NYCBillScraper(LegistarBillScraper):
                     responsible_org = 'New York City Council'
                 elif responsible_org == 'Administration' :
                     responsible_org = 'Mayor'
-                act = bill.add_action(action_description,
-                                      action_date,
-                                      organization={'name': responsible_org},
-                                      classification=action_class)
+                   
+                if responsible_org == 'Town Hall Meeting' :
+                    continue
+                else :
+                    act = bill.add_action(action_description,
+                                          action_date,
+                                          organization={'name': responsible_org},
+                                          classification=action_class)
 
                 if 'url' in action['Action\xa0Details'] :
                     action_detail_url = action['Action\xa0Details']['url']
@@ -148,6 +145,9 @@ class NYCBillScraper(LegistarBillScraper):
                                         '(by request of')) :
                 continue 
 
+            if sponsor_name == 'Letitia James' :
+                sponsor_name = 'Letitia Ms. James'
+
             yield sponsor_name, sponsorship_type, primary
                 
 
@@ -189,6 +189,9 @@ ACTION_CLASSIFICATION = {
     'Introduced by Council' : 'introduction',
     'Approved by Committee with Companion Resolution' : 'committee-passage',
     'Rcvd, Ord, Prnt, Fld by Council' : 'filing',
+    'Disapproved by Committee with Companion Resolution' : 'committee-failure',
+    'Disapproved by Committee' : 'committee-failure',
+    'Disapproved by Subcommittee' : 'committee-failure',
     'Laid Over by Subcommittee' : 'deferred',
     'Laid Over by Committee' : 'deferred',
     'Town Hall Meeting Filed' : None,
