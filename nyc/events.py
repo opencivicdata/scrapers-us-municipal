@@ -73,13 +73,19 @@ class NYCEventsScraper(LegistarEventsScraper):
                 e.add_committee(name=org)
 
             if agenda :
-                e.add_source(event["Meeting\xa0Details"]['url'])
+                e.add_source(event["Meeting Details"]['url'])
 
+                
                 for item, _, _ in agenda :
                     if item["Name"] :
                         agenda_item = e.add_agenda_item(item["Name"])
-                        if item["File #"] :
-                            agenda_item.add_bill(item["Record #"]['label'])
+                        if item["File\xa0#"] :
+                            if item['Action'] :
+                                note = item['Action']
+                            else :
+                                note = 'consideration'
+                            agenda_item.add_bill(item["File\xa0#"]['label'],
+                                                 note=note)
             else :
                 e.add_source(self.EVENTSPAGE)
 
