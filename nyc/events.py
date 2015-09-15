@@ -11,11 +11,18 @@ class NYCEventsScraper(LegistarEventsScraper):
 
     def scrape(self):
         for event, agenda in self.events(since=2011) :
+            other_orgs = ''
+            extras = []
+
             if '--em--' in event[u'Meeting Location'] :
-                location_string, other_orgs = event[u'Meeting Location'].split('--em--')[:2]
+                location_string, note = event[u'Meeting Location'].split('--em--')[:2]
+                for each in note.split(' - ') :
+                    if each.startswith('Join') :
+                        other_orgs = each
+                    else :
+                        extras.append(each)
             else :
                 location_string = event[u'Meeting Location'] 
-                other_orgs = ''
             
             location_list = location_string.split('-', 2)
             location = ', '.join([each.strip() for each in location_list[0:2]])
@@ -46,15 +53,17 @@ class NYCEventsScraper(LegistarEventsScraper):
                        'AGENDA TO BE ANNOUNCED')) :
                 description = ''
 
-            event_name = ' '.join([event['Name'], other_orgs])
+            event_name = event['Name']
 
-            print(when)
             e = Event(name=event_name,
                       start_time=when,
                       timezone=self.TIMEZONE,
                       description=description,
                       location_name=location,
                       status=status)
+
+            if extras :
+                e.extras = {'location note' : ' '.join(extras)}
 
             if event['Multimedia'] != 'Not\xa0available' : 
                 e.add_media_link(note='Recording',
@@ -66,9 +75,12 @@ class NYCEventsScraper(LegistarEventsScraper):
             self.addDocs(e, event, 'Minutes')
 
             participating_orgs = [event["Name"]]
-            if other_orgs.startswith('Jointly with the') :
-                other_orgs = other_orgs.replace('Jointly with the ', '')
+
+            if other_orgs : 
+                other_orgs = re.sub('Jointl*y with the ', '', other_orgs)
                 participating_orgs += re.split(' and the |, the ', other_orgs)
+            else :
+                print(other_orgs)
 
             for org in participating_orgs :
                 e.add_committee(name=org)
