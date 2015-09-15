@@ -10,7 +10,7 @@ class NYCEventsScraper(LegistarEventsScraper):
     BASE_URL = "http://legistar.council.nyc.gov/"
 
     def scrape(self):
-        for event, agenda in self.events() :
+        for event, agenda in self.events(since=2011) :
             if '--em--' in event[u'Meeting Location'] :
                 location_string, other_orgs = event[u'Meeting Location'].split('--em--')[:2]
             else :
@@ -48,6 +48,7 @@ class NYCEventsScraper(LegistarEventsScraper):
 
             event_name = ' '.join([event['Name'], other_orgs])
 
+            print(when)
             e = Event(name=event_name,
                       start_time=when,
                       timezone=self.TIMEZONE,
