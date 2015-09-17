@@ -82,6 +82,7 @@ class ChicagoBillScraper(LegistarBillScraper):
                 if sponsor_name.startswith(('City Clerk', 
                                             'Mendoza, Susana',
                                             'Emanuel, Rahm',
+                                            'Misc. Transmittal',
                                             'Dept./Agency')) :
                     bill.add_sponsorship(sponsor_name, 
                                          sponsorship_type,
