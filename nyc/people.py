@@ -84,9 +84,11 @@ class NYCPersonScraper(LegistarPersonScraper):
                                      value=councilman['E-mail']['url'],
                                      note='E-mail')
 
-            if councilman['Website']:
-                p.add_link(councilman['Website']['url'])
-                
+            if councilman['Web site']:
+                p.add_link(councilman['Web site']['url'], note='web site')
+
+            p.extras = {'Notes' : councilman['Notes']}
+                 
             p.add_source(councilman['Person Name']['url'])
 
             for committee, _, _ in committees:
