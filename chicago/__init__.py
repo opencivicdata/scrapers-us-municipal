@@ -37,7 +37,8 @@ class Chicago(Jurisdiction):
         for x in range(1, 51):
             org.add_post(
                 "Ward {}".format(x),
-                "Alderman")
+                "Alderman",
+                division_id='ocd-division/country:us/state:il/place:chicago/ward:{}'.format(x))
 
         yield org
 
