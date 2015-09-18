@@ -31,7 +31,8 @@ class NYC(Jurisdiction):
         council = Organization('New York City Council', classification='legislature')
         for x in range(1,52):
             council.add_post("District {}".format(x),
-                             role='Council Member')
+                             role='Council Member',
+                             division_id='ocd-division/country:us/state:ny/place:new_york/council_district:{}'.format(x))
         yield council
 
         mayor = Organization('Mayor', classification='executive')
