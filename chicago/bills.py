@@ -83,10 +83,12 @@ class ChicagoBillScraper(LegistarBillScraper):
                                             'Mendoza, Susana',
                                             'Emanuel, Rahm',
                                             'Misc. Transmittal',
+                                            'No Sponsor',
                                             'Dept./Agency')) :
-                    bill.add_sponsorship(sponsor_name, 
-                                         sponsorship_type,
-                                         'person', primary)
+                    pass
+                    #bill.add_sponsorship(sponsor_name, 
+                    #                     sponsorship_type,
+                    #                     'person', primary)
                 else :
                     bill.add_sponsorship(sponsor_name, 
                                          sponsorship_type,
