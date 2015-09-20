@@ -1,5 +1,6 @@
 from legistar.events import LegistarEventsScraper
 from pupa.scrape import Event
+from collections import deque
 
 import datetime
 import re
@@ -10,6 +11,7 @@ class NYCEventsScraper(LegistarEventsScraper):
     BASE_URL = "http://legistar.council.nyc.gov/"
 
     def scrape(self):
+        last_events = deque(maxlen=10)
         for event, agenda in self.events(since=2011) :
             other_orgs = ''
             extras = []
@@ -54,6 +56,13 @@ class NYCEventsScraper(LegistarEventsScraper):
                 description = ''
 
             event_name = event['Name']
+
+            event_id = (event_name, when)
+
+            if event_id in last_events :
+                continue
+            else :
+                last_events.append(event_id)
 
             e = Event(name=event_name,
                       start_time=when,
