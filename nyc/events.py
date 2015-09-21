@@ -33,20 +33,17 @@ class NYCEventsScraper(LegistarEventsScraper):
 
             when = self.toTime(event[u'Meeting Date'])
 
+            event_time = event['iCalendar'].subcomponents[0]['DTSTART'].dt
+            when = when.replace(hour=event_time.hour,
+                                minute=event_time.minute)
+
             time_string = event['Meeting Time']
             if time_string in ('Deferred',) :
                 status = 'cancelled'
-                event_time = None
+            elif self.now() < when :
+                status = 'confirmed'
             else :
-                event_time = datetime.datetime.strptime(time_string,
-                                                        "%I:%M %p")
-                when = when.replace(hour=event_time.hour,
-                                    minute=event_time.minute)
-
-                if self.now() < when :
-                    status = 'confirmed'
-                else :
-                    status = 'passed'
+                status = 'passed'
 
             description = event['Meeting\xa0Topic']
             if any(each in description 
@@ -88,9 +85,7 @@ class NYCEventsScraper(LegistarEventsScraper):
             if other_orgs : 
                 other_orgs = re.sub('Jointl*y with the ', '', other_orgs)
                 participating_orgs += re.split(' and the |, the ', other_orgs)
-            else :
-                print(other_orgs)
-
+ 
             for org in participating_orgs :
                 e.add_committee(name=org)
 
