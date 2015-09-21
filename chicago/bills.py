@@ -79,20 +79,21 @@ class ChicagoBillScraper(LegistarBillScraper):
                 # Does the Mayor/Clerk introduce legisislation as
                 # individuals role holders or as the OFfice of City
                 # Clerk and the Office of the Mayor?
+                entity_type = 'person'
                 if sponsor_name.startswith(('City Clerk', 
-                                            'Mendoza, Susana',
-                                            'Emanuel, Rahm',
-                                            'Misc. Transmittal',
-                                            'No Sponsor',
-                                            'Dept./Agency')) :
-                    pass
-                    #bill.add_sponsorship(sponsor_name, 
-                    #                     sponsorship_type,
-                    #                     'person', primary)
-                else :
+                                            'Mendoza, Susana')) :
+                    sponsor_name = 'Office of the City Clerk'
+                    entity_type = 'organization'
+                elif sponsor_name.startswith(('Emanuel, Rahm',)) :
+                    sponsor_name = 'Office of the Mayor'
+                    entity_type = 'organization'
+                if not sponsor_name.startswith(('Misc. Transmittal',
+                                                'No Sponsor',
+                                                'Dept./Agency')) :
                     bill.add_sponsorship(sponsor_name, 
                                          sponsorship_type,
-                                         'person', primary,
+                                         entity_type,
+                                         primary,
                                          entity_id = make_pseudo_id(name=sponsor_name))
 
             if 'Topic' in leg_details :
