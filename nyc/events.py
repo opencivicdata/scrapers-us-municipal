@@ -84,6 +84,8 @@ class NYCEventsScraper(LegistarEventsScraper):
                 participating_orgs = ['New York City Council']
             elif 'committee' in event['Name'].lower() :
                 participating_orgs = [event["Name"]]
+            else :
+                participating_orgs = []
 
             if other_orgs : 
                 other_orgs = re.sub('Jointl*y with the ', '', other_orgs)
