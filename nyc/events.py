@@ -80,7 +80,10 @@ class NYCEventsScraper(LegistarEventsScraper):
             self.addDocs(e, event, 'Agenda')
             self.addDocs(e, event, 'Minutes')
 
-            participating_orgs = [event["Name"]]
+            if event['Name'] == 'City Council Stated Meeting' :
+                participating_orgs = ['New York City Council']
+            elif 'committee' in event['Name'].lower() :
+                participating_orgs = [event["Name"]]
 
             if other_orgs : 
                 other_orgs = re.sub('Jointl*y with the ', '', other_orgs)
