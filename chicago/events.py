@@ -24,11 +24,10 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
                 continue
 
             when = self.toTime(event[u'Meeting Date'])
-            time_string = event[u'Meeting Time']
-            if time_string :
-                event_time = datetime.datetime.strptime(time_string,
-                                                        "%I:%M %p")
-                when = when.replace(hour=event_time.hour)
+
+            event_time = event['iCalendar'].subcomponents[0]['DTSTART'].dt
+            when = when.replace(hour=event_time.hour,
+                                minute=event_time.minute)
 
             status_string = location_list[-1].split('Chicago, Illinois')
             if len(status_string) > 1 and status_string[1] :
