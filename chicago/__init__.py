@@ -46,8 +46,8 @@ class Chicago(Jurisdiction):
 
         yield mayor
 
-        # I'm not sure how to model the office of the city clerk it's
-        # a seperately elected executive I think.
-        # clerk = Organization('Office of the City Clerk', classification='executive')
-        # yield clerk
+        #I'm not sure how to model the office of the city clerk it's
+        #a seperately elected executive I think.
+        clerk = Organization('Office of the City Clerk', classification='executive')
+        yield clerk
 
