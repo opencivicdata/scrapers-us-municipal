@@ -102,7 +102,7 @@ class NYCPersonScraper(LegistarPersonScraper):
                         o = Organization(committee_name,
                                          classification='committee',
                                          parent_id={'name' : parent_id})
-                        o.add_source("http://legistar.council.nyc.gov/Departments.aspx")
+                        o.add_source(committee['Department Name']['url'])
                         committee_d[committee_name] = o
 
                     membership = o.add_member(p, role=committee["Title"])
