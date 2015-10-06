@@ -1,10 +1,9 @@
 from legistar.bills import LegistarBillScraper
-from pupa.scrape import Bill, Vote
+from pupa.scrape import Bill, VoteEvent
 from pupa.utils import make_pseudo_id
 import datetime
 import pytz
 
-from pupa.scrape import Bill, Vote
 
 
 class ChicagoBillScraper(LegistarBillScraper):
@@ -149,7 +148,7 @@ class ChicagoBillScraper(LegistarBillScraper):
                         result, votes = self.extractVotes(action_detail_url)
 
                         if votes and result : # see https://github.com/datamade/municipal-scrapers-us/issues/15
-                            action_vote = Vote(legislative_session=bill.legislative_session, 
+                            action_vote = VoteEvent(legislative_session=bill.legislative_session, 
                                                motion_text=action_description,
                                                organization={'name': responsible_org},
                                                classification=None,
