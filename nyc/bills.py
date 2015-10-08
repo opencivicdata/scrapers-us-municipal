@@ -55,7 +55,7 @@ class NYCBillScraper(LegistarBillScraper):
                 sponsor, sponsorship_type, primary = sponsorship
                 bill.add_sponsorship(sponsor, sponsorship_type,
                                      'person', primary, 
-                                     entity_id = make_pseudo_id(name=sponsor))
+                                     entity_id = _make_pseudo_id(name=sponsor))
 
             
             for attachment in leg_details.get('Attachments', []) :
@@ -102,7 +102,7 @@ class NYCBillScraper(LegistarBillScraper):
                         referred_committee = action_details['Action text'].rsplit(' to the ', 1)[-1]
                         act.add_related_entity(referred_committee,
                                                'organization',
-                                               entity_id = make_pseudo_id(name=referred_committee))
+                                               entity_id = _make_pseudo_id(name=referred_committee))
                     result, votes = self.extractVotes(action_detail_url)
                     if votes :
                         action_vote = VoteEvent(legislative_session=bill.legislative_session, 
