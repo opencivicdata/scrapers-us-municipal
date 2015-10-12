@@ -93,7 +93,7 @@ class ChicagoBillScraper(LegistarBillScraper):
                                          sponsorship_type,
                                          entity_type,
                                          primary,
-                                         entity_id = make_pseudo_id(name=sponsor_name))
+                                         entity_id = _make_pseudo_id(name=sponsor_name))
 
             if 'Topic' in leg_details :
                 for subject in leg_details[u'Topic'].split(',') :
@@ -140,7 +140,7 @@ class ChicagoBillScraper(LegistarBillScraper):
                                 else :
                                     act.add_related_entity(body_name,
                                                            'organization',
-                                                           entity_id = make_pseudo_id(name=body_name))
+                                                           entity_id = _make_pseudo_id(name=body_name))
 
 
                     if 'url' in action['Action\xa0Details'] :
