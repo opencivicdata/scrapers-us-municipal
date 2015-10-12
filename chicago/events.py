@@ -107,7 +107,7 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
                               type="organization")
 
             if agenda :
-                e.add_source(event['Name']['url'])
+                e.add_source(event['Meeting Details']['url'])
 
                 
                 for item, _, _ in agenda :
