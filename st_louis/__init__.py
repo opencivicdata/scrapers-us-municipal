@@ -23,7 +23,9 @@ class StLouis(Jurisdiction):
     WARD_COUNT = 28
 
     def get_organizations(self):
-        # create an Organization for the BofA
+        yield self.board_of_aldermen()
+
+    def board_of_aldermen(self):
         org = Organization(name="St Louis Board of Aldermen", 
                            classification="legislature")
         # add a post for each Ward
