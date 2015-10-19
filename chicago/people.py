@@ -108,9 +108,6 @@ class ChicagoPersonScraper(LegistarScraper):
             o = Organization(committee_name, 
                              classification='committee',
                              parent_id=_make_pseudo_id({'name' : 'Chicago City Council'}))
-            import pdb
-            pdb.set_trace()
-
             o.add_source("https://chicago.legistar.com/Departments.aspx")
             yield o
 
