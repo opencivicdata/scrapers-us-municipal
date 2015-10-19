@@ -1,5 +1,6 @@
 from pupa.scrape import Person, Organization
 from .legistar import LegistarScraper
+from pupa.utils import make_pseudo_id as _make_pseudo_id
 import logging
 
 
@@ -90,8 +91,8 @@ class ChicagoPersonScraper(LegistarScraper):
                     if o is None:
                         o = Organization(committee_name,
                                          classification='committee',
-                                         parent_id={'name' : 'Chicago City Council'})
-                        o.add_source("https://chicago.legistar.com/Departments.aspx")
+                                         parent_id=_make_pseudo_id({'name' : 'Chicago City Council'}))
+                        o.add_source(committee['Legislative Body']['url'])
                         committee_d[committee_name] = o
 
                     o.add_member(p, role=committee["Title"])
@@ -101,21 +102,16 @@ class ChicagoPersonScraper(LegistarScraper):
         for o in committee_d.values() :
             yield o
 
+        for committee_name in ('Council Office of Financial Analysis Oversight Committee',
+                               'Committee on Parks and Recreation',
+                               'Committee on Police and Fire') :
+            o = Organization(committee_name, 
+                             classification='committee',
+                             parent_id=_make_pseudo_id({'name' : 'Chicago City Council'}))
+            import pdb
+            pdb.set_trace()
 
-        o = Organization('Council Office of Financial Analysis Oversight Committee', 
-                         classification='committee',
-                         parent_id={'name' : 'Chicago City Council'})
-
-        o.add_source("https://chicago.legistar.com/Departments.aspx")
-        
-        yield o
-
-        o = Organization('Committee on Parks and Recreation', 
-                         classification='committee',
-                         parent_id={'name' : 'Chicago City Council'})
-
-        o.add_source("https://chicago.legistar.com/Departments.aspx")
-        
-        yield o
+            o.add_source("https://chicago.legistar.com/Departments.aspx")
+            yield o
 
         
