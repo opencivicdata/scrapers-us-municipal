@@ -1,6 +1,5 @@
 from pupa.scrape import Person, Organization
 from .legistar import LegistarScraper
-from pupa.utils import make_pseudo_id as _make_pseudo_id
 import logging
 
 
@@ -91,7 +90,7 @@ class ChicagoPersonScraper(LegistarScraper):
                     if o is None:
                         o = Organization(committee_name,
                                          classification='committee',
-                                         parent_id=_make_pseudo_id({'name' : 'Chicago City Council'}))
+                                         parent_id={'name' : 'Chicago City Council'})
                         o.add_source(committee['Legislative Body']['url'])
                         committee_d[committee_name] = o
 
@@ -107,7 +106,7 @@ class ChicagoPersonScraper(LegistarScraper):
                                'Committee on Police and Fire') :
             o = Organization(committee_name, 
                              classification='committee',
-                             parent_id=_make_pseudo_id({'name' : 'Chicago City Council'}))
+                             parent_id={'name' : 'Chicago City Council'})
             o.add_source("https://chicago.legistar.com/Departments.aspx")
             yield o
 
