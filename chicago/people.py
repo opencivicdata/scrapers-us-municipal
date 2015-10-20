@@ -101,8 +101,7 @@ class ChicagoPersonScraper(LegistarScraper):
         for o in committee_d.values() :
             yield o
 
-        for committee_name in ('Council Office of Financial Analysis Oversight Committee',
-                               'Committee on Parks and Recreation',
+        for committee_name in ('Committee on Parks and Recreation',
                                'Committee on Police and Fire') :
             o = Organization(committee_name, 
                              classification='committee',
