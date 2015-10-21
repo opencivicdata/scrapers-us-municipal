@@ -2,23 +2,19 @@ from pupa.scrape import Scraper
 from pupa.scrape import Person
 from .utils import Utils
 
-BASE_URL = "https://www.stlouis-mo.gov"
-ALDERMEN_HOME = BASE_URL + "/government/departments/aldermen"
-
-# FIXME duplication from StLouis Jurisdiction class in __init__.py
-WARD_COUNT = 28
-
 class StLouisPersonScraper(Scraper):
 
 	def scrape(self):
+		# FIXME maybe should be `yield from`?
 		yield self.scrape_people()
 
 	def scrape_people(self):
-		for ward_num in range(1, WARD_COUNT + 1):
+		for ward_num in range(1, self.jurisdiction.WARD_COUNT + 1):
+			# FIXME maybe should be `yield from`?
 			yield self.scrape_alderman(ward_num)
 
 	def scrape_alderman(self, ward_num):
-		ward_url = "{}/ward-{}".format(ALDERMEN_HOME, ward_num)
+		ward_url = "{}/ward-{}".format(Utils.ALDERMEN_HOME, ward_num)
 		alderman_url = self.alderman_url(ward_url)
 		alderman_page = Utils.lxmlize(alderman_url)
 

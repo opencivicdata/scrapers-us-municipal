@@ -1,6 +1,7 @@
 # encoding=utf-8
 from pupa.scrape import Jurisdiction, Organization
 from .people import StLouisPersonScraper
+from .bills import StLouisBillScraper
 
 
 class StLouis(Jurisdiction):
@@ -18,7 +19,16 @@ class StLouis(Jurisdiction):
     url = "https://www.stlouis-mo.gov/government/departments/aldermen/"
     scrapers = {
         "people": StLouisPersonScraper,
+        "bills":  StLouisBillScraper
     }
+
+    legislative_sessions = [
+        { "identifier": "2015-2016",
+          "name": "2015-2016 Regular Session",
+          "start_date": "2015-04-20",
+          "end-date": "2016-04-17"
+        }
+    ]
 
     WARD_COUNT = 28
 
