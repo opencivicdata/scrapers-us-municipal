@@ -1,6 +1,6 @@
 from legistar.bills import LegistarBillScraper
 from pupa.scrape import Bill, VoteEvent
-from pupa.utils import _make_pseudo_id
+from pupa.utils import make_pseudo_id as _make_pseudo_id
 import datetime
 import pytz
 
@@ -161,6 +161,8 @@ class ChicagoBillScraper(LegistarBillScraper):
                                 action_vote.vote(option, voter)
 
                             yield action_vote
+
+            bill.extras = {'local_classification' : leg_summary['Type']}
                             
             yield bill
         print(unreachable_urls)

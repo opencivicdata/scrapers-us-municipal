@@ -91,7 +91,7 @@ class ChicagoPersonScraper(LegistarScraper):
                         o = Organization(committee_name,
                                          classification='committee',
                                          parent_id={'name' : 'Chicago City Council'})
-                        o.add_source("https://chicago.legistar.com/Departments.aspx")
+                        o.add_source(committee['Legislative Body']['url'])
                         committee_d[committee_name] = o
 
                     o.add_member(p, role=committee["Title"])
@@ -101,21 +101,12 @@ class ChicagoPersonScraper(LegistarScraper):
         for o in committee_d.values() :
             yield o
 
-
-        o = Organization('Council Office of Financial Analysis Oversight Committee', 
-                         classification='committee',
-                         parent_id={'name' : 'Chicago City Council'})
-
-        o.add_source("https://chicago.legistar.com/Departments.aspx")
-        
-        yield o
-
-        o = Organization('Committee on Parks and Recreation', 
-                         classification='committee',
-                         parent_id={'name' : 'Chicago City Council'})
-
-        o.add_source("https://chicago.legistar.com/Departments.aspx")
-        
-        yield o
+        for committee_name in ('Committee on Parks and Recreation',
+                               'Committee on Police and Fire') :
+            o = Organization(committee_name, 
+                             classification='committee',
+                             parent_id={'name' : 'Chicago City Council'})
+            o.add_source("https://chicago.legistar.com/Departments.aspx")
+            yield o
 
         
