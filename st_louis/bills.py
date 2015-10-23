@@ -4,8 +4,7 @@ from pupa.scrape import BaseBillScraper
 from .utils import Utils
 import time
 
-# we subclass pupa.scrape.BaseBillScraper -- special helper for bill scrapers
-# see https://github.com/opencivicdata/pupa/blob/master/ARCHITECTURE.md#pupascrape
+
 class StLouisBillScraper(Scraper):
 
 	def scrape(self):
@@ -37,6 +36,7 @@ class StLouisBillScraper(Scraper):
 		bill.add_source(bill_url, note="detail")
 
 		# add additional fields
+		
 		data_table = page.xpath("//table[@class='data vertical_table']")[0]
 
 		# sponsor
@@ -50,18 +50,19 @@ class StLouisBillScraper(Scraper):
 		# abstract
 		summary = data_table.xpath(self.bill_table_query("Summary"))[0]
 		bill.add_abstract(abstract=summary, note="summary")
-		# TODO clean up weird \t formatting at beginning of summary
+		# TODO trim whitespace from summary
 
 		# actions
-		actions = data_table.xpath(self.bill_table_query("Actions"))
-		for act in actions:
+		action_lines = data_table.xpath(self.bill_table_query("Actions"))
+		for line in action_lines:
 			try:
-				date, action_type = self.parse_action(act)
-				bill.add_action(date=date,
-					description=action_type,	
-					classification=action_type)
+				for date_str, action_type in self.parse_actions(line):
+					bill.add_action(date=date_str,
+						description=action_type,	
+						classification=action_type)
+					print("added action: {}".format(action_type))
 			except ValueError:
-				print("failed to parse action: {}".format(act.strip()))
+				print("failed to parse these actions: {}".format([line]))
 
 
 		# co-sponsors
@@ -72,6 +73,7 @@ class StLouisBillScraper(Scraper):
 						classification="co-sponsor",
 						entity_type="person",
 						primary=False)
+
 		return bill
 
 
@@ -81,46 +83,50 @@ class StLouisBillScraper(Scraper):
 	def bill_session_url(self, session_id):
 		return Utils.BILLS_HOME + "?sessionBB=" + session_id
 
-	def parse_action(self, action_str):
+	def parse_actions(self, action_line):
 		"""
-		action_str will be something like:
+		input will look like:
 		'\n05/15/2015 Second Reading '
 
-		return something like:
+		return a tuple that looks like:
 		('2015-05-15', 'reading-2')
 		"""
 
-		words = action_str.strip().split(" ")
-
-		# date is first word, rest of words describe the bill action
-		date_str, *tail = words
+		# date is the first word, rest of words describe the bill actions
+		date_str, _, action_types_str = action_line.strip().partition(" ")
 
 		# convert date format from eg "05/12/2015" to "2015-05-12"
 		date = time.strptime(date_str, "%m/%d/%Y")
 		date_str = time.strftime("%Y-%m-%d", date)
 
-		# try to convert classification from eg
-		# "First Reading" to "reading-1"
-		classification_str = " ".join(tail)
-		try:
-			classification = self.action_classifications[classification_str]
-		except KeyError:
-			raise ValueError("invalid bill action classification: {}"
-				.format(classification_str))
-			# TODO this exception is triggered in cases of multiple actions
-			# on one date, i.e.
-			# "05/15/2015 Second Reading,Perfection"
-			# Let's catch that and parse it into two separate actions
+		# action_types_str might contain multiple action_types, eg
+		# "Third Reading,Perfection"
+		action_types = action_types_str.split(",")
+		print (action_types)
 
-		return date_str, classification
-
+		for act in action_types:
+			# try to convert st louis phrase to OCD phrase, eg
+			# "Second Reading" --> "reading-2"
+			try:
+				classification = self.action_classifications[act]
+			except KeyError:
+				print(act)
+				raise ValueError("invalid bill action classification: {}".format(act))
+			# yield a result for each action_type
+			yield date_str, classification
+			
 	action_classifications = {
 		"First Reading": "reading-1",
 		"Second Reading": "reading-2",
-		"Third Reading": "reading-3"
+		"Third Reading": "reading-3",
 		# TODO other cases. 
 		# See http://docs.opencivicdata.org/en/latest/scrape/bills.html
+
 		# what does "Perfection" map to?
+		"Perfection": "committee-referral", # ???
+
+		# what does "Informal Calendar" map to?
+		"Informal Calendar": "filing", # ???
 	}
 		
 
