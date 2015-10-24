@@ -6,14 +6,6 @@ from .bills import StLouisBillScraper
 
 class StLouis(Jurisdiction):
     division_id = "ocd-division/country:us/state:mo/place:st_louis"
-
-    # FIXME
-    # Do we need jurisdiction_id? pupa did not auto-generate this field 
-    # like division_id, I made it myself.
-    # And is this the correct id? or should it be 
-    # .../place:st_louis/council ? or .../place:st_louis/government ?
-    jurisdiction_id = "ocd-jurisdiction/country:us/state:mo/place:st_louis"
-    
     classification = "legislature"
     name = "St. Louis city Board of Aldermen"
     url = "https://www.stlouis-mo.gov/government/departments/aldermen/"
