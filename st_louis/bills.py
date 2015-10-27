@@ -1,17 +1,17 @@
 from pupa.scrape import Scraper
 from pupa.scrape import Bill
 from pupa.scrape import BaseBillScraper
-from .utils import Utils
+from .utils import Utils, StlScraper
 import time
 
 
-class StLouisBillScraper(Scraper):
+class StLouisBillScraper(StlScraper):
 
 	def scrape(self):
 		for session in self.jurisdiction.legislative_sessions:
 			session_id = session["identifier"]
 			session_url = self.bill_session_url(session_id)
-			page = Utils.lxmlize(session_url)
+			page = self.lxmlize(session_url)
 
 			# bills are in a <table class="data"> 
 			bill_rows = page.xpath("//table[@class='data']/tr")
@@ -26,7 +26,7 @@ class StLouisBillScraper(Scraper):
 
 
 	def scrape_bill(self, bill_url, bill_id, session_id):
-		page = Utils.lxmlize(bill_url)
+		page = self.lxmlize(bill_url)
 
 		# create bill
 		title = page.xpath("//em/text()")[0]

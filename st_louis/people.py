@@ -1,8 +1,8 @@
 from pupa.scrape import Scraper
 from pupa.scrape import Person
-from .utils import Utils
+from .utils import Utils, StlScraper
 
-class StLouisPersonScraper(Scraper):
+class StLouisPersonScraper(StlScraper):
 
 	def scrape(self):
 		# FIXME maybe should be `yield from`?
@@ -16,7 +16,7 @@ class StLouisPersonScraper(Scraper):
 	def scrape_alderman(self, ward_num):
 		ward_url = "{}/ward-{}".format(Utils.ALDERMEN_HOME, ward_num)
 		alderman_url = self.alderman_url(ward_url)
-		alderman_page = Utils.lxmlize(alderman_url)
+		alderman_page = self.lxmlize(alderman_url)
 
 		# person's name is the only <h1> tag on the page
 		name = alderman_page.xpath("//h1/text()")[0]
@@ -40,7 +40,7 @@ class StLouisPersonScraper(Scraper):
 		return person
 
 	def alderman_url(self, ward_url):
-		ward_page = Utils.lxmlize(ward_url)
+		ward_page = self.lxmlize(ward_url)
 		# each ward page contains a link to the current alderman's profile.
 		# the text of the link says "Email <Jane Doe>" where Jane Doe is the
 		# name of the alderman.
