@@ -48,9 +48,12 @@ class StLouisBillScraper(Scraper):
 				)
 
 		# abstract
-		summary = data_table.xpath(self.bill_table_query("Summary"))[0]
-		bill.add_abstract(abstract=summary, note="summary")
-		# TODO trim whitespace from summary
+		try:
+			summary = data_table.xpath(self.bill_table_query("Summary"))[0]
+			bill.add_abstract(abstract=summary, note="summary")
+			# TODO trim whitespace from summary
+		except IndexError:
+			print("No summary for bill {} in session {}".format(bill_id, session_id))
 
 		# actions
 		action_lines = data_table.xpath(self.bill_table_query("Actions"))
