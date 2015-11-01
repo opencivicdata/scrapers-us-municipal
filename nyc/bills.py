@@ -169,6 +169,7 @@ BILL_TYPES = {'Introduction' : 'bill',
 ACTION_CLASSIFICATION = {
     'Hearing on P-C Item by Comm' : None,
     'Approved by Committee with Modifications and Referred to CPC' : 'committee-passage',
+    'Approved by Committee with Modifications' : 'committee-passage',
     'Hearing Scheduled by Mayor' : None,
     'P-C Item Approved by Comm' : 'committee-passage',
     'P-C Item Approved by Subcommittee with Companion Resolution' : 'committee-passage',
