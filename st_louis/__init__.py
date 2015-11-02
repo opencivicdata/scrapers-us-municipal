@@ -34,32 +34,32 @@ class StLouis(Jurisdiction):
         { "identifier": "2015-2016",
           "name": "2015-2016 Regular Session",
           "start_date": "2015-04-20",
-          "end-date": "2016-04-17"
+          "end_date": "2016-04-17"
         },
         { "identifier": "2014-2015",
           "name": "2014-2015 Regular Session",
           "start_date": "2014-04-14",
-          "end-date": "2015-04-20"
+          "end_date": "2015-04-20"
         },
         { "identifier": "2013-2014",
           "name": "2013-2014 Regular Session",
           "start_date": "2013-04-15",
-          "end-date": "2014-04-07"
+          "end_date": "2014-04-07"
         },
         { "identifier": "2012-2013",
           "name": "2012-2013 Regular Session",
           "start_date": "2012-04-16",
-          "end-date": "2013-04-08"
+          "end_date": "2013-04-08"
         },
         { "identifier": "2011-2012",
           "name": "2011-2012 Regular Session",
           "start_date": "2011-04-18",
-          "end-date": "2012-04-09"
+          "end_date": "2012-04-09"
         },
         { "identifier": "2010-2011",
           "name": "2010-2011 Regular Session",
           "start_date": "2010-04-19",
-          "end-date": "2011-04-11"
+          "end_date": "2011-04-11"
         }
     ]
 
