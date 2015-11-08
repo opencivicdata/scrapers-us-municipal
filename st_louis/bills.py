@@ -36,7 +36,18 @@ class StLouisBillScraper(StlScraper):
 		bill.add_source(bill_url, note="detail")
 
 		# add additional fields
-		
+
+		# abstract
+		try:
+			# abstract is directly above <h2>Legislative History</h2>
+			leg_his = page.xpath("//h2[text()='Legislative History']")[0]
+			abstract = leg_his.xpath("preceding-sibling::p/text()")[0]
+			bill.add_abstract(abstract=abstract.strip(), note="summary")
+			# TODO trim whitespace from summary
+		except IndexError:
+			print("No abstract for bill {} in session {}".format(bill_id, session_id))
+
+		# the rest of the fields are found inside this <table>
 		data_table = page.xpath("//table[@class='data vertical_table']")[0]
 
 		# sponsor
@@ -47,14 +58,6 @@ class StLouisBillScraper(StlScraper):
 				primary=True
 				)
 
-		# abstract
-		try:
-			summary = data_table.xpath(self.bill_table_query("Summary"))[0]
-			bill.add_abstract(abstract=summary, note="summary")
-			# TODO trim whitespace from summary
-		except IndexError:
-			print("No summary for bill {} in session {}".format(bill_id, session_id))
-
 		# actions
 		action_lines = data_table.xpath(self.bill_table_query("Actions"))
 		for line in action_lines:
@@ -63,7 +66,6 @@ class StLouisBillScraper(StlScraper):
 					bill.add_action(date=date_str,
 						description=action_type,	
 						classification=action_type)
-					print("added action: {}".format(action_type))
 			except ValueError:
 				print("failed to parse these actions: {}".format([line]))
 
@@ -105,7 +107,7 @@ class StLouisBillScraper(StlScraper):
 		# action_types_str might contain multiple action_types, eg
 		# "Third Reading,Perfection"
 		action_types = action_types_str.split(",")
-		print (action_types)
+		# print (action_types)
 
 		for act in action_types:
 			# try to convert st louis phrase to OCD phrase, eg
