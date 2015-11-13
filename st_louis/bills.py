@@ -1,7 +1,7 @@
 from pupa.scrape import Scraper
 from pupa.scrape import Bill
 from pupa.scrape import BaseBillScraper
-from .utils import Utils, StlScraper
+from .utils import Urls, StlScraper
 import time
 
 
@@ -95,7 +95,7 @@ class StLouisBillScraper(StlScraper):
 		return "//th[text()='{}:']/../td".format(key)
 
 	def bill_session_url(self, session_id):
-		return Utils.BILLS_HOME + "?sessionBB=" + session_id
+		return Urls.BILLS_HOME + "?sessionBB=" + session_id
 
 	def parse_actions(self, action_line):
 		"""
