@@ -11,6 +11,7 @@ class StLouisBillScraper(StlScraper):
 		for session in self.jurisdiction.legislative_sessions:
 			session_id = session["identifier"]
 			session_url = self.bill_session_url(session_id)
+			print(session_url)
 			page = self.lxmlize(session_url)
 
 			# bills are in a <table class="data"> 
@@ -22,6 +23,7 @@ class StLouisBillScraper(StlScraper):
 				id_link = row.xpath("td[1]/a")[0]
 				bill_id = id_link.xpath("text()")[0]
 				bill_url = id_link.xpath("@href")[0]
+				print(bill_url)
 				yield self.scrape_bill(bill_url, bill_id, session_id)
 
 
@@ -131,5 +133,3 @@ class StLouisBillScraper(StlScraper):
 		# what does "Informal Calendar" map to?
 		"Informal Calendar": "filing", # ???
 	}
-		
-

@@ -16,8 +16,8 @@ class StlScraper(Scraper):
 
 class Utils(object):
 
-	BASE_URL = "https://www.stlouis-mo.gov"
-	ALDERMEN_HOME = BASE_URL + "/government/departments/aldermen"
-	BILLS_HOME = ALDERMEN_HOME + "/city-laws/board-bills.cfm"
+	BASE_URL = "https://www.stlouis-mo.gov/government"
+	ALDERMEN_HOME = BASE_URL + "/departments/aldermen"
+	BILLS_HOME = BASE_URL + "/city-laws/board-bills/index.cfm"
 
 
