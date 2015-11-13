@@ -142,5 +142,3 @@ class StLouisBillScraper(StlScraper):
 		# what does "Informal Calendar" map to?
 		"Informal Calendar": "filing", # ???
 	}
-		
-
