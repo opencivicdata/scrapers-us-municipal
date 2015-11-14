@@ -63,7 +63,6 @@ class StLouisBillScraper(StlScraper):
 					bill.add_action(date=date_str,
 						description=action_type,	
 						classification=action_type)
-					print("added action: {}".format(action_type))
 			except ValueError:
 				print("failed to parse these actions: {}".format([line]))
 
@@ -105,7 +104,6 @@ class StLouisBillScraper(StlScraper):
 		# action_types_str might contain multiple action_types, eg
 		# "Third Reading,Perfection"
 		action_types = action_types_str.split(",")
-		print (action_types)
 
 		for act in action_types:
 			# try to convert st louis phrase to OCD phrase, eg
@@ -131,5 +129,3 @@ class StLouisBillScraper(StlScraper):
 		# what does "Informal Calendar" map to?
 		"Informal Calendar": "filing", # ???
 	}
-		
-
