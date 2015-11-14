@@ -30,7 +30,6 @@ class StLouisBillScraper(StlScraper):
 
 		# create bill
 		title = page.xpath("//em/text()")[0]
-		print(title)
 		bill = Bill(identifier=bill_id,
 			        legislative_session=session_id,
 			        title=title)
