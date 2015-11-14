@@ -116,7 +116,6 @@ class StLouisBillScraper(StlScraper):
 		# action_types_str might contain multiple action_types, eg
 		# "Third Reading,Perfection"
 		action_types = action_types_str.split(",")
-		# print (action_types)
 
 		for act in action_types:
 			# try to convert st louis phrase to OCD phrase, eg
