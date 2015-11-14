@@ -77,7 +77,6 @@ class StLouisPersonScraper(StlScraper):
 		description = landmark_node.xpath("preceding-sibling::p/text()")[0]
 		description = description.strip()
 		comm.extras = {"description": description}
-		# TODO how to assoc description to the comm obj?
 
 		yield comm
 
