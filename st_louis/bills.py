@@ -1,6 +1,4 @@
-from pupa.scrape import Scraper
 from pupa.scrape import Bill
-from pupa.scrape import BaseBillScraper
 from .utils import Urls, StlScraper
 import time
 

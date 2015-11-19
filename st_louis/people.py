@@ -1,6 +1,6 @@
-from nameparser import HumanName
-from pupa.scrape import Scraper, Person, Organization
+from pupa.scrape import Person, Organization
 from .utils import Urls, StlScraper
+from nameparser import HumanName
 
 class StLouisPersonScraper(StlScraper):
 
