@@ -14,10 +14,10 @@ class StlScraper(Scraper):
 		page.make_links_absolute(url)
 		return page 
 
-class Utils(object):
+class Urls(object):
 
 	BASE_URL = "https://www.stlouis-mo.gov/government"
 	ALDERMEN_HOME = BASE_URL + "/departments/aldermen"
 	BILLS_HOME = BASE_URL + "/city-laws/board-bills/index.cfm"
-
+	COMMITTEES_HOME = ALDERMEN_HOME + "/committee.cfm" 
 
