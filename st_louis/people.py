@@ -1,6 +1,5 @@
 from pupa.scrape import Person, Organization
-from .utils import Urls, StlScraper
-from nameparser import HumanName
+from .utils import Urls, StlScraper, HumanName
 
 class StLouisPersonScraper(StlScraper):
 
@@ -24,7 +23,7 @@ class StLouisPersonScraper(StlScraper):
 
 		# person's name is the only <h1> tag on the page
 		raw_name = alderman_page.xpath("//h1/text()")[0]
-		name = self.name_firstandlast(raw_name)
+		name = HumanName.name_firstandlast(raw_name)
 
 		# initialize person object with appropriate data so that pupa can 
 		# automatically create a membership object linking this person to
@@ -92,15 +91,6 @@ class StLouisPersonScraper(StlScraper):
 	def committee_url(self, comm_num):
 		return Urls.COMMITTEES_HOME + "?committeeDetail=true&comId={}".format(comm_num)
 
-	def name_firstandlast(self, raw_name):
-		""" 
-		use HumanName to parse and standardize corner cases 
-		e.g. 'Megan E. Green' and 'Freeman Bosley Sr.''
-		  => 'Megan Green'    and 'Freeman Bosley'
-		"""
-		hname = HumanName(raw_name)
-		hname.string_format = "{first} {last}"
-		return str(hname)
 
 	# TODO move this?
 	COMMITTEE_COUNT = 15
