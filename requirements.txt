@@ -1,4 +1,4 @@
--e git+https://github.com/opencivicdata/pupa.git@0.5.x#egg=pupa
+-e git+https://github.com/datamade/pupa.git@0.5.x#egg=pupa
 lxml
 sh
 -e git+https://github.com/opencivicdata/python-legistar-scraper@cleanup#egg=legistar
