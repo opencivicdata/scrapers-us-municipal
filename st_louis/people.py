@@ -66,7 +66,10 @@ class StLouisPersonScraper(StlScraper):
 
 		# add memberships
 		member_names = landmark_node.xpath("following-sibling::ul/li/a/text()")
-		fl_names = [self.name_firstandlast(name) for name in member_names]
+		fl_names = [HumanName.name_firstandlast(name) for name in member_names]
+		print(comm_name)
+		print("My attempt to scrub people's names:", 
+			    list(zip(member_names, fl_names)))
 		chair_name, *other_names = fl_names
 		comm.add_member(chair_name, role="chair")
 		for name in other_names:
