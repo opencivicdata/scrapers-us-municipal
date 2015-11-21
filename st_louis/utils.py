@@ -47,5 +47,5 @@ class HumanName(object):
 			lastname = " " + clean_rest[-1]
 		except IndexError:
 			lastname = ""
-		return firstname + lastname
+		return (firstname + lastname).strip()
 
