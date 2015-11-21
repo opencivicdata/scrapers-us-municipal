@@ -39,6 +39,11 @@ class HumanName(object):
 		# e.g. 'Bill de la Garza'   => 'Bill Garza'
 		#      'Freeman Bosley III' => 'Freeman III'
 
+
+		# first of all, check for any particular known typos
+		if raw_name == "Freeman M BosleySr.":
+			return "Freeman Bosley"
+
 		words = raw_name.split(" ")
 		firstname, *rest = words
 		# last name is the farthest-back word that does not contain "."
