@@ -41,8 +41,12 @@ class HumanName(object):
 
 
 		# first of all, check for any particular known typos
-		if raw_name == "Freeman M BosleySr.":
-			return "Freeman Bosley"
+		known_typos = { 
+			"Freeman M BosleySr.": "Freeman Bosley",
+			"Megan E.Green": "Megan Green" 
+		}
+		if raw_name in known_typos:
+			return known_typos[raw_name]
 
 		words = raw_name.split(" ")
 		firstname, *rest = words
