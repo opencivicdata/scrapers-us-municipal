@@ -1,5 +1,6 @@
 from pupa.scrape import Person, Organization
 from .utils import Urls, StlScraper, HumanName
+from pupa.utils import make_pseudo_id as _make_pseudo_id
 
 class StLouisPersonScraper(StlScraper):
 
@@ -44,43 +45,44 @@ class StLouisPersonScraper(StlScraper):
 		return person
 
 	def scrape_committee(self, comm_num):
-		url = self.committee_url(comm_num)
-		page = self.lxmlize(url)
-		# get title
-		comm_name = page.xpath("//h1/text()")[0]
+                url = self.committee_url(comm_num)
+                page = self.lxmlize(url)
+                # get title
+                comm_name = page.xpath("//h1/text()")[0]
 
-		# create object
-		comm = Organization(name=comm_name,
-											 classification="committee",
-											 chamber="legislature")
-		comm.add_source(url=url)
+                # create object
+                comm = Organization(name=comm_name,
+                                    classification="committee",
+                                    chamber="legislature")
+                comm.add_source(url=url)
 
 		# add posts
-		comm.add_post(label="chair", role="chair")
+                comm.add_post(label="chair", role="chair")
 		# FIXME do we need a separate post for each member?
 		# FIXME is member an appropriate name?
-		comm.add_post(label="member", role="member") 
+                comm.add_post(label="member", role="member") 
 
 		# helper for finding other nodes
-		landmark_node = page.xpath("//h2[text()='Committee Members']")[0]
+                landmark_node = page.xpath("//h2[text()='Committee Members']")[0]
 
 		# add memberships
-		member_names = landmark_node.xpath("following-sibling::ul/li/a/text()")
-		fl_names = [HumanName.name_firstandlast(name) for name in member_names]
-		print(comm_name)
-		print("My attempt to scrub people's names:", 
-			    list(zip(member_names, fl_names)))
-		chair_name, *other_names = fl_names
-		comm.add_member(chair_name, role="chair")
-		for name in other_names:
-			comm.add_member(name, role="member")
-
+                member_names = landmark_node.xpath("following-sibling::ul/li/a/text()")
+                fl_names = [HumanName.name_firstandlast(name) for name in member_names]
+                print(comm_name)
+                print("My attempt to scrub people's names:", 
+                      list(zip(member_names, fl_names)))
+                chair_name, *other_names = fl_names
+                if chair_name not in {'Lewis Reed'} :
+                        comm.add_member(chair_name, role="chair")
+                for name in other_names:
+                        if name not in {'Lewis Reed'} :
+                                comm.add_member(name, role="member")
 		# add description 
-		description = landmark_node.xpath("preceding-sibling::p/text()")[0]
-		description = description.strip()
-		comm.extras = {"description": description}
+                description = landmark_node.xpath("preceding-sibling::p/text()")[0]
+                description = description.strip()
+                comm.extras = {"description": description}
 
-		yield comm
+                yield comm
 
 
 	def alderman_url(self, ward_url):
