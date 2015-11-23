@@ -1,7 +1,5 @@
-from pupa.scrape import Scraper
 from pupa.scrape import Bill
-from pupa.scrape import BaseBillScraper
-from .utils import Utils, StlScraper
+from .utils import Urls, StlScraper
 import time
 
 
@@ -36,27 +34,30 @@ class StLouisBillScraper(StlScraper):
 		bill.add_source(bill_url, note="detail")
 
 		# add additional fields
-		
+
+		# abstract
+		try:
+			# abstract is directly above <h2>Legislative History</h2>
+			leg_his = page.xpath("//h2[text()='Legislative History']")[0]
+			abstract = leg_his.xpath("preceding-sibling::p/text()")[0]
+			bill.add_abstract(abstract=abstract.strip(), note="summary")
+			# TODO trim whitespace from summary
+		except IndexError:
+			print("No abstract for bill {} in session {}".format(bill_id, session_id))
+
+		# the rest of the fields are found inside this <table>
 		data_table = page.xpath("//table[@class='data vertical_table']")[0]
 
 		# sponsor
-		sponsor_name = data_table.xpath(self.bill_table_query("Sponsor"))[0]
+		sponsor_name = data_table.xpath(self.bill_table_query("Sponsor") + "/text()")[0]
 		bill.add_sponsorship(name=sponsor_name,
 				classification="Primary",
 				entity_type="person",
 				primary=True
 				)
 
-		# abstract
-		try:
-			summary = data_table.xpath(self.bill_table_query("Summary"))[0]
-			bill.add_abstract(abstract=summary, note="summary")
-			# TODO trim whitespace from summary
-		except IndexError:
-			print("No summary for bill {} in session {}".format(bill_id, session_id))
-
 		# actions
-		action_lines = data_table.xpath(self.bill_table_query("Actions"))
+		action_lines = data_table.xpath(self.bill_table_query("Actions") + "/text()")
 		for line in action_lines:
 			try:
 				for date_str, action_type in self.parse_actions(line):
@@ -68,7 +69,7 @@ class StLouisBillScraper(StlScraper):
 
 
 		# co-sponsors
-		co_sponsors = data_table.xpath(self.bill_table_query("Co-Sponsors"))
+		co_sponsors = data_table.xpath(self.bill_table_query("Co-Sponsors") + "/text()")
 		co_sponsors = [name.strip() for name in co_sponsors if name.strip()]
 		for name in co_sponsors:
 			bill.add_sponsorship(name=name,
@@ -76,14 +77,22 @@ class StLouisBillScraper(StlScraper):
 						entity_type="person",
 						primary=False)
 
+		# committee (stored as another sponsorship in OCD)
+		committees = data_table.xpath(self.bill_table_query("Committee") + "/a/text()")
+		for comm in committees:
+			bill.add_sponsorship(name=comm,
+							classification="secondary", # classification ?
+							entity_type="organization",
+							primary=False)
+
 		return bill
 
 
 	def bill_table_query(self, key):
-		return "//th[text()='{}:']/../td/text()".format(key)
+		return "//th[text()='{}:']/../td".format(key)
 
 	def bill_session_url(self, session_id):
-		return Utils.BILLS_HOME + "?sessionBB=" + session_id
+		return Urls.BILLS_HOME + "?sessionBB=" + session_id
 
 	def parse_actions(self, action_line):
 		"""
