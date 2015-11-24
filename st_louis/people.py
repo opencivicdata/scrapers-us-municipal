@@ -1,6 +1,5 @@
 from pupa.scrape import Person, Organization
 from .utils import Urls, StlScraper, HumanName
-from pupa.utils import make_pseudo_id as _make_pseudo_id
 
 class StLouisPersonScraper(StlScraper):
 
