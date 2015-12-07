@@ -1,6 +1,6 @@
 from legistar.bills import LegistarBillScraper
 from pupa.scrape import Bill, VoteEvent
-from pupa.utils import make_pseudo_id as _make_pseudo_id
+from pupa.utils import _make_pseudo_id
 import datetime
 import pytz
 
@@ -92,8 +92,7 @@ class ChicagoBillScraper(LegistarBillScraper):
                     bill.add_sponsorship(sponsor_name, 
                                          sponsorship_type,
                                          entity_type,
-                                         primary,
-                                         entity_id = _make_pseudo_id(name=sponsor_name))
+                                         primary)
 
             if 'Topic' in leg_details :
                 for subject in leg_details[u'Topic'].split(',') :
