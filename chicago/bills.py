@@ -17,11 +17,10 @@ class ChicagoBillScraper(LegistarBillScraper):
                     'recused' : 'excused'}
 
     def session(self, action_date) :
-        if action_date < datetime.datetime(2011, 5, 18, 
-                                           tzinfo=pytz.timezone(self.TIMEZONE)) :
+        localize = pytz.timezone(self.TIMEZONE).localize
+        if action_date <  localize(datetime.datetime(2011, 5, 18)) :
             return "2007"
-        elif action_date < datetime.datetime(2015, 5, 18,
-                                             tzinfo=pytz.timezone(self.TIMEZONE)) :
+        elif action_date < localize(datetime.datetime(2015, 5, 18)) :
             return "2011"
         else :
             return "2015"
@@ -122,7 +121,7 @@ class ChicagoBillScraper(LegistarBillScraper):
                     act = bill.add_action(action_description,
                                           action_date,
                                           organization={'name': responsible_org},
-                                          classification=ACTION_CLASSIFICATION[action_description])
+                                          classification=ACTION_CLASSIFICATION.get(action_description, None))
 
                     if action_description == 'Referred' :
                         try :
@@ -177,6 +176,7 @@ ACTION_CLASSIFICATION = {'Referred' : 'committee-referral',
                          'Failed to Pass' : 'failure',
                          'Recommended Do Not Pass' : 'committee-passage-unfavorable',
                          'Amended in Committee' : 'amendment-passage',
+                         'Amended in City Council' : 'amendment-passage',
                          'Placed on File' : 'filing',
                          'Withdrawn' : 'withdrawal',
                          'Signed by Mayor' : 'executive-signature',
