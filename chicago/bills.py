@@ -115,8 +115,13 @@ class ChicagoBillScraper(LegistarBillScraper):
                         responsible_org = action['Action\xa0By']['label']
                     except TypeError  :
                         responsible_org = action['Action\xa0By']
+                    # sometimes the responsible org is missing
+                    # https://chicago.legistar.com/LegislationDetail.aspx?ID=2483496&GUID=EC5C27CE-906E-431B-AE09-5C9ECFA8E863
+                    if not reponsible_org :
+                        continue
                     if responsible_org == 'City Council' :
                         responsible_org = 'Chicago City Council'
+                    
 
                     act = bill.add_action(action_description,
                                           action_date,
