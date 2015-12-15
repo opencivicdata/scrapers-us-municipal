@@ -18,9 +18,11 @@ class ChicagoBillScraper(LegistarBillScraper):
 
     def session(self, action_date) :
         localize = pytz.timezone(self.TIMEZONE).localize
-        if action_date <  localize(datetime.datetime(2011, 5, 18)) :
+        # 2011 Kill Bill https://chicago.legistar.com/LegislationDetail.aspx?ID=907351&GUID=6118274B-A598-4584-AA5B-ABDFA5F79506
+        if action_date <  localize(datetime.datetime(2011, 5, 4)) :
             return "2007"
-        elif action_date < localize(datetime.datetime(2015, 5, 18)) :
+        # 2015 Kill Bill https://chicago.legistar.com/LegislationDetail.aspx?ID=2321351&GUID=FBA81B7C-8A33-4D6F-92A7-242B537069B3
+        elif action_date < localize(datetime.datetime(2015, 5, 6)) :
             return "2011"
         else :
             return "2015"
@@ -210,13 +212,4 @@ BILL_TYPES = {'Ordinance' : 'ordinance',
               'Communication' : None,
               'Appointment' : 'appointment',
               'Report' : None}
-
-BLACKLIST_URLS = {'https://chicago.legistar.com/LegislationDetail.aspx?ID=2394619&GUID=89741E39-7BB0-4E17-B6C4-04E66B5B7AD2', 
-                  'https://chicago.legistar.com/LegislationDetail.aspx?ID=2394571&GUID=516813F1-8918-4B61-971A-C7603FC14379',
-                  'https://chicago.legistar.com/LegislationDetail.aspx?ID=2394526&GUID=E74CD6FE-507F-4C5F-9BA3-EC21E25E44E6',
-                  'https://chicago.legistar.com/LegislationDetail.aspx?ID=2393890&GUID=B9CFF38C-DC72-4A0D-ABFF-378E127D90A9',
-                  'https://chicago.legistar.com/LegislationDetail.aspx?ID=2393817&GUID=BC05E7BF-AE68-4DB5-84CB-7DC0665FEDEE',
-                  'https://chicago.legistar.com/LegislationDetail.aspx?ID=2393796&GUID=735995CC-72A8-4D33-AFC2-FCF6A80F41C4',
-                  'https://chicago.legistar.com/LegislationDetail.aspx?ID=2393453&GUID=FF80CF81-6D37-4661-B2C6-C56D761EA922',
-                  'https://chicago.legistar.com/LegislationDetail.aspx?ID=2369521&GUID=5E1B3403-1665-4BF7-A89A-34C2FAC38E76'}
 
