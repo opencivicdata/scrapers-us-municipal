@@ -97,7 +97,7 @@ class ChicagoBillScraper(LegistarBillScraper):
 
             if 'Topic' in leg_details :
                 for subject in leg_details[u'Topic'].split(',') :
-                    bill.add_subject(subject)
+                    bill.add_subject(subject.strip(' -'))
 
             for attachment in leg_details.get('Attachments', []) :
                 if attachment['label'] :
