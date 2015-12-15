@@ -1,5 +1,3 @@
-import re
-
 from pupa.scrape import Person, Organization
 from legistar.people import LegistarPersonScraper
 import datetime
@@ -7,6 +5,7 @@ import datetime
 class NYCPersonScraper(LegistarPersonScraper):
     MEMBERLIST = 'http://legistar.council.nyc.gov/DepartmentDetail.aspx?ID=6897&GUID=CDC6E691-8A8C-4F25-97CB-86F31EDAB081'
     TIMEZONE = 'US/Eastern'
+    ALL_MEMBERS = "3:2"
 
     def scrape(self):
         noncommittees = {'Committee of the Whole'}
@@ -14,7 +13,7 @@ class NYCPersonScraper(LegistarPersonScraper):
 
         people_d = {}
 
-        for councilman, committees in self.councilMembers(all_members=True) :
+        for councilman, committees in self.councilMembers() :
 
             
             if 'url' in councilman['Person Name'] :
@@ -93,7 +92,6 @@ class NYCPersonScraper(LegistarPersonScraper):
 
             for committee, _, _ in committees:
                 committee_name = committee['Department Name']['label']
-                org_type = committee['Type']
                 if committee_name not in noncommittees and 'committee' in committee_name.lower():
                     o = committee_d.get(committee_name, None)
                     if o is None:
