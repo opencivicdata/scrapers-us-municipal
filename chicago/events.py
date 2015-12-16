@@ -71,7 +71,7 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
                     continue
                 else :
                     print(status_text)
-                    description = status_string[1]
+                    description = status_string[1].replace('--em--', '')
                     status = confirmedOrPassed(when)
             else :
                 status = confirmedOrPassed(when)
