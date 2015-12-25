@@ -1,8 +1,10 @@
-from pupa.scrape import Jurisdiction, Organization
+from pupa.scrape import Jurisdiction, Organization, Person
 
 from .people import ChicagoPersonScraper
 from .events import ChicagoEventsScraper
 from .bills import ChicagoBillScraper
+
+import datetime
 
 
 class Chicago(Jurisdiction):
@@ -46,8 +48,48 @@ class Chicago(Jurisdiction):
 
         yield mayor
 
+        daley = Person(name="Daley, Richard M.",
+                       primary_org='executive',
+                       role='Mayor',
+                       primary_org_name='Office of the Mayor',
+                       start_date=datetime.date(1989, 4, 24),
+                       end_date=datetime.date(2011, 5, 16))
+        daley.add_source('https://chicago.legistar.com/People.aspx')
+        yield daley
+
+        emanuel = Person(name="Emanuel, Rahm",
+                         primary_org='executive',
+                         role='Mayor',
+                         primary_org_name='Office of the Mayor',
+                         start_date=datetime.date(2011, 5, 16))
+        emanuel.add_source('https://chicago.legistar.com/People.aspx')
+        yield emanuel
+
         #I'm not sure how to model the office of the city clerk it's
         #a seperately elected executive I think.
         clerk = Organization('Office of the City Clerk', classification='executive')
         yield clerk
+
+        mendoza = Person(name='Mendoza, Susana',
+                         primary_org='executive',
+                         role='City Clerk',
+                         primary_org_name='Office of the City Clerk',
+                         start_date=datetime.date(2011, 5, 16))
+
+        mendoza.add_source('https://chicago.legistar.com/People.aspx')
+
+        yield mendoza
+
+        valle = Person(name='Del Valle, Miguel',
+                       primary_org='executive',
+                       role='City Clerk',
+                       primary_org_name='Office of the City Clerk',
+                       start_date=datetime.date(2006, 12, 1),
+                       end_date=datetime.date(2011, 5, 16))
+
+        valle.add_source('https://chicago.legistar.com/People.aspx')
+
+        yield valle
+
+        
 

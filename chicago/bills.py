@@ -30,7 +30,8 @@ class ChicagoBillScraper(LegistarBillScraper):
     def scrape(self):
         unreachable_urls = []
 
-        for leg_summary in self.legislation(created_after=datetime.datetime(2015, 5, 17)) :
+        for leg_summary in self.legislation(created_after=datetime.datetime(2014, 5, 3),
+                                            created_before=datetime.datetime(2015, 5, 20)) :
             title = leg_summary['Title'].strip()
 
             if not title or not leg_summary['Intro\xa0Date'] :
@@ -105,11 +106,12 @@ class ChicagoBillScraper(LegistarBillScraper):
                                           attachment['url'],
                                           media_type="application/pdf")
 
+            previous_action = None
             for action in self.history(leg_summary['url']) :
                 action_description = action['Action']
                 try :
                     action_date =  self.toTime(action['Date']).date().isoformat()
-                except AttributeError : # https://chicago.legistar.com/LegislationDetail.aspx?ID=1424866&GUID=CEC53337-B991-4268-AE8A-D4D174F8D492
+                except (AttributeError, ValueError) : # https://chicago.legistar.com/LegislationDetail.aspx?ID=1424866&GUID=CEC53337-B991-4268-AE8A-D4D174F8D492
                     continue
 
                 if action_description :
@@ -123,7 +125,14 @@ class ChicagoBillScraper(LegistarBillScraper):
                         continue
                     if responsible_org == 'City Council' :
                         responsible_org = 'Chicago City Council'
-                    
+
+                    current_action = (action_description, 
+                                      action_date,
+                                      responsible_org)
+                    if current_action == previous_action :
+                        continue
+
+                    previous_action = current_action
 
                     act = bill.add_action(action_description,
                                           action_date,
