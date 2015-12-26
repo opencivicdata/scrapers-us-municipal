@@ -2,8 +2,8 @@ from legistar.bills import LegistarBillScraper
 from pupa.scrape import Bill, VoteEvent
 from pupa.utils import _make_pseudo_id
 import datetime
+import itertools
 import pytz
-
 
 
 class ChicagoBillScraper(LegistarBillScraper):
@@ -30,8 +30,7 @@ class ChicagoBillScraper(LegistarBillScraper):
     def scrape(self):
         unreachable_urls = []
 
-        for leg_summary in self.legislation(created_after=datetime.datetime(2014, 5, 3),
-                                            created_before=datetime.datetime(2015, 5, 20)) :
+        for leg_summary in itertools.islice(self.legislation(), 6000) :
             title = leg_summary['Title'].strip()
 
             if not title or not leg_summary['Intro\xa0Date'] :
@@ -81,12 +80,8 @@ class ChicagoBillScraper(LegistarBillScraper):
                 # individuals role holders or as the OFfice of City
                 # Clerk and the Office of the Mayor?
                 entity_type = 'person'
-                if sponsor_name.startswith(('City Clerk', 
-                                            'Mendoza, Susana')) :
+                if sponsor_name.startswith(('City Clerk',)) : 
                     sponsor_name = 'Office of the City Clerk'
-                    entity_type = 'organization'
-                elif sponsor_name.startswith(('Emanuel, Rahm',)) :
-                    sponsor_name = 'Office of the Mayor'
                     entity_type = 'organization'
                 if not sponsor_name.startswith(('Misc. Transmittal',
                                                 'No Sponsor',
