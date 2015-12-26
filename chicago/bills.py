@@ -132,7 +132,7 @@ class ChicagoBillScraper(LegistarBillScraper):
                     act = bill.add_action(action_description,
                                           action_date,
                                           organization={'name': responsible_org},
-                                          classification=ACTION_CLASSIFICATION.get(action_description, None))
+                                          classification=ACTION_CLASSIFICATION[action_description])
 
                     if action_description == 'Referred' :
                         try :
@@ -143,6 +143,8 @@ class ChicagoBillScraper(LegistarBillScraper):
                         if controlling_bodies :
                             for controlling_body in controlling_bodies :
                                 body_name = controlling_body['label']
+                                if body_name == 'City Council' :
+                                    continue
                                 if body_name.startswith("Joint Committee") :
                                     act.add_related_entity(body_name,
                                                            'organization')
@@ -171,7 +173,13 @@ class ChicagoBillScraper(LegistarBillScraper):
 
                             yield action_vote
 
-            bill.extras = {'local_classification' : leg_summary['Type']}
+            text = self.text(leg_summary['url'])
+
+            if text :
+                bill.extras = {'local_classification' : leg_summary['Type'],
+                               'ocr_full_text' : text}
+            else :
+                bill.extras = {'local_classification' : leg_summary['Type']}
                             
             yield bill
         print(unreachable_urls)

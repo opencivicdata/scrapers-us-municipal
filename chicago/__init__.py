@@ -70,7 +70,7 @@ class Chicago(Jurisdiction):
         clerk = Organization('Office of the City Clerk', classification='executive')
         yield clerk
 
-        mendoza = Person(name='Mendoza, Susana',
+        mendoza = Person(name='Mendoza, Susana A.',
                          primary_org='executive',
                          role='City Clerk',
                          primary_org_name='Office of the City Clerk',
