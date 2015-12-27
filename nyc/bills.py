@@ -13,6 +13,7 @@ class NYCBillScraper(LegistarBillScraper):
     VOTE_OPTIONS = {'affirmative' : 'yes',
                     'negative' : 'no',
                     'conflict' : 'absent',
+                    'paternity' : 'excused',
                     'bereavement': 'excused',
                     'non-voting' : 'not voting',
                     'absent' : 'absent',
@@ -103,7 +104,7 @@ class NYCBillScraper(LegistarBillScraper):
                                                'organization',
                                                entity_id = _make_pseudo_id(name=referred_committee))
                     result, votes = self.extractVotes(action_detail_url)
-                    if votes :
+                    if result and votes :
                         action_vote = VoteEvent(legislative_session=bill.legislative_session, 
                                            motion_text=action_description,
                                            organization={'name': responsible_org},
