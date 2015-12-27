@@ -211,7 +211,8 @@ ACTION_CLASSIFICATION = {
     'City Charter Rule Adopted' : None,
     'Withdrawn by Mayor' : None,
     'Laid Over by Council' : 'deferred',
-    'Disapproved by Council' : 'failure'
+    'Disapproved by Council' : 'failure',
+    'Bill Signing Scheduled by Mayor' : None
 }
 
 
