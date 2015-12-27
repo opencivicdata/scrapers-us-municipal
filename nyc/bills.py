@@ -104,7 +104,9 @@ class NYCBillScraper(LegistarBillScraper):
                                                'organization',
                                                entity_id = _make_pseudo_id(name=referred_committee))
                     result, votes = self.extractVotes(action_detail_url)
-                    if result and votes :
+                    if votes :
+                        if not result :
+                            result = None
                         action_vote = VoteEvent(legislative_session=bill.legislative_session, 
                                            motion_text=action_description,
                                            organization={'name': responsible_org},
