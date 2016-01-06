@@ -103,12 +103,17 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
             self.addDocs(e, event, 'Transcript')
             self.addDocs(e, event, 'Summary')
 
-            e.add_participant(name=event["Name"]["label"],
+            participant = event["Name"]["label"]
+            if participant == 'City Council' :
+                participant = 'Chicago City Council'
+            elif participant == 'Committee on Energy, Environmental Protection and Public Utilities (inactive)' :
+                participant = 'Committee on Energy, Environmental Protection and Public Utilities'
+
+            e.add_participant(name=participant,
                               type="organization")
 
             if agenda :
                 e.add_source(event['Meeting Details']['url'])
-
                 
                 for item, _, _ in agenda :
                     agenda_item = e.add_agenda_item(item["Title"])
