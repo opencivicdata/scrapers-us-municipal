@@ -30,7 +30,7 @@ class ChicagoBillScraper(LegistarBillScraper):
     def scrape(self):
         unreachable_urls = []
 
-        for leg_summary in itertools.islice(self.legislation(), 6000) :
+        for leg_summary in itertools.islice(self.legislation(), 5000) :
             title = leg_summary['Title'].strip()
 
             if not title or not leg_summary['Intro\xa0Date'] :
