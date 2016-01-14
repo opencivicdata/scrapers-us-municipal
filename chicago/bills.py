@@ -4,12 +4,14 @@ from pupa.utils import _make_pseudo_id
 import datetime
 import itertools
 import pytz
-
+import requests
 
 class ChicagoBillScraper(LegistarBillScraper):
     BASE_URL = 'https://chicago.legistar.com/'
     LEGISLATION_URL = 'https://chicago.legistar.com/Legislation.aspx'
     TIMEZONE = "US/Central"
+    date_format = '%Y-%m-%dT%H:%M:%S'
+    #requests_per_minute = 360
 
     VOTE_OPTIONS = {'yea' : 'yes',
                     'rising vote' : 'yes',
@@ -27,46 +29,166 @@ class ChicagoBillScraper(LegistarBillScraper):
         else :
             return "2015"
 
-    def scrape(self):
-        unreachable_urls = []
+            #http://webapi.legistar.com/v1/chicago/matters?$filter=MatterLastModifiedUtc+ gt+datetime'2016-01-01'
 
-        for leg_summary in itertools.islice(self.legislation(), 5000) :
-            title = leg_summary['Title'].strip()
 
-            if not title or not leg_summary['Intro\xa0Date'] :
-                continue
-                # https://chicago.legistar.com/LegislationDetail.aspx?ID=1800754&GUID=29575A7A-5489-4D8B-8347-4FC91808B201&Options=Advanced&Search=
-                # doesn't have an intro date
+    def matters(self, since_date) :
+        since_date_str = datetime.datetime.strftime(since_date, '%Y-%m-%d')
 
-            bill_type = BILL_TYPES[leg_summary['Type']]
+        base_url = 'http://webapi.legistar.com/v1/chicago/matters'
+        params = {'$filter' : "MatterLastModifiedUtc gt datetime'2016-01-10'"}
+        # the oldest thing on ocd is 2015-09-24
+        
 
-            bill_session = self.session(self.toTime(leg_summary['Intro\xa0Date']))
-            bill = Bill(identifier=leg_summary['Record #'],
+        response = self.get(base_url, params=params)
+
+        yield from response.json()
+        
+        page_num = 1
+        while len(response.json()) == 1000 :
+            params['$skip'] = page_num * 1000
+            response = self.get(base_url, params=params)
+            yield from response.json()
+
+            page_num += 1
+
+    def history(self, matter_id) :
+        history_url = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}/histories'
+        history_url = history_url.format(matter_id=matter_id)
+        response = self.get(history_url)
+        actions = response.json()
+        return sorted(actions, key = lambda action : action['MatterHistoryActionId'])
+
+    def sponsors(self, matter_id) :
+        sponsor_url = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}/sponsors'
+        sponsor_url = sponsor_url.format(matter_id=matter_id)
+        response = self.get(sponsor_url)
+        return response.json()
+
+    def votes(self, history_id) :
+        votes_url = 'http://webapi.legistar.com/v1/chicago/eventitems/{history_id}/votes'
+        votes_url = votes_url.format(history_id=history_id)
+        response = self.get(votes_url)
+        return response.json()
+
+    def topics(self, matter_id) :
+        topics_url = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}/indexes'
+        topics_url = topics_url.format(matter_id=matter_id)
+        response = self.get(topics_url)
+        return response.json()
+
+    def attachments(self, matter_id) :
+        attachments_url = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}/attachments'
+        attachments_url = attachments_url.format(matter_id=matter_id)
+        response = self.get(attachments_url)
+        return response.json()
+
+    def code_sections(self, matter_id) :
+        codesections_url = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}/codesections'
+        codesections_url = codesections_url.format(matter_id=matter_id)
+        response = self.get(codesections_url)
+        return response.json()
+
+    def texts(self, matter_id) :
+        versions_url = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}/versions'
+        text_url = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}/texts/{text_id}'
+
+        versions_url = versions_url.format(matter_id = matter_id)
+        for version in self.get(versions_url).json() :
+            yield self.get(text_url.format(matter_id = matter_id, 
+                                           text_id = version["Key"])).json()
+
+        
+        
+    def scrape(self) :
+        for matter in self.matters(datetime.date(2016, 1, 12)) :
+            bill_type = BILL_TYPES[matter['MatterTypeName']]
+            bill_session = self.session(self.toTime(matter['MatterIntroDate']))
+
+            bill = Bill(identifier=matter['MatterFile'],
                         legislative_session=bill_session,
-                        title=title,
+                        title=matter['MatterTitle'],
                         classification=bill_type,
                         from_organization={"name":"Chicago City Council"})
 
-            bill.add_source(leg_summary['url'])
+            gateway_url = 'https://chicago.legistar.com/gateway.aspx?m=l&id=/matter.aspx?key={id}'
+            legistar_web = self.BASE_URL + requests.head(gateway_url.format(id = matter['MatterId'])).headers['Location']
 
-            try :
-                leg_details = self.legDetails(leg_summary['url'])
-            except IndexError :
-                unreachable_urls.append(leg_summary['url'])
-                yield bill
-                continue
+            legistar_api = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}'.format(matter_id = matter['MatterId'])
 
-            for related_bill in leg_details.get('Related files', []) :
-                lower_title = title.lower()
-                if "sundry" in title or "miscellaneous" in title: #these are ominbus
-                    bill.add_related_bill(identifier = related_bill['label'],
-                                          legislative_session = bill.legislative_session,
-                                          relation_type='replaces')
-                #for now we're skipping related bills if they
-                #don't contain words that make us think they're
-                #in a ominbus relationship with each other
-                
-            for i, sponsor in enumerate(leg_details.get('Sponsors', [])) :
+            bill.add_source(legistar_web, note='web')
+            bill.add_source(legistar_api, note='api')
+
+            old_action_id = None
+            for action in self.history(matter['MatterId']) :
+                action_id = action['MatterHistoryActionId']
+                if action_id == old_action_id :
+                    print(previous_action)
+                    print(action)
+                old_action_id = action_id
+                previous_action = action
+
+                action_description = action['MatterHistoryActionName'].strip()
+                try :
+                    action_date =  self.toTime(action['MatterHistoryActionDate']).date().isoformat()
+                except (AttributeError, ValueError) : # https://chicago.legistar.com/LegislationDetail.aspx?ID=1424866&GUID=CEC53337-B991-4268-AE8A-D4D174F8D492
+                    continue
+
+                if action_description :
+                    responsible_org = action['MatterHistoryActionBodyName']
+                    # sometimes the responsible org is missing
+                    # https://chicago.legistar.com/LegislationDetail.aspx?ID=2483496&GUID=EC5C27CE-906E-431B-AE09-5C9ECFA8E863
+                    if not responsible_org :
+                        continue
+                    if responsible_org == 'City Council' :
+                        responsible_org = 'Chicago City Council'
+
+                    act = bill.add_action(action_description,
+                                          action_date,
+                                          organization={'name': responsible_org},
+                                          classification=ACTION_CLASSIFICATION[action_description])
+
+                    if action_description == 'Referred' : 
+                        body_name = matter['MatterBodyName']
+                        if body_name != 'City Council' :
+                            act.add_related_entity(body_name,
+                                                   'organization',
+                                                   entity_id = _make_pseudo_id(name=body_name))
+
+
+                    action_text = action['MatterHistoryActionText']
+                    if action_text is None :
+                        action_text = ''
+
+                    if action['MatterHistoryEventId'] is not None and 'voice vote' not in action_text.lower() :
+                        result = action['MatterHistoryPassedFlag']
+                        if result is None :
+                            break
+                        if result == 1 :
+                            result = 'pass'
+                        elif result == 0 :
+                            result = 'fail'
+
+                        action_vote = VoteEvent(legislative_session=bill.legislative_session, 
+                                               motion_text=action_description,
+                                               organization={'name': responsible_org},
+                                               classification=None,
+                                               start_date=action_date,
+                                               result=result,
+                                               bill=bill)
+
+                        action_vote.add_source(legistar_web)
+                        action_vote.add_source(legistar_api + '/histories')
+
+                        for vote in self.votes(action['MatterHistoryId']) : 
+                            action_vote.vote(self.VOTE_OPTIONS.get(vote['VoteValueName'].lower(), vote['VoteValueName'].lower()), 
+                                             vote['VotePersonName'])
+
+                        yield action_vote
+
+
+            
+            for i, sponsor in enumerate(self.sponsors(matter['MatterId'])) :
                 if i == 0 :
                     primary = True
                     sponsorship_type = "Primary"
@@ -74,11 +196,8 @@ class ChicagoBillScraper(LegistarBillScraper):
                     primary = False
                     sponsorship_type = "Regular"
 
-                sponsor_name = sponsor['label']
+                sponsor_name = sponsor['MatterSponsorName'].strip()
 
-                # Does the Mayor/Clerk introduce legisislation as
-                # individuals role holders or as the OFfice of City
-                # Clerk and the Office of the Mayor?
                 entity_type = 'person'
                 if sponsor_name.startswith(('City Clerk',)) : 
                     sponsor_name = 'Office of the City Clerk'
@@ -91,98 +210,29 @@ class ChicagoBillScraper(LegistarBillScraper):
                                          entity_type,
                                          primary)
 
-            if 'Topic' in leg_details :
-                for subject in leg_details[u'Topic'].split(',') :
-                    bill.add_subject(subject.strip(' -'))
+            for topic in self.topics(matter['MatterId']) :
+                bill.add_subject(topic['MatterIndexName'].strip())
 
-            for attachment in leg_details.get('Attachments', []) :
-                if attachment['label'] :
-                    bill.add_version_link(attachment['label'],
-                                          attachment['url'],
-                                          media_type="application/pdf")
+            for attachment in self.attachments(matter['MatterId']) :
+                bill.add_version_link(attachment['MatterAttachmentName'],
+                                      attachment['MatterAttachmentHyperlink'],
+                                      media_type="application/pdf")
 
-            previous_action = None
-            for action in self.history(leg_summary['url']) :
-                action_description = action['Action']
-                try :
-                    action_date =  self.toTime(action['Date']).date().isoformat()
-                except (AttributeError, ValueError) : # https://chicago.legistar.com/LegislationDetail.aspx?ID=1424866&GUID=CEC53337-B991-4268-AE8A-D4D174F8D492
-                    continue
+            bill.extras = {'local_classification' : matter['MatterTypeName']}
 
-                if action_description :
-                    try :
-                        responsible_org = action['Action\xa0By']['label']
-                    except TypeError  :
-                        responsible_org = action['Action\xa0By']
-                    # sometimes the responsible org is missing
-                    # https://chicago.legistar.com/LegislationDetail.aspx?ID=2483496&GUID=EC5C27CE-906E-431B-AE09-5C9ECFA8E863
-                    if not responsible_org :
-                        continue
-                    if responsible_org == 'City Council' :
-                        responsible_org = 'Chicago City Council'
+            for i, text in enumerate(self.texts(matter['MatterId'])) :
+                if text['MatterTextPlain'] :
+                    bill.extras['plain_text'] = text['MatterTextPlain']
 
-                    current_action = (action_description, 
-                                      action_date,
-                                      responsible_org)
-                    if current_action == previous_action :
-                        continue
+                if text['MatterTextRtf'] :
+                    bill.extras['rtf_text'] = text['MatterTextRtf']
 
-                    previous_action = current_action
+                assert i == 0
 
-                    act = bill.add_action(action_description,
-                                          action_date,
-                                          organization={'name': responsible_org},
-                                          classification=ACTION_CLASSIFICATION[action_description])
-
-                    if action_description == 'Referred' :
-                        try :
-                            leg_details['Current Controlling Legislative Body']['label']
-                            controlling_bodies = [leg_details['Current Controlling Legislative Body']]
-                        except TypeError :
-                            controlling_bodies = leg_details['Current Controlling Legislative Body']
-                        if controlling_bodies :
-                            for controlling_body in controlling_bodies :
-                                body_name = controlling_body['label']
-                                if body_name == 'City Council' :
-                                    continue
-                                if body_name.startswith("Joint Committee") :
-                                    act.add_related_entity(body_name,
-                                                           'organization')
-                                else :
-                                    act.add_related_entity(body_name,
-                                                           'organization',
-                                                           entity_id = _make_pseudo_id(name=body_name))
-
-
-                    if 'url' in action['Action\xa0Details'] :
-                        action_detail_url = action['Action\xa0Details']['url']
-                        result, votes = self.extractVotes(action_detail_url)
-
-                        if votes and result : # see https://github.com/datamade/municipal-scrapers-us/issues/15
-                            action_vote = VoteEvent(legislative_session=bill.legislative_session, 
-                                               motion_text=action_description,
-                                               organization={'name': responsible_org},
-                                               classification=None,
-                                               start_date=action_date,
-                                               result=result,
-                                               bill=bill)
-                            action_vote.add_source(action_detail_url)
-
-                            for option, voter in votes :
-                                action_vote.vote(option, voter)
-
-                            yield action_vote
-
-            text = self.text(leg_summary['url'])
-
-            if text :
-                bill.extras = {'local_classification' : leg_summary['Type'],
-                               'ocr_full_text' : text}
-            else :
-                bill.extras = {'local_classification' : leg_summary['Type']}
-                            
             yield bill
-        print(unreachable_urls)
+            
+            
+
 
 ACTION_CLASSIFICATION = {'Referred' : 'committee-referral',
                          'Re-Referred' : 'committee-referral',
