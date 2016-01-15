@@ -1,4 +1,4 @@
-from legistar.bills import LegistarBillScraper
+from legistar.bills import LegistarBillScraper, LegistarAPIBillScraper
 from pupa.scrape import Bill, VoteEvent
 from pupa.utils import _make_pseudo_id
 import datetime
@@ -6,12 +6,10 @@ import itertools
 import pytz
 import requests
 
-class ChicagoBillScraper(LegistarBillScraper):
-    BASE_URL = 'https://chicago.legistar.com/'
-    LEGISLATION_URL = 'https://chicago.legistar.com/Legislation.aspx'
+class ChicagoBillScraper(LegistarAPIBillScraper):
+    BASE_URL = 'http://webapi.legistar.com/v1/chicago'
+    BASE_WEB_URL = 'https://chicago.legistar.com/'
     TIMEZONE = "US/Central"
-    date_format = '%Y-%m-%dT%H:%M:%S'
-    #requests_per_minute = 360
 
     VOTE_OPTIONS = {'yea' : 'yes',
                     'rising vote' : 'yes',
@@ -29,210 +27,155 @@ class ChicagoBillScraper(LegistarBillScraper):
         else :
             return "2015"
 
-            #http://webapi.legistar.com/v1/chicago/matters?$filter=MatterLastModifiedUtc+ gt+datetime'2016-01-01'
+    def sponsorships(self, matter_id) :
+        for i, sponsor in enumerate(self.sponsors(matter_id)) :
+            sponsorship = {}
+            if i == 0 :
+                sponsorship['primary'] = True
+                sponsorship['classification'] = "Primary"
+            else :
+                sponsorship['primary'] = False
+                sponsorship['classification'] = "Regular"
 
+            sponsor_name = sponsor['MatterSponsorName'].strip()
+            
+            if sponsor_name.startswith(('City Clerk',)) : 
+                sponsorship['name'] = 'Office of the City Clerk'
+                sponsorship['entity_type'] = 'organization'
+            else :
+                sponsorship['name'] = sponsor_name
+                sponsorship['entity_type'] = 'person'
 
-    def matters(self, since_date) :
-        since_date_str = datetime.datetime.strftime(since_date, '%Y-%m-%d')
+            if not sponsor_name.startswith(('Misc. Transmittal',
+                                            'No Sponsor',
+                                            'Dept./Agency')) :
+                yield sponsorship
 
-        base_url = 'http://webapi.legistar.com/v1/chicago/matters'
-        params = {'$filter' : "MatterLastModifiedUtc gt datetime'2016-01-10'"}
-        # the oldest thing on ocd is 2015-09-24
-        
+    def actions(self, matter_id) :
+        old_action_id = None
+        for action in self.history(matter_id) :
+            action_id = action['MatterHistoryActionId']
+            if action_id == old_action_id :
+                print(previous_action)
+                print(action)
+            old_action_id = action_id
+            previous_action = action
 
-        response = self.get(base_url, params=params)
+            action_date = action['MatterHistoryActionDate']
 
-        yield from response.json()
-        
-        page_num = 1
-        while len(response.json()) == 1000 :
-            params['$skip'] = page_num * 1000
-            response = self.get(base_url, params=params)
-            yield from response.json()
+            action_description = action['MatterHistoryActionName'].strip()
+            responsible_org = action['MatterHistoryActionBodyName']
 
-            page_num += 1
+            if all((action_date, action_description, responsible_org)) :
+                action_date =  self.toTime(action_date).date()
 
-    def history(self, matter_id) :
-        history_url = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}/histories'
-        history_url = history_url.format(matter_id=matter_id)
-        response = self.get(history_url)
-        actions = response.json()
-        return sorted(actions, key = lambda action : action['MatterHistoryActionId'])
+                if responsible_org == 'City Council' :
+                    responsible_org = 'Chicago City Council'
 
-    def sponsors(self, matter_id) :
-        sponsor_url = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}/sponsors'
-        sponsor_url = sponsor_url.format(matter_id=matter_id)
-        response = self.get(sponsor_url)
-        return response.json()
+                bill_action = {'description' : action_description,
+                               'date' : action_date,
+                               'organization' : {'name' : responsible_org},
+                               'classification' : ACTION_CLASSIFICATION[action_description]}
 
-    def votes(self, history_id) :
-        votes_url = 'http://webapi.legistar.com/v1/chicago/eventitems/{history_id}/votes'
-        votes_url = votes_url.format(history_id=history_id)
-        response = self.get(votes_url)
-        return response.json()
+                if (action['MatterHistoryEventId'] is not None
+                    and action['MatterHistoryRollCallFlag'] is not None
+                    and action['MatterHistoryPassedFlag'] is not None) :
+                    
+                    # Do we want to capture vote events for voice votes?
+                    # Right now we are not? 
+                    bool_result = action['MatterHistoryPassedFlag']
+                    result = 'pass' if bool_result else 'fail'
 
-    def topics(self, matter_id) :
-        topics_url = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}/indexes'
-        topics_url = topics_url.format(matter_id=matter_id)
-        response = self.get(topics_url)
-        return response.json()
+                    votes = (result, self.votes(action['MatterHistoryId'])) 
+                else :
+                    votes = (None, [])
 
-    def attachments(self, matter_id) :
-        attachments_url = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}/attachments'
-        attachments_url = attachments_url.format(matter_id=matter_id)
-        response = self.get(attachments_url)
-        return response.json()
+            yield bill_action, votes
 
-    def code_sections(self, matter_id) :
-        codesections_url = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}/codesections'
-        codesections_url = codesections_url.format(matter_id=matter_id)
-        response = self.get(codesections_url)
-        return response.json()
-
-    def texts(self, matter_id) :
-        versions_url = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}/versions'
-        text_url = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}/texts/{text_id}'
-
-        versions_url = versions_url.format(matter_id = matter_id)
-        for version in self.get(versions_url).json() :
-            yield self.get(text_url.format(matter_id = matter_id, 
-                                           text_id = version["Key"])).json()
-
-        
-        
     def scrape(self) :
-        for matter in self.matters(datetime.date(2016, 1, 12)) :
+        week_ago = datetime.datetime.now() - datetime.timedelta(7)
+        for matter in self.matters(week_ago) :
+            matter_id = matter['MatterId']
+
+            date = matter['MatterIntroDate']
+            title = matter['MatterTitle']
+
+            if not all((date, title)) :
+                continue
+
+            bill_session = self.session(self.toTime(date))
             bill_type = BILL_TYPES[matter['MatterTypeName']]
-            bill_session = self.session(self.toTime(matter['MatterIntroDate']))
 
             bill = Bill(identifier=matter['MatterFile'],
                         legislative_session=bill_session,
-                        title=matter['MatterTitle'],
+                        title=title,
                         classification=bill_type,
                         from_organization={"name":"Chicago City Council"})
 
-            gateway_url = 'https://chicago.legistar.com/gateway.aspx?m=l&id=/matter.aspx?key={id}'
-            legistar_web = self.BASE_URL + requests.head(gateway_url.format(id = matter['MatterId'])).headers['Location']
-
-            legistar_api = 'http://webapi.legistar.com/v1/chicago/matters/{matter_id}'.format(matter_id = matter['MatterId'])
+            legistar_web = self.legislation_detail_url(matter_id)
+            legistar_api = 'http://webapi.legistar.com/v1/chicago/matters/{0}'.format(matter_id)
 
             bill.add_source(legistar_web, note='web')
             bill.add_source(legistar_api, note='api')
 
-            old_action_id = None
-            for action in self.history(matter['MatterId']) :
-                action_id = action['MatterHistoryActionId']
-                if action_id == old_action_id :
-                    print(previous_action)
-                    print(action)
-                old_action_id = action_id
-                previous_action = action
+            for action, vote in self.actions(matter_id) :
+                act = bill.add_action(**action)
 
-                action_description = action['MatterHistoryActionName'].strip()
-                try :
-                    action_date =  self.toTime(action['MatterHistoryActionDate']).date().isoformat()
-                except (AttributeError, ValueError) : # https://chicago.legistar.com/LegislationDetail.aspx?ID=1424866&GUID=CEC53337-B991-4268-AE8A-D4D174F8D492
-                    continue
+                if action['description'] == 'Referred' :
+                    body_name = matter['MatterBodyName']
+                    if body_name != 'City Council' :
+                        act.add_related_entity(body_name,
+                                               'organization',
+                                               entity_id = _make_pseudo_id(name=body_name))
 
-                if action_description :
-                    responsible_org = action['MatterHistoryActionBodyName']
-                    # sometimes the responsible org is missing
-                    # https://chicago.legistar.com/LegislationDetail.aspx?ID=2483496&GUID=EC5C27CE-906E-431B-AE09-5C9ECFA8E863
-                    if not responsible_org :
-                        continue
-                    if responsible_org == 'City Council' :
-                        responsible_org = 'Chicago City Council'
+                result, votes = vote
+                if result :
 
-                    act = bill.add_action(action_description,
-                                          action_date,
-                                          organization={'name': responsible_org},
-                                          classification=ACTION_CLASSIFICATION[action_description])
+                    vote_event = VoteEvent(legislative_session=bill.legislative_session, 
+                                           motion_text=action['description'],
+                                           organization=action['organization'],
+                                           classification=None,
+                                           start_date=action['date'],
+                                           result=result,
+                                           bill=bill)
 
-                    if action_description == 'Referred' : 
-                        body_name = matter['MatterBodyName']
-                        if body_name != 'City Council' :
-                            act.add_related_entity(body_name,
-                                                   'organization',
-                                                   entity_id = _make_pseudo_id(name=body_name))
+                    vote_event.add_source(legistar_web)
+                    vote_event.add_source(legistar_api + '/histories')
+
+                    for vote in votes :
+                        raw_option = vote['VoteValueName'].lower()
+                        clean_option = self.VOTE_OPTIONS.get(raw_option,
+                                                             raw_option)
+                        vote_event.vote(clean_option, 
+                                        vote['VotePersonName'].strip())
+
+                    yield vote_event
 
 
-                    action_text = action['MatterHistoryActionText']
-                    if action_text is None :
-                        action_text = ''
+            for sponsorship in self.sponsorships(matter_id) :
+                bill.add_sponsorship(**sponsorship)
 
-                    if action['MatterHistoryEventId'] is not None and 'voice vote' not in action_text.lower() :
-                        result = action['MatterHistoryPassedFlag']
-                        if result is None :
-                            break
-                        if result == 1 :
-                            result = 'pass'
-                        elif result == 0 :
-                            result = 'fail'
-
-                        action_vote = VoteEvent(legislative_session=bill.legislative_session, 
-                                               motion_text=action_description,
-                                               organization={'name': responsible_org},
-                                               classification=None,
-                                               start_date=action_date,
-                                               result=result,
-                                               bill=bill)
-
-                        action_vote.add_source(legistar_web)
-                        action_vote.add_source(legistar_api + '/histories')
-
-                        for vote in self.votes(action['MatterHistoryId']) : 
-                            action_vote.vote(self.VOTE_OPTIONS.get(vote['VoteValueName'].lower(), vote['VoteValueName'].lower()), 
-                                             vote['VotePersonName'])
-
-                        yield action_vote
-
-
-            
-            for i, sponsor in enumerate(self.sponsors(matter['MatterId'])) :
-                if i == 0 :
-                    primary = True
-                    sponsorship_type = "Primary"
-                else :
-                    primary = False
-                    sponsorship_type = "Regular"
-
-                sponsor_name = sponsor['MatterSponsorName'].strip()
-
-                entity_type = 'person'
-                if sponsor_name.startswith(('City Clerk',)) : 
-                    sponsor_name = 'Office of the City Clerk'
-                    entity_type = 'organization'
-                if not sponsor_name.startswith(('Misc. Transmittal',
-                                                'No Sponsor',
-                                                'Dept./Agency')) :
-                    bill.add_sponsorship(sponsor_name, 
-                                         sponsorship_type,
-                                         entity_type,
-                                         primary)
-
-            for topic in self.topics(matter['MatterId']) :
+            for topic in self.topics(matter_id) :
                 bill.add_subject(topic['MatterIndexName'].strip())
 
-            for attachment in self.attachments(matter['MatterId']) :
-                bill.add_version_link(attachment['MatterAttachmentName'],
-                                      attachment['MatterAttachmentHyperlink'],
-                                      media_type="application/pdf")
+            for attachment in self.attachments(matter_id) :
+                if attachment['MatterAttachmentName'] :
+                    bill.add_version_link(attachment['MatterAttachmentName'],
+                                          attachment['MatterAttachmentHyperlink'],
+                                          media_type="application/pdf")
 
             bill.extras = {'local_classification' : matter['MatterTypeName']}
 
-            for i, text in enumerate(self.texts(matter['MatterId'])) :
+            text = self.text(matter_id)
+
+            if text :
                 if text['MatterTextPlain'] :
                     bill.extras['plain_text'] = text['MatterTextPlain']
 
                 if text['MatterTextRtf'] :
-                    bill.extras['rtf_text'] = text['MatterTextRtf']
-
-                assert i == 0
+                    bill.extras['rtf_text'] = text['MatterTextRtf'].replace(u'\u0000', '')
 
             yield bill
-            
-            
-
 
 ACTION_CLASSIFICATION = {'Referred' : 'committee-referral',
                          'Re-Referred' : 'committee-referral',
