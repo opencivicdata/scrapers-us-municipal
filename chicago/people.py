@@ -82,7 +82,7 @@ class ChicagoPersonScraper(LegistarScraper):
 
             if councilman['Website']:
                 p.add_link(councilman['Website']['url'])
-            p.add_source(MEMBERLIST)
+            p.add_source(councilman['Person Name']['url'])
 
             for committee, _, _ in committees:
                 committee_name = committee['Legislative Body']['label']
