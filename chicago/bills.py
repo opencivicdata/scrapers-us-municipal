@@ -8,7 +8,7 @@ import requests
 
 class ChicagoBillScraper(LegistarAPIBillScraper):
     BASE_URL = 'http://webapi.legistar.com/v1/chicago'
-    BASE_WEB_URL = 'https://chicago.legistar.com/'
+    BASE_WEB_URL = 'https://chicago.legistar.com'
     TIMEZONE = "US/Central"
 
     VOTE_OPTIONS = {'yea' : 'yes',
@@ -93,7 +93,7 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
                 yield bill_action, votes
 
     def scrape(self) :
-        week_ago = datetime.datetime.now() - datetime.timedelta(7)
+        week_ago = datetime.datetime.now() - datetime.timedelta(3)
         for matter in self.matters(week_ago) :
             matter_id = matter['MatterId']
 

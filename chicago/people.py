@@ -284,6 +284,5 @@ JOINT_COMMITTEES = ('Joint Committee: Housing and Real Estate; Zoning, Landmarks
                     'Joint Committee: Finance; Transportation and Public Way',
                     'Joint Committee: Economic, Capital and Technology Development; Housing and Real Estate; Zoning, Landmarks and Building Standards',
                     'Joint Committee: Economic, Capital and Technology Development; Energy, Environmental Protections & Public Utilities; Finance',
-                    'Joint Committee: Human Relations; Special Events, Cultural Affairs and Recreation',
                     'Joint Committee: Buildings; Housing and Real Estate',
                     'Joint Committee: Finance; Human Relations')
