@@ -90,7 +90,7 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
                 else :
                     votes = (None, [])
 
-            yield bill_action, votes
+                yield bill_action, votes
 
     def scrape(self) :
         week_ago = datetime.datetime.now() - datetime.timedelta(7)
@@ -130,7 +130,6 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
 
                 result, votes = vote
                 if result :
-
                     vote_event = VoteEvent(legislative_session=bill.legislative_session, 
                                            motion_text=action['description'],
                                            organization=action['organization'],
