@@ -37,7 +37,7 @@ class NYCBillScraper(LegistarBillScraper):
                         legislative_session=None,
                         classification=leg_type,
                         from_organization={"name":"New York City Council"})
-            bill.add_source(leg_summary['url'])
+            bill.add_source(leg_summary['url'], note='web')
 
             leg_details = self.legDetails(leg_summary['url'])
             history = self.history(leg_summary['url'])
@@ -112,7 +112,7 @@ class NYCBillScraper(LegistarBillScraper):
                                            start_date=action_date,
                                            result=result,
                                            bill=bill)
-                        action_vote.add_source(action_detail_url)
+                        action_vote.add_source(action_detail_url, note='web')
 
                         for option, voter in votes :
                             action_vote.vote(option, voter)

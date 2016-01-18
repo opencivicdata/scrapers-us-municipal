@@ -88,7 +88,7 @@ class NYCPersonScraper(LegistarPersonScraper):
 
             p.extras = {'Notes' : councilman['Notes']}
                  
-            p.add_source(councilman['Person Name']['url'])
+            p.add_source(councilman['Person Name']['url'], note='web')
 
             for committee, _, _ in committees:
                 committee_name = committee['Department Name']['label']

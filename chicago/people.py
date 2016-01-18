@@ -82,7 +82,7 @@ class ChicagoPersonScraper(LegistarScraper):
 
             if councilman['Website']:
                 p.add_link(councilman['Website']['url'])
-            p.add_source(councilman['Person Name']['url'])
+            p.add_source(councilman['Person Name']['url'], note='web')
 
             for committee, _, _ in committees:
                 committee_name = committee['Legislative Body']['label']
@@ -92,7 +92,8 @@ class ChicagoPersonScraper(LegistarScraper):
                         o = Organization(committee_name,
                                          classification='committee',
                                          parent_id={'name' : 'Chicago City Council'})
-                        o.add_source(committee['Legislative Body']['url'])
+                        o.add_source(committee['Legislative Body']['url'], 
+                                     note='web')
                         committee_d[committee_name] = o
 
                     o.add_member(p, role=committee["Title"])
@@ -113,7 +114,7 @@ class ChicagoPersonScraper(LegistarScraper):
                            start_date=datetime.date(2011, 5, 16),
                            end_date=datetime.date(2015, 5, 18))
 
-            p.add_source(term['source'])
+            p.add_source(term['source'], note='web')
             yield p
 
         for o in committee_d.values() :
@@ -123,7 +124,8 @@ class ChicagoPersonScraper(LegistarScraper):
             o = Organization(committee_name, 
                              classification='committee',
                              parent_id={'name' : 'Chicago City Council'})
-            o.add_source("https://chicago.legistar.com/Departments.aspx")
+            o.add_source("https://chicago.legistar.com/Departments.aspx", 
+                         note='web')
             yield o
 
         for joint_committee in JOINT_COMMITTEES :
@@ -131,7 +133,8 @@ class ChicagoPersonScraper(LegistarScraper):
             o = Organization(joint_committee, 
                              classification='committee',
                              parent_id={'name' : 'Chicago City Council'})
-            o.add_source("https://chicago.legistar.com/Departments.aspx")
+            o.add_source("https://chicago.legistar.com/Departments.aspx",
+                         note='web')
             yield o
 
         

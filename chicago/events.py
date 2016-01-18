@@ -113,7 +113,7 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
                               type="organization")
 
             if agenda :
-                e.add_source(event['Meeting Details']['url'])
+                e.add_source(event['Meeting Details']['url'], note='web')
                 
                 for item, _, _ in agenda :
                     agenda_item = e.add_agenda_item(item["Title"])
@@ -121,7 +121,7 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
                         agenda_item.add_bill(item["Record #"]['label'])
 
             else :
-                e.add_source(self.EVENTSPAGE)
+                e.add_source(self.EVENTSPAGE, note='web')
 
             yield e
 
