@@ -167,6 +167,7 @@ BILL_TYPES = {'Introduction' : 'bill',
 
 
 ACTION_CLASSIFICATION = {
+    'Tour Held by Committee' : None,
     'Hearing on P-C Item by Comm' : None,
     'Approved by Committee with Modifications and Referred to CPC' : 'committee-passage',
     'Approved by Committee with Modifications' : 'committee-passage',
