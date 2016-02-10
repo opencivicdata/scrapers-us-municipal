@@ -30,11 +30,20 @@ class MiamidadePersonScraper(Scraper):
             name = name.strip()
             url = person.xpath(".//a[contains(text(),'Website')]/@href")[0]
             image = person.xpath(".//img/@src")[0]
-            pers = Person(name=name,
-                            image=image,
-                            district=position+" Commissioner",
-                            primary_org='legislature',
-                            role="Commissioner")
+            if position.startswith('District'):
+                pers = Person(name=name,
+                              image=image,
+                              district=position+" Commissioner",
+                              primary_org='legislature',
+                              role="Commissioner")
+            else:
+                pers = Person(name=name,
+                              image=image,
+                              district=position,
+                              primary_org='legislature',
+                              role=ROLES[position])
+
+                
             pers.add_source(people_base_url, note="Miami-Dade government website")
             pers.add_source(url, note="individual's website")
 
@@ -78,3 +87,8 @@ class MiamidadePersonScraper(Scraper):
 
 
             yield pers
+
+            
+ROLES = {'Office of the Mayor' : 'Mayor',
+         'Clerk, Circuit and County Courts' : 'Clerk, Circuit and County Courts',
+         'Property Appraiser': 'Property Appraiser'}

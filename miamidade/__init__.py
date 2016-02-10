@@ -35,7 +35,7 @@ class Miamidade(Jurisdiction):
             role="Clerk, Circuit and County Courts",
             division_id=self.division_id)
         
-        org.add_post(label="Mayor",role="Office of the Mayor",
+        org.add_post(role="Mayor",label="Office of the Mayor",
             division_id=self.division_id)
 
         org.add_post("Property Appraiser","Property Appraiser",
