@@ -43,7 +43,7 @@ class Miamidade(Jurisdiction):
 
         for x in range(1,14):
             org.add_post(label="District {dist} Commissioner".format(dist=x),
-                role="District {dist}".format(dist=x),
+                role="Commissioner",
                 division_id=self.division_id)
         
         yield org
