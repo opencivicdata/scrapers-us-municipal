@@ -1,6 +1,7 @@
 from pupa.scrape import Jurisdiction, Organization, Person
 
 from .people import SFPersonScraper
+from .events import SFEventScraper
 
 import datetime
 
@@ -14,6 +15,7 @@ class SanFrancisco(Jurisdiction):
 
     scrapers = {
         "people": SFPersonScraper,
+        "events": SFEventScraper,
     }
 
     def get_organizations(self):
