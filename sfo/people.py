@@ -6,47 +6,46 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-MEMBERLIST = 'https://sfgov.legistar.com/People.aspx'
+PEOPLE_PAGE = 'https://sfgov.legistar.com/People.aspx'
 
 
 class SFPersonScraper(LegistarScraper):
-    timezone = 'US/Pacific'
     base_url = 'https://sfgov.legistar.com/'
 
-    def councilMembers(self, follow_links=True) :
-        for page in self.pages(MEMBERLIST) :
+    def People(self, follow_links=True) :
+        for page in self.pages(PEOPLE_PAGE) :
             table = page.xpath(
                 "//table[@id='ctl00_ContentPlaceHolder1_gridPeople_ctl00']")[0]
 
-            for councilman, _, _ in self.parseDataTable(table):
-                if follow_links and type(councilman['Person Name']) == dict:
-                    if type(councilman['Web Site']) == dict:
-                        website_url = councilman['Web Site']['url']
+            for person, _, _ in self.parseDataTable(table):
+                if follow_links and type(person['Person Name']) == dict:
+                    if type(person['Web Site']) == dict:
+                        website_url = person['Web Site']['url']
                         website = self.lxmlize(website_url)
                         elem = website.xpath("//*[@class='sup_district']")
                         if elem:
-                            councilman['District'] = elem[0].text.strip()
+                            person['District'] = elem[0].text.strip()
 
                         contact_p = website.xpath("//*[@id='sup_right']/h2[contains(.,'Contact Info')]/following::p")
                         if contact_p:
                             # TODO: Split this into phone and address
                             True
 
-                    detail_url = councilman['Person Name']['url']
-                    councilman_details = self.lxmlize(detail_url)
-                    img = councilman_details.xpath(
+                    detail_url = person['Person Name']['url']
+                    person_details = self.lxmlize(detail_url)
+                    img = person_details.xpath(
                         "//img[@id='ctl00_ContentPlaceHolder1_imgPhoto']")
                     if img :
-                        councilman['Photo'] = img[0].get('src')
+                        person['Photo'] = img[0].get('src')
 
-                    committee_table = councilman_details.xpath(
+                    committee_table = person_details.xpath(
                         "//table[@id='ctl00_ContentPlaceHolder1_gridDepartments_ctl00']")[0]
                     committees = self.parseDataTable(committee_table)
 
-                    yield councilman, committees
+                    yield person, committees
 
                 else :
-                    yield councilman
+                    yield person
 
 
     def scrape(self):
@@ -55,39 +54,33 @@ class SFPersonScraper(LegistarScraper):
             'Board of Supervisors',
             }
 
-        for councilman, committees in self.councilMembers() :
-            if councilman['District'] == None:
+        for person, committees in self.People() :
+            if person['District'] == None:
                 continue
 
-            district = councilman['District']
+            district = person['District']
             role = "Supervisor"
             p = Person(
-                councilman['Person Name']['label'],
+                person['Person Name']['label'],
                 district=district,
                 primary_org="legislature",
                 role=role,
                 )
 
-            if councilman['Photo'] :
-                p.image = councilman['Photo']
+            if person['Photo'] :
+                p.image = person['Photo']
 
-            def split_newlines(node):
-                lines = []
-                for elem in node.xpath("./*[following-sibling::*[name()='br']]"):
-                    lines.append(elem.tail.strip())
-                return lines
-
-            if councilman["E-mail"]:
+            if person["E-mail"]:
                 p.add_contact_detail(
                     type="email",
-                    value=councilman['E-mail']['label'],
+                    value=person['E-mail']['label'],
                     note='E-mail'
                     )
 
 
-            if councilman['Web Site']:
-                p.add_link(councilman['Web Site']['url'])
-            p.add_source(councilman['Person Name']['url'], note='web')
+            if person['Web Site']:
+                p.add_link(person['Web Site']['url'])
+            p.add_source(person['Person Name']['url'], note='web')
 
             yield p
 
@@ -101,7 +94,7 @@ class SFPersonScraper(LegistarScraper):
                             classification='committee',
                             parent_id={'name' : 'San Francisco Board of Supervisors'}
                             )
-                        o.add_source(MEMBERLIST, note='web')
+                        o.add_source(PEOPLE_PAGE, note='web')
                         committee_d[committee_name] = o
 
                     o.add_member(
