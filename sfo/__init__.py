@@ -49,6 +49,7 @@ class SanFrancisco(Jurisdiction):
                        role='Mayor',
                        primary_org_name='Office of the Mayor',
                        start_date=datetime.date(2011, 1, 11))
+        lee.add_name('Mayor')
         lee.add_source('https://en.wikipedia.org/wiki/Ed_Lee_%28politician%29')
 
         yield lee

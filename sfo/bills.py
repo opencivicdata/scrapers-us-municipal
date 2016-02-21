@@ -157,9 +157,6 @@ class SFBillScraper(LegistarBillScraper):
                                         '(by request of')) :
                 continue
 
-            if sponsor_name == 'Mayor' :
-                sponsor_name = 'Edwin M. Lee'
-
             yield sponsor_name, sponsorship_type, primary
 
 BILL_TYPES = {'Charter Amendment': None,
