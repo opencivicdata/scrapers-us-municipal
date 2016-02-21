@@ -4,6 +4,7 @@ from pupa.utils import _make_pseudo_id
 import datetime
 from collections import defaultdict
 import pytz
+import re
 
 class SFBillScraper(LegistarBillScraper):
     LEGISLATION_URL = 'https://sfgov.legistar.com/Legislation.aspx'
@@ -77,8 +78,13 @@ class SFBillScraper(LegistarBillScraper):
 
                 action_date = self.toDate(action['Date'])
                 responsible_org = action['Action\xa0By']
-                if responsible_org in ['Board of Supervisors', 'Clerk of the Board', 'President'] :
-                    responsible_org = self.jurisdiction.council_name
+
+                def normalize_org(org) :
+                    if org in ['Board of Supervisors', 'Clerk of the Board', 'President'] :
+                        org = self.jurisdiction.council_name
+                    return org
+
+                responsible_org = normalize_org(responsible_org)
 
                 if action_class :
                     act = bill.add_action(action_description,
@@ -90,7 +96,16 @@ class SFBillScraper(LegistarBillScraper):
                         action_detail_url = action['Action\xa0Details']['url']
                         if action_class == 'committee-referral' :
                             action_details = self.actionDetails(action_detail_url)
-                            referred_committee = action_details['Action text'].rsplit(' to the ', 1)[-1]
+
+                            def sanitize_referral(action_text):
+                                committee = action_text.rsplit(' to the ', 1)[-1]
+                                committee = re.sub(r'due back on.*$', '', committee)
+                                committee = committee.strip()
+                                return committee
+
+                            referred_committee = sanitize_referral(action_details['Action text'])
+                            referred_committee = normalize_org(referred_committee)
+
                             act.add_related_entity(referred_committee,
                                                    'organization',
                                                    entity_id = _make_pseudo_id(name=referred_committee))
@@ -123,6 +138,8 @@ class SFBillScraper(LegistarBillScraper):
 
 
     def _sponsors(self, sponsors) :
+        if type(sponsors) == str :
+            sponsors = [sponsors]
         for i, sponsor in enumerate(sponsors) :
             if i == 0 :
                 primary = True
@@ -139,6 +156,9 @@ class SFBillScraper(LegistarBillScraper):
             if sponsor_name.startswith(('(in conjunction with',
                                         '(by request of')) :
                 continue
+
+            if sponsor_name == 'Mayor' :
+                sponsor_name = 'Edwin M. Lee'
 
             yield sponsor_name, sponsorship_type, primary
 
@@ -171,7 +191,7 @@ ACTION_CLASSIFICATION = {
     'APPROVED OVER THE MAYOR\'S VETO': None,
     'ASSIGNED': 'committee-referral',
     'ASSIGNED UNDER 30 DAY RULE': 'committee-referral',
-    'ASSIGNED UNDER 30 DAY RULE PENDING APPROVAL AS TO FORM': None,
+    'ASSIGNED UNDER 30 DAY RULE PENDING APPROVAL AS TO FORM': 'committee-referral',
     'AWARDED': None,
     'CALLED FROM COMMITTEE': None,
     'CLERICAL CORRECTION': None,
@@ -238,7 +258,7 @@ ACTION_CLASSIFICATION = {
     'PREPARED IN COMMITTEE AS A RESOLUTION OPPOSING THE REQUEST': None,
     'PREPARED IN COMMITTEE AS AN ORDINANCE': None,
     'PREVIOUS VOTE RESCINDED': None,
-    'RE-REFERRED': 'committee-referral',
+    'RE-REFERRED': None,
     'RE-REFERRED AS AMENDED': None,
     'RE-REFERRED WITH PENDING AMENDMENT': None,
     'REACTIVATED PURSUANT TO CITY ATTORNEY INSTRUCTIONS': None,
@@ -264,7 +284,7 @@ ACTION_CLASSIFICATION = {
     'RECOMMENDED AS DIVIDED..': None,
     'RECOMMENDED..': 'committee-passage',
     'RECORDED': None,
-    'REFERRED': 'committee-referral',
+    'REFERRED': None,
     'REFERRED AS AMENDED': None,
     'REFERRED FOR ADOPTION WITHOUT COMMITTEE REFERENCE AGENDA AT THE NEXT BOARD MEETING': None,
     'REFERRED TO BOARD SITTING AS A COMMITTEE OF THE WHOLE': None,
@@ -285,13 +305,13 @@ ACTION_CLASSIFICATION = {
     'SEVERED FROM CONSENT AGENDA': None,
     'SEVERED FROM FOR ADOPTION WITHOUT COMMITTEE REFERENCE AGENDA': None,
     'SUBSTITUTED': None,
-    'SUBSTITUTED AND ASSIGNED': 'committee-referral',
-    'SUBSTITUTED AND ASSIGNED UNDER 30 DAY RULE': 'committee-referral',
-    'SUBSTITUTED, AND ASSIGNED': 'committee-referral',
+    'SUBSTITUTED AND ASSIGNED': None,
+    'SUBSTITUTED AND ASSIGNED UNDER 30 DAY RULE': None,
+    'SUBSTITUTED, AND ASSIGNED': None,
     'TABLED': 'failure',
     'TABLED BY OPERATION OF LAW': 'failure',
     'TO BE SCHEDULED FOR PUBLIC HEARING': None,
-    'TRANSFERRED': 'committee-referral',
+    'TRANSFERRED': None,
     'VETOED': 'executive-veto',
     'VETOED - LINE ITEM': None,
     'WITHDRAWN AND FILED': None,
