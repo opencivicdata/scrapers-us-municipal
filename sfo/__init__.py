@@ -3,6 +3,7 @@ from pupa.scrape import Jurisdiction, Organization, Person
 from .bills import SFBillScraper
 from .events import SFEventScraper
 from .people import SFPersonScraper
+from .organizations import SFOrganizationScraper
 
 import datetime
 
@@ -20,6 +21,7 @@ class SanFrancisco(Jurisdiction):
         "people": SFPersonScraper,
         "events": SFEventScraper,
         "bills": SFBillScraper,
+        "organizations": SFOrganizationScraper,
     }
 
     legislative_sessions = [{"identifier": str(start_year),
