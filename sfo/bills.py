@@ -86,45 +86,47 @@ class SFBillScraper(LegistarBillScraper):
 
                 responsible_org = normalize_org(responsible_org)
 
-                if action_class :
-                    act = bill.add_action(action_description,
-                                          action_date,
-                                          organization={'name': responsible_org},
-                                          classification=action_class)
+                if responsible_org in ['Youth Commission', 'Planning Department', 'Mayor'] :
+                    continue
 
-                    if 'url' in action['Action\xa0Details'] :
-                        action_detail_url = action['Action\xa0Details']['url']
-                        if action_class == 'committee-referral' :
-                            action_details = self.actionDetails(action_detail_url)
+                act = bill.add_action(action_description,
+                                      action_date,
+                                      organization={'name': responsible_org},
+                                      classification=action_class)
 
-                            def sanitize_referral(action_text):
-                                committee = action_text.rsplit(' to the ', 1)[-1]
-                                committee = re.sub(r'due back on.*$', '', committee)
-                                committee = committee.strip()
-                                return committee
+                if 'url' in action['Action\xa0Details'] :
+                    action_detail_url = action['Action\xa0Details']['url']
+                    if action_class == 'committee-referral' :
+                        action_details = self.actionDetails(action_detail_url)
 
-                            referred_committee = sanitize_referral(action_details['Action text'])
-                            referred_committee = normalize_org(referred_committee)
+                        def sanitize_referral(action_text):
+                            committee = action_text.rsplit(' to the ', 1)[-1]
+                            committee = re.sub(r'due back on.*$', '', committee)
+                            committee = committee.strip()
+                            return committee
 
-                            act.add_related_entity(referred_committee,
-                                                   'organization',
-                                                   entity_id = _make_pseudo_id(name=referred_committee))
-                        result, votes = self.extractVotes(action_detail_url)
-                        if result and votes :
-                            action_vote = VoteEvent(legislative_session=bill.legislative_session,
-                                               motion_text=action_description,
-                                               organization={'name': responsible_org},
-                                               classification=action_class,
-                                               start_date=action_date,
-                                               result=result,
-                                               bill=bill)
-                            action_vote.add_source(action_detail_url, note='web')
+                        referred_committee = sanitize_referral(action_details['Action text'])
+                        referred_committee = normalize_org(referred_committee)
 
-                            for option, voter in votes :
-                                action_vote.vote(option, voter)
+                        act.add_related_entity(referred_committee,
+                                               'organization',
+                                               entity_id = _make_pseudo_id(name=referred_committee))
+                    result, votes = self.extractVotes(action_detail_url)
+                    if result and votes :
+                        action_vote = VoteEvent(legislative_session=bill.legislative_session,
+                                           motion_text=action_description,
+                                           organization={'name': responsible_org},
+                                           classification=action_class,
+                                           start_date=action_date,
+                                           result=result,
+                                           bill=bill)
+                        action_vote.add_source(action_detail_url, note='web')
+
+                        for option, voter in votes :
+                            action_vote.vote(option, voter)
 
 
-                            yield action_vote
+                        yield action_vote
 
             text = self.text(leg_summary['url'])
 
