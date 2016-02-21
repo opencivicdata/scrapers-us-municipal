@@ -1,7 +1,8 @@
 from pupa.scrape import Jurisdiction, Organization, Person
 
-from .people import SFPersonScraper
+from .bills import SFBillScraper
 from .events import SFEventScraper
+from .people import SFPersonScraper
 
 import datetime
 
@@ -13,13 +14,24 @@ class SanFrancisco(Jurisdiction):
     url =  'https://sfgov.legistar.com/'
     timezone = 'US/Pacific'
 
+    council_name = 'San Francisco Board of Supervisors'
+
     scrapers = {
         "people": SFPersonScraper,
         "events": SFEventScraper,
+        "bills": SFBillScraper,
     }
 
+    legislative_sessions = [{"identifier": str(start_year),
+                             "name": ("%s Regular Session" % str(start_year)),
+                             "start_date": ("%s-01-08" % str(start_year)),
+                             "end_date": ("%s-01-07" % str(start_year + 1))}
+                            for start_year
+                            in range(1998, 2017)]
+
+
     def get_organizations(self):
-        org = Organization(name="San Francisco Board of Supervisors", classification="legislature")
+        org = Organization(name=self.council_name, classification="legislature")
         for x in range(1, 12):
             org.add_post(
                 "District {}".format(x),

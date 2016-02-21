@@ -12,7 +12,7 @@ class SFEventScraper(LegistarEventsScraper):
 
     def scrape(self):
         last_events = deque(maxlen=10)
-        for event, agenda in self.events(since=2015) :
+        for event, agenda in self.events(since=2016) :
             other_orgs = ''
             extras = []
 
@@ -79,8 +79,8 @@ class SFEventScraper(LegistarEventsScraper):
             self.addDocs(e, event, 'Agenda')
             self.addDocs(e, event, 'Minutes')
 
-            if event['Name'] == 'City Council Stated Meeting' :
-                participating_orgs = ['New York City Council']
+            if event['Name'] == 'Board of Supervisors' :
+                participating_orgs = [self.jurisdiction.council_name]
             elif 'committee' in event['Name'].lower() :
                 participating_orgs = [event["Name"]]
             else :
