@@ -49,7 +49,6 @@ class SFPersonScraper(LegistarScraper):
 
 
     def scrape(self):
-        committee_d = {}
         non_committees = {
             'Board of Supervisors',
             }
@@ -77,7 +76,6 @@ class SFPersonScraper(LegistarScraper):
                     note='E-mail'
                     )
 
-
             if person['Web Site']:
                 p.add_link(person['Web Site']['url'])
             p.add_source(person['Person Name']['url'], note='web')
@@ -87,22 +85,11 @@ class SFPersonScraper(LegistarScraper):
             for committee, _, _ in committees:
                 committee_name = committee['Department Name']
                 if committee_name and committee_name not in non_committees:
-                    o = committee_d.get(committee_name, None)
-                    if o is None:
-                        o = Organization(
-                            committee_name,
-                            classification='committee',
-                            parent_id={'name' : 'San Francisco Board of Supervisors'}
-                            )
-                        o.add_source(PEOPLE_PAGE, note='web')
-                        committee_d[committee_name] = o
-
-                    o.add_member(
-                        p,
+                    if committee['Title'] == 'Supervisor' :
+                        committee['Title'] = 'Committee Member'
+                    p.add_membership(
+                        committee_name,
                         role=committee["Title"],
                         start_date=self.toTime(committee['Start Date']).date(),
                         end_date=self.toTime(committee['End Date']).date(),
                         )
-
-        for o in committee_d.values() :
-            yield o
