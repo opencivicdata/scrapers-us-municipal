@@ -86,8 +86,8 @@ class SFBillScraper(LegistarBillScraper):
 
                 responsible_org = normalize_org(responsible_org)
 
-                if responsible_org in ['Youth Commission', 'Planning Department', 'Mayor'] :
-                    continue
+                if responsible_org == 'Mayor' :
+                    responsible_org = 'Office of the Mayor'
 
                 act = bill.add_action(action_description,
                                       action_date,
