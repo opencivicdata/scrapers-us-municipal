@@ -1,4 +1,14 @@
--e git+https://github.com/patcon/pupa.git@allow-membership-org-resolution#egg=pupa
+# Pending release:
+#   * https://github.com/opencivicdata/pupa/pull/233
+# Pending merge:
+#   * https://github.com/opencivicdata/pupa/pull/235
+-e git+https://github.com/patcon/pupa.git@235-relax-ocd-django-constraint#egg=pupa
+
+# Pending release:
+#   * https://github.com/opencivicdata/python-opencivicdata-django/pull/59
+#   * https://github.com/opencivicdata/python-opencivicdata-django/pull/61
+#   * https://github.com/opencivicdata/python-opencivicdata-django/pull/62
+-e git+https://github.com/opencivicdata/python-opencivicdata-django.git@42bf463026a6b14a6f069c6db6dc974d11134b45#egg=opencivicdata-django
 lxml
 sh
--e git+https://github.com/opencivicdata/python-legistar-scraper@cleanup#egg=legistar
+-e git+https://github.com/opencivicdata/python-legistar-scraper@master#egg=legistar
