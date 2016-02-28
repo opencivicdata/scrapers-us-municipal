@@ -6,6 +6,35 @@ from collections import defaultdict
 import pytz
 import re
 
+def title_except(s, exceptions):
+    word_list = re.split(' ', s)       #re.split behaves as expected
+    final = [word_list[0].capitalize()]
+    for word in word_list[1:]:
+        final.append(word in exceptions and word or word.capitalize())
+    return ' '.join(final)
+
+# APA style.
+# Ref: https://www.bkacontent.com/how-to-correctly-use-apa-style-title-case/
+TITLECASE_EXCEPTIONS = [
+        'a',
+        'an',
+        'and',
+        'at',
+        'but',
+        'by',
+        'for',
+        'in',
+        'nor',
+        'of',
+        'on',
+        'or',
+        'so',
+        'the',
+        'to',
+        'up',
+        'yet',
+        ]
+
 class SFBillScraper(LegistarBillScraper):
     LEGISLATION_URL = 'https://sfgov.legistar.com/Legislation.aspx'
     BASE_URL = 'https://sfgov.legistar.com/'
@@ -89,6 +118,7 @@ class SFBillScraper(LegistarBillScraper):
                 if responsible_org == 'Mayor' :
                     responsible_org = 'Office of the Mayor'
 
+                action_description = title_except(action_description.lower(), TITLECASE_EXCEPTIONS)
                 act = bill.add_action(action_description,
                                       action_date,
                                       organization={'name': responsible_org},
