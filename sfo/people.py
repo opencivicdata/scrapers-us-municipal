@@ -1,4 +1,4 @@
-from pupa.scrape import Person, Organization
+from pupa.scrape import Person
 from legistar.people import LegistarPersonScraper
 import datetime
 
