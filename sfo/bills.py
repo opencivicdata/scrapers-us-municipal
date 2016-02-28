@@ -115,6 +115,9 @@ class SFBillScraper(LegistarBillScraper):
 
                 responsible_org = normalize_org(responsible_org)
 
+                if action_description == 'APPROVED' and responsible_org == 'Mayor' :
+                    action_class = 'executive-signature'
+
                 if responsible_org == 'Mayor' :
                     responsible_org = 'Office of the Mayor'
 
@@ -198,7 +201,7 @@ BILL_TYPES = {'Charter Amendment': None,
               'Motion': None,
               'Ordinance': 'ordinance',
               'Report': None,
-              'Resolution'   : 'resolution'}
+              'Resolution': 'resolution'}
 
 
 ACTION_CLASSIFICATION = {
@@ -211,7 +214,7 @@ ACTION_CLASSIFICATION = {
     'AMENDED, AN AMENDMENT OF THE WHOLE BEARING NEW TITLE': None,
     'AMENDED, AN AMENDMENT OF THE WHOLE BEARING SAME TITLE': None,
     'APPEAL FILED': None,
-    'APPROVED': None,
+    'APPROVED': 'passage',
     'APPROVED AND FILED': None,
     'APPROVED AS AMENDED': None,
     'APPROVED AS DIVIDED': None,
@@ -253,9 +256,9 @@ ACTION_CLASSIFICATION = {
     'FILED PURSUANT TO RULE 5.38': 'deferred',
     'FILED PURSUANT TO RULE 5.39': 'deferred',
     'FILED PURSUANT TO RULE 5.40': 'deferred',
-    'FINALLY PASSED': 'committee-passage',
-    'FINALLY PASSED AS AMENDED': 'committee-passage',
-    'FINALLY PASSED AS DIVIDED': 'committee-passage',
+    'FINALLY PASSED': 'passage',
+    'FINALLY PASSED AS AMENDED': 'passage',
+    'FINALLY PASSED AS DIVIDED': 'passage',
     'HEARD AND FILED': None,
     'HEARD AND RELEASED': None,
     'HEARD AND TABLED': None,
@@ -276,8 +279,8 @@ ACTION_CLASSIFICATION = {
     'PASS THE CONSENT AGENDA': None,
     'PASSED AS EMERGENCY MEASURE': None,
     'PASSED ON FIRST READING': 'reading-1',
-    'PASSED ON FIRST READING AS AMENDED': None,
-    'PASSED ON FIRST READING AS DIVIDED': None,
+    'PASSED ON FIRST READING AS AMENDED': 'reading-1',
+    'PASSED ON FIRST READING AS DIVIDED': 'reading-1',
     'PASSED, ON FIRST READING': 'reading-1',
     'PREPARED IN COMMITTEE AS A MOTION': None,
     'PREPARED IN COMMITTEE AS A RESOLUTION': None,
