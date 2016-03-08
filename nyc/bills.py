@@ -16,6 +16,7 @@ class NYCBillScraper(LegistarBillScraper):
                     'paternity' : 'excused',
                     'bereavement': 'excused',
                     'non-voting' : 'not voting',
+                    'jury duty' : 'excused',
                     'absent' : 'absent',
                     'medical' : 'excused'}
 
