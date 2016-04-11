@@ -229,6 +229,6 @@ class MiamidadeBillScraper(Scraper):
                 note = info_dict["Note"]
             bill.add_abstract(abstract=info_dict["Title"],note=note)
         self.process_action_table(matter_doc,bill)
-        bill.add_source(matter_link)
+        bill.add_source(matter_link, note='web')
 
         yield bill
