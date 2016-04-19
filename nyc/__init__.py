@@ -17,7 +17,7 @@ class NYC(Jurisdiction):
     ]
     scrapers = {'people': NYCPersonScraper,
                 'bills' : NYCBillScraper,
-                #'events': NYCEventsScraper
+                'events': NYCEventsScraper
     }
 
     legislative_sessions = [{"identifier": str(start_year),
