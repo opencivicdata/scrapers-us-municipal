@@ -273,8 +273,7 @@ FORMER_COMMITTEES = ('Committee on Parks and Recreation',
                      'Committee on Health',
                      'Committee on Police and Fire')
 
-JOINT_COMMITTEES = ('Joint Committee: Housing and Real Estate; Zoning, Landmarks and Building Standards',
-                    'Joint Committee: Finance; Special Events, Cultural Affairs and Recreation',
+JOINT_COMMITTEES = ('Joint Committee: Finance; Special Events, Cultural Affairs and Recreation',
                     'Joint Committee: Budget and Government Operations; Health and Environmental Protection',
                     'Joint Committee: Budget and Government Operations; License and Consumer Protection',
                     'Joint Committee: Budget and Government Operations; Housing and Real Estate; Special Events, Cultural Affairs and Recreation',
