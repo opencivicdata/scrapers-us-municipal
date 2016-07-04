@@ -278,7 +278,6 @@ JOINT_COMMITTEES = ('Joint Committee: Housing and Real Estate; Zoning, Landmarks
                     'Joint Committee: Budget and Government Operations; Health and Environmental Protection',
                     'Joint Committee: Budget and Government Operations; License and Consumer Protection',
                     'Joint Committee: Budget and Government Operations; Housing and Real Estate; Special Events, Cultural Affairs and Recreation',
-                    'Joint Committee: License and Consumer Protection; Transportation and Public Way',
                     'Joint Committee: Health and Environmental Protection; Housing and Real Estate',
                     'Joint Committee: Finance; Housing and Real Estate',
                     'Joint Committee: Budget and Government Operations; Zoning, Landmarks and Building Standards',
