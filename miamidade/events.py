@@ -5,6 +5,7 @@ import lxml.html
 from datetime import datetime
 import pytz
 
+DUPLICATE_EVENT_URLS = ('http://miamidade.gov/wps/Events/EventDetail.jsp?eventID=445731')
 
 class MiamidadeEventScraper(Scraper):
 
@@ -39,6 +40,9 @@ class MiamidadeEventScraper(Scraper):
                         where = data.text
                     elif h == "description":
                         description = data.text
+
+                if link in DUPLICATE_EVENT_URLS:
+                    continue
 
                 if not description:
                     description = ""
