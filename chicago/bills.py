@@ -95,14 +95,15 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
 
             date = matter['MatterIntroDate']
             title = matter['MatterTitle']
+            identifier = matter['MatterTypeName']
 
-            if not all((date, title)) :
+            if not all((date, title, identifier)) :
                 continue
 
             bill_session = self.session(self.toTime(date))
             bill_type = BILL_TYPES[matter['MatterTypeName']]
 
-            bill = Bill(identifier=matter['MatterFile'],
+            bill = Bill(identifier=identifier,
                         legislative_session=bill_session,
                         title=title,
                         classification=bill_type,
