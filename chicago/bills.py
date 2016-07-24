@@ -95,7 +95,7 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
 
             date = matter['MatterIntroDate']
             title = matter['MatterTitle']
-            identifier = matter['MatterTypeName']
+            identifier = matter['MatterFile']
 
             if not all((date, title, identifier)) :
                 continue
