@@ -103,6 +103,12 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
             bill_session = self.session(self.toTime(date))
             bill_type = BILL_TYPES[matter['MatterTypeName']]
 
+            if identifier.startswith('S'):
+                alternate_identifiers = [identifier]
+                identifier = identifier[1:]
+            else:
+                alternate_identifiers = []
+
             bill = Bill(identifier=identifier,
                         legislative_session=bill_session,
                         title=title,
@@ -114,6 +120,9 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
 
             bill.add_source(legistar_web, note='web')
             bill.add_source(legistar_api, note='api')
+
+            for identifier in alternate_identifiers:
+                bill.add_identifier(identifier)
 
             for action, vote in self.actions(matter_id) :
                 act = bill.add_action(**action)
