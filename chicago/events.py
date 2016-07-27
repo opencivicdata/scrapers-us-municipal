@@ -118,7 +118,10 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
                 for item, _, _ in agenda :
                     agenda_item = e.add_agenda_item(item["Title"])
                     if item["Record #"] :
-                        agenda_item.add_bill(item["Record #"]['label'])
+                        identifier = item["Record #"]['label']
+                        if identifier.startswith('S'):
+                            identifier = identifier[1:]
+                        agenda_item.add_bill(identifier)
 
             else :
                 e.add_source(self.EVENTSPAGE, note='web')
