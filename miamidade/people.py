@@ -14,12 +14,12 @@ class MiamidadePersonScraper(Scraper):
         yield from self.get_people()
         #committees can go in here too
 
-
     def get_people(self):
         people_base_url = "http://miamidade.gov/wps/portal/Main/government"
         doc = self.lxmlize(people_base_url)
         person_list = doc.xpath("//div[contains(@id,'elected')]//span")
         titles = ["Chairman","Vice Chair"]
+
         for person in person_list:
             info = person.text_content().strip().split("\r")
             position = info[0].strip()
@@ -40,7 +40,7 @@ class MiamidadePersonScraper(Scraper):
                 pers = Person(name=name,
                               image=image,
                               district=position,
-                              primary_org='legislature',
+                              primary_org='executive',
                               role=ROLES[position])
 
                 
