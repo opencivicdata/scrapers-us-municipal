@@ -29,21 +29,39 @@ class Miamidade(Jurisdiction):
         org = Organization(name="Miami-Dade County Commission",
             classification="legislature")
         
-        #label=human readable
-        #role=what we can pull with the scraper
-        org.add_post(label="Clerk, Circuit and County Courts",
-            role="Clerk, Circuit and County Courts",
-            division_id=self.division_id)
-        
-        org.add_post(role="Mayor",label="Office of the Mayor",
-            division_id=self.division_id)
-
-        org.add_post("Property Appraiser","Property Appraiser",
-            division_id=self.division_id)
-
         for x in range(1,14):
             org.add_post(label="District {dist} Commissioner".format(dist=x),
                 role="Commissioner",
                 division_id=self.division_id)
         
         yield org
+
+        mayor = Organization('Office of the Mayor', classification='executive')
+        yield mayor
+
+        mayorPers = Person(name="Carlos A. Giménez",
+                       primary_org='executive',
+                       role='Mayor',
+                       primary_org_name='Office of the Mayor',
+                       start_date=datetime.date(2011, 6, 28))
+        yield mayorPers
+
+
+        clerk = Organization('Clerk of Courts', classification='executive')
+        yield clerk
+
+        clerkPers = Person(name="Harvey Ruvin",
+                       primary_org='executive',
+                       role='Clerk',
+                       primary_org_name='Clerk of Courts')
+        yield clerkPers
+
+
+        pa = Organization('Office of the Property Appraiser', classification='executive')
+        yield pa
+
+        paPers = Person(name="Pedro J. Garcia",
+                       primary_org='executive',
+                       role='Property Appraiser',
+                       primary_org_name='Office of the Property Appraiser')
+        yield paPers
