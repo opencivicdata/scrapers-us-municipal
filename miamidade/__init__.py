@@ -1,8 +1,10 @@
 # encoding=utf-8
-from pupa.scrape import Jurisdiction, Organization
+from pupa.scrape import Jurisdiction, Organization, Person
 from .events import MiamidadeEventScraper
 from .bills import MiamidadeBillScraper
 from .people import MiamidadePersonScraper
+
+import datetime
 
 
 class Miamidade(Jurisdiction):
@@ -44,6 +46,9 @@ class Miamidade(Jurisdiction):
                        role='Mayor',
                        primary_org_name='Office of the Mayor',
                        start_date=datetime.date(2011, 6, 28))
+
+        mayorPerson.add_source('Ernie')
+
         yield mayorPers
 
 
@@ -54,6 +59,9 @@ class Miamidade(Jurisdiction):
                        primary_org='executive',
                        role='Clerk',
                        primary_org_name='Clerk of Courts')
+
+        clerkPers.add_source('Ernie')
+        
         yield clerkPers
 
 
@@ -64,4 +72,7 @@ class Miamidade(Jurisdiction):
                        primary_org='executive',
                        role='Property Appraiser',
                        primary_org_name='Office of the Property Appraiser')
+
+        paPers.add_source('Ernie')
+        
         yield paPers
