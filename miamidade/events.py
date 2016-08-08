@@ -67,7 +67,7 @@ class MiamidadeEventScraper(Scraper):
             e = Event(name="Mayor's FY 2016-17 Proposed Budget Public Meeting",
                       start_time=local_timezone.localize(datetime.strptime('08/08/16 06:00PM', '%m/%d/%y %H:%M%p')),
                       timezone="US/Eastern",
-                      location='111 NW 1st Street',
+                      location_name='111 NW 1st Street',
                       description='Pursuant to Section 2-1800A of the County Code, a Public Meeting has been scheduled by the Honorable Carlos A. Gimenez, Mayor, Miami-Dade County, to discuss the FY 2016-17 budget, tax rates, and fee changes.',
                       status='confirmed')
             e.add_source('http://miamidade.gov/wps/Events/EventDetail.jsp?eventID=447192')
