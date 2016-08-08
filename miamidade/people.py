@@ -37,46 +37,45 @@ class MiamidadePersonScraper(Scraper):
                               primary_org='legislature',
                               role="Commissioner")
                 
-            pers.add_source(people_base_url, note="Miami-Dade government website")
-            pers.add_source(url, note="individual's website")
+                pers.add_source(people_base_url, note="Miami-Dade government website")
+                pers.add_source(url, note="individual's website")
 
-            #the commissioners have consistent site format
-            if "district" in position.lower():
-                person_doc = self.lxmlize(url)
-                contact_rows = person_doc.xpath("//div[@class='leftContentContainer']//p")
-                for line in contact_rows:
-                    line_text = line.text_content()
-                    if "email" in line_text.lower():
-                        email_address = line_text.replace("Email:","").strip()
-                        pers.add_contact_detail(type="email",
-                                                value=email_address)
-                        continue
-                    try:
-                        office,phone,fax = line_text.strip().split("\n")
-                    except ValueError:
-                        #ick, it's all on one line.
-                        if "downtown office" in line_text.lower():
-                            office = "Downtown Office"
-                        elif "district office" in line_text.lower():
-                            office = "District Office"
-                        else:
+                #the commissioners have consistent site format
+                if "district" in position.lower():
+                    person_doc = self.lxmlize(url)
+                    contact_rows = person_doc.xpath("//div[@class='leftContentContainer']//p")
+                    for line in contact_rows:
+                        line_text = line.text_content()
+                        if "email" in line_text.lower():
+                            email_address = line_text.replace("Email:","").strip()
+                            pers.add_contact_detail(type="email",
+                                                    value=email_address)
                             continue
-                        phone = line_text[15:27]
-                        fax = line_text[33:45]
+                        try:
+                            office,phone,fax = line_text.strip().split("\n")
+                        except ValueError:
+                            #ick, it's all on one line.
+                            if "downtown office" in line_text.lower():
+                                office = "Downtown Office"
+                            elif "district office" in line_text.lower():
+                                office = "District Office"
+                            else:
+                                continue
+                            phone = line_text[15:27]
+                            fax = line_text[33:45]
 
-                    if "office" not in office.lower():
-                        continue
-                        #social is also available in here
-                        #but I don't see a place to put it
-                    phone = phone.replace("Phone","").strip()
-                    fax = fax.replace("Fax","").strip()
-                    pers.add_contact_detail(type="voice", #phone is not allowed ????
-                            value=phone,
-                            note=office.strip())
+                        if "office" not in office.lower():
+                            continue
+                            #social is also available in here
+                            #but I don't see a place to put it
+                        phone = phone.replace("Phone","").strip()
+                        fax = fax.replace("Fax","").strip()
+                        pers.add_contact_detail(type="voice", #phone is not allowed ????
+                                value=phone,
+                                note=office.strip())
 
-                    pers.add_contact_detail(type="fax", #phone is not allowed ????
-                            value=fax,
-                            note=office.strip())
+                        pers.add_contact_detail(type="fax", #phone is not allowed ????
+                                value=fax,
+                                note=office.strip())
 
-
-            yield pers
+                yield pers
