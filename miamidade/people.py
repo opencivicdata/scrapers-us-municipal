@@ -36,6 +36,8 @@ class MiamidadePersonScraper(Scraper):
                               district=position+" Commissioner",
                               primary_org='legislature',
                               role="Commissioner")
+            else:
+                continue
                 
                 pers.add_source(people_base_url, note="Miami-Dade government website")
                 pers.add_source(url, note="individual's website")

@@ -61,6 +61,7 @@ class Miamidade(Jurisdiction):
                        primary_org_name='Clerk of Courts')
         clerkPers.add_source(people_base_url, note="Miami-Dade government website")
         clerkPers.add_source("http://www.miami-dadeclerk.com/", note="individual's website")
+        
         yield clerkPers
 
 

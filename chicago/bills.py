@@ -52,17 +52,9 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
                 yield sponsorship
 
     def actions(self, matter_id) :
-        old_action_id = None
+        old_action = None
         for action in self.history(matter_id) :
-            action_id = action['MatterHistoryActionId']
-            if action_id == old_action_id :
-                print(previous_action)
-                print(action)
-            old_action_id = action_id
-            previous_action = action
-
             action_date = action['MatterHistoryActionDate']
-
             action_description = action['MatterHistoryActionName'].strip()
             responsible_org = action['MatterHistoryActionBodyName']
 
@@ -76,6 +68,10 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
                                'date' : action_date,
                                'organization' : {'name' : responsible_org},
                                'classification' : ACTION_CLASSIFICATION[action_description]}
+                if bill_action != old_action:
+                    old_action = bill_action
+                else:
+                    continue
 
                 if (action['MatterHistoryEventId'] is not None
                     and action['MatterHistoryRollCallFlag'] is not None
@@ -99,14 +95,21 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
 
             date = matter['MatterIntroDate']
             title = matter['MatterTitle']
+            identifier = matter['MatterFile']
 
-            if not all((date, title)) :
+            if not all((date, title, identifier)) :
                 continue
 
             bill_session = self.session(self.toTime(date))
             bill_type = BILL_TYPES[matter['MatterTypeName']]
 
-            bill = Bill(identifier=matter['MatterFile'],
+            if identifier.startswith('S'):
+                alternate_identifiers = [identifier]
+                identifier = identifier[1:]
+            else:
+                alternate_identifiers = []
+
+            bill = Bill(identifier=identifier,
                         legislative_session=bill_session,
                         title=title,
                         classification=bill_type,
@@ -117,6 +120,9 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
 
             bill.add_source(legistar_web, note='web')
             bill.add_source(legistar_api, note='api')
+
+            for identifier in alternate_identifiers:
+                bill.add_identifier(identifier)
 
             for action, vote in self.actions(matter_id) :
                 act = bill.add_action(**action)
