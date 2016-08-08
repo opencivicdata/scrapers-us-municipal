@@ -47,7 +47,7 @@ class Miamidade(Jurisdiction):
                        primary_org_name='Office of the Mayor',
                        start_date=datetime.date(2011, 6, 28))
 
-        mayorPerson.add_source('Ernie')
+        mayorPers.add_source('Ernie')
 
         yield mayorPers
 

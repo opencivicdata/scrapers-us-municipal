@@ -187,7 +187,12 @@ class MiamidadeBillScraper(Scraper):
         #until/unless we come up with something better
         intro_date = datetime.strptime(info_dict["Introduced"],"%m/%d/%Y")
         session = sess["identifier"]
-        category = matter_types[info_dict["File Type"]]
+        try:
+            file_type = info_dict["File Type"]
+        except KeyError:
+            category = 'other'
+        else:
+            category = matter_types[file_type]
         if 'File Name' in info_dict:
             title = info_dict["File Name"]
         elif "Title" in info_dict and info_dict["Title"].strip():
