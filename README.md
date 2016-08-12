@@ -22,7 +22,7 @@ Assuming that you want to have your database be called `opencivicdata` on your l
 pip install -r requirements.txt
 createdb opencivicdata
 export DATABASE_URL=postgresql:///opencivicdata
-pupa dbinit usa
+pupa dbinit us
 pupa init YOUR_CITY_SCRAPER
 ```
 
