@@ -60,9 +60,10 @@ class NYCBillScraper(LegistarBillScraper):
 
             
             for attachment in leg_details.get('Attachments', []) :
-                bill.add_document_link(attachment['label'],
-                                       attachment['url'],
-                                       media_type="application/pdf")
+                if attachment['label']:
+                    bill.add_document_link(attachment['label'],
+                                           attachment['url'],
+                                           media_type="application/pdf")
 
             history = list(history)
 
