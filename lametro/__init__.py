@@ -3,7 +3,6 @@ from pupa.scrape import Jurisdiction, Organization
 from .bills import LametroBillScraper
 from .people import LametroPersonScraper
 from .events import LametroEventScraper
-from .vote_events import LametroVoteEventScraper
 
 
 class Lametro(Jurisdiction):
@@ -15,7 +14,6 @@ class Lametro(Jurisdiction):
         "bills": LametroBillScraper,
         #"people": LametroPersonScraper,
         #"events": LametroEventScraper,
-        #"vote_events": LametroVoteEventScraper,
     }
 
     def get_organizations(self):
