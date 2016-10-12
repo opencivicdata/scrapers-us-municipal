@@ -18,14 +18,12 @@ class LametroBillScraper(LegistarAPIBillScraper):
 
     def session(self, action_date) :
         localize = pytz.timezone(self.TIMEZONE).localize
-        # 2011 Kill Bill https://chicago.legistar.com/LegislationDetail.aspx?ID=907351&GUID=6118274B-A598-4584-AA5B-ABDFA5F79506
-        if action_date <  localize(datetime.datetime(2011, 5, 4)) :
-            return "2007"
-        # 2015 Kill Bill https://chicago.legistar.com/LegislationDetail.aspx?ID=2321351&GUID=FBA81B7C-8A33-4D6F-92A7-242B537069B3
-        elif action_date < localize(datetime.datetime(2015, 5, 6)) :
-            return "2011"
-        else :
+        if action_date <  localize(datetime.datetime(2015, 7, 1)) :
+            return "2014"
+        if action_date <  localize(datetime.datetime(2016, 7, 1)) :
             return "2015"
+        if action_date <  localize(datetime.datetime(2017, 7, 1)) :
+            return "2016"
 
     def sponsorships(self, matter_id) :
         for i, sponsor in enumerate(self.sponsors(matter_id)) :
@@ -101,7 +99,7 @@ class LametroBillScraper(LegistarAPIBillScraper):
                         legislative_session=bill_session,
                         title=title,
                         classification=bill_type,
-                        from_organization={"name":"Los Angeles County Metropolitan Transportation Authority"})
+                        from_organization={"name":"Board of Directors"})
 
             legistar_web = self.legislation_detail_url(matter_id)
             legistar_api = self.BASE_URL + '/matters/{0}'.format(matter_id)
@@ -145,7 +143,6 @@ class LametroBillScraper(LegistarAPIBillScraper):
 
 
             for sponsorship in self.sponsorships(matter_id) :
-                print(sponsorship)
                 bill.add_sponsorship(**sponsorship)
 
             for topic in self.topics(matter_id) :
