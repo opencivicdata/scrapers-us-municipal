@@ -75,8 +75,8 @@ class LametroBillScraper(LegistarAPIBillScraper):
                 yield bill_action, votes
 
     def scrape(self) :
-        long_ago = datetime.datetime.now() - datetime.timedelta(3000)
-        for matter in self.matters(long_ago) :
+        three_days_ago = datetime.datetime.now() - datetime.timedelta(3)
+        for matter in self.matters(three_days_ago) :
             matter_id = matter['MatterId']
 
             date = matter['MatterIntroDate']
