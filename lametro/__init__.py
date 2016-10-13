@@ -11,7 +11,7 @@ class Lametro(Jurisdiction):
     name = "Los Angeles County Metropolitan Transportation Authority"
     url = "https://www.metro.net/"
     scrapers = {
-        "bills": LametroBillScraper,
+        #"bills": LametroBillScraper,
         "people": LametroPersonScraper,
         #"events": LametroEventScraper,
     }
@@ -25,18 +25,38 @@ class Lametro(Jurisdiction):
 
     
     def get_organizations(self):
-        #REQUIRED: define an organization using this format
-        #where org_name is something like Seattle City Council
-        #and classification is described here:
         org = Organization(name="Board of Directors", classification="legislature")
 
-        # OPTIONAL: add posts to your organizaion using thi format,
-        # where label is a human-readable description of the post (eg "Ward 8 councilmember")
-        # and role is the positoin type (eg conucilmember, alderman, mayor...)
-        # skip entirely if you're not writing a people scraper.
-        #org.add_post(label="position_description", role="position_type")
+        org.add_post('Mayor of the City of Los Angeles',
+                     'Board Member',
+                     division_id='ocd-division/country:us/state:ca/place:los_angeles')
 
-        #REQUIIRED: yield the organization
+        for district in range(1, 6):
+            org.add_post('Los Angeles County Board Supervisor, District {}'.format(district),
+                         'Board Member',
+                         division_id='ocd-division/country:us/state:ca/county:los_angeles/council_district:{}'.format(district))
+
+        org.add_post('Appointee of Mayor of the City of Los Angeles',
+                     'Board Member',
+                     division_id='ocd-division/country:us/state:ca/place:los_angeles')
+
+        org.add_post('Appointee of Governor of California',
+                     'Nonvoting Board Member',
+                     division_id='ocd-division/country:us/state:ca')
+
+        org.add_post('Appointee of Los Angeles County City Selection Committee, North County/San Fernando Valley sector',
+                     'Board Member')
+
+        org.add_post('Appointee of Los Angeles County City Selection Committee, Southwest Corridor sector',
+                     'Board Member')
+
+        org.add_post('Appointee of Los Angeles County City Selection Committee, San Gabriel Valley sector',
+                     'Board Member')
+
+        org.add_post('Appointee of Los Angeles County City Selection Committee, Southeast Long Beach sector',
+                     'Board Member')
+
+
         yield org
 
         org = Organization(name="Crenshaw Project Corporation", classification="corporation")

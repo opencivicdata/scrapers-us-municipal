@@ -6,6 +6,25 @@ from pupa.scrape import Scraper
 from pupa.scrape import Person, Organization
 
 
+VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of Los Angeles',
+                'Eric Garcetti' : 'Mayor of the City of Los Angeles',
+                'Mike Bonin' : 'Appointee of Mayor of Los Angeles',
+                'Paul Krekorian' : 'Appointee of Mayor of Los Angeles',
+                'Hilda L. Solis' : 'Los Angeles County Board Supervisor, District 1', 
+                'Mark Ridley-Thomas' : 'Los Angeles County Board Supervisor, District 2',
+                'Sheila Kuehl' : 'Los Angeles County Board Supervisor, District 3',
+                'Don Knabe' : 'Los Angeles County Board Supervisor, District 4',
+                'Michael Antonovich' : 'Los Angeles County Board Supervisor, District 5',
+                'John Fasana' : 'Appointee of Los Angeles County City Selection Committee, San Gabriel Valley sector',
+                'James Butts' : 'Appointee of Los Angeles County City Selection Committee, Southwest Corridor sector',
+                'Diane DuBois' : 'Appointee of Los Angeles County City Selection Committee, Southeast Long Beach sector',
+                'Ara Najarian' : 'Appointee of Los Angeles County City Selection Committee, North County/San Fernando Valley sector'}
+
+NONVOTING_POSTS = {'Carrie Bowen' : 'Appointee of Governor of California'}
+
+
+
+
 class LametroPersonScraper(LegistarAPIPersonScraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
     TIMEZONE = "America/Los_Angeles"
@@ -24,9 +43,18 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
         for member, offices in members.items():
             p = Person(member)
+            role = office['OfficeRecordTitle']
+            if role != 'non-voting member':
+                role = 'Board Member'
+                post = VOTING_POSTS.get(member)
+            else:
+                role = 'Nonvoting Board Member'
+                post = NONVOTING_POSTS.get(member)
+
             for term in office:
-                p.add_term(office['OfficeRecordTitle'],
+                p.add_term(role,
                            'legislature',
+                           district = post,
                            start_date = self.toDate(office['OfficeRecordStartDate']),
                            end_date = self.toDate(office['OfficeRecordEndDate']))
 
