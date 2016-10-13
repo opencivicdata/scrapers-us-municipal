@@ -6,10 +6,10 @@ from pupa.scrape import Scraper
 from pupa.scrape import Person, Organization
 
 
-VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of Los Angeles',
+VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of Los Angeles',
                 'Eric Garcetti' : 'Mayor of the City of Los Angeles',
-                'Mike Bonin' : 'Appointee of Mayor of Los Angeles',
-                'Paul Krekorian' : 'Appointee of Mayor of Los Angeles',
+                'Mike Bonin' : 'Appointee of Mayor of the City of Los Angeles',
+                'Paul Krekorian' : 'Appointee of Mayor of the City of Los Angeles',
                 'Hilda L. Solis' : 'Los Angeles County Board Supervisor, District 1', 
                 'Mark Ridley-Thomas' : 'Los Angeles County Board Supervisor, District 2',
                 'Sheila Kuehl' : 'Los Angeles County Board Supervisor, District 3',
