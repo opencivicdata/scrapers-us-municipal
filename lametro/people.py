@@ -43,15 +43,16 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
         for member, offices in members.items():
             p = Person(member)
-            role = office['OfficeRecordTitle']
-            if role != 'non-voting member':
-                role = 'Board Member'
-                post = VOTING_POSTS.get(member)
-            else:
-                role = 'Nonvoting Board Member'
-                post = NONVOTING_POSTS.get(member)
+            for term in offices:
+                role = term['OfficeRecordTitle']
 
-            for term in office:
+                if role != 'non-voting member':
+                    role = 'Board Member'
+                    post = VOTING_POSTS.get(member)
+                else:
+                    role = 'Nonvoting Board Member'
+                    post = NONVOTING_POSTS.get(member)
+
                 p.add_term(role,
                            'legislature',
                            district = post,
