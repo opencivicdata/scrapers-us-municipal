@@ -13,7 +13,7 @@ class Lametro(Jurisdiction):
     scrapers = {
         "bills": LametroBillScraper,
         "people": LametroPersonScraper,
-        #"events": LametroEventScraper,
+        "events": LametroEventScraper,
     }
 
     legislative_sessions = []
