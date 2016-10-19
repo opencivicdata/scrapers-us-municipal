@@ -27,9 +27,8 @@ NONVOTING_POSTS = {'Carrie Bowen' : 'Appointee of Governor of California'}
 
 class LametroPersonScraper(LegistarAPIPersonScraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
+    WEB_URL = 'https://metro.legistar.com'
     TIMEZONE = "America/Los_Angeles"
-
-    
 
     def scrape(self):
         body_types = self.body_types()
@@ -59,11 +58,12 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                            start_date = self.toDate(office['OfficeRecordStartDate']),
                            end_date = self.toDate(office['OfficeRecordEndDate']))
 
-            legistar_api = self.BASE_URL + '/OfficeRecords/'
 
-            p.add_source(legistar_api, note='api')
-            print(p)
-                
+            source_urls = self._person_sources_from_office(term)
+            person_api_url, person_web_url = source_urls
+            p.add_source(person_api_url, note='api')
+            p.add_source(person_web_url, note='web')
+
             yield p
 
         adjunct_members = {}
@@ -74,7 +74,8 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                                  classification='committee',
                                  parent_id={'name' : 'Board of Directors'})
 
-                o.add_source(self.BASE_URL + '/Bodies/')
+                o.add_source(self.BASE_URL + '/bodies/{BodyId}'.format(**body), note='api')
+                o.add_source(self.WEB_URL + '/DepartmentDetail.aspx?ID={BodyId}&GUID={BodyGuid}'.format(**body), note='web')
 
                 for office in self.body_offices(body):
                     role = office['OfficeRecordTitle']
@@ -85,7 +86,11 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                     if person not in members:
                         if person not in adjunct_members:
                             p = Person(person)
-                            p.add_source('foo')
+
+                            source_urls = self._person_sources_from_office(office)
+                            person_api_url, person_web_url = source_urls
+                            p.add_source(person_api_url, note='api')
+                            p.add_source(person_web_url, note='web')
 
                         else:
                             p = adjunct_members[person]
@@ -106,3 +111,11 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
         for p in adjunct_members.values():
             yield p
+
+    def _person_sources_from_office(self, office):
+        person_api_url = self.BASE_URL + '/persons/{OfficeRecordPersonId}'.format(**office)
+        
+        response = self.get(person_api_url)
+        person_web_url = self.WEB_URL + '/PersonDetail.aspx?ID={PersonId}&GUID={PersonGuid}'.format(**response.json())
+
+        return person_api_url, person_web_url
