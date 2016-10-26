@@ -15,9 +15,9 @@ class Miamidade(Jurisdiction):
     parties = []
 
     scrapers = {
-        #"events": MiamidadeEventScraper,
+        "events": MiamidadeEventScraper,
         "bills": MiamidadeBillScraper,
-        #"people": MiamidadePersonScraper,
+        "people": MiamidadePersonScraper,
     }
 
     legislative_sessions = [{"identifier":"2014",
