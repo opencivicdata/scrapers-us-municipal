@@ -16,8 +16,8 @@ class NYC(Jurisdiction):
         {'name': 'Republican'}
     ]
     scrapers = {'people': NYCPersonScraper,
-                'bills' : NYCBillScraper,
-                'events': NYCEventsScraper
+#                'bills' : NYCBillScraper,
+#                'events': NYCEventsScraper
     }
 
     legislative_sessions = [{"identifier": str(start_year),

@@ -15,9 +15,9 @@ class Miamidade(Jurisdiction):
     parties = []
 
     scrapers = {
-        "events": MiamidadeEventScraper,
+        #"events": MiamidadeEventScraper,
         "bills": MiamidadeBillScraper,
-        "people": MiamidadePersonScraper,
+        #"people": MiamidadePersonScraper,
     }
 
     legislative_sessions = [{"identifier":"2014",
@@ -30,12 +30,12 @@ class Miamidade(Jurisdiction):
     def get_organizations(self):
         org = Organization(name="Miami-Dade County Commission",
             classification="legislature")
-        
+
         for x in range(1,14):
             org.add_post(label="District {dist} Commissioner".format(dist=x),
                 role="Commissioner",
                 division_id=self.division_id)
-        
+
         yield org
 
         mayor = Organization('Office of the Mayor', classification='executive')
@@ -61,7 +61,7 @@ class Miamidade(Jurisdiction):
                        primary_org_name='Clerk of Courts')
 
         clerkPers.add_source('Ernie')
-        
+
         yield clerkPers
 
 
@@ -74,5 +74,5 @@ class Miamidade(Jurisdiction):
                        primary_org_name='Office of the Property Appraiser')
 
         paPers.add_source('Ernie')
-        
+
         yield paPers
