@@ -13,8 +13,10 @@ class NYCPersonScraper(LegistarPersonScraper):
 
         people_d = {}
 
-        for councilman, committees in self.councilMembers() :
+        # Go to memberlist
+        extra_args = {'ctl00$ContentPlaceHolder$lstName' : 'City Council'}
 
+        for councilman, committees in self.councilMembers(extra_args=extra_args) :
             
             if 'url' in councilman['Person Name'] :
                 councilman_url = councilman['Person Name']['url']
