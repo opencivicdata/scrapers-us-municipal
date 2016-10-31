@@ -5,7 +5,9 @@ import lxml.html
 from datetime import datetime
 import pytz
 
-DUPLICATE_EVENT_URLS = ('http://miamidade.gov/wps/Events/EventDetail.jsp?eventID=445731',)
+DUPLICATE_EVENT_URLS = ('http://miamidade.gov/wps/Events/EventDetail.jsp?eventID=445731', 
+                        'http://miamidade.gov/wps/Events/EventDetail.jsp?eventID=452515',
+                        'http://miamidade.gov/wps/Events/EventDetail.jsp?eventID=452513')
 
 class MiamidadeEventScraper(Scraper):
 
