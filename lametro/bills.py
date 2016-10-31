@@ -6,26 +6,24 @@ import itertools
 import pytz
 import requests
 
-class ChicagoBillScraper(LegistarAPIBillScraper):
-    BASE_URL = 'http://webapi.legistar.com/v1/chicago'
-    BASE_WEB_URL = 'https://chicago.legistar.com'
-    TIMEZONE = "US/Central"
+class LametroBillScraper(LegistarAPIBillScraper):
+    BASE_URL = 'http://webapi.legistar.com/v1/metro'
+    BASE_WEB_URL = 'https://metro.legistar.com'
+    TIMEZONE = "America/Los_Angeles"
 
-    VOTE_OPTIONS = {'yea' : 'yes',
-                    'rising vote' : 'yes',
+    VOTE_OPTIONS = {'aye' : 'yes',
                     'nay' : 'no',
-                    'recused' : 'excused'}
+                    'recused' : 'abstain',
+                    'present' : 'abstain'}
 
     def session(self, action_date) :
         localize = pytz.timezone(self.TIMEZONE).localize
-        # 2011 Kill Bill https://chicago.legistar.com/LegislationDetail.aspx?ID=907351&GUID=6118274B-A598-4584-AA5B-ABDFA5F79506
-        if action_date <  localize(datetime.datetime(2011, 5, 4)) :
-            return "2007"
-        # 2015 Kill Bill https://chicago.legistar.com/LegislationDetail.aspx?ID=2321351&GUID=FBA81B7C-8A33-4D6F-92A7-242B537069B3
-        elif action_date < localize(datetime.datetime(2015, 5, 6)) :
-            return "2011"
-        else :
+        if action_date <  localize(datetime.datetime(2015, 7, 1)) :
+            return "2014"
+        if action_date <  localize(datetime.datetime(2016, 7, 1)) :
             return "2015"
+        if action_date <  localize(datetime.datetime(2017, 7, 1)) :
+            return "2016"
 
     def sponsorships(self, matter_id) :
         for i, sponsor in enumerate(self.sponsors(matter_id)) :
@@ -37,19 +35,10 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
                 sponsorship['primary'] = False
                 sponsorship['classification'] = "Regular"
 
-            sponsor_name = sponsor['MatterSponsorName'].strip()
+            sponsorship['name'] = sponsor['MatterSponsorName'].strip()
+            sponsorship['entity_type'] = 'organization'
             
-            if sponsor_name.startswith(('City Clerk',)) : 
-                sponsorship['name'] = 'Office of the City Clerk'
-                sponsorship['entity_type'] = 'organization'
-            else :
-                sponsorship['name'] = sponsor_name
-                sponsorship['entity_type'] = 'person'
-
-            if not sponsor_name.startswith(('Misc. Transmittal',
-                                            'No Sponsor',
-                                            'Dept./Agency')) :
-                yield sponsorship
+            yield sponsorship
 
     def actions(self, matter_id) :
         old_action = None
@@ -60,9 +49,6 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
 
             if all((action_date, action_description, responsible_org)) :
                 action_date =  self.toTime(action_date).date()
-
-                if responsible_org == 'City Council' :
-                    responsible_org = 'Chicago City Council'
 
                 bill_action = {'description' : action_description,
                                'date' : action_date,
@@ -113,10 +99,10 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
                         legislative_session=bill_session,
                         title=title,
                         classification=bill_type,
-                        from_organization={"name":"Chicago City Council"})
+                        from_organization={"name":"Board of Directors"})
 
             legistar_web = self.legislation_detail_url(matter_id)
-            legistar_api = 'http://webapi.legistar.com/v1/chicago/matters/{0}'.format(matter_id)
+            legistar_api = self.BASE_URL + '/matters/{0}'.format(matter_id)
 
             bill.add_source(legistar_web, note='web')
             bill.add_source(legistar_api, note='api')
@@ -129,10 +115,9 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
 
                 if action['description'] == 'Referred' :
                     body_name = matter['MatterBodyName']
-                    if body_name != 'City Council' :
-                        act.add_related_entity(body_name,
-                                               'organization',
-                                               entity_id = _make_pseudo_id(name=body_name))
+                    act.add_related_entity(body_name,
+                                           'organization',
+                                           entity_id = _make_pseudo_id(name=body_name))
 
                 result, votes = vote
                 if result :
@@ -182,46 +167,38 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
 
             yield bill
 
-ACTION_CLASSIFICATION = {'Referred' : 'committee-referral',
-                         'Re-Referred' : 'committee-referral',
-                         'Recommended to Pass' : 'committee-passage-favorable',
-                         'Passed as Substitute' : 'passage',
-                         'Passed as Amended' : 'passage',
-                         'Adopted' : 'passage',
-                         'Approved' : 'passage',
-                         'Passed'  : 'passage',
-                         'Substituted in Committee' : 'substitution',
-                         'Failed to Pass' : 'failure',
-                         'Recommended Do Not Pass' : 'committee-passage-unfavorable',
-                         'Amended in Committee' : 'amendment-passage',
-                         'Amended in City Council' : 'amendment-passage',
-                         'Placed on File' : 'filing',
-                         'Withdrawn' : 'withdrawal',
-                         'Signed by Mayor' : 'executive-signature',
-                         'Vetoed' : 'executive-veto',
-                         'Appointment' : 'appointment',
-                         'Introduced (Agreed Calendar)' : 'introduction',
-                         'Direct Introduction' : 'introduction',
-                         'Remove Co-Sponsor(s)' : None,
-                         'Add Co-Sponsor(s)' : None,
-                         'Tabled' : 'deferred',
-                         'Rules Suspended - Immediate Consideration' : None,
-                         'Committee Discharged' : None,
-                         'Held in Committee' : 'committee-failure',
-                         'Recommended for Re-Referral' : None,
-                         'Published in Special Pamphlet' : None,
-                         'Adopted as Substitute' : None,
-                         'Deferred and Published' : None,
-                         'Approved as Amended' : 'passage',
-}
+ACTION_CLASSIFICATION = {'WITHDRAWN' : None,
+                         'APPROVED' : None,
+                         'RECOMMENDED FOR APPROVAL' : None,
+                         'RECEIVED AND FILED' : None,
+                         'RECOMMENDED FOR APPROVAL AS AMENDED' : None,
+                         'APPROVED AS AMENDED' : None,
+                         'APPROVED THE CONSENT CALENDAR' : None,
+                         'DISCUSSED' : None,
+                         'ADOPTED' : None,
+                         'FORWARDED WITHOUT RECOMMENDATION' : None,
+                         'CARRIED OVER' : None,
+                         'RECEIVED' : None,
+                         'REFERRED' : None,
+                         'FORWARDED DUE TO ABSENCES AND CONFLICTS' : None}
 
-
-BILL_TYPES = {'Ordinance' : 'ordinance',
-              'Resolution' : 'resolution',
-              'Order' : 'order',
-              'Claim' : 'claim',
-              'Oath of Office' : None,
-              'Communication' : None,
-              'Appointment' : 'appointment',
-              'Report' : None}
+BILL_TYPES = {'Contract' : None,
+              'Budget' : None,
+              'Program' : None,
+              'Motion / Motion Response' : None,
+              'Policy' : None,
+              'Informational Report' : None,
+              'Fare / Tariff / Service Change' : None,
+              'Agreement' : None,
+              'Oral Report / Presentation' : None,
+              'Resolution' : None,
+              'Project' : None,
+              'Formula Allocation / Local Return' : None,
+              'Federal Legislation / State Legislation (Position)': None,
+              'Plan': None,
+              'Minutes': None,
+              'Ordinance': None,
+              'Appointment': None,
+              'Public Hearing': None,
+              'Application': None}
 

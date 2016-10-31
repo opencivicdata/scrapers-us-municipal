@@ -13,8 +13,10 @@ class NYCBillScraper(LegistarBillScraper):
     VOTE_OPTIONS = {'affirmative' : 'yes',
                     'negative' : 'no',
                     'conflict' : 'absent',
+                    'paternity' : 'excused',
                     'bereavement': 'excused',
                     'non-voting' : 'not voting',
+                    'jury duty' : 'excused',
                     'absent' : 'absent',
                     'medical' : 'excused'}
 
@@ -36,7 +38,7 @@ class NYCBillScraper(LegistarBillScraper):
                         legislative_session=None,
                         classification=leg_type,
                         from_organization={"name":"New York City Council"})
-            bill.add_source(leg_summary['url'])
+            bill.add_source(leg_summary['url'], note='web')
 
             leg_details = self.legDetails(leg_summary['url'])
             history = self.history(leg_summary['url'])
@@ -58,9 +60,10 @@ class NYCBillScraper(LegistarBillScraper):
 
             
             for attachment in leg_details.get('Attachments', []) :
-                bill.add_document_link(attachment['label'],
-                                       attachment['url'],
-                                       media_type="application/pdf")
+                if attachment['label']:
+                    bill.add_document_link(attachment['label'],
+                                           attachment['url'],
+                                           media_type="application/pdf")
 
             history = list(history)
 
@@ -103,7 +106,7 @@ class NYCBillScraper(LegistarBillScraper):
                                                'organization',
                                                entity_id = _make_pseudo_id(name=referred_committee))
                     result, votes = self.extractVotes(action_detail_url)
-                    if votes :
+                    if result and votes :
                         action_vote = VoteEvent(legislative_session=bill.legislative_session, 
                                            motion_text=action_description,
                                            organization={'name': responsible_org},
@@ -111,7 +114,7 @@ class NYCBillScraper(LegistarBillScraper):
                                            start_date=action_date,
                                            result=result,
                                            bill=bill)
-                        action_vote.add_source(action_detail_url)
+                        action_vote.add_source(action_detail_url, note='web')
 
                         for option, voter in votes :
                             action_vote.vote(option, voter)
@@ -166,6 +169,7 @@ BILL_TYPES = {'Introduction' : 'bill',
 
 
 ACTION_CLASSIFICATION = {
+    'Tour Held by Committee' : None,
     'Hearing on P-C Item by Comm' : None,
     'Approved by Committee with Modifications and Referred to CPC' : 'committee-passage',
     'Approved by Committee with Modifications' : 'committee-passage',
@@ -193,6 +197,7 @@ ACTION_CLASSIFICATION = {
     'Disapproved by Committee with Companion Resolution' : 'committee-failure',
     'Disapproved by Committee' : 'committee-failure',
     'Disapproved by Subcommittee' : 'committee-failure',
+    'P-C Item Disapproved by Subcommittee with Companion Resolution' : 'committee-failure',
     'Laid Over by Subcommittee' : 'deferred',
     'Laid Over by Committee' : 'deferred',
     'Town Hall Meeting Filed' : None,
@@ -202,7 +207,9 @@ ACTION_CLASSIFICATION = {
     'Filed by Committee with Companion Resolution' : 'filing',
     'Hearing Held by Committee' : None,
     'Approved by Committee' : 'committee-passage',
+    'P-C Item Approved by Subcommittee with Modifications and Referred to CPC' : ' committee-passage',
     'Approved with Modifications and Referred to the City Planning Commission pursuant to Rule 11.70(b) of the Rules of the Council and Section 197-(d) of the New York City Charter.' : None,
+    'Approved by Subcommittee with Modifications and Referred pursuant to Rule 11.20(b) of the Rules of the Council and Section 197(d) of the New York City Charter' : 'committee-passage',
     'Filed, by Committee' : 'filing',
     'Recved from Mayor by Council' : 'executive-received',
     'Signed Into Law by Mayor' : 'executive-signature',
@@ -210,7 +217,8 @@ ACTION_CLASSIFICATION = {
     'City Charter Rule Adopted' : None,
     'Withdrawn by Mayor' : None,
     'Laid Over by Council' : 'deferred',
-    'Disapproved by Council' : 'failure'
+    'Disapproved by Council' : 'failure',
+    'Bill Signing Scheduled by Mayor' : None
 }
 
 

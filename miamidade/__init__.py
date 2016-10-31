@@ -1,8 +1,10 @@
 # encoding=utf-8
-from pupa.scrape import Jurisdiction, Organization
+from pupa.scrape import Jurisdiction, Organization, Person
 from .events import MiamidadeEventScraper
 from .bills import MiamidadeBillScraper
 from .people import MiamidadePersonScraper
+
+import datetime
 
 
 class Miamidade(Jurisdiction):
@@ -29,21 +31,48 @@ class Miamidade(Jurisdiction):
         org = Organization(name="Miami-Dade County Commission",
             classification="legislature")
         
-        #label=human readable
-        #role=what we can pull with the scraper
-        org.add_post(label="Clerk, Circuit and County Courts",
-            role="Clerk, Circuit and County Courts",
-            division_id=self.division_id)
-        
-        org.add_post(label="Mayor",role="Office of the Mayor",
-            division_id=self.division_id)
-
-        org.add_post("Property Appraiser","Property Appraiser",
-            division_id=self.division_id)
-
         for x in range(1,14):
             org.add_post(label="District {dist} Commissioner".format(dist=x),
-                role="District {dist}".format(dist=x),
+                role="Commissioner",
                 division_id=self.division_id)
         
         yield org
+
+        mayor = Organization('Office of the Mayor', classification='executive')
+        yield mayor
+
+        mayorPers = Person(name="Carlos A. Giménez",
+                       primary_org='executive',
+                       role='Mayor',
+                       primary_org_name='Office of the Mayor',
+                       start_date=datetime.date(2011, 6, 28))
+
+        mayorPers.add_source('Ernie')
+
+        yield mayorPers
+
+
+        clerk = Organization('Clerk of Courts', classification='executive')
+        yield clerk
+
+        clerkPers = Person(name="Harvey Ruvin",
+                       primary_org='executive',
+                       role='Clerk',
+                       primary_org_name='Clerk of Courts')
+
+        clerkPers.add_source('Ernie')
+        
+        yield clerkPers
+
+
+        pa = Organization('Office of the Property Appraiser', classification='executive')
+        yield pa
+
+        paPers = Person(name="Pedro J. Garcia",
+                       primary_org='executive',
+                       role='Property Appraiser',
+                       primary_org_name='Office of the Property Appraiser')
+
+        paPers.add_source('Ernie')
+        
+        yield paPers

@@ -19,7 +19,10 @@ class MiamidadeBillScraper(Scraper):
             if val.strip():
                 info_dict[key.strip()] = val.strip()
 
-
+    def matter_redirect(self, naked_matter_link):
+        page = self.lxmlize(naked_matter_link)
+        matter_link = page.xpath('//a')[0].attrib['href'].split("'")[1]
+        return matter_link
 
     def matter_table_to_dict(self, page):
         info_dict = {}
@@ -132,7 +135,7 @@ class MiamidadeBillScraper(Scraper):
                 yield self.scrape_matter(matter_link, sess)
             start_date = "{0:02d}-15-{1}".format(month, year)
 
-    def scrape_matter(self, matter_link, sess):
+    def scrape_matter(self, naked_matter_link, sess):
         matter_types = {
         "Additions":"other",
         "Administrative Order":"order",
@@ -181,13 +184,19 @@ class MiamidadeBillScraper(Scraper):
         "Zoning":"other",
         "Zoning Resolution":"resolution"
         }
+        matter_link = self.matter_redirect(naked_matter_link)
         matter_doc = self.lxmlize(matter_link)
         info_dict = self.matter_table_to_dict(matter_doc)
         #we're going to use the year of the intro date as the session
         #until/unless we come up with something better
         intro_date = datetime.strptime(info_dict["Introduced"],"%m/%d/%Y")
         session = sess["identifier"]
-        category = matter_types[info_dict["File Type"]]
+        try:
+            file_type = info_dict["File Type"]
+        except KeyError:
+            category = 'other'
+        else:
+            category = matter_types[file_type]
         if 'File Name' in info_dict:
             title = info_dict["File Name"]
         elif "Title" in info_dict and info_dict["Title"].strip():
@@ -229,6 +238,6 @@ class MiamidadeBillScraper(Scraper):
                 note = info_dict["Note"]
             bill.add_abstract(abstract=info_dict["Title"],note=note)
         self.process_action_table(matter_doc,bill)
-        bill.add_source(matter_link)
+        bill.add_source(matter_link, note='web')
 
         yield bill

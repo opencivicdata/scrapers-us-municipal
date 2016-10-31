@@ -95,7 +95,7 @@ class NYCEventsScraper(LegistarEventsScraper):
                 e.add_committee(name=org)
 
             if agenda :
-                e.add_source(event["Meeting Details"]['url'])
+                e.add_source(event["Meeting Details"]['url'], note='web')
 
                 
                 for item, _, _ in agenda :
@@ -109,6 +109,6 @@ class NYCEventsScraper(LegistarEventsScraper):
                             agenda_item.add_bill(item["File\xa0#"]['label'],
                                                  note=note)
             else :
-                e.add_source(self.EVENTSPAGE)
+                e.add_source(self.EVENTSPAGE, note='web')
 
             yield e

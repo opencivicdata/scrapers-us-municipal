@@ -71,7 +71,7 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
                     continue
                 else :
                     print(status_text)
-                    description = status_string[1]
+                    description = status_string[1].replace('--em--', '').strip()
                     status = confirmedOrPassed(when)
             else :
                 status = confirmedOrPassed(when)
@@ -103,20 +103,28 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
             self.addDocs(e, event, 'Transcript')
             self.addDocs(e, event, 'Summary')
 
-            e.add_participant(name=event["Name"]["label"],
+            participant = event["Name"]["label"]
+            if participant == 'City Council' :
+                participant = 'Chicago City Council'
+            elif participant == 'Committee on Energy, Environmental Protection and Public Utilities (inactive)' :
+                participant = 'Committee on Energy, Environmental Protection and Public Utilities'
+
+            e.add_participant(name=participant,
                               type="organization")
 
             if agenda :
-                e.add_source(event['Meeting Details']['url'])
-
+                e.add_source(event['Meeting Details']['url'], note='web')
                 
                 for item, _, _ in agenda :
                     agenda_item = e.add_agenda_item(item["Title"])
                     if item["Record #"] :
-                        agenda_item.add_bill(item["Record #"]['label'])
+                        identifier = item["Record #"]['label']
+                        if identifier.startswith('S'):
+                            identifier = identifier[1:]
+                        agenda_item.add_bill(identifier)
 
             else :
-                e.add_source(self.EVENTSPAGE)
+                e.add_source(self.EVENTSPAGE, note='web')
 
             yield e
 
