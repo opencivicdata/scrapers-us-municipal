@@ -64,7 +64,7 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
     def actions(self, matter_id) :
         old_action = None
         actions = self.history(matter_id)
-        action = sort_actions(actions)
+        actions = sort_actions(actions)
 
         for action in actions :
             action_date = action['MatterHistoryActionDate']
