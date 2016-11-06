@@ -6,6 +6,16 @@ import itertools
 import pytz
 import requests
 
+def sort_actions(actions):
+    action_time = 'MatterHistoryActionDate'
+    action_name = 'MatterHistoryActionName'
+    sorted_actions = sorted(actions,
+                            key = lambda x: (x[action_time].split('T')[0],
+                                             ACTION[x[action_name]]['order'],
+                                             x[action_time].split('T')[1]))
+
+    return sorted_actions
+
 class ChicagoBillScraper(LegistarAPIBillScraper):
     BASE_URL = 'http://webapi.legistar.com/v1/chicago'
     BASE_WEB_URL = 'https://chicago.legistar.com'
@@ -53,43 +63,45 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
 
     def actions(self, matter_id) :
         old_action = None
-        for action in self.history(matter_id) :
+        actions = self.history(matter_id)
+        action = sort_actions(actions)
+
+        for action in actions :
             action_date = action['MatterHistoryActionDate']
-            action_description = action['MatterHistoryActionName'].strip()
+            action_description = action['MatterHistoryActionName']
             responsible_org = action['MatterHistoryActionBodyName']
 
-            if all((action_date, action_description, responsible_org)) :
-                action_date =  self.toTime(action_date).date()
+            action_date =  self.toTime(action_date).date()
 
-                if responsible_org == 'City Council' :
-                    responsible_org = 'Chicago City Council'
+            if responsible_org == 'City Council' :
+                responsible_org = 'Chicago City Council'
 
-                bill_action = {'description' : action_description,
-                               'date' : action_date,
-                               'organization' : {'name' : responsible_org},
-                               'classification' : ACTION_CLASSIFICATION[action_description]}
-                if bill_action != old_action:
-                    old_action = bill_action
-                else:
-                    continue
+            bill_action = {'description' : action_description,
+                           'date' : action_date,
+                           'organization' : {'name' : responsible_org},
+                           'classification' : ACTION[action_description]['ocd']}
+            if bill_action != old_action:
+                old_action = bill_action
+            else:
+                continue
 
-                if (action['MatterHistoryEventId'] is not None
-                    and action['MatterHistoryRollCallFlag'] is not None
-                    and action['MatterHistoryPassedFlag'] is not None) :
-                    
-                    # Do we want to capture vote events for voice votes?
-                    # Right now we are not? 
-                    bool_result = action['MatterHistoryPassedFlag']
-                    result = 'pass' if bool_result else 'fail'
+            if (action['MatterHistoryEventId'] is not None
+                and action['MatterHistoryRollCallFlag'] is not None
+                and action['MatterHistoryPassedFlag'] is not None) :
 
-                    votes = (result, self.votes(action['MatterHistoryId'])) 
-                else :
-                    votes = (None, [])
+                # Do we want to capture vote events for voice votes?
+                # Right now we are not? 
+                bool_result = action['MatterHistoryPassedFlag']
+                result = 'pass' if bool_result else 'fail'
 
-                yield bill_action, votes
+                votes = (result, self.votes(action['MatterHistoryId'])) 
+            else :
+                votes = (None, [])
+
+            yield bill_action, votes
 
     def scrape(self) :
-        three_days_ago = datetime.datetime.now() - datetime.timedelta(3)
+        three_days_ago = datetime.datetime.now() - datetime.timedelta(30000)
         for matter in self.matters(three_days_ago) :
             matter_id = matter['MatterId']
 
@@ -182,39 +194,71 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
 
             yield bill
 
-ACTION_CLASSIFICATION = {'Referred' : 'committee-referral',
-                         'Re-Referred' : 'committee-referral',
-                         'Recommended to Pass' : 'committee-passage-favorable',
-                         'Passed as Substitute' : 'passage',
-                         'Passed as Amended' : 'passage',
-                         'Adopted' : 'passage',
-                         'Approved' : 'passage',
-                         'Passed'  : 'passage',
-                         'Substituted in Committee' : 'substitution',
-                         'Failed to Pass' : 'failure',
-                         'Recommended Do Not Pass' : 'committee-passage-unfavorable',
-                         'Amended in Committee' : 'amendment-passage',
-                         'Amended in City Council' : 'amendment-passage',
-                         'Placed on File' : 'filing',
-                         'Withdrawn' : 'withdrawal',
-                         'Signed by Mayor' : 'executive-signature',
-                         'Vetoed' : 'executive-veto',
-                         'Appointment' : 'appointment',
-                         'Introduced (Agreed Calendar)' : 'introduction',
-                         'Direct Introduction' : 'introduction',
-                         'Remove Co-Sponsor(s)' : None,
-                         'Add Co-Sponsor(s)' : None,
-                         'Tabled' : 'deferred',
-                         'Rules Suspended - Immediate Consideration' : None,
-                         'Committee Discharged' : None,
-                         'Held in Committee' : 'committee-failure',
-                         'Recommended for Re-Referral' : None,
-                         'Published in Special Pamphlet' : None,
-                         'Adopted as Substitute' : None,
-                         'Deferred and Published' : None,
-                         'Approved as Amended' : 'passage',
-}
-
+ACTION = {'Direct Introduction':
+              {'ocd' : 'introduction', 'order' : 0},
+          'Introduced (Agreed Calendar)':
+              {'ocd' : 'introduction', 'order' : 0},
+          'Rules Suspended - Immediate Consideration':
+              {'ocd' : 'introduction', 'order' : 0},
+      
+          'Referred':
+              {'ocd': 'committee-referral', 'order': 1},
+          'Re-Referred':
+              {'ocd': 'committee-referral', 'order': 1},
+          'Substituted in Committee':
+              {'ocd': 'substitution', 'order': 1},
+          'Amended in Committee':
+              {'ocd': 'amendment-passage', 'order': 1},
+          'Withdrawn':
+              {'ocd': 'withdrawal', 'order': 1},
+          'Remove Co-Sponsor(s)':
+              {'ocd': None, 'order': 1},
+          'Add Co-Sponsor(s)':
+              {'ocd': None, 'order': 1},
+          'Recommended for Re-Referral':
+              {'ocd': None, 'order': 1},
+          'Committee Discharged':
+              {'ocd': 'committee-passage', 'order': 1},
+          'Held in Committee':
+              {'ocd': 'committee-failure', 'order': 1},
+          'Recommended Do Not Pass':
+              {'ocd': 'committee-passage-unfavorable', 'order': 1},
+          'Recommended to Pass':
+              {'ocd': 'committee-passage-favorable', 'order': 1},
+          
+          'Deferred and Published':
+              {'ocd': None, 'order': 2},
+          'Amended in City Council':
+              {'ocd': 'amendment-passage', 'order': 2},
+          'Failed to Pass':
+              {'ocd': 'failure', 'order': 2},
+          'Passed as Amended':
+              {'ocd': 'passage', 'order': 2},
+          'Adopted':
+              {'ocd': 'passage', 'order': 2},
+          'Approved':
+              {'ocd': 'passage', 'order': 2},
+          'Passed' :
+              {'ocd': 'passage', 'order': 2},
+          'Approved as Amended':
+              {'ocd': 'passage', 'order': 2},
+          'Passed as Substitute':
+              {'ocd': 'passage', 'order': 2},
+          'Adopted as Substitute':
+              {'ocd': None, 'order': 2},
+          'Placed on File':
+              {'ocd': 'filing', 'order': 2},
+          'Tabled':
+              {'ocd': 'deferred', 'order': 2},
+          'Vetoed':
+              {'ocd': 'failure', 'order': 2},
+          
+          'Published in Special Pamphlet':
+              {'ocd': None, 'order': 3},
+          'Signed by Mayor':
+              {'ocd': 'executive-signature', 'order': 3}}
+      
+                         
 
 BILL_TYPES = {'Ordinance' : 'ordinance',
               'Resolution' : 'resolution',
