@@ -45,16 +45,21 @@ class Lametro(Jurisdiction):
                      division_id='ocd-division/country:us/state:ca')
 
         org.add_post('Appointee of Los Angeles County City Selection Committee, North County/San Fernando Valley sector',
-                     'Board Member')
+                     'Board Member',
+                     division_id='ocd-division/country:us/state:ca/county:los_angeles/la_metro_sector:north_county_san_fernando_valley')
 
         org.add_post('Appointee of Los Angeles County City Selection Committee, Southwest Corridor sector',
-                     'Board Member')
+                     'Board Member',
+                     division_id='ocd-division/country:us/state:ca/county:los_angeles/la_metro_sector:southwest_corridor')
+
 
         org.add_post('Appointee of Los Angeles County City Selection Committee, San Gabriel Valley sector',
-                     'Board Member')
+                     'Board Member',
+                     division_id='ocd-division/country:us/state:ca/county:los_angeles/la_metro_sector:san_gabriel_valley')
 
         org.add_post('Appointee of Los Angeles County City Selection Committee, Southeast Long Beach sector',
-                     'Board Member')
+                     'Board Member',
+                     division_id='ocd-division/country:us/state:ca/county:los_angeles/la_metro_sector:southeast_long_beach')
 
 
         yield org
