@@ -21,9 +21,10 @@ class LametroEventScraper(LegistarAPIEventScraper):
             
             for item in self.agenda(event):
                 agenda_item = e.add_agenda_item(item["EventItemTitle"])
-                if "MatterFile" in item:
-                    identifier = item["MatterFile"]
+                if item["EventItemMatterFile"]:
+                    identifier = item["EventItemMatterFile"]
                     agenda_item.add_bill(identifier)
+
 
             e.add_participant(name=event["EventBodyName"],
                               type="organization")
