@@ -40,4 +40,15 @@ class LametroEventScraper(LegistarAPIEventScraper):
             e.add_source(self.BASE_URL + '/events/{EventId}'.format(**event),
                          note='api')
 
+            if event['EventAgendaFile']:
+                e.add_document(note= 'Agenda',
+                               url = event['EventAgendaFile'],
+                               media_type="application/pdf")
+
+            if event['EventMinutesFile']:
+                e.add_document(note= 'Minutes',
+                               url = event['EventMinutesFile'],
+                               media_type="application/pdf")
+
+
             yield e
