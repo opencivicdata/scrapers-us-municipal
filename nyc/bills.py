@@ -218,7 +218,8 @@ ACTION_CLASSIFICATION = {
     'Withdrawn by Mayor' : None,
     'Laid Over by Council' : 'deferred',
     'Disapproved by Council' : 'failure',
-    'Bill Signing Scheduled by Mayor' : None
+    'Bill Signing Scheduled by Mayor' : None,
+    'Sine Die (Filed, End of Session)' : 'failure',
 }
 
 
