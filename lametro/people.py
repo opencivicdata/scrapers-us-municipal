@@ -1,9 +1,11 @@
 import datetime
+import collections
 
 from legistar.people import LegistarAPIPersonScraper
 
 from pupa.scrape import Scraper
 from pupa.scrape import Person, Organization
+
 
 
 VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of Los Angeles',
@@ -29,6 +31,7 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
     WEB_URL = 'https://metro.legistar.com'
     TIMEZONE = "America/Los_Angeles"
+    
 
     def scrape(self):
         body_types = self.body_types()
@@ -36,11 +39,12 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
         board_of_directors, = [body for body in self.bodies()
                                if body['BodyName'] == 'Board of Directors']
 
-        members = {}
+        terms = collections.defaultdict(list)
         for office in self.body_offices(board_of_directors):
-            members.setdefault(office['OfficeRecordFullName'], []).append(office)
+            terms[office['OfficeRecordFullName']].append(office)
 
-        for member, offices in members.items():
+        members = {}
+        for member, offices in terms.items():
             p = Person(member)
             for term in offices:
                 role = term['OfficeRecordTitle']
@@ -55,8 +59,8 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                 p.add_term(role,
                            'legislature',
                            district = post,
-                           start_date = self.toDate(office['OfficeRecordStartDate']),
-                           end_date = self.toDate(office['OfficeRecordEndDate']))
+                           start_date = self.toDate(term['OfficeRecordStartDate']),
+                           end_date = self.toDate(term['OfficeRecordEndDate']))
 
 
             source_urls = self._person_sources_from_office(term)
@@ -64,10 +68,11 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
             p.add_source(person_api_url, note='api')
             p.add_source(person_web_url, note='web')
 
+            members[member] = p
+
             yield p
 
         adjunct_members = {}
-
         for body in self.bodies():
             if body['BodyTypeId'] == body_types['Committee']:
                 o = Organization(body['BodyName'],
@@ -83,27 +88,25 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                         role = 'Member'
 
                     person = office['OfficeRecordFullName']
-                    if person not in members:
-                        if person not in adjunct_members:
-                            p = Person(person)
-
-                            source_urls = self._person_sources_from_office(office)
-                            person_api_url, person_web_url = source_urls
-                            p.add_source(person_api_url, note='api')
-                            p.add_source(person_web_url, note='web')
-
-                        else:
-                            p = adjunct_members[person]
-
-                        p.add_membership(body['BodyName'],
-                                         role=role,
-                                         start_date = self.toDate(office['OfficeRecordStartDate']),
-                                         end_date = self.toDate(office['OfficeRecordEndDate']))
-                        adjunct_members[person] = p
+                    if person in members:
+                        p = members[person]
+                    elif person in adjunct_members:
+                        p = adjunct_members[person]
                     else:
-                        o.add_member(office['OfficeRecordFullName'],
-                                     role,
+                        p = Person(person)
+                        
+                        source_urls = self._person_sources_from_office(office)
+                        person_api_url, person_web_url = source_urls
+                        p.add_source(person_api_url, note='api')
+                        p.add_source(person_web_url, note='web')
+
+                        adjunct_members[person] = p
+
+                    print(body['BodyName'])
+                    p.add_membership(body['BodyName'],
+                                     role=role,
                                      start_date = self.toDate(office['OfficeRecordStartDate']),
+                        
                                      end_date = self.toDate(office['OfficeRecordEndDate']))
                         
 
