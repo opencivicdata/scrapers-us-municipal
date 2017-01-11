@@ -1,4 +1,4 @@
-git+https://github.com/opencivicdata/pupa.git#egg=pupa
+git+https://github.com/opencivicdata/pupa.git@@d636b803d98cd1d3edd01821d4fb2a01ce215ee4#egg=pupa
 https://github.com/datamade/python-opencivicdata-django/zipball/master
 lxml
 sh
