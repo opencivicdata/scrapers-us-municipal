@@ -73,8 +73,6 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
             members[member] = p
 
-            yield p
-
         adjunct_members = {}
         for body in self.bodies():
             if body['BodyTypeId'] == body_types['Committee']:
@@ -105,7 +103,6 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
                         adjunct_members[person] = p
 
-                    print(body['BodyName'])
                     p.add_membership(body['BodyName'],
                                      role=role,
                                      start_date = self.toDate(office['OfficeRecordStartDate']),
@@ -114,6 +111,9 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                         
 
                 yield o
+
+        for p in members.values():
+            yield p
 
         for p in adjunct_members.values():
             yield p
