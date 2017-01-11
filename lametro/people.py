@@ -73,7 +73,6 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
             members[member] = p
 
-        adjunct_members = {}
         for body in self.bodies():
             if body['BodyTypeId'] == body_types['Committee']:
                 o = Organization(body['BodyName'],
@@ -91,8 +90,6 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                     person = office['OfficeRecordFullName']
                     if person in members:
                         p = members[person]
-                    elif person in adjunct_members:
-                        p = adjunct_members[person]
                     else:
                         p = Person(person)
                         
@@ -101,7 +98,7 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                         p.add_source(person_api_url, note='api')
                         p.add_source(person_web_url, note='web')
 
-                        adjunct_members[person] = p
+                        members[person] = p
 
                     p.add_membership(body['BodyName'],
                                      role=role,
@@ -113,9 +110,6 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                 yield o
 
         for p in members.values():
-            yield p
-
-        for p in adjunct_members.values():
             yield p
 
     def _person_sources_from_office(self, office):
