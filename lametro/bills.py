@@ -148,11 +148,15 @@ class LametroBillScraper(LegistarAPIBillScraper):
             for topic in self.topics(matter_id) :
                 bill.add_subject(topic['MatterIndexName'].strip())
 
+            bill.add_version_link('Board Report',
+                                  'https://metro.legistar.com/ViewReport.ashx?M=R&N=TextL5&GID=557&ID={}&GUID=LATEST&Title=Board+Report'.format(matter_id),
+                                   media_type="application/pdf")
+
             for attachment in self.attachments(matter_id) :
                 if attachment['MatterAttachmentName'] :
-                    bill.add_version_link(attachment['MatterAttachmentName'],
-                                          attachment['MatterAttachmentHyperlink'],
-                                          media_type="application/pdf")
+                    bill.add_document_link(attachment['MatterAttachmentName'],
+                                           attachment['MatterAttachmentHyperlink'],
+                                           media_type="application/pdf")
 
             bill.extras = {'local_classification' : matter['MatterTypeName']}
 
