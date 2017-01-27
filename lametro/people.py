@@ -53,7 +53,6 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                 role = term['OfficeRecordTitle']
 
                 if role != 'non-voting member':
-                    role = 'Board Member'
                     post = VOTING_POSTS.get(member)
                 else:
                     role = 'Nonvoting Board Member'
