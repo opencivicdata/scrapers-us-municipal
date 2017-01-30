@@ -53,10 +53,11 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                 role = term['OfficeRecordTitle']
 
                 if role != 'non-voting member':
-                    p.add_term(role,
-                               'legislature',
-                               start_date = self.toDate(term['OfficeRecordStartDate']),
-                               end_date = self.toDate(term['OfficeRecordEndDate']))
+                    if role != 'Board Member':
+                        p.add_term(role,
+                                   'legislature',
+                                   start_date = self.toDate(term['OfficeRecordStartDate']),
+                                   end_date = self.toDate(term['OfficeRecordEndDate']))
                     role = 'Board Member'
                     post = VOTING_POSTS.get(member)
                 else:
