@@ -52,23 +52,24 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
             for term in offices:
                 role = term['OfficeRecordTitle']
 
-                if role != 'non-voting member':
-                    if role != 'Board Member':
-                        p.add_term(role,
-                                   'legislature',
-                                   start_date = self.toDate(term['OfficeRecordStartDate']),
-                                   end_date = self.toDate(term['OfficeRecordEndDate']))
-                    role = 'Board Member'
-                    post = VOTING_POSTS.get(member)
-                else:
-                    role = 'Nonvoting Board Member'
-                    post = NONVOTING_POSTS.get(member)
+                if role not in {'Board Member', 'non-voting member'}:
+                    p.add_term(role,
+                               'legislature',
+                               start_date = self.toDate(term['OfficeRecordStartDate']),
+                               end_date = self.toDate(term['OfficeRecordEndDate']))
+                if role != 'Chief Executive':
+                    if role == 'non-voting member':
+                        member_type = 'Nonvoting Board Member'
+                        post = NONVOTING_POSTS.get(member)
+                    else:
+                        member_type = 'Board Member'
+                        post = VOTING_POSTS.get(member)
 
-                p.add_term(role,
-                           'legislature',
-                           district = post,
-                           start_date = self.toDate(term['OfficeRecordStartDate']),
-                           end_date = self.toDate(term['OfficeRecordEndDate']))
+                    p.add_term(member_type,
+                               'legislature',
+                               district = post,
+                               start_date = self.toDate(term['OfficeRecordStartDate']),
+                               end_date = self.toDate(term['OfficeRecordEndDate']))
 
 
             source_urls = self._person_sources_from_office(term)
