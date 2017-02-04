@@ -111,6 +111,7 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
 
             e.add_participant(name=participant,
                               type="organization")
+            
 
             if agenda :
                 e.add_source(event['Meeting Details']['url'], note='web')
@@ -122,6 +123,13 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
                         if identifier.startswith('S'):
                             identifier = identifier[1:]
                         agenda_item.add_bill(identifier)
+                    elif ('label' in item['Action\xa0Details']
+                          and item['Action\xa0Details']['label'] == 'Roll\xa0call'):
+                        roll_call = self.extractRollCall(item['Action\xa0Details']['url'])
+                        for attendance, person in roll_call:
+                            if attendance == 'Present':
+                                e.add_participant(name=person,
+                                                  type="person")
 
             else :
                 e.add_source(self.EVENTSPAGE, note='web')
