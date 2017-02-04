@@ -28,6 +28,7 @@ class Miamidade(Jurisdiction):
 
 
     def get_organizations(self):
+        people_base_url = "http://miamidade.gov/wps/portal/Main/government"
         org = Organization(name="Miami-Dade County Commission",
             classification="legislature")
         
@@ -46,9 +47,8 @@ class Miamidade(Jurisdiction):
                        role='Mayor',
                        primary_org_name='Office of the Mayor',
                        start_date=datetime.date(2011, 6, 28))
-
-        mayorPers.add_source('Ernie')
-
+        mayorPers.add_source(people_base_url, note="Miami-Dade government website")
+        mayorPers.add_source("http://www.miamidade.gov/mayor/", note="individual's website")
         yield mayorPers
 
 
@@ -59,8 +59,8 @@ class Miamidade(Jurisdiction):
                        primary_org='executive',
                        role='Clerk',
                        primary_org_name='Clerk of Courts')
-
-        clerkPers.add_source('Ernie')
+        clerkPers.add_source(people_base_url, note="Miami-Dade government website")
+        clerkPers.add_source("http://www.miami-dadeclerk.com/", note="individual's website")
         
         yield clerkPers
 
@@ -72,7 +72,6 @@ class Miamidade(Jurisdiction):
                        primary_org='executive',
                        role='Property Appraiser',
                        primary_org_name='Office of the Property Appraiser')
-
-        paPers.add_source('Ernie')
-        
+        paPers.add_source(people_base_url, note="Miami-Dade government website")
+        paPers.add_source("http://www.miamidade.gov/pa/", note="individual's website")
         yield paPers
