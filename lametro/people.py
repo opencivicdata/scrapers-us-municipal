@@ -41,6 +41,7 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
         board_of_directors, = [body for body in self.bodies()
                                if body['BodyName'] == 'Board of Directors - Regular Board Meeting']
+        board_of_directors["BodyName"] = "Board of Directors"
 
         terms = collections.defaultdict(list)
         for office in self.body_offices(board_of_directors):
