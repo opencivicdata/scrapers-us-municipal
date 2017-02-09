@@ -38,9 +38,9 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
     def scrape(self):
         body_types = self.body_types()
-        
+
         board_of_directors, = [body for body in self.bodies()
-                               if body['BodyName'] == 'Board of Directors']
+                               if body['BodyName'] == 'Board of Directors - Regular Board Meeting']
 
         terms = collections.defaultdict(list)
         for office in self.body_offices(board_of_directors):
