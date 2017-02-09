@@ -46,6 +46,8 @@ class LametroBillScraper(LegistarAPIBillScraper):
             action_date = action['MatterHistoryActionDate']
             action_description = action['MatterHistoryActionName'].strip()
             responsible_org = action['MatterHistoryActionBodyName']
+            if responsible_org == "Board of Directors - Regular Board Meeting":
+                responsible_org = "Board of Directors"
 
             if all((action_date, action_description, responsible_org)) :
                 action_date =  self.toTime(action_date).date()
