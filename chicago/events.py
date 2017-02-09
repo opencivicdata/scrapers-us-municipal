@@ -124,7 +124,9 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
                             identifier = identifier[1:]
                         agenda_item.add_bill(identifier)
                     elif ('label' in item['Action\xa0Details']
-                          and item['Action\xa0Details']['label'] == 'Roll\xa0call'):
+                          and item['Action\xa0Details']['label'] == 'Roll\xa0call'
+                          and item['Title'] in {'Attendance', 'Call To Order'}):
+                        print(item)
                         roll_call = self.extractRollCall(item['Action\xa0Details']['url'])
                         for attendance, person in roll_call:
                             if attendance == 'Present':
