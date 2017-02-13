@@ -57,7 +57,8 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                     p.add_term(role,
                                'legislature',
                                start_date = self.toDate(term['OfficeRecordStartDate']),
-                               end_date = self.toDate(term['OfficeRecordEndDate']))
+                               end_date = self.toDate(term['OfficeRecordEndDate']),
+                               appointment = True)
                 if role != 'Chief Executive Officer':
                     if role == 'non-voting member':
                         member_type = 'Nonvoting Board Member'

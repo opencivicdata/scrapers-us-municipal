@@ -61,14 +61,13 @@ class Lametro(Jurisdiction):
                      'Board Member',
                      division_id='ocd-division/country:us/state:ca/county:los_angeles/la_metro_sector:southeast_long_beach')
 
-        org.add_post('Chair',
-                     'Chair')
+        org.add_post('Chair', 'Chair')
 
-        org.add_post('1st Vice Chair',
-                     '1st Vice Chair')
+        org.add_post('1st Vice Chair', '1st Vice Chair')
 
-        org.add_post('2nd Vice Chair',
-                     '2nd Vice Chair')
+        org.add_post('2nd Vice Chair', '2nd Vice Chair')
+
+        org.add_post("Chief Executive Officer", "Chief Executive Officer")
 
         yield org
 
