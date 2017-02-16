@@ -12,7 +12,15 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
     def scrape(self):
         for event in self.events():
-            e = Event(name=event["EventBodyName"],
+            body_name = event["EventBodyName"]
+            if '-' in body_name:
+                body_name, event_name = [part.strip()
+                                         for part
+                                         in body_name.split('-')]
+            else:
+                event_name = body_name
+            
+            e = Event(event_name,
                       start_time=event["start"],
                       timezone=self.TIMEZONE,
                       description='',
@@ -26,7 +34,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
                     agenda_item.add_bill(identifier)
 
 
-            e.add_participant(name=event["EventBodyName"],
+            e.add_participant(name=body_name,
                               type="organization")
 
             e.add_source('foo')
