@@ -13,7 +13,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
     def scrape(self):
         for event in self.events():
             body_name = event["EventBodyName"]
-            if '-' in body_name:
+            if 'Board of Directors -' in body_name:
                 body_name, event_name = [part.strip()
                                          for part
                                          in body_name.split('-')]
