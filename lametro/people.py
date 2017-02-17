@@ -74,7 +74,7 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                                end_date = self.toDate(term['OfficeRecordEndDate']))
 
 
-            source_urls = self._person_sources_from_office(term)
+            source_urls = self.person_sources_from_office(term)
             person_api_url, person_web_url = source_urls
             p.add_source(person_api_url, note='api')
             p.add_source(person_web_url, note='web')

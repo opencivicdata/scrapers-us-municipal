@@ -37,8 +37,6 @@ class LametroEventScraper(LegistarAPIEventScraper):
             e.add_participant(name=body_name,
                               type="organization")
 
-            e.add_source('foo')
-
             meeting_detail_web = self.WEB_URL + '/MeetingDetail.aspx?ID={EventId}&GUID={EventGuid}'.format(**event)
             if requests.head(meeting_detail_web).status_code == 200:
                 e.add_source(meeting_detail_web, note='web')
