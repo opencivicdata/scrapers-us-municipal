@@ -249,7 +249,7 @@ ACTION = {'Direct Introduction':
           'Placed on File':
               {'ocd': 'filing', 'order': 2},
           'Tabled':
-              {'ocd': 'deferred', 'order': 2},
+              {'ocd': 'deferral', 'order': 2},
           'Vetoed':
               {'ocd': 'failure', 'order': 2},
           
