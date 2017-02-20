@@ -94,7 +94,7 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper):
                         continue
                         
                     role = office['OfficeRecordTitle']
-                    if role not in ("Chair", "Vice Chair"):
+                    if role not in ("Vice Chair", "Chairman"):
                         role = 'Member'
 
                     person = office['OfficeRecordFullName'].strip()
