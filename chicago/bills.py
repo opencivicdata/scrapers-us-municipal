@@ -202,9 +202,9 @@ ACTION = {'Direct Introduction':
               {'ocd' : 'introduction', 'order' : 0},
       
           'Referred':
-              {'ocd': 'committee-referral', 'order': 1},
+              {'ocd': 'referral-committee', 'order': 1},
           'Re-Referred':
-              {'ocd': 'committee-referral', 'order': 1},
+              {'ocd': 'referral-committee', 'order': 1},
           'Substituted in Committee':
               {'ocd': 'substitution', 'order': 1},
           'Amended in Committee':
