@@ -74,7 +74,8 @@ class Chicago(Jurisdiction):
                          primary_org='executive',
                          role='City Clerk',
                          primary_org_name='Office of the City Clerk',
-                         start_date=datetime.date(2011, 5, 16))
+                         start_date=datetime.date(2011, 5, 16),
+                         end_date=datetime.date(2016, 12, 4))
 
         mendoza.add_source('https://chicago.legistar.com/People.aspx')
 
@@ -91,5 +92,24 @@ class Chicago(Jurisdiction):
 
         yield valle
 
-        
+        sanchez = Person(name='Sanchez, Carina E.',
+                         primary_org='executive',
+                         role='City Clerk',
+                         primary_org_name='Office of the City Clerk',
+                         start_date=datetime.date(2016, 12, 5),
+                         end_date=datetime.date(2017, 1, 24))
+                         
+        sanchez.add_source('https://chicago.legistar.com/People.aspx')
 
+        yield sanchez
+
+        valencia = Person(name='Valencia, Anna M.',
+                         primary_org='executive',
+                         role='City Clerk',
+                         primary_org_name='Office of the City Clerk',
+                         start_date=datetime.date(2017, 1, 25),
+                         end_date=datetime.date(2019, 5, 20))
+                         
+        valencia.add_source('https://chicago.legistar.com/People.aspx')
+
+        yield valencia
