@@ -99,7 +99,7 @@ class NYCBillScraper(LegistarBillScraper):
 
                 if 'url' in action['Action\xa0Details'] :
                     action_detail_url = action['Action\xa0Details']['url']
-                    if action_class == 'committee-referral' :
+                    if action_class == 'referral-committee' :
                         action_details = self.actionDetails(action_detail_url)
                         referred_committee = action_details['Action text'].rsplit(' to the ', 1)[-1]
                         act.add_related_entity(referred_committee,
@@ -198,8 +198,8 @@ ACTION_CLASSIFICATION = {
     'Disapproved by Committee' : 'committee-failure',
     'Disapproved by Subcommittee' : 'committee-failure',
     'P-C Item Disapproved by Subcommittee with Companion Resolution' : 'committee-failure',
-    'Laid Over by Subcommittee' : 'deferred',
-    'Laid Over by Committee' : 'deferred',
+    'Laid Over by Subcommittee' : 'deferral',
+    'Laid Over by Committee' : 'deferral',
     'Town Hall Meeting Filed' : None,
     'Filed by Council' : 'filing',
     'Town Hall Meeting Held' : None,
