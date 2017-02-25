@@ -173,20 +173,21 @@ class LametroBillScraper(LegistarAPIBillScraper):
 
             yield bill
 
-ACTION_CLASSIFICATION = {'WITHDRAWN' : None,
-                         'APPROVED' : None,
-                         'RECOMMENDED FOR APPROVAL' : None,
-                         'RECEIVED AND FILED' : None,
-                         'RECOMMENDED FOR APPROVAL AS AMENDED' : None,
-                         'APPROVED AS AMENDED' : None,
-                         'APPROVED THE CONSENT CALENDAR' : None,
+ACTION_CLASSIFICATION = {'WITHDRAWN' : 'withdrawal',
+                         'APPROVED' : 'passage',
+                         'RECOMMENDED FOR APPROVAL' : 'committee-passage-favorable',
+                         'RECEIVED AND FILED' : 'filing',
+                         'RECOMMENDED FOR APPROVAL AS AMENDED' : 'committee-passage-favorable',
+                         'APPROVED AS AMENDED' : 'passage',
+                         'APPROVED THE CONSENT CALENDAR' : 'passage',
                          'DISCUSSED' : None,
-                         'ADOPTED' : None,
-                         'FORWARDED WITHOUT RECOMMENDATION' : None,
-                         'CARRIED OVER' : None,
-                         'RECEIVED' : None,
-                         'REFERRED' : None,
-                         'FORWARDED DUE TO ABSENCES AND CONFLICTS' : None}
+                         'ADOPTED' : 'passage',
+                         'ADOPTED AS AMENDED': 'passage',
+                         'FORWARDED WITHOUT RECOMMENDATION' : 'committee-passage',
+                         'CARRIED OVER' : 'deferral',
+                         'RECEIVED' : 'receipt',
+                         'REFERRED' : 'referral-committee',
+                         'FORWARDED DUE TO ABSENCES AND CONFLICTS' : 'committee-pssage'}
 
 BILL_TYPES = {'Contract' : None,
               'Budget' : None,
