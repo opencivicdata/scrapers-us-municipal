@@ -211,7 +211,7 @@ ACTION_CLASSIFICATION = {
     'Approved with Modifications and Referred to the City Planning Commission pursuant to Rule 11.70(b) of the Rules of the Council and Section 197-(d) of the New York City Charter.' : None,
     'Approved by Subcommittee with Modifications and Referred pursuant to Rule 11.20(b) of the Rules of the Council and Section 197(d) of the New York City Charter' : 'committee-passage',
     'Filed, by Committee' : 'filing',
-    'Recved from Mayor by Council' : 'executive-received',
+    'Recved from Mayor by Council' : 'executive-receipt',
     'Signed Into Law by Mayor' : 'executive-signature',
     'Filed by Committee' : 'filing',
     'City Charter Rule Adopted' : None,
