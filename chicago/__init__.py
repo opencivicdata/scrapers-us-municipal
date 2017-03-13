@@ -45,8 +45,8 @@ class Chicago(Jurisdiction):
         yield org
 
         city = Organization('City of Chicago', classification='executive')
-        city.add_post('Mayor', 'Mayor')
-        city.add_post('City Clerk', 'City Clerk')
+        city.add_post('Mayor', 'Mayor', division_id='ocd-division/country:us/state:il/place:chicago')
+        city.add_post('City Clerk', 'City Clerk', division_id='ocd-division/country:us/state:il/place:chicago')
 
         yield city
 
