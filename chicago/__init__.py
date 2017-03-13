@@ -54,14 +54,16 @@ class Chicago(Jurisdiction):
         daley.add_term('Mayor',
                        'executive',
                        start_date=datetime.date(1989, 4, 24),
-                       end_date=datetime.date(2011, 5, 16))
+                       end_date=datetime.date(2011, 5, 16),
+                       appointment=True)
         daley.add_source('https://chicago.legistar.com/People.aspx')
         yield daley
 
         emanuel = Person(name="Emanuel, Rahm")
         emanuel.add_term('Mayor',
                          'executive',
-                         start_date=datetime.date(2011, 5, 16))
+                         start_date=datetime.date(2011, 5, 16),
+                         appointment=True)
         emanuel.add_source('https://chicago.legistar.com/People.aspx')
         yield emanuel
 
@@ -69,7 +71,8 @@ class Chicago(Jurisdiction):
         mendoza.add_term('City Clerk',
                          'executive',
                          start_date=datetime.date(2011, 5, 16),
-                         end_date=datetime.date(2016, 12, 4))
+                         end_date=datetime.date(2016, 12, 4),
+                         appointment=True)
 
         mendoza.add_source('https://chicago.legistar.com/People.aspx')
         yield mendoza
@@ -78,7 +81,8 @@ class Chicago(Jurisdiction):
         valle.add_term('City Clerk',
                        'executive',
                        start_date=datetime.date(2006, 12, 1),
-                       end_date=datetime.date(2011, 5, 16))
+                       end_date=datetime.date(2011, 5, 16),
+                       appointment=True)
 
         valle.add_source('https://chicago.legistar.com/People.aspx')
         yield valle
@@ -87,7 +91,8 @@ class Chicago(Jurisdiction):
         valencia.add_term(role='City Clerk',
                           org_classification='executive',
                           start_date=datetime.date(2017, 1, 25),
-                          end_date=datetime.date(2019, 5, 20))
+                          end_date=datetime.date(2019, 5, 20),
+                          appointment=True)
                          
         valencia.add_source('https://chicago.legistar.com/People.aspx')
         yield valencia
