@@ -50,59 +50,44 @@ class Chicago(Jurisdiction):
 
         yield city
 
-        daley = Person(name="Daley, Richard M.",
-                       primary_org='executive',
-                       role='Mayor',
-                       primary_org_name='City of Chicago',
+        daley = Person(name="Daley, Richard M.")
+        daley.add_term('Mayor',
+                       'executive',
                        start_date=datetime.date(1989, 4, 24),
                        end_date=datetime.date(2011, 5, 16))
         daley.add_source('https://chicago.legistar.com/People.aspx')
         yield daley
 
-        emanuel = Person(name="Emanuel, Rahm",
-                         primary_org='executive',
-                         role='Mayor',
-                         primary_org_name='City of Chicago',
+        emanuel = Person(name="Emanuel, Rahm")
+        emanuel.add_term('Mayor',
+                         'executive',
                          start_date=datetime.date(2011, 5, 16))
         emanuel.add_source('https://chicago.legistar.com/People.aspx')
         yield emanuel
 
-        mendoza = Person(name='Mendoza, Susana A.',
-                         primary_org='executive',
-                         role='City Clerk',
-                         primary_org_name='City of Chicago',
+        mendoza = Person(name='Mendoza, Susana A.')
+        mendoza.add_term('City Clerk',
+                         'executive',
                          start_date=datetime.date(2011, 5, 16),
                          end_date=datetime.date(2016, 12, 4))
 
         mendoza.add_source('https://chicago.legistar.com/People.aspx')
         yield mendoza
 
-        valle = Person(name='Del Valle, Miguel',
-                       primary_org='executive',
-                       role='City Clerk',
-                       primary_org_name='City of Chicago',
+        valle = Person(name='Del Valle, Miguel')
+        valle.add_term('City Clerk',
+                       'executive',
                        start_date=datetime.date(2006, 12, 1),
                        end_date=datetime.date(2011, 5, 16))
 
         valle.add_source('https://chicago.legistar.com/People.aspx')
         yield valle
 
-        sanchez = Person(name='Sanchez, Carina E.',
-                         primary_org='executive',
-                         role='City Clerk',
-                         primary_org_name='City of Chicago',
-                         start_date=datetime.date(2016, 12, 5),
-                         end_date=datetime.date(2017, 1, 24))
-                         
-        sanchez.add_source('https://chicago.legistar.com/People.aspx')
-        yield sanchez
-
-        valencia = Person(name='Valencia, Anna M.',
-                         primary_org='executive',
-                         role='City Clerk',
-                         primary_org_name='City of Chicago',
-                         start_date=datetime.date(2017, 1, 25),
-                         end_date=datetime.date(2019, 5, 20))
+        valencia = Person(name='Valencia, Anna M.')
+        valencia.add_term(role='City Clerk',
+                          org_classification='executive',
+                          start_date=datetime.date(2017, 1, 25),
+                          end_date=datetime.date(2019, 5, 20))
                          
         valencia.add_source('https://chicago.legistar.com/People.aspx')
         yield valencia
