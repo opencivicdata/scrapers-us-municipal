@@ -73,13 +73,27 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
 
             action_date =  self.toTime(action_date).date()
 
+            related_person = None
             if responsible_org == 'City Council' :
                 responsible_org = 'Chicago City Council'
+            elif responsible_org == 'Office of the Mayor':
+                responsible_org = 'City of Chicago'
+                if action_date < datetime.date(2011, 5, 16):
+                    responsible_person = 'Daley, Richard M.'
+                else:
+                    responsible_person = 'Emanuel, Rahm'
+            
 
             bill_action = {'description' : action_description,
                            'date' : action_date,
                            'organization' : {'name' : responsible_org},
                            'classification' : ACTION[action_description]['ocd']}
+            if responsible_person:
+                bill_action.add_related_entity(responsible_person,
+                                               'person',
+                                               entity_id = _make_pseudo_id(name=responsible_person))
+    
+            
             if bill_action != old_action:
                 old_action = bill_action
             else:
