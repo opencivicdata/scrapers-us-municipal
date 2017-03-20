@@ -73,7 +73,7 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
 
             action_date =  self.toTime(action_date).date()
 
-            related_person = None
+            responsible_person = None
             if responsible_org == 'City Council' :
                 responsible_org = 'Chicago City Council'
             elif responsible_org == 'Office of the Mayor':
