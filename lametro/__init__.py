@@ -11,8 +11,8 @@ class Lametro(Jurisdiction):
     name = "Los Angeles County Metropolitan Transportation Authority"
     url = "https://www.metro.net/"
     scrapers = {
-        "bills": LametroBillScraper,
-        "people": LametroPersonScraper,
+        # "bills": LametroBillScraper,
+        # "people": LametroPersonScraper,
         "events": LametroEventScraper,
     }
 
@@ -23,7 +23,7 @@ class Lametro(Jurisdiction):
                    "end_date": "{}-06-30".format(year + 1)}
         legislative_sessions.append(session)
 
-    
+
     def get_organizations(self):
         org = Organization(name="Board of Directors", classification="legislature")
 
