@@ -19,15 +19,13 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
         for event in self.events():
             # Create a key for lookups in the web_results dict.
-            key = ''
-
             key = event['EventBodyName'].strip() + ' ' + datetime.strptime(event['EventDate'][:10], '%Y-%m-%d').strftime('%-m/%-d/%Y') + ' ' + event['EventTime']
 
             try:
                 # Look for the event in the web_results dict.
                 web_event_dict = web_results[key]
             except:
-                web_event_dict = {'Name': {'label': '', 'url': ''}, 'Audio': '', 'Meeting Time': '', 'Recap/Minutes': ''}
+                web_event_dict = {'Audio': 'Not\xa0available', 'Recap/Minutes': 'Not\xa0available'}
 
             body_name = event["EventBodyName"]
             if 'Board of Directors -' in body_name:
@@ -54,6 +52,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
             e.add_participant(name=body_name,
                               type="organization")
 
+            # Why do we have both of these (web and API)? We only need to display the WEB url on Councilmatic.
             meeting_detail_web = self.WEB_URL + '/MeetingDetail.aspx?ID={EventId}&GUID={EventGuid}'.format(**event)
             if requests.head(meeting_detail_web).status_code == 200:
                 e.add_source(meeting_detail_web, note='web')
@@ -73,20 +72,16 @@ class LametroEventScraper(LegistarAPIEventScraper):
                                url = event['EventMinutesFile'],
                                media_type="application/pdf")
 
-            # Update 'e' with data from https://metro.legistar.com/Calendar.aspx.
-            if web_event_dict['Audio'] != 'Not\xa0available' and web_event_dict['Audio'] != '':
+            # Update 'e' with data from https://metro.legistar.com/Calendar.aspx, if that data exists.
+            if web_event_dict['Audio'] != 'Not\xa0available':
                 e.add_media_link(note=web_event_dict['Audio']['label'],
                                  url=web_event_dict['Audio']['url'],
                                  media_type='link')
 
-            if web_event_dict['Recap/Minutes'] != 'Not\xa0available' and web_event_dict['Recap/Minutes'] != '':
+            if web_event_dict['Recap/Minutes'] != 'Not\xa0available':
                 e.add_document(note=web_event_dict['Recap/Minutes']['label'],
                                url=web_event_dict['Recap/Minutes']['url'],
                                media_type="application/pdf")
-
-            print("my dict:", web_event_dict)
-            print("LOOK!")
-            print(e)
 
             yield e
 
@@ -101,6 +96,5 @@ class LametroEventScraper(LegistarAPIEventScraper):
             # Make the dict key (name, date, time) and add it.
             key = event['Name']['label'] + ' ' + event['Meeting Date'] + ' ' + event['Meeting Time']
             web_info[key] = event
-            print(web_info)
 
         return web_info
