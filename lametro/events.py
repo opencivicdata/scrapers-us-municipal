@@ -52,14 +52,6 @@ class LametroEventScraper(LegistarAPIEventScraper):
             e.add_participant(name=body_name,
                               type="organization")
 
-            # This code: replaced by the URL available in the web_event_dict.
-            # meeting_detail_web = self.WEB_URL + '/MeetingDetail.aspx?ID={EventId}&GUID={EventGuid}&Options=info&Search='.format(**event)
-
-            # if requests.head(meeting_detail_web).status_code == 200:
-            #     e.add_source(meeting_detail_web, note='web')
-            # else:
-            #     e.add_source('https://metro.legistar.com/Calendar.aspx', note='web')
-
             e.add_source(self.BASE_URL + '/events/{EventId}'.format(**event),
                          note='api')
 
@@ -86,12 +78,9 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
             if web_event_dict['Meeting Details'] != 'Meeting\xa0details':
                 if requests.head(web_event_dict['Meeting Details']['url']).status_code == 200:
-                    print("DONE! URL.")
                     e.add_source(web_event_dict['Meeting Details']['url'], note='web')
                 else:
                     e.add_source('https://metro.legistar.com/Calendar.aspx', note='web')
-                    print("Nope....")
-
 
             yield e
 
@@ -106,6 +95,5 @@ class LametroEventScraper(LegistarAPIEventScraper):
             # Make the dict key (name, date, time) and add it.
             key = (event['Name']['label'], event['Meeting Date'], event['Meeting Time'])
             web_info[key] = event
-            print(web_info)
 
         return web_info
