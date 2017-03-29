@@ -2,7 +2,6 @@ from legistar.events import LegistarAPIEventScraper
 from legistar.events import LegistarEventsScraper
 
 import requests
-import lxml.html
 from datetime import datetime
 
 from pupa.scrape import Scraper
@@ -19,13 +18,9 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
         for event in self.events():
             # Create a key for lookups in the web_results dict.
-            key = (event['EventBodyName'].strip(), datetime.strptime(event['EventDate'][:10], '%Y-%m-%d').strftime('%-m/%-d/%Y'), event['EventTime'])
+            key = (event['EventBodyName'].strip(), datetime.strptime(event['EventDate'][:10], '%Y-%m-%d'), event['EventTime'])
 
-            try:
-                # Look for the event in the web_results dict.
-                web_event_dict = web_results[key]
-            except:
-                web_event_dict = {'Meeting Details': 'Meeting\xa0details', 'Audio': 'Not\xa0available', 'Recap/Minutes': 'Not\xa0available'}
+            web_event_dict = web_results.get(key, {'Meeting Details': 'Meeting\xa0details', 'Audio': 'Not\xa0available', 'Recap/Minutes': 'Not\xa0available'})
 
             body_name = event["EventBodyName"]
             if 'Board of Directors -' in body_name:
@@ -92,8 +87,10 @@ class LametroEventScraper(LegistarAPIEventScraper):
         web_info = {}
 
         for event, _ in web_scraper.events():
-            # Make the dict key (name, date, time) and add it.
-            key = (event['Name']['label'], event['Meeting Date'], event['Meeting Time'])
+            # Make the dict key (name, date-as-datetime, time), and add it.
+            key = (event['Name']['label'], datetime.strptime(event['Meeting Date'], '%m/%d/%Y'), event['Meeting Time'])
             web_info[key] = event
 
         return web_info
+
+
