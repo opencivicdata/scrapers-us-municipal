@@ -11,7 +11,6 @@ class LametroEventScraper(LegistarAPIEventScraper):
     WEB_URL = 'https://metro.legistar.com'
     EVENTSPAGE = "https://metro.legistar.com/Calendar.aspx"
     TIMEZONE = "America/Los_Angeles"
-    # date_format = '%Y-%m-%dT%H:%M:%S'
 
     def scrape(self):
         web_results = self.scrapeWebCalendar()
