@@ -11,8 +11,8 @@ class Lametro(Jurisdiction):
     name = "Los Angeles County Metropolitan Transportation Authority"
     url = "https://www.metro.net/"
     scrapers = {
-        "bills": LametroBillScraper,
-        "people": LametroPersonScraper,
+        # "bills": LametroBillScraper,
+        # "people": LametroPersonScraper,
         "events": LametroEventScraper,
     }
 

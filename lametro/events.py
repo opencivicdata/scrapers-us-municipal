@@ -2,7 +2,6 @@ from legistar.events import LegistarAPIEventScraper
 from legistar.events import LegistarEventsScraper
 
 import requests
-from datetime import datetime
 
 from pupa.scrape import Scraper
 from pupa.scrape import Event
@@ -16,9 +15,11 @@ class LametroEventScraper(LegistarAPIEventScraper):
     def scrape(self):
         web_results = self.scrapeWebCalendar()
 
+        self.date_format = '%Y-%m-%dT%H:%M:%S'
+
         for event in self.events():
             # Create a key for lookups in the web_results dict.
-            key = (event['EventBodyName'].strip(), datetime.strptime(event['EventDate'][:10], '%Y-%m-%d'), event['EventTime'])
+            key = (event['EventBodyName'].strip(), self.toTime(event['EventDate']).date(), event['EventTime'])
 
             web_event_dict = web_results.get(key, {'Meeting Details': 'Meeting\xa0details', 'Audio': 'Not\xa0available', 'Recap/Minutes': 'Not\xa0available'})
 
@@ -88,9 +89,9 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
         for event, _ in web_scraper.events():
             # Make the dict key (name, date-as-datetime, time), and add it.
-            key = (event['Name']['label'], datetime.strptime(event['Meeting Date'], '%m/%d/%Y'), event['Meeting Time'])
+            self.date_format = '%m/%d/%Y'
+
+            key = (event['Name']['label'], self.toTime(event['Meeting Date']).date(), event['Meeting Time'])
             web_info[key] = event
 
         return web_info
-
-
