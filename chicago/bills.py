@@ -87,13 +87,8 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
             bill_action = {'description' : action_description,
                            'date' : action_date,
                            'organization' : {'name' : responsible_org},
-                           'classification' : ACTION[action_description]['ocd']}
-            if responsible_person:
-                bill_action.add_related_entity(responsible_person,
-                                               'person',
-                                               entity_id = _make_pseudo_id(name=responsible_person))
-    
-            
+                           'classification' : ACTION[action_description]['ocd'],
+                           'responsible person' : responsible_person}                
             if bill_action != old_action:
                 old_action = bill_action
             else:
@@ -151,7 +146,13 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
                 bill.add_identifier(identifier)
 
             for action, vote in self.actions(matter_id) :
+                responsible_person = action.pop('responsible person')
                 act = bill.add_action(**action)
+
+                if responsible_person:
+                     act.add_related_entity(responsible_person,
+                                            'person',
+                                            entity_id = _make_pseudo_id(name=responsible_person))
 
                 if action['description'] == 'Referred' :
                     body_name = matter['MatterBodyName']
