@@ -11,11 +11,10 @@ class LametroEventScraper(LegistarAPIEventScraper):
     WEB_URL = 'https://metro.legistar.com'
     EVENTSPAGE = "https://metro.legistar.com/Calendar.aspx"
     TIMEZONE = "America/Los_Angeles"
+    # date_format = '%Y-%m-%dT%H:%M:%S'
 
     def scrape(self):
         web_results = self.scrapeWebCalendar()
-
-        self.date_format = '%Y-%m-%dT%H:%M:%S'
 
         for event in self.events():
             # Create a key for lookups in the web_results dict.
@@ -84,14 +83,13 @@ class LametroEventScraper(LegistarAPIEventScraper):
         web_scraper = LegistarEventsScraper(None, None)
         web_scraper.EVENTSPAGE = self.EVENTSPAGE
         web_scraper.BASE_URL = self.WEB_URL
-
+        web_scraper.TIMEZONE = "America/Los_Angeles"
+        web_scraper.date_format = '%m/%d/%Y'
         web_info = {}
 
         for event, _ in web_scraper.events():
             # Make the dict key (name, date-as-datetime, time), and add it.
-            self.date_format = '%m/%d/%Y'
-
-            key = (event['Name']['label'], self.toTime(event['Meeting Date']).date(), event['Meeting Time'])
+            key = (event['Name']['label'], web_scraper.toTime(event['Meeting Date']).date(), event['Meeting Time'])
             web_info[key] = event
 
         return web_info
