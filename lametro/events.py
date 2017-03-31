@@ -30,12 +30,22 @@ class LametroEventScraper(LegistarAPIEventScraper):
             else:
                 event_name = body_name
 
+            status_name = event['EventAgendaStatusName']
+            if status_name == 'Draft':
+                status = 'confirmed'
+            elif status_name == 'Final':
+                status = 'passed'
+            elif status_name == 'Canceled':
+                status = 'cancelled'
+            else:
+                status = ''
+
             e = Event(event_name,
                       start_time=event["start"],
                       timezone=self.TIMEZONE,
                       description='',
                       location_name=event["EventLocation"],
-                      status=event["EventAgendaStatusName"])
+                      status=status)
 
             for item in self.agenda(event):
                 agenda_item = e.add_agenda_item(item["EventItemTitle"])
