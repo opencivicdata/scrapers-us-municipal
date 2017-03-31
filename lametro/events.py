@@ -8,7 +8,7 @@ from pupa.scrape import Event
 
 class LametroEventScraper(LegistarAPIEventScraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
-    WEB_URL = 'https://metro.legistar.com'
+    WEB_URL = 'https://metro.legistar.com/'
     EVENTSPAGE = "https://metro.legistar.com/Calendar.aspx"
     TIMEZONE = "America/Los_Angeles"
 
@@ -62,8 +62,11 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
             # Update 'e' with data from https://metro.legistar.com/Calendar.aspx, if that data exists.
             if web_event_dict['Audio'] != 'Not\xa0available':
+
+                redirect_url = self.head(web_event_dict['Audio']['url']).headers['Location']
+
                 e.add_media_link(note=web_event_dict['Audio']['label'],
-                                 url=web_event_dict['Audio']['url'],
+                                 url=redirect_url,
                                  media_type='text/html')
 
             if web_event_dict['Recap/Minutes'] != 'Not\xa0available':
