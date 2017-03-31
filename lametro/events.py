@@ -16,7 +16,6 @@ class LametroEventScraper(LegistarAPIEventScraper):
         web_results = self.scrapeWebCalendar()
 
         for event in self.events():
-            print(event)
             # Create a key for lookups in the web_results dict.
             key = (event['EventBodyName'].strip(), self.toTime(event['EventDate']).date(), event['EventTime'])
 
