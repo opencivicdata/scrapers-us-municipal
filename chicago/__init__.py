@@ -93,6 +93,6 @@ class Chicago(Jurisdiction):
                           start_date=datetime.date(2017, 1, 25),
                           end_date=datetime.date(2019, 5, 20),
                           appointment=True)
-                         
+
         valencia.add_source('https://chicago.legistar.com/People.aspx')
         yield valencia

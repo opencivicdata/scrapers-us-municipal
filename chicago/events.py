@@ -32,7 +32,7 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
             status_string = location_list[-1].split('Chicago, Illinois')
             if len(status_string) > 1 and status_string[1] :
                 status_text = status_string[1].lower()
-                if any(phrase in status_text 
+                if any(phrase in status_text
                        for phrase in ('rescheduled to',
                                       'postponed to',
                                       'reconvened to',
@@ -92,7 +92,7 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
                           status=status)
 
 
-            if event['Video'] != 'Not\xa0available' : 
+            if event['Video'] != 'Not\xa0available' :
                 e.add_media_link(note='Recording',
                                  url = event['Video']['url'],
                                  type="recording",
@@ -116,7 +116,7 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
 
             if agenda :
                 e.add_source(event['Meeting Details']['url'], note='web')
-                
+
                 for item, _, _ in agenda :
                     agenda_item = e.add_agenda_item(item["Title"])
                     if item["Record #"] :
@@ -126,15 +126,15 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
                         agenda_item.add_bill(identifier)
                     elif ('label' in item['Action\xa0Details'] and
                           item['Action\xa0Details']['label'] == 'Roll\xa0call'):
-                            
+
                         roll_call = self.extractRollCall(item['Action\xa0Details']['url'])
                         for attendance, person in roll_call:
                             if attendance == 'Present':
                                 participants.add(person)
 
-            for person in participants:
-                e.add_participant(name=person,
-                                  type="person")
+                for person in participants:
+                    e.add_participant(name=person,
+                                      type="person")
 
             else :
                 e.add_source(self.EVENTSPAGE, note='web')
@@ -146,5 +146,5 @@ def confirmedOrPassed(when) :
         status = 'confirmed'
     else :
         status = 'passed'
-    
+
     return status
