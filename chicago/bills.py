@@ -271,7 +271,10 @@ ACTION = {'Direct Introduction':
           'Published in Special Pamphlet':
               {'ocd': None, 'order': 3},
           'Signed by Mayor':
-              {'ocd': 'executive-signature', 'order': 3}}
+              {'ocd': 'executive-signature', 'order': 3},
+              
+          'Repealed':
+              {'ocd': None, 'order': 4},}
       
                          
 
