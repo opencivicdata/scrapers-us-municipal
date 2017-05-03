@@ -165,7 +165,8 @@ BILL_TYPES = {'Introduction' : 'bill',
               'Town Hall Meeting' : None,
               'Tour': None, 
               'Petition': 'petition', 
-              'SLR': None}
+              'SLR': None,
+              'City Agency Report': None}
 
 
 ACTION_CLASSIFICATION = {
