@@ -12,7 +12,7 @@ VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of L
                 'Eric Garcetti' : 'Mayor of the City of Los Angeles',
                 'Mike Bonin' : 'Appointee of Mayor of the City of Los Angeles',
                 'Paul Krekorian' : 'Appointee of Mayor of the City of Los Angeles',
-                'Hilda L. Solis' : 'Los Angeles County Board Supervisor, District 1', 
+                'Hilda L. Solis' : 'Los Angeles County Board Supervisor, District 1',
                 'Mark Ridley-Thomas' : 'Los Angeles County Board Supervisor, District 2',
                 'Sheila Kuehl' : 'Los Angeles County Board Supervisor, District 3',
                 'Janice Hahn' : 'Los Angeles County Board Supervisor, District 4',
@@ -34,7 +34,7 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
     WEB_URL = 'https://metro.legistar.com'
     TIMEZONE = "America/Los_Angeles"
-    
+
 
     def scrape(self):
         body_types = self.body_types()
@@ -92,15 +92,20 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
                 for office in self.body_offices(body):
                     role = office['OfficeRecordTitle']
+
                     if role not in ("Chair", "Vice Chair"):
-                        role = 'Member'
+                        if role == 'non-voting member':
+                            role = 'Nonvoting Member'
+                        else:
+                            role = 'Member'
 
                     person = office['OfficeRecordFullName']
+
                     if person in members:
                         p = members[person]
                     else:
                         p = Person(person)
-                        
+
                         source_urls = self.person_sources_from_office(office)
                         person_api_url, person_web_url = source_urls
                         p.add_source(person_api_url, note='api')
@@ -111,9 +116,9 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                     p.add_membership(body['BodyName'],
                                      role=role,
                                      start_date = self.toDate(office['OfficeRecordStartDate']),
-                        
+
                                      end_date = self.toDate(office['OfficeRecordEndDate']))
-                        
+
 
                 yield o
 
