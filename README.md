@@ -26,6 +26,25 @@ pupa dbinit us
 pupa init YOUR_CITY_SCRAPER
 ```
 
+At times, the release of ocd-django on PyPI differs from that of Github. This may cause problems if you need to create and run migrations. Specifically, you might encounter an `ImproperlyConfigured` error that instructs you to do the following:
+
+```bash
+You must either define the environment variable DJANGO_SETTINGS_MODULE or call settings.configure() before accessing settings.
+```
+
+Fix the problem by running:
+
+```bash
+export DJANGO_SETTINGS_MODULE=pupa.settings
+```
+
+Then, you should be able to successfully run:
+
+```bash
+django-admin makemigrations
+django-admin migrate
+```
+
 ### Testing
 Before submitting a PR, please run `pupa update YOUR_CITY_SCRAPER`
 
