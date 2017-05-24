@@ -2,4 +2,4 @@ https://github.com/opencivicdata/pupa/zipball/master
 lxml
 sh 
 https://github.com/opencivicdata/python-legistar-scraper/zipball/master
--e git://github.com/opencivicdata/python-opencivicdata-django.git@d92bb0c37a81100f6c8833105282b4a6b20f6483#egg=python-opencivicdata-django
+https://github.com/opencivicdata/python-opencivicdata-django/zipball/b9bb9b6067764556db011cfa96bd782a869b1be6/
