@@ -46,6 +46,8 @@ class LametroEventScraper(LegistarAPIEventScraper):
                       location_name=event["EventLocation"],
                       status=status)
 
+            e.pupa_id = str(event['EventId'])
+
             for item in self.agenda(event):
                 agenda_item = e.add_agenda_item(item["EventItemTitle"])
                 if item["EventItemMatterFile"]:
@@ -96,7 +98,10 @@ class LametroEventScraper(LegistarAPIEventScraper):
             yield e
 
     def scrapeWebCalendar(self):
-        web_scraper = LegistarEventsScraper(None, None)
+        web_scraper = LegistarEventsScraper(self.jurisdiction,
+                                            self.datadir,
+                                            strict_validation=self.strict_validation,
+                                            fastmode=(self.requests_per_minute == 0))
         web_scraper.EVENTSPAGE = self.EVENTSPAGE
         web_scraper.BASE_URL = self.WEB_URL
         web_scraper.TIMEZONE = "America/Los_Angeles"
