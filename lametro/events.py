@@ -52,6 +52,10 @@ class LametroEventScraper(LegistarAPIEventScraper):
                     identifier = item["EventItemMatterFile"]
                     agenda_item.add_bill(identifier)
 
+                if item["EventItemAgendaNumber"]:
+                    # To the notes field, add the item number as given in the agenda minutes
+                    note = "Agenda number, {}".format(item["EventItemAgendaNumber"])
+                    agenda_item['notes'].append(note)
 
             e.add_participant(name=body_name,
                               type="organization")
