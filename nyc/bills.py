@@ -43,8 +43,9 @@ class NYCBillScraper(LegistarBillScraper):
             leg_details = self.legDetails(leg_summary['url'])
             history = self.history(leg_summary['url'])
 
-            bill.add_title(leg_details['Name'], 
-                           note='created by administrative staff')
+            if leg_details['Name']:
+                bill.add_title(leg_details['Name'],
+                               note='created by administrative staff')
 
             if 'Summary' in leg_details :
                 bill.add_abstract(leg_details['Summary'], note='')
