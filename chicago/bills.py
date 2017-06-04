@@ -110,7 +110,7 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
             yield bill_action, votes
 
     def scrape(self, window=3) :
-        n_days_ago = datetime.datetime.now() - datetime.timedelta(int(window))
+        n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
         for matter in self.matters(n_days_ago) :
             matter_id = matter['MatterId']
 

@@ -15,8 +15,8 @@ class ChicagoEventsScraper(LegistarAPIEventScraper) :
     TIMEZONE = "America/Chicago"
 
     def scrape(self, window=3) :
-        n_days_ago = (datetime.datetime.now() -
-                      datetime.timedelta(int(window)))
+        n_days_ago = (datetime.datetime.utcnow() -
+                      datetime.timedelta(float(window)))
 
         for api_event, event in self.events(n_days_ago):
 

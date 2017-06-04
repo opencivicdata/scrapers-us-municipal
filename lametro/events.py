@@ -13,8 +13,8 @@ class LametroEventScraper(LegistarAPIEventScraper):
     TIMEZONE = "America/Los_Angeles"
 
     def scrape(self, window=3) :
-        n_days_ago = (datetime.datetime.now() -
-                      datetime.timedelta(int(window)))
+        n_days_ago = (datetime.datetime.utcnow() -
+                      datetime.timedelta(float(window)))
 
 
         for event, web_event in self.events(n_days_ago):
