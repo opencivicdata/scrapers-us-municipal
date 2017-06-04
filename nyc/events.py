@@ -12,7 +12,7 @@ class NYCEventsScraper(LegistarEventsScraper):
 
     def scrape(self):
         last_events = deque(maxlen=10)
-        for event, agenda in self.events(since=2011) :
+        for event, agenda in self.events(since=2017) :
             other_orgs = ''
             extras = []
 
@@ -33,7 +33,8 @@ class NYCEventsScraper(LegistarEventsScraper):
 
             when = self.toTime(event[u'Meeting Date'])
 
-            event_time = event['iCalendar'].subcomponents[0]['DTSTART'].dt
+            response = self.get(event['iCalendar']['url'], verify=False)
+            event_time = self.ical(response.text).subcomponents[0]['DTSTART'].dt
             when = when.replace(hour=event_time.hour,
                                 minute=event_time.minute)
 

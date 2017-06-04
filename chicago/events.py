@@ -1,33 +1,34 @@
-from pupa.scrape import Event
-from legistar.events import LegistarEventsScraper
 from collections import defaultdict
 import datetime
+
 import lxml
 import lxml.etree
 import pytz
+import requests
+from legistar.events import LegistarAPIEventScraper
+from pupa.scrape import Event
 
-class ChicagoEventsScraper(LegistarEventsScraper) :
+class ChicagoEventsScraper(LegistarAPIEventScraper) :
+    BASE_URL = 'http://webapi.legistar.com/v1/chicago'
+    WEB_URL = "https://chicago.legistar.com/"
     EVENTSPAGE = "https://chicago.legistar.com/Calendar.aspx"
-    BASE_URL = "https://chicago.legistar.com/"
-    TIMEZONE = "US/Central"
+    TIMEZONE = "America/Chicago"
 
-    def scrape(self):
-        for event, agenda in self.events() :
+    def scrape(self, window=3) :
+        n_days_ago = (datetime.datetime.now() -
+                      datetime.timedelta(int(window)))
+
+        for api_event, event in self.events(n_days_ago):
 
             description = None
 
+            when = api_event['start']
             location_string = event[u'Meeting Location']
 
             location_list = location_string.split('--', 2)
             location = ', '.join(location_list[0:2])
             if not location :
                 continue
-
-            when = self.toTime(event[u'Meeting Date'])
-
-            event_time = event['iCalendar'].subcomponents[0]['DTSTART'].dt
-            when = when.replace(hour=event_time.hour,
-                                minute=event_time.minute)
 
             status_string = location_list[-1].split('Chicago, Illinois')
             if len(status_string) > 1 and status_string[1] :
@@ -58,13 +59,13 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
                                      'reconvene meeting',
                                      'rescheduled hearing',
                                      'rescheduled meeting',) :
-                    status = confirmedOrPassed(when)
+                    status = api_event['status']
                 elif status_text in ('amended notice of meeting',
                                      'room change',
                                      'amended notice',
                                      'change of location',
                                      'revised - meeting date and time') :
-                    status = confirmedOrPassed(when)
+                    status = api_event['status']
                 elif 'room' in status_text :
                     location = status_string[1] + ', ' + location
                 elif status_text in ('wrong meeting date',) :
@@ -72,25 +73,26 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
                 else :
                     print(status_text)
                     description = status_string[1].replace('--em--', '').strip()
-                    status = confirmedOrPassed(when)
+                    status = api_event['status']
             else :
-                status = confirmedOrPassed(when)
+                status = api_event['status']
 
 
             if description :
                 e = Event(name=event["Name"]["label"],
                           start_time=when,
                           description=description,
-                          timezone='US/Central',
+                          timezone=self.TIMEZONE,
                           location_name=location,
                           status=status)
             else :
                 e = Event(name=event["Name"]["label"],
                           start_time=when,
-                          timezone='US/Central',
+                          timezone=self.TIMEZONE,
                           location_name=location,
                           status=status)
 
+            e.pupa_id = str(api_event['EventId'])
 
             if event['Video'] != 'Not\xa0available' :
                 e.add_media_link(note='Recording',
@@ -112,39 +114,30 @@ class ChicagoEventsScraper(LegistarEventsScraper) :
             e.add_participant(name=participant,
                               type="organization")
 
+            for item in self.agenda(api_event):
+                agenda_item = e.add_agenda_item(item["EventItemTitle"])
+                if item["EventItemMatterFile"]:
+                    identifier = item["EventItemMatterFile"]
+                    agenda_item.add_bill(identifier)
+
             participants = set()
+            for call in self.rollcalls(api_event):
+                if call['RollCallValueName'] == 'Present':
+                    participants.add(call['RollCallPersonName'])
 
-            if agenda :
-                e.add_source(event['Meeting Details']['url'], note='web')
+            for person in participants:
+                e.add_participant(name=person,
+                                  type="person")
 
-                for item, _, _ in agenda :
-                    agenda_item = e.add_agenda_item(item["Title"])
-                    if item["Record #"] :
-                        identifier = item["Record #"]['label']
-                        if identifier.startswith('S'):
-                            identifier = identifier[1:]
-                        agenda_item.add_bill(identifier)
-                    elif ('label' in item['Action\xa0Details'] and
-                          item['Action\xa0Details']['label'] == 'Roll\xa0call'):
+            e.add_source(self.BASE_URL + '/events/{EventId}'.format(**event),
+                         note='api')
 
-                        roll_call = self.extractRollCall(item['Action\xa0Details']['url'])
-                        for attendance, person in roll_call:
-                            if attendance == 'Present':
-                                participants.add(person)
-
-                for person in participants:
-                    e.add_participant(name=person,
-                                      type="person")
-
-            else :
+            try:
+                detail_url = event['Meeting Details']['url']
+            except TypeError:
                 e.add_source(self.EVENTSPAGE, note='web')
+            else:
+                if requests.head(detail_url).status_code == 200:
+                    e.add_source(detail_url, note='web')
 
             yield e
-
-def confirmedOrPassed(when) :
-    if datetime.datetime.utcnow().replace(tzinfo = pytz.utc) > when :
-        status = 'confirmed'
-    else :
-        status = 'passed'
-
-    return status
