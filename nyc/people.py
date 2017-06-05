@@ -60,11 +60,9 @@ class NYCPersonScraper(LegistarPersonScraper):
 
             for start_date, end_date, district in merged_spans :
                 district = councilman['District'].replace(' 0', ' ')
-                if end_date == datetime.date(2017, 12, 31) :
-                    end_date = ''
-                else :
-                    end_date = end_date.isoformat()
+                end_date = end_date.isoformat()
                 print(start_date, end_date)
+                
                 p.add_term('Council Member', 'legislature', 
                            district=district, 
                            start_date=start_date.isoformat(),
