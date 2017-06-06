@@ -63,8 +63,7 @@ class NYCEventsScraper(LegistarEventsScraper):
                 last_events.append(event_id)
 
             e = Event(name=event_name,
-                      start_time=when,
-                      timezone=self.TIMEZONE,
+                      start_date=when,
                       description=description,
                       location_name=location,
                       status=status)

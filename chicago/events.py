@@ -80,15 +80,13 @@ class ChicagoEventsScraper(LegistarAPIEventScraper) :
 
             if description :
                 e = Event(name=event["Name"]["label"],
-                          start_time=when,
+                          start_date=when,
                           description=description,
-                          timezone=self.TIMEZONE,
                           location_name=location,
                           status=status)
             else :
                 e = Event(name=event["Name"]["label"],
-                          start_time=when,
-                          timezone=self.TIMEZONE,
+                          start_date=when,
                           location_name=location,
                           status=status)
 

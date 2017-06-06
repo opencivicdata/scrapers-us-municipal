@@ -38,8 +38,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
                 status = ''
 
             e = Event(event_name,
-                      start_time=event["start"],
-                      timezone=self.TIMEZONE,
+                      start_date=event["start"],
                       description='',
                       location_name=event["EventLocation"],
                       status=status)
