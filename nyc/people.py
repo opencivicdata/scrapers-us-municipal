@@ -61,7 +61,6 @@ class NYCPersonScraper(LegistarPersonScraper):
             for start_date, end_date, district in merged_spans :
                 district = councilman['District'].replace(' 0', ' ')
                 end_date = end_date.isoformat()
-                print(start_date, end_date)
                 
                 p.add_term('Council Member', 'legislature', 
                            district=district, 
@@ -105,6 +104,7 @@ class NYCPersonScraper(LegistarPersonScraper):
 
                     membership = o.add_member(p, role=committee["Title"])
                     membership.start_date = self.mdY2Ymd(committee["Start Date"])
+                    membership.end_date = self.mdY2Ymd(committee["End Date"])
             yield p
             
 
