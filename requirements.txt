@@ -1,4 +1,4 @@
-https://github.com/opencivicdata/pupa/zipball/master
+https://github.com/datamade/pupa/zipball/master
 lxml
 sh 
 https://github.com/opencivicdata/python-legistar-scraper/zipball/master
