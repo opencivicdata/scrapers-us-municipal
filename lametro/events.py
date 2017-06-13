@@ -12,12 +12,8 @@ class LametroEventScraper(LegistarAPIEventScraper):
     EVENTSPAGE = "https://metro.legistar.com/Calendar.aspx"
     TIMEZONE = "America/Los_Angeles"
 
-    def scrape(self, window=3) :
-        n_days_ago = (datetime.datetime.utcnow() -
-                      datetime.timedelta(float(window)))
-
-
-        for event, web_event in self.events(n_days_ago):
+    def scrape(self) :
+        for event, web_event in self.events():
 
             body_name = event["EventBodyName"]
             if 'Board of Directors -' in body_name:
