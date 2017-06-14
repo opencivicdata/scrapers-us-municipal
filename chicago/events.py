@@ -124,7 +124,7 @@ class ChicagoEventsScraper(LegistarAPIEventScraper) :
                 e.add_participant(name=person,
                                   type="person")
 
-            e.add_source(self.BASE_URL + '/events/{EventId}'.format(**event),
+            e.add_source(self.BASE_URL + '/events/{EventId}'.format(**api_event),
                          note='api')
 
             try:
