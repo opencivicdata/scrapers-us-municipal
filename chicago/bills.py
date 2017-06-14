@@ -135,8 +135,9 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
                         title=title,
                         classification=bill_type,
                         from_organization={"name":"Chicago City Council"})
+            
+            legistar_web = matter['legistar_url']
 
-            legistar_web = self.legislation_detail_url(matter_id)
             legistar_api = 'http://webapi.legistar.com/v1/chicago/matters/{0}'.format(matter_id)
 
             bill.add_source(legistar_web, note='web')

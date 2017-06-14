@@ -102,8 +102,9 @@ class LametroBillScraper(LegistarAPIBillScraper):
                         title=title,
                         classification=bill_type,
                         from_organization={"name":"Board of Directors"})
-
-            legistar_web = self.legislation_detail_url(matter_id)
+            
+            legistar_web = matter['legistar_url']
+            
             legistar_api = self.BASE_URL + '/matters/{0}'.format(matter_id)
 
             bill.add_source(legistar_web, note='web')
