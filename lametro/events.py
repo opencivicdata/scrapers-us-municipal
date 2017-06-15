@@ -13,12 +13,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
     TIMEZONE = "America/Los_Angeles"
 
     def scrape(self) :
-        events = list(self.events())
-        # We had intermittent issues on LA Metro, in which the scraper only retrieved events from the current month: this checks that it actually grabs all events from the web.   
-        if len(events) < 100:    
-            raise ValueError('Did not scrape all events on web')
-
-        for event, web_event in events:
+        for event, web_event in self.events():
 
             body_name = event["EventBodyName"]
             if 'Board of Directors -' in body_name:
