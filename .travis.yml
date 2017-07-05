@@ -1,0 +1,22 @@
+branches:
+  only:
+  - "/^v0.*$/"
+language: python
+python:
+- '3.5'
+cache: pip
+install:
+- pip install --upgrade pip
+- pip install --upgrade -r requirements.txt
+addons:
+  postgresql: '9.4'
+deploy:
+  - provider: codedeploy
+    access_key_id: AKIAJNYGDLOJKHOUWCAA
+    secret_access_key:
+      secure: nVhXGvW4oT0LbvRz4TK3yV5XRko8s7LZywIOMgnI8iuRCXs6ccAScxoJa3NaUApfF+lLSl/7dMuMOJ68XiP2nzbC/T1tNV7OzJiNV7p10sUujIGd5jUn+zU0wHZObQkE6yjSu4olzwCRJ0uI2uzfHuT4CFIy1mdLxuFzsuv+ezlZjwGLfsvv95mq1mPjBeMUqLmc1WWeDmQJ0WTZXVzLD/h0GXEDewJR8F2BbK9ZAFuMiB3gXmseAtj3wsS2oMqRjwggirWkv2gtmll4bacO+okhA/EL4ZrDF2lxH9xksD+t4st+kpvHjB8pdzX2D8P28TVkGpQUMqcAsADJTGn/8bUD9BqSTMk59swUG462F+drgnuFmLKLkYxdwtuFgDmRIbuhzJ40YyVfR7G6YhJRDeCAl8toQ4+wBu1hgim0JfM8773vdbL1cSk8LRJ5fEc+do/x/1/fxmMjHph8zLqssIwV6F8LtPxTtqrQHkZQhzdsg9GAR1WrcRhK7lIpXnsbA8vp2K3i0f+2hibTC3NaIJe3/Vxeeb1aEm2q39eYva8BmNun0XNf4gRV7IxHgGxtPojwC12WKyyzHAuRSKbu775ZakYa53CWqxacGE4k7aj9/kihSc+Z129deXQspwv4NqufeVzpZcgl/DrPpLxXvf9J5Tx0wO8So4pFgX37tBg=
+    revision_type: github
+    application: scrapers-us-municipal-codedeploy
+    deployment_group: production
+    on:
+      tags: true
