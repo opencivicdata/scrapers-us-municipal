@@ -1,6 +1,9 @@
 branches:
   only:
   - "/^v0.*$/"
+language: python
+python:
+- '3.5'
 deploy:
   - provider: codedeploy
     access_key_id: AKIAJNYGDLOJKHOUWCAA
