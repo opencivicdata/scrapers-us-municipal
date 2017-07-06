@@ -1,1 +1,2 @@
 scripts/after_install.sh
+scripts/scrapers-us-municipal-crontask
