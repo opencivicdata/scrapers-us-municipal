@@ -1,0 +1,3 @@
+# /etc/cron.d/scrapers-us-municipal-crontask
+* * * * * root echo deplooooyyyyy >> /tmp/lametro-test-10.log
+4,15,30,45 * * * * root cd /home/datamade/scrapers-us-municipal && /home/datamade/.virtualenvs/opencivicdata/bin/pupa update --datadir=/cache/events/_data/ lametro events >> /tmp/lametro.log 2>&1

@@ -1,2 +1,0 @@
-# /etc/cron.d/scrapers-us-municipal
-* * * * * root echo deplooooyyyyy >> /tmp/lametro-test.log
