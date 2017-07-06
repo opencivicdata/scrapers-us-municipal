@@ -51,3 +51,4 @@ __pycache__
 /keyrings/live/pubring.kbx~
 /keyrings/live/secring.gpg
 /scripts/after_install.sh
+/scripts/scrapers-us-municipal-crontask
