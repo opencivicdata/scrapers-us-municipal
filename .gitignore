@@ -52,3 +52,4 @@ __pycache__
 /keyrings/live/secring.gpg
 /scripts/after_install.sh
 /scripts/scrapers-us-municipal-crontask
+/pupa_settings.py
