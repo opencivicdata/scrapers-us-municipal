@@ -17,7 +17,7 @@ class Lametro(Jurisdiction):
     }
 
     legislative_sessions = []
-    for year in range(2014, 2017):
+    for year in range(2014, 2018):
         session = {"identifier": "{}".format(year),
                    "start_date": "{}-07-01".format(year),
                    "end_date": "{}-06-30".format(year + 1)}
