@@ -28,6 +28,7 @@ after_deploy:
 - export SENTRY_ORG=datamade
 - VERSION=$(sentry-cli releases propose-version)
 - sentry-cli releases new -p ocd-scrapers $VERSION
-- sentry-cli releases set-commits --auto $VERSION
+- sentry-cli releases set-commits $VERSION --commit opencivicdata/scrapers-us-municipal@`git rev-parse HEAD`
+
 sudo: required
 dist: trusty
