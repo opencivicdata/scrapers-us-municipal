@@ -12,6 +12,7 @@ install:
 script:
 - pupa update --scrape lametro bills window=30 --fastmode
 after_success:
+- curl -sL https://sentry.io/get-cli/ | bash
 - export SENTRY_ORG=datamade
 - VERSION=$(sentry-cli releases propose-version)
 - sentry-cli releases new -p ocd-scrapers $VERSION
