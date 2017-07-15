@@ -32,6 +32,5 @@ after_deploy:
 - sentry-cli releases set-commits $VERSION --commit opencivicdata/scrapers-us-municipal@`git rev-parse HEAD`
 - sentry-cli releases finalize $VERSION
 
-
 sudo: required
 dist: trusty
