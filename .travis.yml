@@ -27,3 +27,4 @@ deploy:
   deployment_group: production
   on:
     tags: true
+sudo: required
