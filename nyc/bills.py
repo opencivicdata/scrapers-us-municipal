@@ -13,6 +13,7 @@ class NYCBillScraper(LegistarBillScraper):
     VOTE_OPTIONS = {'affirmative' : 'yes',
                     'negative' : 'no',
                     'conflict' : 'absent',
+                    'maternity': 'excused',
                     'paternity' : 'excused',
                     'bereavement': 'excused',
                     'non-voting' : 'not voting',
