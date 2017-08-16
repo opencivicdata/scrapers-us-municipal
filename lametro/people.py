@@ -83,7 +83,8 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
         for body in self.bodies():
             if body['BodyTypeId'] == body_types['Committee']:
-                o = Organization(body['BodyName'],
+                org_name = body['BodyName'].strip()
+                o = Organization(org_name,
                                  classification='committee',
                                  parent_id={'name' : 'Board of Directors'})
 
@@ -113,12 +114,10 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
                         members[person] = p
 
-                    p.add_membership(body['BodyName'],
+                    p.add_membership(org_name,
                                      role=role,
                                      start_date = self.toDate(office['OfficeRecordStartDate']),
-
                                      end_date = self.toDate(office['OfficeRecordEndDate']))
-
 
                 yield o
 
