@@ -118,6 +118,11 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
             title = matter['MatterTitle']
             identifier = matter['MatterFile']
 
+            # Temporarily, we should not scrape or import this bill: http://webapi.legistar.com/v1/chicago/matters/102621
+            # It has a duplicate action item, which causes the entire scrape to fail. The Chicago clerk's office should fix it in the near future, after which we can remove this code.
+            if identifier == 'A2017-79':
+                continue
+
             if not all((date, title, identifier)) :
                 continue
 
