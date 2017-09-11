@@ -224,6 +224,7 @@ ACTION_CLASSIFICATION = {
     'Disapproved by Council' : 'failure',
     'Bill Signing Scheduled by Mayor' : None,
     'Sine Die (Filed, End of Session)' : 'failure',
+    'Recommit to Comm by Council' : 'referral-committee',
 }
 
 
