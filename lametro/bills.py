@@ -1,10 +1,13 @@
-from legistar.bills import LegistarBillScraper, LegistarAPIBillScraper
-from pupa.scrape import Bill, VoteEvent
-from pupa.utils import _make_pseudo_id
 import datetime
 import itertools
 import pytz
 import requests
+import scrapelib
+
+from pupa.scrape import Bill, VoteEvent
+from pupa.utils import _make_pseudo_id
+
+from legistar.bills import LegistarBillScraper, LegistarAPIBillScraper
 
 class LametroBillScraper(LegistarAPIBillScraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
@@ -154,6 +157,24 @@ class LametroBillScraper(LegistarAPIBillScraper):
 
             for topic in self.topics(matter_id) :
                 bill.add_subject(topic['MatterIndexName'].strip())
+
+            for relation in self.relations(matter_id):
+                try:
+                    # Get data (i.e., json) for the related bill. 
+                    # Then, we can find the 'MatterFile' (i.e., identifier) and the 'MatterIntroDate' (i.e., to determine its legislative session).
+                    # Sometimes, the related bill does not yet exist: in this case, throw an error, and continue.
+                    related_bill = self.endpoint('/matters/{0}', relation['MatterRelationMatterId'])
+                except scrapelib.HTTPError:
+                    continue
+                else:
+                    date = related_bill['MatterIntroDate']
+                    related_bill_session = self.session(self.toTime(date))
+                    identifier = related_bill['MatterFile']
+                    bill.add_related_bill(identifier=identifier,
+                                          legislative_session=related_bill_session,
+                                          relation_type='companion')
+                    # Currently, the relation type for bills can be one of a few possibilites: https://github.com/opencivicdata/python-opencivicdata/blob/master/opencivicdata/common.py#L104
+                    # Metro simply understands these as related files, suggesting that they receive a relation of 'companion'.
 
             bill.add_version_link('Board Report',
                                   'https://metro.legistar.com/ViewReport.ashx?M=R&N=TextL5&GID=557&ID={}&GUID=LATEST&Title=Board+Report'.format(matter_id),
