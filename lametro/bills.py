@@ -161,13 +161,18 @@ class LametroBillScraper(LegistarAPIBillScraper):
 
             for topic in self.topics(matter_id) :
                 bill.add_subject(topic['MatterIndexName'].strip())
+           
+            # Metro intermittenly inputs duplicate relations for a matter. 
+            # Doing so creates extraneous data in the OCD API and, perhaps more importantly, raises an IntegrityError when importing data to Councilmatic.
+            # To prevent duplicate relations, the below creates a unique collection of the 'MatterRelationMatterIds' 
+            relation_matter_ids = set([relation['MatterRelationMatterId'] for relation in self.relations(matter_id)])
 
-            for relation in self.relations(matter_id):
+            for relation in relation_matter_ids:
                 try:
                     # Get data (i.e., json) for the related bill. 
                     # Then, we can find the 'MatterFile' (i.e., identifier) and the 'MatterIntroDate' (i.e., to determine its legislative session).
                     # Sometimes, the related bill does not yet exist: in this case, throw an error, and continue.
-                    related_bill = self.endpoint('/matters/{0}', relation['MatterRelationMatterId'])
+                    related_bill = self.endpoint('/matters/{0}', relation)
                 except scrapelib.HTTPError:
                     continue
                 else:
