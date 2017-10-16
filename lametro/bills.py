@@ -54,7 +54,7 @@ class LametroBillScraper(LegistarAPIBillScraper):
             # They requested that we do not pull in this data.
             action_description = action['MatterHistoryActionName'].strip()
             if 'do not use' in action_description:
-                action_description = None
+                continue
             action_date = action['MatterHistoryActionDate']
             responsible_org = action['MatterHistoryActionBodyName'].strip()
             if responsible_org == "Board of Directors - Regular Board Meeting":
