@@ -50,8 +50,12 @@ class LametroBillScraper(LegistarAPIBillScraper):
     def actions(self, matter_id) :
         old_action = None
         for action in self.history(matter_id) :
-            action_date = action['MatterHistoryActionDate']
+            # Metro admin added an action with a classifcation of 'DISCUSSED (do not use).'
+            # They requested that we do not pull in this data.
             action_description = action['MatterHistoryActionName'].strip()
+            if 'do not use' in action_description:
+                continue
+            action_date = action['MatterHistoryActionDate']
             responsible_org = action['MatterHistoryActionBodyName'].strip()
             if responsible_org == "Board of Directors - Regular Board Meeting":
                 responsible_org = "Board of Directors"
