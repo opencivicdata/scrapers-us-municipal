@@ -71,7 +71,17 @@ class LametroEventScraper(LegistarAPIEventScraper):
             # Update 'e' with data from https://metro.legistar.com/Calendar.aspx, if that data exists.
             if web_event['Audio'] != 'Not\xa0available':
 
-                redirect_url = self.head(web_event['Audio']['url']).headers['Location']
+                try:
+                    redirect_url = self.head(web_event['Audio']['url']).headers['Location']
+
+                except KeyError:
+
+                    # In some cases, the redirect URL does not yet contain the
+                    # location of the audio file. Skip these events, and retry
+                    # on next scrape.
+
+                    continue
+
 
                 e.add_media_link(note=web_event['Audio']['label'],
                                  url=redirect_url,
