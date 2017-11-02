@@ -1,136 +1,136 @@
-from pupa.scrape import Person, Organization
-from legistar.people import LegistarPersonScraper
+import collections
 import datetime
+import re
 
-class NYCPersonScraper(LegistarPersonScraper):
-    MEMBERLIST = 'http://legistar.council.nyc.gov/DepartmentDetail.aspx?ID=6897&GUID=CDC6E691-8A8C-4F25-97CB-86F31EDAB081'
+from legistar.people import LegistarAPIPersonScraper, LegistarPersonScraper
+from pupa.scrape import Person, Organization
+
+from .secrets import TOKEN
+
+# 
+# VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of Los Angeles',
+#                 'Eric Garcetti' : 'Mayor of the City of Los Angeles',
+#                 'Mike Bonin' : 'Appointee of Mayor of the City of Los Angeles',
+#                 'Paul Krekorian' : 'Appointee of Mayor of the City of Los Angeles',
+#                 'Hilda L. Solis' : 'Los Angeles County Board Supervisor, District 1',
+#                 'Mark Ridley-Thomas' : 'Los Angeles County Board Supervisor, District 2',
+#                 'Sheila Kuehl' : 'Los Angeles County Board Supervisor, District 3',
+#                 'Janice Hahn' : 'Los Angeles County Board Supervisor, District 4',
+#                 'Kathryn Barger' : 'Los Angeles County Board Supervisor, District 5',
+#                 'John Fasana' : 'Appointee of Los Angeles County City Selection Committee, San Gabriel Valley sector',
+#                 'James Butts' : 'Appointee of Los Angeles County City Selection Committee, Southwest Corridor sector',
+#                 'Diane DuBois' : 'Appointee of Los Angeles County City Selection Committee, Southeast Long Beach sector',
+#                 'Ara Najarian' : 'Appointee of Los Angeles County City Selection Committee, North County/San Fernando Valley sector',
+#                 'Robert Garcia' : 'Appointee of Los Angeles County City Selection Committee, Southeast Long Beach sector',
+#                 'Don Knabe' : 'Los Angeles County Board Supervisor, District 4',
+#                 'Michael Antonovich' : 'Los Angeles County Board Supervisor, District 5'}
+# 
+# NONVOTING_POSTS = {'Carrie Bowen' : 'Appointee of Governor of California'}
+
+
+
+class NYCPersonScraper(LegistarAPIPersonScraper):
+    BASE_URL = 'https://webapi.legistar.com/v1/nyc'
+    WEB_URL = 'http://legistar.council.nyc.gov'
     TIMEZONE = 'US/Eastern'
-    ALL_MEMBERS = "3:2"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.params = {'Token': TOKEN}
+
+    def _public_advocate_name(self, office):
+        '''
+        The full name for public advocates is "The Public Advocate Mr./Ms. X".
+        The last name is "Mr./Ms. X." This method combines the first name and
+        the last name, less the courtesy title, into a usable full name.
+        '''
+        first_name = office['OfficeRecordFirstName']
+        last_name = ' '.join(office['OfficeRecordLastName'].split(' ')[1:])
+        return ' '.join([first_name, last_name])
 
     def scrape(self):
-        noncommittees = {'Committee of the Whole'}
-        committee_d = {}
+        web_scraper = LegistarPersonScraper(None, None)
+        web_scraper.MEMBERLIST = 'http://legistar.council.nyc.gov/DepartmentDetail.aspx?ID=6897&GUID=CDC6E691-8A8C-4F25-97CB-86F31EDAB081&Mode=MainBody'
 
-        people_d = {}
+        web_info = {}
+        for member, _ in web_scraper.councilMembers():
+            web_info[member['Person Name']['label']] = member
+            break
 
-        # Go to memberlist
-        extra_args = {'ctl00$ContentPlaceHolder$lstName' : 'City Council'}
+        city_council, = [body for body in self.bodies()
+                         if body['BodyName'] == 'City Council']
 
-        for councilman, committees in self.councilMembers(extra_args=extra_args) :
-            
-            if 'url' in councilman['Person Name'] :
-                councilman_url = councilman['Person Name']['url']
+        terms = collections.defaultdict(list)
+        for office in self.body_offices(city_council):
+            name = office['OfficeRecordFullName']
 
-                if councilman_url in people_d :
-                    people_d[councilman_url][0].append(councilman) 
-                else :
-                    people_d[councilman_url] = [councilman], committees
+            if name.lower().startswith('the public advocate'):
+                name = self._public_advocate_name(office)
 
-        for person_entries, committees in people_d.values() :
+            terms[name].append(office)
 
-            councilman = person_entries[-1]
-            
-            p = Person(councilman['Person Name']['label'])
-            
-            if p.name == 'Letitia James' :
-                p.name = 'Letitia Ms. James'
-                p.add_name('Letitia James')
+        members = {}
+        for member, offices in terms.items():
+            web = web_info.get(member)
 
-            spans = [(self.toTime(entry['Start Date']).date(), 
-                      self.toTime(entry['End Date']).date(),
-                      entry['District'])
-                     for entry in person_entries]
+            if not web:
+                continue
 
-            merged_spans = []
-            last_end_date = None
-            last_district = None
-            for start_date, end_date, district in sorted(spans) :
-                if last_end_date is None :
-                    span = [start_date, end_date, district]
-                elif (start_date - last_end_date) == datetime.timedelta(1) and district == last_district :
-                    span[1] = end_date
-                else :
-                    merged_spans.append(span)
-                    span = [start_date, end_date, district]
+            p = Person(member)
 
-                last_end_date = end_date
-                last_district = district
+            for term in offices:
+                p.add_term(office['OfficeRecordTitle'],
+                           'legislature',
+                           district=web.get('District', 'None'),
+                           start_date=self.toDate(term['OfficeRecordStartDate']),
+                           end_date=self.toDate(term['OfficeRecordEndDate']))
 
-            merged_spans.append(span)
+                party = web['Political Party']
 
-            for start_date, end_date, district in merged_spans :
-                district = councilman['District'].replace(' 0', ' ')
-                end_date = end_date.isoformat()
-                
-                p.add_term('Council Member', 'legislature', 
-                           district=district, 
-                           start_date=start_date.isoformat(),
-                           end_date=end_date)
+                if party == 'Democrat':
+                    party = 'Democratic'
 
-            party = councilman['Political Party']
-            if party == 'Democrat' :
-                party = 'Democratic'
-            
-            if party :
                 p.add_party(party)
 
-            if councilman['Photo'] :
-                p.image = councilman['Photo']
+                if web['Photo'] :
+                    p.image = web['Photo']
 
-            if councilman["E-mail"]:
-                p.add_contact_detail(type="email",
-                                     value=councilman['E-mail']['url'],
-                                     note='E-mail')
+                contact_types = {
+                    "City Hall Office": ("address", "City Hall Office"),
+                    "City Hall Phone": ("voice", "City Hall Phone"),
+                    "Ward Office Phone": ("voice", "Ward Office Phone"),
+                    "Ward Office Address": ("address", "Ward Office Address"),
+                    "Fax": ("fax", "Fax")
+                }
 
-            if councilman['Web site']:
-                p.add_link(councilman['Web site']['url'], note='web site')
+                for contact_type, (type_, _note) in contact_types.items():
+                    if web[contact_type] and web[contact_type] != 'N/A':
+                        p.add_contact_detail(type=type_,
+                                             value= web[contact_type],
+                                             note=_note)
 
-            p.extras = {'Notes' : councilman['Notes']}
-                 
-            p.add_source(councilman['Person Name']['url'], note='web')
+                if web["E-mail"]:
+                    p.add_contact_detail(type="email",
+                                         value=web['E-mail']['url'],
+                                         note='E-mail')
 
-            for committee, _, _ in committees:
-                committee_name = committee['Department Name']['label']
-                if committee_name not in noncommittees and 'committee' in committee_name.lower():
-                    o = committee_d.get(committee_name, None)
-                    if o is None:
-                        parent_id = PARENT_ORGS.get(committee_name,
-                                                    'New York City Council')
-                        o = Organization(committee_name,
-                                         classification='committee',
-                                         parent_id={'name' : parent_id})
-                        o.add_source(committee['Department Name']['url'])
-                        committee_d[committee_name] = o
+                if web['Web site']:
+                    p.add_link(web['Web site']['url'], note='web site')
 
-                    membership = o.add_member(p, role=committee["Title"])
-                    membership.start_date = self.mdY2Ymd(committee["Start Date"])
-                    membership.end_date = self.mdY2Ymd(committee["End Date"])
-            yield p
-            
+                p.extras = {'Notes' : web['Notes']}
 
-        for o in committee_d.values() :
-            if 'Committee' in o.name :
-                yield o
+                source_urls = self.person_sources_from_office(term)
+                person_api_url, person_web_url = source_urls
+                p.add_source(person_api_url, note='api')
+                p.add_source(person_web_url, note='web')
 
-        for o in committee_d.values() :
-            if 'Subcommittee' in o.name :
-                yield o
+                members[member] = p
 
-        o = Organization('Committee on Mental Health, Developmental Disability, Alcoholism, Drug Abuse and Disability Services',
-                         classification='committee',
-                         parent_id={'name' : 'New York City Council'})
-        o.add_source("http://legistar.council.nyc.gov/Departments.aspx")
+        for body in self.bodies():
+            # TODO: Figure out which bodies to scrape
+            pass
 
-        yield o
-
-        o = Organization('Subcommittee on Drug Abuse',
-                         classification='committee',
-                         parent_id={'name' : 'Committee on Mental Health, Developmental Disability, Alcoholism, Drug Abuse and Disability Services'})
-        o.add_source("http://legistar.council.nyc.gov/Departments.aspx")
-
-        yield o
-
-            
 
 
 PARENT_ORGS = {
