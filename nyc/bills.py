@@ -24,7 +24,8 @@ class NYCBillScraper(LegistarAPIBillScraper):
                     'absent': 'absent',
                     'medical': 'excused'}
 
-    SESSION_STARTS = (2014, 2010, 2006, 2002, 1996)
+    # TO-DO: cq legislative session including 1996
+    SESSION_STARTS = (2014, 2010, 2006, 2004, 2002, 1998, 1996)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -299,6 +300,7 @@ ACTION_CLASSIFICATION = {
     'Laid Over Again by Council': 'deferral',
     'Approved by Subcommittee and Referred to Finance pursuant to Rule 6.50 of the Council': 'referral-committee',
     'P-C Item Filed by Committee with Companion Resolution': 'filing',
+    'P-C Item Approved by Committee and Referred to Finance pursuant to Rule 6.50 of the Council': 'referral-committee',
 }
 
 
