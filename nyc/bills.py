@@ -41,10 +41,6 @@ class NYCBillScraper(LegistarAPIBillScraper):
 
 
     def actions(self, matter_id):
-        '''
-        Return bill action and votes
-        '''
-
         for action in self.history(matter_id):
             bill_action = {}
 
@@ -74,9 +70,9 @@ class NYCBillScraper(LegistarAPIBillScraper):
                 classification = ACTION_CLASSIFICATION[bill_action['action_description']]
                 bill_action['classification'] = classification
 
-                if all(action[k] for k in ['MatterHistoryEventId',
-                                           'MatterHistoryRollCallFlag',
-                                           'MatterHistoryPassedFlag']):
+                if all(action.get(k, None) for k in ['MatterHistoryEventId',
+                                                     'MatterHistoryRollCallFlag',
+                                                     'MatterHistoryPassedFlag']):
 
                     bool_result = action['MatterHistoryPassedFlag']
                     result = 'pass' if bool_result else 'fail'
@@ -88,23 +84,21 @@ class NYCBillScraper(LegistarAPIBillScraper):
                 yield bill_action, votes
 
 
-    def sponsors(self, matter_id):
+    def _version_rank(self, version):
+        '''
+        - If there is only one version, *, it is the max version.
+        - If there is an asterisk version and one other version, the other
+          version is the max version.
+        - If there is an asterisk version and two other non-numeric versions,
+          the max version is the first other version in alphabetical order.
+        - Otherwise, function as normal.
+        '''
+        version_map = {'*': -1,
+                       'B': 1,
+                       'A': 2}
 
-        try:
-            return super().sponsors(matter_id)
+        return int(version_map.get(version, version))
 
-        except ValueError:
-            # 'MatterSponsorMatterVersion' is sometimes an asterisk (*),
-            # not an integer.
-            print('ValueError occurrred')
-
-            spons = self.endpoint('/matters/{0}/sponsors', matter_id)
-            if spons:
-                spons = [sponsor for sponsor in spons]
-                return sorted(spons,
-                              key=lambda sponsor: sponsor["MatterSponsorSequence"])
-            else:
-                return []
 
     def sponsorships(self, matter_id):
         for i, sponsor in enumerate(self.sponsors(matter_id)):
@@ -298,6 +292,13 @@ ACTION_CLASSIFICATION = {
     'Introduced by Council, IMMEDIATE CONSIDERATION': 'introduction',
     'Deferred': 'deferral',
     'Approved by Committee and Referred to Finance  pursuant to Rule 6.50 of the Council': 'referral-committee',
+    'Re-referred  pursuant to Rule 6.50 of the Council': 'referral-committee',
+    'Reprnt Amnd Item Laid on Desk': None,
+    'Vetoed by Mayor': 'executive-veto',
+    'Overridden by Council': 'veto-override-passage',
+    'Laid Over Again by Council': 'deferral',
+    'Approved by Subcommittee and Referred to Finance pursuant to Rule 6.50 of the Council': 'referral-committee',
+    'P-C Item Filed by Committee with Companion Resolution': 'filing',
 }
 
 
