@@ -131,7 +131,9 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                 parent_org = PARENT_ORGS.get(body['BodyTypeName'],
                                              'New York City Council')
 
-                o = Organization(body['BodyName'],
+                body_name = body['BodyName'].title().strip()
+
+                o = Organization(body_name,
                                  classification='committee',
                                  parent_id={'name': parent_org})
 
@@ -164,7 +166,7 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                         p.add_source(person_api_url, note='api')
                         p.add_source(person_web_url, note='web')
 
-                    p.add_membership(body['BodyName'],
+                    p.add_membership(body_name,
                                      role=role,
                                      start_date=self.toDate(office['OfficeRecordStartDate']),
                                      end_date=self.toDate(office['OfficeRecordEndDate']))
