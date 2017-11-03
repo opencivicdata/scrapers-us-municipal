@@ -7,27 +7,6 @@ from pupa.scrape import Person, Organization
 
 from .secrets import TOKEN
 
-# 
-# VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of Los Angeles',
-#                 'Eric Garcetti' : 'Mayor of the City of Los Angeles',
-#                 'Mike Bonin' : 'Appointee of Mayor of the City of Los Angeles',
-#                 'Paul Krekorian' : 'Appointee of Mayor of the City of Los Angeles',
-#                 'Hilda L. Solis' : 'Los Angeles County Board Supervisor, District 1',
-#                 'Mark Ridley-Thomas' : 'Los Angeles County Board Supervisor, District 2',
-#                 'Sheila Kuehl' : 'Los Angeles County Board Supervisor, District 3',
-#                 'Janice Hahn' : 'Los Angeles County Board Supervisor, District 4',
-#                 'Kathryn Barger' : 'Los Angeles County Board Supervisor, District 5',
-#                 'John Fasana' : 'Appointee of Los Angeles County City Selection Committee, San Gabriel Valley sector',
-#                 'James Butts' : 'Appointee of Los Angeles County City Selection Committee, Southwest Corridor sector',
-#                 'Diane DuBois' : 'Appointee of Los Angeles County City Selection Committee, Southeast Long Beach sector',
-#                 'Ara Najarian' : 'Appointee of Los Angeles County City Selection Committee, North County/San Fernando Valley sector',
-#                 'Robert Garcia' : 'Appointee of Los Angeles County City Selection Committee, Southeast Long Beach sector',
-#                 'Don Knabe' : 'Los Angeles County Board Supervisor, District 4',
-#                 'Michael Antonovich' : 'Los Angeles County Board Supervisor, District 5'}
-# 
-# NONVOTING_POSTS = {'Carrie Bowen' : 'Appointee of Governor of California'}
-
-
 
 class NYCPersonScraper(LegistarAPIPersonScraper):
     BASE_URL = 'https://webapi.legistar.com/v1/nyc'
@@ -56,7 +35,6 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
         web_info = {}
         for member, _ in web_scraper.councilMembers():
             web_info[member['Person Name']['label']] = member
-            break
 
         city_council, = [body for body in self.bodies()
                          if body['BodyName'] == 'City Council']
@@ -80,9 +58,18 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
             p = Person(member)
 
             for term in offices:
-                p.add_term(office['OfficeRecordTitle'],
+                role = term['OfficeRecordTitle']
+
+                if role == 'Public Advocate':
+                    role = 'Non-Voting Council Member'
+                else:
+                    role = 'Council Member'
+
+                district = web['District'].replace(' 0', ' ')
+
+                p.add_term(role,
                            'legislature',
-                           district=web.get('District', 'None'),
+                           district=district,
                            start_date=self.toDate(term['OfficeRecordStartDate']),
                            end_date=self.toDate(term['OfficeRecordEndDate']))
 
@@ -93,7 +80,7 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
 
                 p.add_party(party)
 
-                if web['Photo'] :
+                if web['Photo']:
                     p.image = web['Photo']
 
                 contact_types = {
@@ -118,7 +105,7 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                 if web['Web site']:
                     p.add_link(web['Web site']['url'], note='web site')
 
-                p.extras = {'Notes' : web['Notes']}
+                p.extras = {'Notes': web['Notes']}
 
                 source_urls = self.person_sources_from_office(term)
                 person_api_url, person_web_url = source_urls
@@ -127,16 +114,72 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
 
                 members[member] = p
 
-        for body in self.bodies():
-            # TODO: Figure out which bodies to scrape
-            pass
+        committee_types = ['Committee',
+                           'Inactive Committee',
+                           'Select Committee',
+                           'Subcommittee',
+                           'Task Force',
+                           'Land Use']  # Committee on Land Use
 
+        body_types = {k: v for k, v in self.body_types().items()
+                      if k in committee_types}
+
+        for body in self.bodies():
+            if body_types.get(body['BodyTypeName']) \
+                or body['BodyName'] == 'Legislative Documents Unit':
+
+                parent_org = PARENT_ORGS.get(body['BodyTypeName'],
+                                             'New York City Council')
+
+                o = Organization(body['BodyName'],
+                                 classification='committee',
+                                 parent_id={'name': parent_org})
+
+                o.add_source(self.BASE_URL + '/bodies/{BodyId}'.format(**body), note='api')
+                o.add_source(self.WEB_URL + '/DepartmentDetail.aspx?ID={BodyId}&GUID={BodyGuid}'.format(**body), note='web')
+
+                for office in self.body_offices(body):
+                    # Possible roles: 'Council Member', 'MEMBER', 'Ex-Officio',
+                    # 'Committee Member', None, 'CHAIRPERSON'
+
+                    role = office['OfficeRecordTitle']
+
+                    if role and role.lower() == 'chairperson':
+                        role = 'Chairperson'
+                    else:
+                        role = 'Member'
+
+                    person = office['OfficeRecordFullName']
+
+                    if person.lower().startswith('the public advocate'):
+                        person = self._public_advocate_name(office)
+
+                    if person in members:
+                        p = members[person]
+                    else:
+                        p = Person(person)
+
+                        source_urls = self.person_sources_from_office(office)
+                        person_api_url, person_web_url = source_urls
+                        p.add_source(person_api_url, note='api')
+                        p.add_source(person_web_url, note='web')
+
+                    p.add_membership(body['BodyName'],
+                                     role=role,
+                                     start_date=self.toDate(office['OfficeRecordStartDate']),
+                                     end_date=self.toDate(office['OfficeRecordEndDate']))
+
+                yield o
+
+        for p in members.values():
+            yield p
 
 
 PARENT_ORGS = {
-    'Subcommittee on Landmarks, Public Siting and Maritime Uses' : 'Committee on Land Use',
-    'Subcommittee on Libraries' : 'Committee on Cultural Affairs, Libraries and International Intergroup Relations',
-    'Subcommittee on Non-Public Schools' : 'Committee on Education',
-    'Subcommittee on Planning, Dispositions and Concessions' : 'Committee on Land Use',
-    'Subcommittee on Senior Centers' : 'Committee on Aging',
-    'Subcommittee on Zoning and Franchises' : 'Committee on Land Use'}
+    'Subcommittee on Landmarks, Public Siting and Maritime Uses': 'Committee on Land Use',
+    'Subcommittee on Libraries': 'Committee on Cultural Affairs, Libraries and International Intergroup Relations',
+    'Subcommittee on Non-Public Schools': 'Committee on Education',
+    'Subcommittee on Planning, Dispositions and Concessions': 'Committee on Land Use',
+    'Subcommittee on Senior Centers': 'Committee on Aging',
+    'Subcommittee on Zoning and Franchises': 'Committee on Land Use',
+}

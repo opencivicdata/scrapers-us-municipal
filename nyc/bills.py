@@ -151,6 +151,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
             if matter['MatterTitle']:
                 bill.add_title(matter['MatterTitle'])
 
+            # TODO: Figure out what field the summary lives in
             # if matter['MATTERSUMMARY']: bill.add_abstract(blah)
 
             for sponsorship in self.sponsorships(matter_id):
@@ -273,7 +274,7 @@ ACTION_CLASSIFICATION = {
     'Filed by Committee with Companion Resolution': 'filing',
     'Hearing Held by Committee': None,
     'Approved by Committee': 'committee-passage',
-    'P-C Item Approved by Subcommittee with Modifications and Referred to CPC': ' committee-passage',
+    'P-C Item Approved by Subcommittee with Modifications and Referred to CPC': 'committee-passage',
     'Approved with Modifications and Referred to the City Planning Commission pursuant to Rule 11.70(b) of the Rules of the Council and Section 197-(d) of the New York City Charter.': None,
     'Approved by Subcommittee with Modifications and Referred pursuant to Rule 11.20(b) of the Rules of the Council and Section 197(d) of the New York City Charter': 'committee-passage',
     'Filed, by Committee': 'filing',
@@ -304,17 +305,9 @@ ACTION_CLASSIFICATION = {
     'P-C Item Approved by Subcommittee and Referred to Finance pursuant to Rule 6.50 of the Council': 'referral-committee',
     'Laid Over Again by Committee': 'deferral',
     'P-C Item Approved by Committee with Modifications and Referred to CPC': 'referral-committee',
+    'Withdrawn by Public Advocate': None,
+    'P-C Item Filed by Comm': 'filing',
+    'Defeated by Committee': 'committee-failure',
+    'Adopted by the Committee': 'committee-passage',
+    'P-C Item Disapproved by Committee with Companion Resolution': 'committee-failure',
 }
-
-# LAST ERROR
-# 16:55:31 INFO scrapelib: HEAD - http://legistar.council.nyc.gov/gateway.aspx?m=l&id=24575
-# 16:55:31 INFO scrapelib: GET - https://webapi.legistar.com/v1/nyc/matters/24575/sponsors
-# 16:55:31 INFO scrapelib: GET - https://webapi.legistar.com/v1/nyc/matters/24575/attachments
-# 16:55:31 INFO scrapelib: GET - https://webapi.legistar.com/v1/nyc/matters/24575/histories
-# 16:55:31 INFO scrapelib: GET - https://webapi.legistar.com/v1/nyc/matters/24575/indexes
-# 16:55:32 INFO scrapelib: GET - https://webapi.legistar.com/v1/nyc/matters/24575/relations
-# 16:55:32 INFO scrapelib: GET - https://webapi.legistar.com/v1/nyc/matters/24575/versions
-# 16:55:32 INFO scrapelib: GET - https://webapi.legistar.com/v1/nyc/matters/24575/texts/27933
-# 16:55:32 INFO pupa: save bill LU 0005-2002 in 2002 as bill_8b9339ec-c018-11e7-b09a-9801a7a22767.json
-# 16:55:32 WARNING pupa: validation of Bill 8b9339ec-c018-11e7-b09a-9801a7a22767 failed: 1 validation errors:
-# Value ' committee-passage' for field '<obj>.actions[0].classification[0]' is not in the enumeration: ['filing', 'introduction', 'reading-1', 'reading-2', 'reading-3', 'passage', 'failure', 'withdrawal', 'substitution', 'amendment-introduction', 'amendment-passage', 'amendment-withdrawal', 'amendment-failure', 'amendment-amendment', 'amendment-deferral', 'committee-passage', 'committee-passage-favorable', 'committee-passage-unfavorable', 'committee-failure', 'executive-receipt', 'executive-signature', 'executive-veto', 'executive-veto-line-item', 'veto-override-passage', 'veto-override-failure', 'deferral', 'receipt', 'referral', 'referral-committee']
