@@ -20,12 +20,14 @@ class NYC(Jurisdiction):
                 'events': NYCEventsScraper
     }
 
+    # TODO: Confirm these years
+    years = [start_year for start_year in range(1978, 2015, 4)] + [1996, 2004]
+
     legislative_sessions = [{"identifier": str(start_year),
                              "name": ("%s Regular Session" % str(start_year)),
                              "start_date": ("%s-01-01" % str(start_year)),
                              "end_date": ("%s-12-31" % str(start_year + 3))}
-                            for start_year
-                            in range(1978, 2015, 4)]
+                            for start_year in years]
 
     def get_organizations(self):
         council = Organization('New York City Council', classification='legislature')

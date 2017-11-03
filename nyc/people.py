@@ -29,10 +29,11 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
         return ' '.join([first_name, last_name])
 
     def scrape(self):
-        web_scraper = LegistarPersonScraper(None, None)
+        web_scraper = LegistarPersonScraper(None, None, fastmode=(self.requests_per_minute == 0))
         web_scraper.MEMBERLIST = 'http://legistar.council.nyc.gov/DepartmentDetail.aspx?ID=6897&GUID=CDC6E691-8A8C-4F25-97CB-86F31EDAB081&Mode=MainBody'
 
         web_info = {}
+
         for member, _ in web_scraper.councilMembers():
             web_info[member['Person Name']['label']] = member
 
@@ -40,6 +41,7 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                          if body['BodyName'] == 'City Council']
 
         terms = collections.defaultdict(list)
+
         for office in self.body_offices(city_council):
             name = office['OfficeRecordFullName']
 
@@ -48,14 +50,16 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
 
             terms[name].append(office)
 
+            # Add past members (and advocates public)
+            if name not in web_info:
+                web_info[name] = collections.defaultdict(lambda: None)
+
         members = {}
+
         for member, offices in terms.items():
-            web = web_info.get(member)
-
-            if not web:
-                continue
-
             p = Person(member)
+
+            web = web_info.get(member)
 
             for term in offices:
                 role = term['OfficeRecordTitle']
@@ -65,7 +69,7 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                 else:
                     role = 'Council Member'
 
-                district = web['District'].replace(' 0', ' ')
+                district = web.get('District', '').replace(' 0', ' ')
 
                 p.add_term(role,
                            'legislature',
@@ -73,14 +77,15 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                            start_date=self.toDate(term['OfficeRecordStartDate']),
                            end_date=self.toDate(term['OfficeRecordEndDate']))
 
-                party = web['Political Party']
+                party = web.get('Political Party')
 
                 if party == 'Democrat':
                     party = 'Democratic'
 
-                p.add_party(party)
+                if party:
+                    p.add_party(party)
 
-                if web['Photo']:
+                if web.get('Photo'):
                     p.image = web['Photo']
 
                 contact_types = {
@@ -92,27 +97,28 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                 }
 
                 for contact_type, (type_, _note) in contact_types.items():
-                    if web[contact_type] and web[contact_type] != 'N/A':
+                    if web.get(contact_type) and web(contact_type) != 'N/A':
                         p.add_contact_detail(type=type_,
                                              value= web[contact_type],
                                              note=_note)
 
-                if web["E-mail"]:
+                if web.get('E-mail'):
                     p.add_contact_detail(type="email",
                                          value=web['E-mail']['url'],
                                          note='E-mail')
 
-                if web['Web site']:
+                if web.get('Web site'):
                     p.add_link(web['Web site']['url'], note='web site')
 
-                p.extras = {'Notes': web['Notes']}
+                if web.get('Notes'):
+                    p.extras = {'Notes': web['Notes']}
 
                 source_urls = self.person_sources_from_office(term)
                 person_api_url, person_web_url = source_urls
                 p.add_source(person_api_url, note='api')
                 p.add_source(person_web_url, note='web')
 
-                members[member] = p
+            members[member] = p
 
         committee_types = ['Committee',
                            'Inactive Committee',

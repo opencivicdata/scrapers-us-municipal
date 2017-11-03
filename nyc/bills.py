@@ -151,8 +151,8 @@ class NYCBillScraper(LegistarAPIBillScraper):
             if matter['MatterTitle']:
                 bill.add_title(matter['MatterTitle'])
 
-            # TODO: Figure out what field the summary lives in
-            # if matter['MATTERSUMMARY']: bill.add_abstract(blah)
+            if matter['MatterEXText5']:
+                bill.add_abstract(matter['MatterEXText5'])
 
             for sponsorship in self.sponsorships(matter_id):
                 bill.add_sponsorship(**sponsorship)
@@ -310,4 +310,5 @@ ACTION_CLASSIFICATION = {
     'Defeated by Committee': 'committee-failure',
     'Adopted by the Committee': 'committee-passage',
     'P-C Item Disapproved by Committee with Companion Resolution': 'committee-failure',
+    'Approved and Referred to the Department of City Planning': 'referral-committee',
 }
