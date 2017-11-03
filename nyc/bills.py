@@ -344,7 +344,7 @@ ACTION_CLASSIFICATION = {
     'Sent to Council Member for Approval': None,
     'Sent to Mayor by Council': None,
     'Signed Into Law by Mayor': 'executive-signature',
-    'Sine Die (Filed, End of Session)': 'filing',
+    'Sine Die (Filed, End of Session)': 'failure',
     'Special Event Filed': None,
     'Special Event Held': None,
     'Sworn In': None,

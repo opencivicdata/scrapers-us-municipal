@@ -18,16 +18,6 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
 
         self.params = {'Token': TOKEN}
 
-    def _public_advocate_name(self, office):
-        '''
-        The full name for public advocates is "The Public Advocate Mr./Ms. X".
-        The last name is "Mr./Ms. X." This method combines the first name and
-        the last name, less the courtesy title, into a usable full name.
-        '''
-        first_name = office['OfficeRecordFirstName']
-        last_name = ' '.join(office['OfficeRecordLastName'].split(' ')[1:])
-        return ' '.join([first_name, last_name])
-
     def scrape(self):
         web_scraper = LegistarPersonScraper(None, None, fastmode=(self.requests_per_minute == 0))
         web_scraper.MEMBERLIST = 'http://legistar.council.nyc.gov/DepartmentDetail.aspx?ID=6897&GUID=CDC6E691-8A8C-4F25-97CB-86F31EDAB081&Mode=MainBody'
@@ -42,11 +32,14 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
 
         terms = collections.defaultdict(list)
 
+        public_advocates = {
+            'The Public Advocate (Mr. de Blasio)': 'Bill de Blasio',
+            'The Public Advocate (Ms. James)': 'Letitia James',
+        }
+
         for office in self.body_offices(city_council):
             name = office['OfficeRecordFullName']
-
-            if name.lower().startswith('the public advocate'):
-                name = self._public_advocate_name(office)
+            name = public_advocates.get(name, name)
 
             terms[name].append(office)
 
@@ -158,9 +151,7 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                         role = 'Member'
 
                     person = office['OfficeRecordFullName']
-
-                    if person.lower().startswith('the public advocate'):
-                        person = self._public_advocate_name(office)
+                    person = public_advocates.get(person, person)
 
                     if person in members:
                         p = members[person]
