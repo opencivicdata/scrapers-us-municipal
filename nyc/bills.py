@@ -88,18 +88,35 @@ class NYCBillScraper(LegistarAPIBillScraper):
 
     def _version_rank(self, version):
         '''
-        - If there is only one version, *, it is the max version.
-        - If there is an asterisk version and one other version, the other
-          version is the max version.
-        - If there is an asterisk version and two other non-numeric versions,
-          the max version is the first other version in alphabetical order.
-        - Otherwise, function as normal.
+        This method overrides `LegistarAPIBillScraper._version_rank`.
+
+        Traditionally, matter versions are numbered in ascending order, e.g.,
+        the highest version number denotes the most recent version. By contrast,
+        most New York City Council matters have one version labeled with an
+        asterisk (*).
+
+        Where there is any non-asterisk version, it is more recent.
+
+        Where there is more than one non-asterisk version, and they are
+        lettered (A, B, ...) rather than numbered, the most recent is the
+        first non-asterisk version in alphabetical order (e.g., A).
+
+        Params
+
+          :version (str) - '*', '0', 'B', or 'A'
+
+        Returns
+
+          integer value indicating position of given version relative to other
+          possible versions, such that the max() of an array of outputs will
+          return the most recent version
         '''
         version_map = {'*': -1,
+                       '0': 0,
                        'B': 1,
                        'A': 2}
 
-        return int(version_map.get(version, version))
+        return version_map[version]
 
 
     def sponsorships(self, matter_id):
