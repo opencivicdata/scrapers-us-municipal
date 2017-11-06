@@ -124,11 +124,10 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                       if k in committee_types}
 
         for body in self.bodies():
-            if body_types.get(body['BodyTypeName']) \
+            if body['BodyTypeName'] in body_types \
                 or body['BodyName'] == 'Legislative Documents Unit':
 
-                parent_org = PARENT_ORGS.get(body['BodyTypeName'],
-                                             'New York City Council')
+                parent_org = PARENT_ORGS.get(body['BodyName'], 'New York City Council')
 
                 body_name = body['BodyName'].title().strip()
 

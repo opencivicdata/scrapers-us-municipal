@@ -48,7 +48,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
             if not action['MatterHistoryActionName']:
                 continue
 
-            bill_action['action_description'] = action['MatterHistoryActionName']
+            bill_action['action_description'] = action['MatterHistoryActionName'].strip()
             bill_action['action_date'] = action['MatterHistoryActionDate']
 
             responsible_org = action['MatterHistoryActionBodyName']
@@ -68,8 +68,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
                 action_date = self.toTime(bill_action['action_date']).date()
                 bill_action['action_date'] = action_date
 
-                # Strip trailing newline and carriage return chars
-                classification = ACTION_CLASSIFICATION[bill_action['action_description'].strip()]
+                classification = ACTION_CLASSIFICATION[bill_action['action_description']]
                 bill_action['classification'] = classification
 
                 if all(action.get(k, None) for k in ['MatterHistoryEventId',
