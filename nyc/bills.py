@@ -1,9 +1,11 @@
+from collections import defaultdict
+import datetime
+import json
+import pytz
+
 from legistar.bills import LegistarAPIBillScraper
 from pupa.scrape import Bill, VoteEvent
 from pupa.utils import _make_pseudo_id
-import datetime
-from collections import defaultdict
-import pytz
 
 from .secrets import TOKEN
 
@@ -101,6 +103,9 @@ class NYCBillScraper(LegistarAPIBillScraper):
         lettered (A, B, ...) rather than numbered, the most recent is the
         first non-asterisk version in alphabetical order (e.g., A).
 
+        `version_map` contains possible versions and their recency ranking,
+        where a higher ranking means a more recent version.
+
         Params
 
           :version (str) - '*', '0', 'B', or 'A'
@@ -111,10 +116,10 @@ class NYCBillScraper(LegistarAPIBillScraper):
           possible versions, such that the max() of an array of outputs will
           return the most recent version
         '''
-        version_map = {'*': -1,
-                       '0': 0,
-                       'B': 1,
-                       'A': 2}
+        version_map = {'*': 1,
+                       '0': 2,
+                       'B': 3,
+                       'A': 4}
 
         return version_map[version]
 
@@ -141,8 +146,9 @@ class NYCBillScraper(LegistarAPIBillScraper):
             yield sponsorship
 
 
-    def scrape(self):
-        for matter in self.matters():
+    def scrape(self, window=3):
+        n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
+        for matter in self.matters(n_days_ago):
 
             matter_id = matter['MatterId']
 
@@ -167,7 +173,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
                 bill.add_title(matter['MatterTitle'])
 
             if matter['MatterEXText5']:
-                bill.add_abstract(matter['MatterEXText5'])
+                bill.add_abstract(matter['MatterEXText5'], note='')
 
             for sponsorship in self.sponsorships(matter_id):
                 bill.add_sponsorship(**sponsorship)
@@ -187,9 +193,10 @@ class NYCBillScraper(LegistarAPIBillScraper):
                 result, votes = vote
 
                 if result:
+                    organization = json.loads(act['organization_id'].lstrip('~'))
                     vote_event = VoteEvent(legislative_session=bill.legislative_session,
                                            motion_text=act['description'],
-                                           organization=act['organization'],
+                                           organization=organization,
                                            classification=None,
                                            start_date=act['date'],
                                            result=result,
