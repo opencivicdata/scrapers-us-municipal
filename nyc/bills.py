@@ -42,6 +42,10 @@ class NYCBillScraper(LegistarAPIBillScraper):
 
 
     def actions(self, matter_id):
+        vote_fields = ('MatterHistoryEventId',
+                       'MatterHistoryRollCallFlag',
+                       'MatterHistoryPassedFlag')
+
         for action in self.history(matter_id):
             bill_action = {}
 
@@ -71,10 +75,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
                 classification = ACTION_CLASSIFICATION[bill_action['action_description']]
                 bill_action['classification'] = classification
 
-                if all(action.get(k, None) for k in ['MatterHistoryEventId',
-                                                     'MatterHistoryRollCallFlag',
-                                                     'MatterHistoryPassedFlag']):
-
+                if all(action[k] is not None for k in vote_fields):
                     bool_result = action['MatterHistoryPassedFlag']
                     result = 'pass' if bool_result else 'fail'
 
