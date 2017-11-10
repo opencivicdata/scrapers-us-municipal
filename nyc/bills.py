@@ -119,7 +119,9 @@ class NYCBillScraper(LegistarAPIBillScraper):
         version_map = {'*': 1,
                        '0': 2,
                        'B': 3,
-                       'A': 4}
+                       'A': 4,
+                       'C': 5,
+                       'D': 6}
 
         return version_map[version]
 
@@ -154,7 +156,12 @@ class NYCBillScraper(LegistarAPIBillScraper):
 
             leg_type = BILL_TYPES[matter['MatterTypeName']]
 
-            intro_date = self.toTime(matter['MatterIntroDate'])
+            if matter['MatterIntroDate']:
+                intro_date = self.toTime(matter['MatterIntroDate'])
+            else:
+                # Skip stubs, i.e., http://legistar.council.nyc.gov/LegislationDetail.aspx?ID=2446553&GUID=1D4EF299-FC20-46A4-9FDC-EF45D96C5340
+                continue
+
             bill_session = self.sessions(intro_date)
 
             bill = Bill(identifier=matter['MatterFile'],
@@ -253,7 +260,8 @@ BILL_TYPES = {'Introduction': 'bill',
               'Tour': None,
               'Petition': 'petition',
               'SLR': None,
-              'City Agency Report': None}
+              'City Agency Report': None,
+              'N/A': None}
 
 
 ACTION_CLASSIFICATION = {
