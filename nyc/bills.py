@@ -26,8 +26,14 @@ class NYCBillScraper(LegistarAPIBillScraper):
                     'absent': 'absent',
                     'medical': 'excused'}
 
-    # TO-DO: cq legislative session including 1996
-    SESSION_STARTS = (2014, 2010, 2006, 2004, 2002, 1998, 1996)
+    # The Council session is usually a 4-year term. However, every 20 years
+    # the Council has an extra election due to redistricting, so instead of a
+    # 4-year term, there are two consecutive 2-year terms. The last time this
+    # happened was in 2002 and 2004, with the extra election in 2003. The
+    # next time this will happen is in 2022 and 2024, with the extra election
+    # in 2023, unless the statute is changed between now (Nov. 2017) and then.
+
+    SESSION_STARTS = (1994, 1998, 2002, 2004, 2006, 2010, 2014)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -97,18 +103,19 @@ class NYCBillScraper(LegistarAPIBillScraper):
         most New York City Council matters have one version labeled with an
         asterisk (*).
 
-        Where there is any non-asterisk version, it is more recent.
+        Instead of numbers, NY City Council orders versions by letter, where
+        the last letter alphabetically indicates the most recent version.
 
-        Where there is more than one non-asterisk version, and they are
-        lettered (A, B, ...) rather than numbered, the most recent is the
-        first non-asterisk version in alphabetical order (e.g., A).
+        A very small number of bills introduced prior to 2000 have a "0"
+        version. These are artifacts of reconciling poor formatting and should
+        be reported to Council admin for removal.
 
         `version_map` contains possible versions and their recency ranking,
         where a higher ranking means a more recent version.
 
         Params
 
-          :version (str) - '*', '0', 'B', or 'A'
+          :version (str) - '*', 'A', 'B', 'C', 'D'
 
         Returns
 
@@ -117,11 +124,10 @@ class NYCBillScraper(LegistarAPIBillScraper):
           return the most recent version
         '''
         version_map = {'*': 1,
-                       '0': 2,
+                       'A': 2,
                        'B': 3,
-                       'A': 4,
-                       'C': 5,
-                       'D': 6}
+                       'C': 4,
+                       'D': 5}
 
         return version_map[version]
 

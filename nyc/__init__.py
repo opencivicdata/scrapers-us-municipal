@@ -20,8 +20,7 @@ class NYC(Jurisdiction):
                 'events': NYCEventsScraper
     }
 
-    # TODO: Confirm these years
-    years = [start_year for start_year in range(1978, 2015, 4)] + [1996, 2004]
+    years = [1994, 1998, 2002, 2004, 2006, 2010, 2014]
 
     legislative_sessions = [{"identifier": str(start_year),
                              "name": ("%s Regular Session" % str(start_year)),

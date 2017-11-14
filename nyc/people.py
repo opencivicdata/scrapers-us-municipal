@@ -129,7 +129,7 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
 
                 parent_org = PARENT_ORGS.get(body['BodyName'], 'New York City Council')
 
-                body_name = body['BodyName'].title().strip()
+                body_name = body['BodyName'].strip()
 
                 o = Organization(body_name,
                                  classification='committee',
