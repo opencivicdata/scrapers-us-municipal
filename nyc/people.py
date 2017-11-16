@@ -50,6 +50,8 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
         members = {}
 
         for member, offices in terms.items():
+            member = member.strip()  # Remove trailing space
+
             p = Person(member)
 
             web = web_info.get(member)
@@ -106,10 +108,11 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                 if web.get('Notes'):
                     p.extras = {'Notes': web['Notes']}
 
-                source_urls = self.person_sources_from_office(term)
-                person_api_url, person_web_url = source_urls
-                p.add_source(person_api_url, note='api')
-                p.add_source(person_web_url, note='web')
+                if not p.sources:  # Only add sources once
+                    source_urls = self.person_sources_from_office(term)
+                    person_api_url, person_web_url = source_urls
+                    p.add_source(person_api_url, note='api')
+                    p.add_source(person_web_url, note='web')
 
             members[member] = p
 
@@ -149,7 +152,7 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                     else:
                         role = 'Member'
 
-                    person = office['OfficeRecordFullName']
+                    person = office['OfficeRecordFullName'].strip()
                     person = public_advocates.get(person, person)
 
                     if person in members:
