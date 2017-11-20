@@ -32,8 +32,8 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
 
         terms = collections.defaultdict(list)
 
-        public_advocates = {
-            'The Public Advocate (Mr. de Blasio)': 'Bill de Blasio',
+        public_advocates = { # Match casing to Bill De Blasio as council member
+            'The Public Advocate (Mr. de Blasio)': 'Bill De Blasio',
             'The Public Advocate (Ms. James)': 'Letitia James',
         }
 
