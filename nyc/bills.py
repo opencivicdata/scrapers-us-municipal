@@ -227,6 +227,7 @@ ACTION_CLASSIFICATION = {
     'Recommit to Comm by Council' : 'referral-committee',
     'P-C Item Approved by Committee with Modifications': 'committee-passage',
     'P-C Item Approved by Subcommittee with Modifications': 'committee-passage',
+    'P-C Item Approved by Committee with Modifications and Referred to CPC': 'committee-passage',
 }
 
 
