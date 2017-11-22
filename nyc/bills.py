@@ -24,7 +24,8 @@ class NYCBillScraper(LegistarAPIBillScraper):
                     'non-voting': 'not voting',
                     'jury duty': 'excused',
                     'absent': 'absent',
-                    'medical': 'excused'}
+                    'medical': 'excused',
+                    'recused': 'abstain'}
 
     # The Council session is usually a 4-year term. However, every 20 years
     # the Council has an extra election due to redistricting, so instead of a
@@ -33,7 +34,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
     # next time this will happen is in 2022 and 2024, with the extra election
     # in 2023, unless the statute is changed between now (Nov. 2017) and then.
 
-    SESSION_STARTS = (1994, 1998, 2002, 2004, 2006, 2010, 2014)
+    SESSION_STARTS = (2014, 2010, 2006, 2004, 2002, 1998, 1994)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -58,6 +59,9 @@ class NYCBillScraper(LegistarAPIBillScraper):
             bill_action = {}
 
             if not action['MatterHistoryActionName']:
+                continue
+
+            if action['MatterHistoryId'] == 138469:  # Skip duplicate council approval event
                 continue
 
             bill_action['action_description'] = action['MatterHistoryActionName'].strip()
@@ -157,21 +161,21 @@ class NYCBillScraper(LegistarAPIBillScraper):
     def scrape(self, window=3):
         n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
         for matter in self.matters(n_days_ago):
-
             matter_id = matter['MatterId']
+
+            date = matter['MatterIntroDate']
+            title = matter['MatterName']
+            identifier = matter['MatterFile']
+
+            if not all((date, title, identifier)):
+                continue
 
             leg_type = BILL_TYPES[matter['MatterTypeName']]
 
-            if matter['MatterIntroDate']:
-                intro_date = self.toTime(matter['MatterIntroDate'])
-            else:
-                # Skip stubs, i.e., http://legistar.council.nyc.gov/LegislationDetail.aspx?ID=2446553&GUID=1D4EF299-FC20-46A4-9FDC-EF45D96C5340
-                continue
+            bill_session = self.sessions(self.toTime(date))
 
-            bill_session = self.sessions(intro_date)
-
-            bill = Bill(identifier=matter['MatterFile'],
-                        title=matter['MatterName'],
+            bill = Bill(identifier=identifier,
+                        title=title,
                         classification=leg_type,
                         legislative_session=bill_session,
                         from_organization={"name": "New York City Council"})
@@ -192,6 +196,10 @@ class NYCBillScraper(LegistarAPIBillScraper):
                 bill.add_sponsorship(**sponsorship)
 
             for attachment in self.attachments(matter_id):
+
+                if attachment['MatterAttachmentId'] == 103315:  # Duplicate
+                    continue
+
                 if attachment['MatterAttachmentName']:
                     bill.add_document_link(attachment['MatterAttachmentName'],
                                            attachment['MatterAttachmentHyperlink'],
@@ -220,6 +228,10 @@ class NYCBillScraper(LegistarAPIBillScraper):
 
                     for vote in votes:
                         raw_option = vote['VoteValueName'].lower()
+
+                        if raw_option == 'suspended':
+                            continue
+
                         clean_option = self.VOTE_OPTIONS.get(raw_option, raw_option)
                         vote_event.vote(clean_option, vote['VotePersonName'].strip())
 
@@ -245,7 +257,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
 
             if text:
                 if text['MatterTextPlain']:
-                    bill.extras['plain_text'] = text['MatterTextPlain']
+                    bill.extras['plain_text'] = text['MatterTextPlain'].replace(u'\u0000', '')
 
                 if text['MatterTextRtf']:
                     bill.extras['rtf_text'] = text['MatterTextRtf'].replace(u'\u0000', '')

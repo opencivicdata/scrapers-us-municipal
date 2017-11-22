@@ -128,7 +128,8 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
 
         for body in self.bodies():
             if body['BodyTypeName'] in body_types \
-                or body['BodyName'] == 'Legislative Documents Unit':
+                or body['BodyName'] in ('Legislative Documents Unit',
+                                        'Legal and Government Affairs Division'):
 
                 # Skip typo in API data
                 if body['BodyName'] == 'Committee on Mental Health, Developmental Disability, Alcoholism, Substance Abuse amd Disability Services':
@@ -188,4 +189,6 @@ PARENT_ORGS = {
     'Subcommittee on Senior Centers': 'Committee on Aging',
     'Subcommittee on Zoning and Franchises': 'Committee on Land Use',
     'Subcommittee on Drug Abuse': 'Committee on Mental Health, Developmental Disability, Alcoholism, Substance Abuse and Disability Services',
+    'Legislative Documents Unit': 'Mayor',
+    'Legal and Government Affairs Division': 'Mayor',
 }
