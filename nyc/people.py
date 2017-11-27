@@ -170,6 +170,8 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                         p.add_source(person_api_url, note='api')
                         p.add_source(person_web_url, note='web')
 
+                        members[person] = p
+
                     p.add_membership(body_name,
                                      role=role,
                                      start_date=self.toDate(office['OfficeRecordStartDate']),
