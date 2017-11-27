@@ -21,13 +21,19 @@ class NYCEventsScraper(LegistarAPIEventScraper):
         # this session
         self.params = {'Token': TOKEN}
 
-    def scrape(self) :
-        for api_event, event in self.events():
+    def scrape(self, window=3):
+        n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
+        for api_event, event in self.events(n_days_ago):
 
             when = api_event['start']
             location = api_event['EventLocation']
 
-            status = api_event['status']
+            if all(api_event[k] == 'Deferred' for k in ('EventMinutesStatusName',
+                                                        'EventAgendaStatusName')):
+                status = 'cancelled'
+
+            else:
+                status = api_event['status']
 
             description = event['Meeting\xa0Topic']
 
@@ -48,6 +54,8 @@ class NYCEventsScraper(LegistarAPIEventScraper):
                           start_date=when,
                           location_name=location,
                           status=status)
+
+            e.pupa_id = str(api_event['EventId'])
 
             if event['Multimedia'] != 'Not\xa0available' : 
                 e.add_media_link(note='Recording',
@@ -126,7 +134,11 @@ class NYCEventsScraper(LegistarAPIEventScraper):
         event_time = web_scraper.ical(response.text).subcomponents[0]['DTSTART'].dt
         event_time = pytz.timezone(self.TIMEZONE).localize(event_time)
 
-        key = (event['Name'],
-               event_time)
+        if event['Name'] == 'City Council Stated Meeting':
+            name = 'City Council'
+        else:
+            name = event['Name']
+
+        key = (name, event_time)
 
         return key
