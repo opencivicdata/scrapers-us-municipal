@@ -26,11 +26,12 @@ class NYC(Jurisdiction):
 
     for idx, start_year in enumerate(years):
         try:
+            end_year = years[idx + 1] - 1
             session = {
                 "identifier": str(start_year),
                 "name": ("%s Regular Session" % str(start_year)),
                 "start_date": ("%s-01-01" % str(start_year)),
-                "end_date": ("%s-12-31" % str(years[idx + 1])),
+                "end_date": ("%s-12-31" % str(end_year)),
             }
         except IndexError:
             continue
