@@ -39,7 +39,6 @@ class LametroEventScraper(LegistarAPIEventScraper):
                       location_name=event["EventLocation"],
                       status=status)
 
-
             e.pupa_id = str(event['EventId'])
 
             # Metro requires the EventGuid to build out MediaPlayer links
