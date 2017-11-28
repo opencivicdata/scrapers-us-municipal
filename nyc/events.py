@@ -28,17 +28,10 @@ class NYCEventsScraper(LegistarAPIEventScraper):
             when = api_event['start']
             location = api_event['EventLocation']
 
-            if all(api_event[k] == 'Deferred' for k in ('EventMinutesStatusName',
-                                                        'EventAgendaStatusName')):
-                status = 'cancelled'
-
-            else:
-                status = api_event['status']
-
             description = event['Meeting\xa0Topic']
 
-            if any(each in description 
-                   for each 
+            if any(each in description
+                   for each
                    in ('Multiple meeting items',
                        'AGENDA TO BE ANNOUNCED')) :
                 description = None
@@ -48,16 +41,16 @@ class NYCEventsScraper(LegistarAPIEventScraper):
                           start_date=when,
                           description=description,
                           location_name=location,
-                          status=status)
+                          status=api_event['status'])
             else:
                 e = Event(name=api_event["EventBodyName"],
                           start_date=when,
                           location_name=location,
-                          status=status)
+                          status=api_event['status'])
 
             e.pupa_id = str(api_event['EventId'])
 
-            if event['Multimedia'] != 'Not\xa0available' : 
+            if event['Multimedia'] != 'Not\xa0available' :
                 e.add_media_link(note='Recording',
                                  url = event['Multimedia']['url'],
                                  type="recording",
@@ -79,10 +72,10 @@ class NYCEventsScraper(LegistarAPIEventScraper):
             else :
                 participating_orgs = []
 
-            if other_orgs : 
+            if other_orgs :
                 other_orgs = re.sub('Jointl*y with the ', '', other_orgs)
                 participating_orgs += re.split(' and the |, the ', other_orgs)
- 
+
             for org in participating_orgs :
                 e.add_committee(name=org)
 
@@ -96,13 +89,13 @@ class NYCEventsScraper(LegistarAPIEventScraper):
 
             for call in self.rollcalls(api_event):
                 if call['RollCallValueName'] == 'Present':
-                    participants.add(call['RollCallPersonName'])
+                    participants.add(call['RollCallPersonName'].strip())
 
             for person in participants:
                 e.add_participant(name=person,
                                   type="person")
 
-            e.add_source(self.BASE_URL + '/events/{EventId}'.format(**api_event), 
+            e.add_source(self.BASE_URL + '/events/{EventId}'.format(**api_event),
                          note='api')
 
             try:
@@ -118,7 +111,7 @@ class NYCEventsScraper(LegistarAPIEventScraper):
     def _parse_location(self, location_string):
         other_orgs = None
         location_notes = []
-        
+
         if '--em--' in location_string:
             location_string, note = location_string.split('--em--')[:2]
             for each in note.split(' - ') :
@@ -142,3 +135,16 @@ class NYCEventsScraper(LegistarAPIEventScraper):
         key = (name, event_time)
 
         return key
+
+    def _event_status(self, event):
+        if all(event[k] == 'Deferred' for k in ('EventMinutesStatusName',
+                                                'EventAgendaStatusName')):
+            status = 'cancelled'
+
+        elif datetime.datetime.utcnow().replace(tzinfo = pytz.utc) > event['start']:
+            status = 'passed'
+
+        else:
+            status = 'confirmed'
+
+        return status
