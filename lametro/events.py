@@ -42,7 +42,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
             e.pupa_id = str(event['EventId'])
 
             # Metro requires the EventGuid to build out MediaPlayer links
-            e.extras = {'Guid': event['EventGuid']}
+            e.extras = {'guid': event['EventGuid']}
 
             for item in self.agenda(event):
                 agenda_item = e.add_agenda_item(item["EventItemTitle"])
