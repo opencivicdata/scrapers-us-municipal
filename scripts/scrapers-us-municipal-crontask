@@ -4,7 +4,7 @@
 
 # Chicago
 0 2 * * * datamade /usr/bin/flock /tmp/chicagobills.lock /usr/bin/flock /tmp/chicagoevents.lock -c 'cd /home/datamade/scrapers-us-municipal && /home/datamade/.virtualenvs/opencivicdata/bin/pupa update chicago >> /tmp/chicago.log 2>&1'
-10,25,40,55 * * * * datamade /usr/bin/flock /tmp/chicagoevents.lock -c 'cd /home/datamade/scrapers-us-municipal && /home/datamade/.virtualenvs/opencivicdata/bin/pupa update --datadir=/cache/events/_data/ chicago events windows=0.05 >> /tmp/chicago.log 2>&1'
+10,25,40,55 * * * * datamade /usr/bin/flock /tmp/chicagoevents.lock -c 'cd /home/datamade/scrapers-us-municipal && /home/datamade/.virtualenvs/opencivicdata/bin/pupa update --datadir=/cache/events/_data/ chicago events window=0.05 >> /tmp/chicago.log 2>&1'
 5,20,35,50 * * * * datamade /usr/bin/flock -n /tmp/chicagobills.lock -c 'cd /home/datamade/scrapers-us-municipal && /home/datamade/.virtualenvs/opencivicdata/bin/pupa update --datadir=/cache/bills/_data/ chicago bills window=0.05 >> /tmp/chicago.log 2>&1'
 
 # Los Angeles Metro
