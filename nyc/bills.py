@@ -158,8 +158,14 @@ class NYCBillScraper(LegistarAPIBillScraper):
             yield sponsorship
 
 
-    def scrape(self, window=3):
-        n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
+    def scrape(self, window=None):
+        if window:
+            n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
+        else:
+            n_days_ago = None
+
+        version_errors = []
+
         for matter in self.matters(n_days_ago):
             matter_id = matter['MatterId']
 
@@ -192,8 +198,12 @@ class NYCBillScraper(LegistarAPIBillScraper):
             if matter['MatterEXText5']:
                 bill.add_abstract(matter['MatterEXText5'], note='')
 
-            for sponsorship in self.sponsorships(matter_id):
-                bill.add_sponsorship(**sponsorship)
+            try:
+                for sponsorship in self.sponsorships(matter_id):
+                    bill.add_sponsorship(**sponsorship)
+            except KeyError:
+                version_errors.append(legistar_web)
+                continue
 
             for attachment in self.attachments(matter_id):
 
@@ -263,6 +273,10 @@ class NYCBillScraper(LegistarAPIBillScraper):
                     bill.extras['rtf_text'] = text['MatterTextRtf'].replace(u'\u0000', '')
 
             yield bill
+
+        print('The following matters have irregular versions:')
+        for v in version_errors:
+            print(v)
 
 
 BILL_TYPES = {'Introduction': 'bill',
