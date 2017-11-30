@@ -148,3 +148,6 @@ class NYCEventsScraper(LegistarAPIEventScraper):
             status = 'confirmed'
 
         return status
+
+    def _not_in_web_interface(self, event):
+        return event['EventAgendaStatusId'] == 1  # agenda not yet final
