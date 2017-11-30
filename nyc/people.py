@@ -172,7 +172,7 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
 
                         members[person] = p
 
-                    p.add_membership(body_name,
+                    p.add_membership(o,
                                      role=role,
                                      start_date=self.toDate(office['OfficeRecordStartDate']),
                                      end_date=self.toDate(office['OfficeRecordEndDate']))
