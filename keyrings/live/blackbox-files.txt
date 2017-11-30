@@ -1,1 +1,2 @@
+nyc/secrets.py
 pupa_settings.py
