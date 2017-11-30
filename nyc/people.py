@@ -1,142 +1,196 @@
-from pupa.scrape import Person, Organization
-from legistar.people import LegistarPersonScraper
+import collections
 import datetime
+import re
 
-class NYCPersonScraper(LegistarPersonScraper):
-    MEMBERLIST = 'http://legistar.council.nyc.gov/DepartmentDetail.aspx?ID=6897&GUID=CDC6E691-8A8C-4F25-97CB-86F31EDAB081'
+from legistar.people import LegistarAPIPersonScraper, LegistarPersonScraper
+from pupa.scrape import Person, Organization
+
+from .secrets import TOKEN
+
+
+class NYCPersonScraper(LegistarAPIPersonScraper):
+    BASE_URL = 'https://webapi.legistar.com/v1/nyc'
+    WEB_URL = 'http://legistar.council.nyc.gov'
     TIMEZONE = 'US/Eastern'
-    ALL_MEMBERS = "3:2"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.params = {'Token': TOKEN}
 
     def scrape(self):
-        noncommittees = {'Committee of the Whole'}
-        committee_d = {}
+        web_scraper = LegistarPersonScraper(None, None, fastmode=(self.requests_per_minute == 0))
+        web_scraper.MEMBERLIST = 'http://legistar.council.nyc.gov/DepartmentDetail.aspx?ID=6897&GUID=CDC6E691-8A8C-4F25-97CB-86F31EDAB081&Mode=MainBody'
 
-        people_d = {}
+        web_info = {}
 
-        # Go to memberlist
-        extra_args = {'ctl00$ContentPlaceHolder$lstName' : 'City Council'}
+        for member, _ in web_scraper.councilMembers():
+            web_info[member['Person Name']['label']] = member
 
-        for councilman, committees in self.councilMembers(extra_args=extra_args) :
-            
-            if 'url' in councilman['Person Name'] :
-                councilman_url = councilman['Person Name']['url']
+        city_council, = [body for body in self.bodies()
+                         if body['BodyName'] == 'City Council']
 
-                if councilman_url in people_d :
-                    people_d[councilman_url][0].append(councilman) 
-                else :
-                    people_d[councilman_url] = [councilman], committees
+        terms = collections.defaultdict(list)
 
-        for person_entries, committees in people_d.values() :
+        public_advocates = { # Match casing to Bill De Blasio as council member
+            'The Public Advocate (Mr. de Blasio)': 'Bill De Blasio',
+            'The Public Advocate (Ms. James)': 'Letitia James',
+        }
 
-            councilman = person_entries[-1]
-            
-            p = Person(councilman['Person Name']['label'])
-            
-            if p.name == 'Letitia James' :
-                p.name = 'Letitia Ms. James'
-                p.add_name('Letitia James')
+        for office in self.body_offices(city_council):
+            name = office['OfficeRecordFullName']
+            name = public_advocates.get(name, name)
 
-            spans = [(self.toTime(entry['Start Date']).date(), 
-                      self.toTime(entry['End Date']).date(),
-                      entry['District'])
-                     for entry in person_entries]
+            terms[name].append(office)
 
-            merged_spans = []
-            last_end_date = None
-            last_district = None
-            for start_date, end_date, district in sorted(spans) :
-                if last_end_date is None :
-                    span = [start_date, end_date, district]
-                elif (start_date - last_end_date) == datetime.timedelta(1) and district == last_district :
-                    span[1] = end_date
-                else :
-                    merged_spans.append(span)
-                    span = [start_date, end_date, district]
+            # Add past members (and advocates public)
+            if name not in web_info:
+                web_info[name] = collections.defaultdict(lambda: None)
 
-                last_end_date = end_date
-                last_district = district
+        members = {}
 
-            merged_spans.append(span)
+        for member, offices in terms.items():
+            member = member.strip()  # Remove trailing space
 
-            for start_date, end_date, district in merged_spans :
-                district = councilman['District'].replace(' 0', ' ')
-                end_date = end_date.isoformat()
-                
-                p.add_term('Council Member', 'legislature', 
-                           district=district, 
-                           start_date=start_date.isoformat(),
-                           end_date=end_date)
+            p = Person(member)
 
-            party = councilman['Political Party']
-            if party == 'Democrat' :
-                party = 'Democratic'
-            
-            if party :
-                p.add_party(party)
+            web = web_info.get(member)
 
-            if councilman['Photo'] :
-                p.image = councilman['Photo']
+            for term in offices:
+                role = term['OfficeRecordTitle']
 
-            if councilman["E-mail"]:
-                p.add_contact_detail(type="email",
-                                     value=councilman['E-mail']['url'],
-                                     note='E-mail')
+                if role == 'Public Advocate':
+                    role = 'Non-Voting Council Member'
+                else:
+                    role = 'Council Member'
 
-            if councilman['Web site']:
-                p.add_link(councilman['Web site']['url'], note='web site')
+                district = web.get('District', '').replace(' 0', ' ')
 
-            p.extras = {'Notes' : councilman['Notes']}
-                 
-            p.add_source(councilman['Person Name']['url'], note='web')
+                p.add_term(role,
+                           'legislature',
+                           district=district,
+                           start_date=self.toDate(term['OfficeRecordStartDate']),
+                           end_date=self.toDate(term['OfficeRecordEndDate']))
 
-            for committee, _, _ in committees:
-                committee_name = committee['Department Name']['label']
-                if committee_name not in noncommittees and 'committee' in committee_name.lower():
-                    o = committee_d.get(committee_name, None)
-                    if o is None:
-                        parent_id = PARENT_ORGS.get(committee_name,
-                                                    'New York City Council')
-                        o = Organization(committee_name,
-                                         classification='committee',
-                                         parent_id={'name' : parent_id})
-                        o.add_source(committee['Department Name']['url'])
-                        committee_d[committee_name] = o
+                party = web.get('Political Party')
 
-                    membership = o.add_member(p, role=committee["Title"])
-                    membership.start_date = self.mdY2Ymd(committee["Start Date"])
-                    membership.end_date = self.mdY2Ymd(committee["End Date"])
+                if party == 'Democrat':
+                    party = 'Democratic'
+
+                if party:
+                    p.add_party(party)
+
+                if web.get('Photo'):
+                    p.image = web['Photo']
+
+                contact_types = {
+                    "City Hall Office": ("address", "City Hall Office"),
+                    "City Hall Phone": ("voice", "City Hall Phone"),
+                    "Ward Office Phone": ("voice", "Ward Office Phone"),
+                    "Ward Office Address": ("address", "Ward Office Address"),
+                    "Fax": ("fax", "Fax")
+                }
+
+                for contact_type, (type_, _note) in contact_types.items():
+                    if web.get(contact_type) and web(contact_type) != 'N/A':
+                        p.add_contact_detail(type=type_,
+                                             value= web[contact_type],
+                                             note=_note)
+
+                if web.get('E-mail'):
+                    p.add_contact_detail(type="email",
+                                         value=web['E-mail']['url'],
+                                         note='E-mail')
+
+                if web.get('Web site'):
+                    p.add_link(web['Web site']['url'], note='web site')
+
+                if web.get('Notes'):
+                    p.extras = {'Notes': web['Notes']}
+
+                if not p.sources:  # Only add sources once
+                    source_urls = self.person_sources_from_office(term)
+                    person_api_url, person_web_url = source_urls
+                    p.add_source(person_api_url, note='api')
+                    p.add_source(person_web_url, note='web')
+
+            members[member] = p
+
+        committee_types = ['Committee',
+                           'Inactive Committee',
+                           'Select Committee',
+                           'Subcommittee',
+                           'Task Force',
+                           'Land Use']  # Committee on Land Use
+
+        body_types = {k: v for k, v in self.body_types().items()
+                      if k in committee_types}
+
+        for body in self.bodies():
+            if body['BodyTypeName'] in body_types \
+                or body['BodyName'] in ('Legislative Documents Unit',
+                                        'Legal and Government Affairs Division'):
+
+                # Skip typo in API data
+                if body['BodyName'] == 'Committee on Mental Health, Developmental Disability, Alcoholism, Substance Abuse amd Disability Services':
+                    continue
+
+                parent_org = PARENT_ORGS.get(body['BodyName'], 'New York City Council')
+
+                body_name = body['BodyName']
+
+                o = Organization(body_name,
+                                 classification='committee',
+                                 parent_id={'name': parent_org})
+
+                o.add_source(self.BASE_URL + '/bodies/{BodyId}'.format(**body), note='api')
+                o.add_source(self.WEB_URL + '/DepartmentDetail.aspx?ID={BodyId}&GUID={BodyGuid}'.format(**body), note='web')
+
+                for office in self.body_offices(body):
+                    # Possible roles: 'Council Member', 'MEMBER', 'Ex-Officio',
+                    # 'Committee Member', None, 'CHAIRPERSON'
+
+                    role = office['OfficeRecordTitle']
+
+                    if role and role.lower() == 'chairperson':
+                        role = 'Chairperson'
+                    else:
+                        role = 'Member'
+
+                    person = office['OfficeRecordFullName'].strip()
+                    person = public_advocates.get(person, person)
+
+                    if person in members:
+                        p = members[person]
+                    else:
+                        p = Person(person)
+
+                        source_urls = self.person_sources_from_office(office)
+                        person_api_url, person_web_url = source_urls
+                        p.add_source(person_api_url, note='api')
+                        p.add_source(person_web_url, note='web')
+
+                        members[person] = p
+
+                    p.add_membership(body_name,
+                                     role=role,
+                                     start_date=self.toDate(office['OfficeRecordStartDate']),
+                                     end_date=self.toDate(office['OfficeRecordEndDate']))
+
+                yield o
+
+        for p in members.values():
             yield p
-            
-
-        for o in committee_d.values() :
-            if 'Committee' in o.name :
-                yield o
-
-        for o in committee_d.values() :
-            if 'Subcommittee' in o.name :
-                yield o
-
-        o = Organization('Committee on Mental Health, Developmental Disability, Alcoholism, Drug Abuse and Disability Services',
-                         classification='committee',
-                         parent_id={'name' : 'New York City Council'})
-        o.add_source("http://legistar.council.nyc.gov/Departments.aspx")
-
-        yield o
-
-        o = Organization('Subcommittee on Drug Abuse',
-                         classification='committee',
-                         parent_id={'name' : 'Committee on Mental Health, Developmental Disability, Alcoholism, Drug Abuse and Disability Services'})
-        o.add_source("http://legistar.council.nyc.gov/Departments.aspx")
-
-        yield o
-
-            
 
 
 PARENT_ORGS = {
-    'Subcommittee on Landmarks, Public Siting and Maritime Uses' : 'Committee on Land Use',
-    'Subcommittee on Libraries' : 'Committee on Cultural Affairs, Libraries and International Intergroup Relations',
-    'Subcommittee on Non-Public Schools' : 'Committee on Education',
-    'Subcommittee on Planning, Dispositions and Concessions' : 'Committee on Land Use',
-    'Subcommittee on Senior Centers' : 'Committee on Aging',
-    'Subcommittee on Zoning and Franchises' : 'Committee on Land Use'}
+    'Subcommittee on Landmarks, Public Siting and Maritime Uses': 'Committee on Land Use',
+    'Subcommittee on Libraries': 'Committee on Cultural Affairs, Libraries and International Intergroup Relations',
+    'Subcommittee on Non-Public Schools': 'Committee on Education',
+    'Subcommittee on Planning, Dispositions and Concessions': 'Committee on Land Use',
+    'Subcommittee on Senior Centers': 'Committee on Aging',
+    'Subcommittee on Zoning and Franchises': 'Committee on Land Use',
+    'Subcommittee on Drug Abuse': 'Committee on Mental Health, Developmental Disability, Alcoholism, Substance Abuse and Disability Services',
+    'Legislative Documents Unit': 'Mayor',
+    'Legal and Government Affairs Division': 'Mayor',
+}

@@ -20,12 +20,23 @@ class NYC(Jurisdiction):
                 'events': NYCEventsScraper
     }
 
-    legislative_sessions = [{"identifier": str(start_year),
-                             "name": ("%s Regular Session" % str(start_year)),
-                             "start_date": ("%s-01-01" % str(start_year)),
-                             "end_date": ("%s-12-31" % str(start_year + 3))}
-                            for start_year
-                            in range(1978, 2015, 4)]
+    years = [1994, 1998, 2002, 2004, 2006, 2010, 2014]
+
+    legislative_sessions = []
+
+    for idx, start_year in enumerate(years):
+        try:
+            end_year = years[idx + 1] - 1
+            session = {
+                "identifier": str(start_year),
+                "name": ("%s Regular Session" % str(start_year)),
+                "start_date": ("%s-01-01" % str(start_year)),
+                "end_date": ("%s-12-31" % str(end_year)),
+            }
+        except IndexError:
+            continue
+        else:
+            legislative_sessions.append(session)
 
     def get_organizations(self):
         council = Organization('New York City Council', classification='legislature')
