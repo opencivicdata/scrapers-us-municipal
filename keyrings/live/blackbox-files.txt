@@ -1,2 +1,1 @@
 pupa_settings.py
-scripts/scrapers-us-municipal-crontask
