@@ -112,12 +112,9 @@ upstream master.
 
 
 ```bash
-git pull --rebase upstream master
+git pull upstream master
 ```
 
-Finally, force push your changes to the fork on Github.
-
-
 ```bash
-git push -f origin master
+git push origin master
 ```
