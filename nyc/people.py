@@ -3,12 +3,12 @@ import datetime
 import re
 
 from legistar.people import LegistarAPIPersonScraper, LegistarPersonScraper
-from pupa.scrape import Person, Organization
+from pupa.scrape import Person, Organization, Scraper
 
 from .secrets import TOKEN
 
 
-class NYCPersonScraper(LegistarAPIPersonScraper):
+class NYCPersonScraper(Scraper, LegistarAPIPersonScraper):
     BASE_URL = 'https://webapi.legistar.com/v1/nyc'
     WEB_URL = 'http://legistar.council.nyc.gov'
     TIMEZONE = 'US/Eastern'
@@ -19,8 +19,14 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
         self.params = {'Token': TOKEN}
 
     def scrape(self):
-        web_scraper = LegistarPersonScraper(None, None, fastmode=(self.requests_per_minute == 0))
+        web_scraper = LegistarPersonScraper(requests_per_minute = self.requests_per_minute)
         web_scraper.MEMBERLIST = 'http://legistar.council.nyc.gov/DepartmentDetail.aspx?ID=6897&GUID=CDC6E691-8A8C-4F25-97CB-86F31EDAB081&Mode=MainBody'
+
+        if self.cache_storage:
+            web_scraper.cache_storage = self.cache_storage
+
+        if self.requests_per_minute == 0:
+            web_scraper.cache_write_only = False
 
         web_info = {}
 

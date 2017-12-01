@@ -1,3 +1,8 @@
+.#*
+*#
+nyc/secrets.py
+pupa_settings.py
+
 # Pupa bits.
 _data
 _cache
