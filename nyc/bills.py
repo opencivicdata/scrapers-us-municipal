@@ -263,7 +263,12 @@ class NYCBillScraper(LegistarAPIBillScraper):
                                           legislative_session=related_bill_session,
                                           relation_type='companion')
 
-            text = self.text(matter_id)
+            try:
+                text = self.text(matter_id)
+            except KeyError:
+                version_errors.append(legistar_web)
+                continue
+
 
             if text:
                 if text['MatterTextPlain']:
