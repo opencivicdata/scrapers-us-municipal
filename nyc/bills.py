@@ -9,6 +9,8 @@ from pupa.utils import _make_pseudo_id
 
 from .secrets import TOKEN
 
+DUPLICATED_ACTIONS = {21445}
+
 class NYCBillScraper(LegistarAPIBillScraper):
     LEGISLATION_URL = 'http://legistar.council.nyc.gov/Legislation.aspx'
     BASE_URL = 'https://webapi.legistar.com/v1/nyc'
@@ -168,6 +170,8 @@ class NYCBillScraper(LegistarAPIBillScraper):
 
         for matter in self.matters(n_days_ago):
             matter_id = matter['MatterId']
+            if matter_id in DUPLICATED_ACTIONS:
+                continue
 
             date = matter['MatterIntroDate']
             title = matter['MatterName']
