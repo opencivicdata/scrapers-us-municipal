@@ -302,6 +302,7 @@ BILL_TYPES = {'Introduction': 'bill',
               'Petition': 'petition',
               'SLR': None,
               'City Agency Report': None,
+              'Special Event': None,
               'N/A': None}
 
 
