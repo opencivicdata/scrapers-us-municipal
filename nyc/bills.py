@@ -9,7 +9,7 @@ from pupa.utils import _make_pseudo_id
 
 from .secrets import TOKEN
 
-DUPLICATED_ACTIONS = {21445}
+DUPLICATED_ACTIONS = {21445, 28507, 28481}
 
 class NYCBillScraper(LegistarAPIBillScraper):
     LEGISLATION_URL = 'http://legistar.council.nyc.gov/Legislation.aspx'
@@ -303,6 +303,7 @@ BILL_TYPES = {'Introduction': 'bill',
               'SLR': None,
               'City Agency Report': None,
               'Special Event': None,
+              'Hearing Transcripts 1999': None,
               'N/A': None}
 
 
