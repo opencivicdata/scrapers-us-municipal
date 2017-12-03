@@ -161,7 +161,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
             yield sponsorship
 
 
-    def scrape(self, window=None):
+    def scrape(self, window=3):
         if window:
             n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
         else:
