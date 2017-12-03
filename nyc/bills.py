@@ -9,7 +9,8 @@ from pupa.utils import _make_pseudo_id
 
 from .secrets import TOKEN
 
-DUPLICATED_ACTIONS = {21445, 28507, 28481}
+DUPLICATED_ACTIONS = {21445, 28507, 28481,
+                      49987, 48426} #these two are stations of the cities weird special events
 
 class NYCBillScraper(LegistarAPIBillScraper):
     LEGISLATION_URL = 'http://legistar.council.nyc.gov/Legislation.aspx'
@@ -219,6 +220,37 @@ class NYCBillScraper(LegistarAPIBillScraper):
                                            attachment['MatterAttachmentHyperlink'],
                                            media_type='application/pdf')
 
+            for topic in self.topics(matter_id) :
+                bill.add_subject(topic['MatterIndexName'].strip())
+
+            for relation in self.relations(matter_id):
+                try:
+                    related_bill = self.endpoint('/matters/{0}', relation['MatterRelationMatterId'])
+                except scrapelib.HTTPError:
+                    continue
+                else:
+                    date = related_bill['MatterIntroDate']
+                    related_bill_session = self.session(self.toTime(date))
+                    identifier = related_bill['MatterFile']
+                    bill.add_related_bill(identifier=identifier,
+                                          legislative_session=related_bill_session,
+                                          relation_type='companion')
+
+            try:
+                text = self.text(matter_id)
+            except KeyError:
+                version_errors.append(legistar_web)
+                continue
+
+
+            if text:
+                if text['MatterTextPlain']:
+                    bill.extras['plain_text'] = text['MatterTextPlain'].replace(u'\u0000', '')
+
+                if text['MatterTextRtf']:
+                    bill.extras['rtf_text'] = text['MatterTextRtf'].replace(u'\u0000', '')
+
+
             for action, vote in self.actions(matter_id):
                 act = bill.add_action(action['action_description'],
                                       action['action_date'],
@@ -251,36 +283,6 @@ class NYCBillScraper(LegistarAPIBillScraper):
 
                     yield vote_event
 
-            for topic in self.topics(matter_id) :
-                bill.add_subject(topic['MatterIndexName'].strip())
-
-            for relation in self.relations(matter_id):
-                try:
-                    related_bill = self.endpoint('/matters/{0}', relation['MatterRelationMatterId'])
-                except scrapelib.HTTPError:
-                    continue
-                else:
-                    date = related_bill['MatterIntroDate']
-                    related_bill_session = self.session(self.toTime(date))
-                    identifier = related_bill['MatterFile']
-                    bill.add_related_bill(identifier=identifier,
-                                          legislative_session=related_bill_session,
-                                          relation_type='companion')
-
-            try:
-                text = self.text(matter_id)
-            except KeyError:
-                version_errors.append(legistar_web)
-                continue
-
-
-            if text:
-                if text['MatterTextPlain']:
-                    bill.extras['plain_text'] = text['MatterTextPlain'].replace(u'\u0000', '')
-
-                if text['MatterTextRtf']:
-                    bill.extras['rtf_text'] = text['MatterTextRtf'].replace(u'\u0000', '')
-
             yield bill
 
         print('The following matters have irregular versions:')
@@ -302,7 +304,6 @@ BILL_TYPES = {'Introduction': 'bill',
               'Petition': 'petition',
               'SLR': None,
               'City Agency Report': None,
-              'Special Event': None,
               'Hearing Transcripts 1999': None,
               'N/A': None}
 
