@@ -304,7 +304,15 @@ BILL_TYPES = {'Introduction': 'bill',
               'Petition': 'petition',
               'SLR': None,
               'City Agency Report': None,
+              'Hearing Transcripts 1994': None,
+              'Hearing Transcripts 1995': None,
+              'Hearing Transcripts 1996': None,
+              'Hearing Transcripts 1997': None,
+              'Hearing Transcripts 1998': None,
               'Hearing Transcripts 1999': None,
+              'Hearing Transcripts 2000': None,
+              'Hearing Transcripts 2001': None,
+              'Hearing Transcripts 2002': None,
               'N/A': None}
 
 
