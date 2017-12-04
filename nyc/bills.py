@@ -245,16 +245,9 @@ class NYCBillScraper(LegistarAPIBillScraper):
 
         return bill
 
-    def get_vote_event(self, bill, action):
-        '''Add action to given Bill object and make VoteEvent object,
-        if applicable.
-        '''
-        action, vote = action
-        act = bill.add_action(action['action_description'],
-                              action['action_date'],
-                              organization={'name': action['responsible_org']},
-                              classification=action['classification'])
 
+    def get_vote_event(self, bill, act, vote):
+        '''Make VoteEvent object from given Bill, action, and vote.'''
         result, votes = vote
 
         if result:
@@ -283,6 +276,9 @@ class NYCBillScraper(LegistarAPIBillScraper):
 
             return vote_event
 
+        else:
+            return None
+
 
     def scrape(self, window=3, matter_ids=None):
         self.version_errors = []
@@ -299,7 +295,14 @@ class NYCBillScraper(LegistarAPIBillScraper):
             bill = self.get_bill(matter)
             if bill:
                 for action in self.actions(matter['MatterId']):
-                    vote_event = self.get_vote_event(bill, action)
+                    action, vote = action
+
+                    act = bill.add_action(action['action_description'],
+                                          action['action_date'],
+                                          organization={'name': action['responsible_org']},
+                                          classification=action['classification'])
+
+                    vote_event = self.get_vote_event(bill, act, vote)
 
                     if vote_event:
                         yield vote_event
