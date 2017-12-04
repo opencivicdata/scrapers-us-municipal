@@ -288,7 +288,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
         self.version_errors = []
 
         if matter_ids:
-            matters = [self.fetch(matter_id) for matter_id in matter_ids.split(',')]
+            matters = [self.matter(matter_id) for matter_id in matter_ids.split(',')]
             matters = filter(None, matters)  # Skip matters that are not yet in Legistar
 
         else:
