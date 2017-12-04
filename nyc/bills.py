@@ -161,17 +161,18 @@ class NYCBillScraper(LegistarAPIBillScraper):
             yield sponsorship
 
 
-    def format_matter(self, matter):
+    def get_bill(self, matter):
+        '''Make Bill object from given matter.'''
         matter_id = matter['MatterId']
         if matter_id in DUPLICATED_ACTIONS:
-            return
+            return None
 
         date = matter['MatterIntroDate']
         title = matter['MatterName']
         identifier = matter['MatterFile']
 
         if not all((date, title, identifier)):
-            return
+            return None
 
         leg_type = BILL_TYPES[matter['MatterTypeName']]
 
@@ -200,12 +201,12 @@ class NYCBillScraper(LegistarAPIBillScraper):
                 bill.add_sponsorship(**sponsorship)
         except KeyError:
             self.version_errors.append(legistar_web)
-            return
+            return None
 
         for attachment in self.attachments(matter_id):
 
             if attachment['MatterAttachmentId'] == 103315:  # Duplicate
-                return
+                return None
 
             if attachment['MatterAttachmentName']:
                 bill.add_document_link(attachment['MatterAttachmentName'],
@@ -219,7 +220,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
             try:
                 related_bill = self.endpoint('/matters/{0}', relation['MatterRelationMatterId'])
             except scrapelib.HTTPError:
-                return
+                return None
             else:
                 date = related_bill['MatterIntroDate']
                 related_bill_session = self.session(self.toTime(date))
@@ -232,7 +233,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
             text = self.text(matter_id)
         except KeyError:
             self.version_errors.append(legistar_web)
-            return
+            return None
 
 
         if text:
@@ -244,7 +245,10 @@ class NYCBillScraper(LegistarAPIBillScraper):
 
         return bill
 
-    def format_event(self, bill, action):
+    def get_vote_event(self, bill, action):
+        '''Add action to given Bill object and make VoteEvent object,
+        if applicable.
+        '''
         action, vote = action
         act = bill.add_action(action['action_description'],
                               action['action_date'],
@@ -272,7 +276,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
                 raw_option = vote['VoteValueName'].lower()
 
                 if raw_option == 'suspended':
-                    return
+                    return None
 
                 clean_option = self.VOTE_OPTIONS.get(raw_option, raw_option)
                 vote_event.vote(clean_option, vote['VotePersonName'].strip())
@@ -280,21 +284,21 @@ class NYCBillScraper(LegistarAPIBillScraper):
             return vote_event
 
 
-    def scrape(self, window=3, matter_id=None):
+    def scrape(self, window=3, matter_ids=None):
         self.version_errors = []
 
-        if matter_id:
-            matters = [self.fetch(matter_id)]
+        if matter_ids:
+            matters = [self.fetch(matter_id) for matter_id in matter_ids.split(',')]
 
         else:
             n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
             matters = self.matters(n_days_ago)
 
         for matter in matters:
-            bill = self.format_matter(matter)
+            bill = self.get_bill(matter)
             if bill:
                 for action in self.actions(matter['MatterId']):
-                    vote_event = self.format_event(bill, action)
+                    vote_event = self.get_vote_event(bill, action)
 
                     if vote_event:
                         yield vote_event
