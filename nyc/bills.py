@@ -289,6 +289,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
 
         if matter_ids:
             matters = [self.fetch(matter_id) for matter_id in matter_ids.split(',')]
+            matters = filter(None, matters)  # Skip matters that are not yet in Legistar
 
         else:
             n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
