@@ -294,9 +294,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
         for matter in matters:
             bill = self.get_bill(matter)
             if bill:
-                for action in self.actions(matter['MatterId']):
-                    action, vote = action
-
+                for action, vote in self.actions(matter['MatterId']):
                     act = bill.add_action(action['action_description'],
                                           action['action_date'],
                                           organization={'name': action['responsible_org']},
