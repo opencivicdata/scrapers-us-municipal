@@ -362,6 +362,7 @@ ACTION_CLASSIFICATION = {
     'Elected to Leadership Position': None,
     'Elected to Office': None,
     'Executive Director Appointed': None,
+    'Filed (End of Session)': 'failure',
     'Filed by Committee': 'filing',
     'Filed by Committee with Companion Resolution': 'filing',
     'Filed by Council': 'filing',
