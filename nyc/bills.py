@@ -246,38 +246,32 @@ class NYCBillScraper(LegistarAPIBillScraper):
         return bill
 
 
-    def get_vote_event(self, bill, act, vote):
+    def get_vote_event(self, bill, act, vote, result):
         '''Make VoteEvent object from given Bill, action, and vote.'''
-        result, votes = vote
+        organization = json.loads(act['organization_id'].lstrip('~'))
+        vote_event = VoteEvent(legislative_session=bill.legislative_session,
+                               motion_text=act['description'],
+                               organization=organization,
+                               classification=None,
+                               start_date=act['date'],
+                               result=result,
+                               bill=bill)
 
-        if result:
-            organization = json.loads(act['organization_id'].lstrip('~'))
-            vote_event = VoteEvent(legislative_session=bill.legislative_session,
-                                   motion_text=act['description'],
-                                   organization=organization,
-                                   classification=None,
-                                   start_date=act['date'],
-                                   result=result,
-                                   bill=bill)
+        legistar_web, legistar_api = [src['url'] for src in bill.sources]
 
-            legistar_web, legistar_api = [src['url'] for src in bill.sources]
+        vote_event.add_source(legistar_web)
+        vote_event.add_source(legistar_api + '/histories')
 
-            vote_event.add_source(legistar_web)
-            vote_event.add_source(legistar_api + '/histories')
+        for vote in vote:
+            raw_option = vote['VoteValueName'].lower()
 
-            for vote in votes:
-                raw_option = vote['VoteValueName'].lower()
+            if raw_option == 'suspended':
+                continue
 
-                if raw_option == 'suspended':
-                    return None
+            clean_option = self.VOTE_OPTIONS.get(raw_option, raw_option)
+            vote_event.vote(clean_option, vote['VotePersonName'].strip())
 
-                clean_option = self.VOTE_OPTIONS.get(raw_option, raw_option)
-                vote_event.vote(clean_option, vote['VotePersonName'].strip())
-
-            return vote_event
-
-        else:
-            return None
+        return vote_event
 
 
     def scrape(self, window=3, matter_ids=None):
@@ -293,6 +287,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
 
         for matter in matters:
             bill = self.get_bill(matter)
+
             if bill:
                 for action, vote in self.actions(matter['MatterId']):
                     act = bill.add_action(action['action_description'],
@@ -300,10 +295,10 @@ class NYCBillScraper(LegistarAPIBillScraper):
                                           organization={'name': action['responsible_org']},
                                           classification=action['classification'])
 
-                    vote_event = self.get_vote_event(bill, act, vote)
+                    result, votes = vote
 
-                    if vote_event:
-                        yield vote_event
+                    if result:
+                        yield self.get_vote_event(bill, act, votes, result)
 
                 yield bill
 
