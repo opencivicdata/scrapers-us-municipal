@@ -246,8 +246,8 @@ class NYCBillScraper(LegistarAPIBillScraper):
         return bill
 
 
-    def get_vote_event(self, bill, act, vote, result):
-        '''Make VoteEvent object from given Bill, action, and vote.'''
+    def get_vote_event(self, bill, act, votes, result):
+        '''Make VoteEvent object from given Bill, action, votes and result.'''
         organization = json.loads(act['organization_id'].lstrip('~'))
         vote_event = VoteEvent(legislative_session=bill.legislative_session,
                                motion_text=act['description'],
@@ -262,7 +262,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
         vote_event.add_source(legistar_web)
         vote_event.add_source(legistar_api + '/histories')
 
-        for vote in vote:
+        for vote in votes:
             raw_option = vote['VoteValueName'].lower()
 
             if raw_option == 'suspended':
