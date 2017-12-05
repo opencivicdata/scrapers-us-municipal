@@ -17,9 +17,10 @@ class LametroEventScraper(LegistarAPIEventScraper):
             n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
         else:
             n_days_ago = None
-        for api_event, event in self.events(n_days_ago):
+        for event, web_event in self.events(n_days_ago):
 
             body_name = event["EventBodyName"]
+
             if 'Board of Directors -' in body_name:
                 body_name, event_name = [part.strip()
                                          for part
@@ -35,7 +36,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
             elif status_name == 'Canceled':
                 status = 'cancelled'
             else:
-                status = ''
+                status = 'tentative'
 
             e = Event(event_name,
                       start_date=event["start"],
