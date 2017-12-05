@@ -161,133 +161,151 @@ class NYCBillScraper(LegistarAPIBillScraper):
             yield sponsorship
 
 
-    def scrape(self, window=3):
-        if window:
-            n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
+    def get_bill(self, matter):
+        '''Make Bill object from given matter.'''
+        matter_id = matter['MatterId']
+        if matter_id in DUPLICATED_ACTIONS:
+            return None
+
+        date = matter['MatterIntroDate']
+        title = matter['MatterName']
+        identifier = matter['MatterFile']
+
+        if not all((date, title, identifier)):
+            return None
+
+        leg_type = BILL_TYPES[matter['MatterTypeName']]
+
+        bill_session = self.sessions(self.toTime(date))
+
+        bill = Bill(identifier=identifier,
+                    title=title,
+                    classification=leg_type,
+                    legislative_session=bill_session,
+                    from_organization={"name": "New York City Council"})
+
+        legistar_web = matter['legistar_url']
+        legistar_api = self.BASE_URL + '/matters/{0}'.format(matter_id)
+
+        bill.add_source(legistar_web, note='web')
+        bill.add_source(legistar_api, note='api')
+
+        if matter['MatterTitle']:
+            bill.add_title(matter['MatterTitle'])
+
+        if matter['MatterEXText5']:
+            bill.add_abstract(matter['MatterEXText5'], note='')
+
+        try:
+            for sponsorship in self.sponsorships(matter_id):
+                bill.add_sponsorship(**sponsorship)
+        except KeyError:
+            self.version_errors.append(legistar_web)
+            return None
+
+        for attachment in self.attachments(matter_id):
+
+            if attachment['MatterAttachmentId'] == 103315:  # Duplicate
+                return None
+
+            if attachment['MatterAttachmentName']:
+                bill.add_document_link(attachment['MatterAttachmentName'],
+                                       attachment['MatterAttachmentHyperlink'],
+                                       media_type='application/pdf')
+
+        for topic in self.topics(matter_id) :
+            bill.add_subject(topic['MatterIndexName'].strip())
+
+        for relation in self.relations(matter_id):
+            try:
+                related_bill = self.endpoint('/matters/{0}', relation['MatterRelationMatterId'])
+            except scrapelib.HTTPError:
+                return None
+            else:
+                date = related_bill['MatterIntroDate']
+                related_bill_session = self.session(self.toTime(date))
+                identifier = related_bill['MatterFile']
+                bill.add_related_bill(identifier=identifier,
+                                      legislative_session=related_bill_session,
+                                      relation_type='companion')
+
+        try:
+            text = self.text(matter_id)
+        except KeyError:
+            self.version_errors.append(legistar_web)
+            return None
+
+
+        if text:
+            if text['MatterTextPlain']:
+                bill.extras['plain_text'] = text['MatterTextPlain'].replace(u'\u0000', '')
+
+            if text['MatterTextRtf']:
+                bill.extras['rtf_text'] = text['MatterTextRtf'].replace(u'\u0000', '')
+
+        return bill
+
+
+    def get_vote_event(self, bill, act, votes, result):
+        '''Make VoteEvent object from given Bill, action, votes and result.'''
+        organization = json.loads(act['organization_id'].lstrip('~'))
+        vote_event = VoteEvent(legislative_session=bill.legislative_session,
+                               motion_text=act['description'],
+                               organization=organization,
+                               classification=None,
+                               start_date=act['date'],
+                               result=result,
+                               bill=bill)
+
+        legistar_web, legistar_api = [src['url'] for src in bill.sources]
+
+        vote_event.add_source(legistar_web)
+        vote_event.add_source(legistar_api + '/histories')
+
+        for vote in votes:
+            raw_option = vote['VoteValueName'].lower()
+
+            if raw_option == 'suspended':
+                continue
+
+            clean_option = self.VOTE_OPTIONS.get(raw_option, raw_option)
+            vote_event.vote(clean_option, vote['VotePersonName'].strip())
+
+        return vote_event
+
+
+    def scrape(self, window=3, matter_ids=None):
+        self.version_errors = []
+
+        if matter_ids:
+            matters = [self.matter(matter_id) for matter_id in matter_ids.split(',')]
+            matters = filter(None, matters)  # Skip matters that are not yet in Legistar
+
         else:
-            n_days_ago = None
+            n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
+            matters = self.matters(n_days_ago)
 
-        version_errors = []
+        for matter in matters:
+            bill = self.get_bill(matter)
 
-        for matter in self.matters(n_days_ago):
-            matter_id = matter['MatterId']
-            if matter_id in DUPLICATED_ACTIONS:
-                continue
+            if bill:
+                for action, vote in self.actions(matter['MatterId']):
+                    act = bill.add_action(action['action_description'],
+                                          action['action_date'],
+                                          organization={'name': action['responsible_org']},
+                                          classification=action['classification'])
 
-            date = matter['MatterIntroDate']
-            title = matter['MatterName']
-            identifier = matter['MatterFile']
+                    result, votes = vote
 
-            if not all((date, title, identifier)):
-                continue
+                    if result:
+                        yield self.get_vote_event(bill, act, votes, result)
 
-            leg_type = BILL_TYPES[matter['MatterTypeName']]
+                yield bill
 
-            bill_session = self.sessions(self.toTime(date))
-
-            bill = Bill(identifier=identifier,
-                        title=title,
-                        classification=leg_type,
-                        legislative_session=bill_session,
-                        from_organization={"name": "New York City Council"})
-
-            legistar_web = matter['legistar_url']
-            legistar_api = self.BASE_URL + '/matters/{0}'.format(matter_id)
-
-            bill.add_source(legistar_web, note='web')
-            bill.add_source(legistar_api, note='api')
-
-            if matter['MatterTitle']:
-                bill.add_title(matter['MatterTitle'])
-
-            if matter['MatterEXText5']:
-                bill.add_abstract(matter['MatterEXText5'], note='')
-
-            try:
-                for sponsorship in self.sponsorships(matter_id):
-                    bill.add_sponsorship(**sponsorship)
-            except KeyError:
-                version_errors.append(legistar_web)
-                continue
-
-            for attachment in self.attachments(matter_id):
-
-                if attachment['MatterAttachmentId'] == 103315:  # Duplicate
-                    continue
-
-                if attachment['MatterAttachmentName']:
-                    bill.add_document_link(attachment['MatterAttachmentName'],
-                                           attachment['MatterAttachmentHyperlink'],
-                                           media_type='application/pdf')
-
-            for topic in self.topics(matter_id) :
-                bill.add_subject(topic['MatterIndexName'].strip())
-
-            for relation in self.relations(matter_id):
-                try:
-                    related_bill = self.endpoint('/matters/{0}', relation['MatterRelationMatterId'])
-                except scrapelib.HTTPError:
-                    continue
-                else:
-                    date = related_bill['MatterIntroDate']
-                    related_bill_session = self.session(self.toTime(date))
-                    identifier = related_bill['MatterFile']
-                    bill.add_related_bill(identifier=identifier,
-                                          legislative_session=related_bill_session,
-                                          relation_type='companion')
-
-            try:
-                text = self.text(matter_id)
-            except KeyError:
-                version_errors.append(legistar_web)
-                continue
-
-
-            if text:
-                if text['MatterTextPlain']:
-                    bill.extras['plain_text'] = text['MatterTextPlain'].replace(u'\u0000', '')
-
-                if text['MatterTextRtf']:
-                    bill.extras['rtf_text'] = text['MatterTextRtf'].replace(u'\u0000', '')
-
-
-            for action, vote in self.actions(matter_id):
-                act = bill.add_action(action['action_description'],
-                                      action['action_date'],
-                                      organization={'name': action['responsible_org']},
-                                      classification=action['classification'])
-
-                result, votes = vote
-
-                if result:
-                    organization = json.loads(act['organization_id'].lstrip('~'))
-                    vote_event = VoteEvent(legislative_session=bill.legislative_session,
-                                           motion_text=act['description'],
-                                           organization=organization,
-                                           classification=None,
-                                           start_date=act['date'],
-                                           result=result,
-                                           bill=bill)
-
-                    vote_event.add_source(legistar_web)
-                    vote_event.add_source(legistar_api + '/histories')
-
-                    for vote in votes:
-                        raw_option = vote['VoteValueName'].lower()
-
-                        if raw_option == 'suspended':
-                            continue
-
-                        clean_option = self.VOTE_OPTIONS.get(raw_option, raw_option)
-                        vote_event.vote(clean_option, vote['VotePersonName'].strip())
-
-                    yield vote_event
-
-            yield bill
-
-        print('The following matters have irregular versions:')
-        for v in version_errors:
-            print(v)
+        if self.version_errors:
+            print('The following matters have irregular versions:')
+            for v in self.version_errors:
+                print(v)
 
 
 BILL_TYPES = {'Introduction': 'bill',
