@@ -36,7 +36,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
             elif status_name == 'Canceled':
                 status = 'cancelled'
             else:
-                status = ''
+                status = 'tentative'
 
             e = Event(event_name,
                       start_date=event["start"],

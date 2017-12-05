@@ -45,7 +45,7 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper):
                            start_date = self.toDate(term['OfficeRecordStartDate']),
                            end_date = self.toDate(term['OfficeRecordEndDate']))
 
-            if web['Photo'] :
+            if web.get('Photo'):
                 p.image = web['Photo']
 
             contact_types = {
