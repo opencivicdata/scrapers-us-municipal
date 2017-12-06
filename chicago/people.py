@@ -59,9 +59,6 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper):
                 "Fax": ("fax", "Fax")
             }
 
-            import pdb
-            pdb.set_trace()
-
             for contact_type, (type_, _note) in contact_types.items():
                 if web[contact_type] and web[contact_type] != 'N/A':
                     p.add_contact_detail(type=type_,
