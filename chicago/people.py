@@ -49,7 +49,7 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper):
                 p.image = web['Photo']
 
             contact_types = {
-                "City Hall Office": ("address", "City Hall Office"),
+                "City Hall Address": ("address", "City Hall Address"),
                 "City Hall Phone": ("voice", "City Hall Phone"),
                 "Ward Office Phone": ("voice", "Ward Office Phone"),
                 "Ward Office Address": ("address", "Ward Office Address"),
