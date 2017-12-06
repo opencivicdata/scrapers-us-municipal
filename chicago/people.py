@@ -9,8 +9,6 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper):
     TIMEZONE = "America/Chicago"
 
     def scrape(self):
-        self.requests_per_minute = 0
-
         body_types = self.body_types()
 
         city_council, = [body for body in self.bodies()
@@ -24,7 +22,6 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper):
         web_scraper = LegistarPersonScraper(None,None)
         web_scraper.MEMBERLIST = 'https://chicago.legistar.com/DepartmentDetail.aspx?ID=12357&GUID=4B24D5A9-FED0-4015-9154-6BFFFB2A8CB4&R=8bcbe788-98cd-4040-9086-b34fa8e49881'
         web_scraper.ALL_MEMBERS = '3:3'
-        web_scraper.requests_per_minute = 0
 
         web_info = {}
         for member, _ in web_scraper.councilMembers({'ctl00$ContentPlaceHolder$lstName' : 'City Council'}):
