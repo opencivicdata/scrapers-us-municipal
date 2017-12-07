@@ -235,7 +235,8 @@ class NYCBillScraper(LegistarAPIBillScraper):
             self.version_errors.append(legistar_web)
             return None
 
-
+        bill.extras['local_classification'] = matter['MatterTypeName']
+        
         if text:
             if text['MatterTextPlain']:
                 bill.extras['plain_text'] = text['MatterTextPlain'].replace(u'\u0000', '')
