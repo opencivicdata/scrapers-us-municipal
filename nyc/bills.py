@@ -298,7 +298,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
             matters = [self.matter(matter_id) for matter_id in matter_ids.split(',')]
             matters = filter(None, matters)  # Skip matters that are not yet in Legistar
 
-        elif int(window):
+        elif float(window):  # Support for partial days, i.e., window=0.15
             n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
             matters = self.matters(n_days_ago)
 
