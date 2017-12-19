@@ -64,7 +64,10 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                 else:
                     role = 'Council Member'
 
-                district = web.get('District', '').replace(' 0', ' ')
+                if web:
+                    district = web.get('District', '').replace(' 0', ' ')
+                else:
+                    district = ''
 
                 p.add_term(role,
                            'legislature',
@@ -72,41 +75,42 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                            start_date=self.toDate(term['OfficeRecordStartDate']),
                            end_date=self.toDate(term['OfficeRecordEndDate']))
 
-                party = web.get('Political Party')
+                if web:  # None if member page was deleted
+                    party = web.get('Political Party')
 
-                if party == 'Democrat':
-                    party = 'Democratic'
+                    if party == 'Democrat':
+                        party = 'Democratic'
 
-                if party:
-                    p.add_party(party)
+                    if party:
+                        p.add_party(party)
 
-                if web.get('Photo'):
-                    p.image = web['Photo']
+                    if web.get('Photo'):
+                        p.image = web['Photo']
 
-                contact_types = {
-                    "City Hall Office": ("address", "City Hall Office"),
-                    "City Hall Phone": ("voice", "City Hall Phone"),
-                    "Ward Office Phone": ("voice", "Ward Office Phone"),
-                    "Ward Office Address": ("address", "Ward Office Address"),
-                    "Fax": ("fax", "Fax")
-                }
+                    contact_types = {
+                        "City Hall Office": ("address", "City Hall Office"),
+                        "City Hall Phone": ("voice", "City Hall Phone"),
+                        "Ward Office Phone": ("voice", "Ward Office Phone"),
+                        "Ward Office Address": ("address", "Ward Office Address"),
+                        "Fax": ("fax", "Fax")
+                    }
 
-                for contact_type, (type_, _note) in contact_types.items():
-                    if web.get(contact_type) and web(contact_type) != 'N/A':
-                        p.add_contact_detail(type=type_,
-                                             value= web[contact_type],
-                                             note=_note)
+                    for contact_type, (type_, _note) in contact_types.items():
+                        if web.get(contact_type) and web(contact_type) != 'N/A':
+                            p.add_contact_detail(type=type_,
+                                                 value= web[contact_type],
+                                                 note=_note)
 
-                if web.get('E-mail'):
-                    p.add_contact_detail(type="email",
-                                         value=web['E-mail']['url'],
-                                         note='E-mail')
+                    if web.get('E-mail'):
+                        p.add_contact_detail(type="email",
+                                             value=web['E-mail']['url'],
+                                             note='E-mail')
 
-                if web.get('Web site'):
-                    p.add_link(web['Web site']['url'], note='web site')
+                    if web.get('Web site'):
+                        p.add_link(web['Web site']['url'], note='web site')
 
-                if web.get('Notes'):
-                    p.extras = {'Notes': web['Notes']}
+                    if web.get('Notes'):
+                        p.extras = {'Notes': web['Notes']}
 
                 if not p.sources:  # Only add sources once
                     source_urls = self.person_sources_from_office(term)
