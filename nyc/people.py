@@ -25,14 +25,19 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
         web_info = {}
 
         for member, _ in web_scraper.councilMembers():
-            web_info[member['Person Name']['label']] = member
+            # Some names in Legistar have trailing spaces. Leave those in tact
+            # when storing and accessing information about members from the
+            # dicts in this module. Only format at the point of creating a
+            # Person object for the OCD API.
+            name = member['Person Name']['label']
+            web_info[name] = member
 
         city_council, = [body for body in self.bodies()
                          if body['BodyName'] == 'City Council']
 
         terms = collections.defaultdict(list)
 
-        public_advocates = { # Match casing to Bill De Blasio as council member
+        public_advocates = {  # Match casing to Bill De Blasio as council member
             'The Public Advocate (Mr. de Blasio)': 'Bill De Blasio',
             'The Public Advocate (Ms. James)': 'Letitia James',
         }
@@ -50,11 +55,11 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
         members = {}
 
         for member, offices in terms.items():
-            member = member.strip()  # Remove trailing space
 
-            p = Person(member)
+            formatted_name = member.strip()
+            p = Person(formatted_name)
 
-            web = web_info.get(member)
+            web = web_info[member]
 
             for term in offices:
                 role = term['OfficeRecordTitle']
@@ -157,7 +162,7 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                     else:
                         role = 'Member'
 
-                    person = office['OfficeRecordFullName'].strip()
+                    person = office['OfficeRecordFullName']
                     person = public_advocates.get(person, person)
 
                     if person in members:
