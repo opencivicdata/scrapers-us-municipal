@@ -119,11 +119,11 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
             identifier = matter['MatterFile']
 
             # Temporarily, we should not scrape or import these bills:
-            # https://chicago.legistar.com/LegislationDetail.aspx?ID=1008361&GUID=612DD16C-B058-4C7B-AB5E-C78AE7CC7BAB
+            # https://chicago.legistar.com/LegislationDetail.aspx?ID=3291304&GUID=72ACF5FE-0803-46E8-90B4-604119803293
             # They have duplicate action items, which cause the entire scrape
             # to fail. The Chicago clerk's office should fix it in the near
             # future, after which we can remove this code.
-            problem_bills = ['O2011-9592']
+            problem_bills = ['CL2017-1281']
             if identifier in problem_bills:
                 continue
 
