@@ -25,11 +25,7 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
         web_info = {}
 
         for member, _ in web_scraper.councilMembers():
-            # Some names in Legistar have trailing spaces. Leave those in tact
-            # when storing and accessing information about members from the
-            # dicts in this module. Only format at the point of creating a
-            # Person object for the OCD API.
-            name = member['Person Name']['label']
+            name = member['Person Name']['label'].strip()
             web_info[name] = member
 
         city_council, = [body for body in self.bodies()
@@ -44,7 +40,7 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
 
         for office in self.body_offices(city_council):
             name = office['OfficeRecordFullName']
-            name = public_advocates.get(name, name)
+            name = public_advocates.get(name, name).strip()
 
             terms[name].append(office)
 
@@ -54,10 +50,16 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
 
         members = {}
 
+        # Check that we have everyone we expect, formatted consistently, in
+        # both information arrays. For instance, this will fail if we forget to
+        # strip trailing spaces from names on one side or the other (which has
+        # the effect of omitting information, such as post, from the scrape).
+
+        assert set(web_info.keys()) == set(terms.keys())
+
         for member, offices in terms.items():
 
-            formatted_name = member.strip()
-            p = Person(formatted_name)
+            p = Person(member)
 
             web = web_info[member]
 
