@@ -48,14 +48,14 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
             if name not in web_info:
                 web_info[name] = collections.defaultdict(lambda: None)
 
-        members = {}
-
         # Check that we have everyone we expect, formatted consistently, in
         # both information arrays. For instance, this will fail if we forget to
         # strip trailing spaces from names on one side or the other (which has
         # the effect of omitting information, such as post, from the scrape).
 
         assert set(web_info.keys()) == set(terms.keys())
+
+        members = {}
 
         for member, offices in terms.items():
 
@@ -165,7 +165,7 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                         role = 'Member'
 
                     person = office['OfficeRecordFullName']
-                    person = public_advocates.get(person, person)
+                    person = public_advocates.get(person, person).strip()
 
                     if person in members:
                         p = members[person]
