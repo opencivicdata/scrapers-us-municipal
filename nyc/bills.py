@@ -10,7 +10,8 @@ from pupa.utils import _make_pseudo_id
 from .secrets import TOKEN
 
 DUPLICATED_ACTIONS = {21445, 28507, 28481,
-                      49987, 48426} #these two are stations of the cities weird special events
+                      49987, 48426}  # These two are stations of the cities
+                                     # weird special events.
 
 class NYCBillScraper(LegistarAPIBillScraper):
     LEGISLATION_URL = 'http://legistar.council.nyc.gov/Legislation.aspx'
