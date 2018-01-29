@@ -1,5 +1,5 @@
 https://github.com/opencivicdata/python-opencivicdata-django/zipball/master
-https://github.com/opencivicdata/pupa/zipball/master
+https://github.com/opencivicdata/pupa/zipball/0bc7fc0dfdae0af8f31830477eca6a85450125d2
 https://github.com/opencivicdata/python-legistar-scraper/zipball/master
 lxml
 sh 
