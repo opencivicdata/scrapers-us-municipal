@@ -465,6 +465,7 @@ ACTION_CLASSIFICATION = {
     'Referred to Gen Ord Calendar': 'referral',
     'Referred to Landmarks Preservation Commission': 'referral',
     'Reprnt Amnd Item Laid on Desk': None,
+    'Returned Unsigned by Mayor': None,
     'Sent for Introduction': 'introduction',
     'Sent to Council Member for Approval': None,
     'Sent to Mayor by Council': None,
