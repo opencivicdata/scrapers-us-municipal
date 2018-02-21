@@ -1,11 +1,10 @@
 import datetime
 import collections
 
-from legistar.people import LegistarAPIPersonScraper
+from legistar.people import LegistarAPIPersonScraper, LegistarPersonScraper
 
 from pupa.scrape import Scraper
 from pupa.scrape import Person, Organization
-
 
 
 VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of Los Angeles',
@@ -28,8 +27,6 @@ VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of L
 NONVOTING_POSTS = {'Carrie Bowen' : 'Appointee of Governor of California'}
 
 
-
-
 class LametroPersonScraper(LegistarAPIPersonScraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
     WEB_URL = 'https://metro.legistar.com'
@@ -37,6 +34,21 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
 
     def scrape(self):
+        '''
+        Scrape the web to create a dict with all active committees.
+        Then, we can access the correct URL for the committee detail page.
+        '''
+        web_scraper = LegistarPersonScraper(None, None, fastmode=(self.requests_per_minute == 0))
+        web_scraper.MEMBERLIST = 'https://metro.legistar.com/People.aspx'
+        web_info = {}
+
+        for member, committees in web_scraper.councilMembers():
+            for committee, _, _ in committees:
+                committee_name = committee['Department Name']['label'].strip()
+                committee_info = committee['Department Name']
+
+                web_info[committee_name] = committee_info
+
         body_types = self.body_types()
 
         board_of_directors, = [body for body in self.bodies()
@@ -88,8 +100,11 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
                                  classification='committee',
                                  parent_id={'name' : 'Board of Directors'})
 
+                committee_info = web_info.get(org_name, {})
+                committee_url = committee_info.get('url', self.WEB_URL + 'https://metro.legistar.com/Departments.aspx')
+
                 o.add_source(self.BASE_URL + '/bodies/{BodyId}'.format(**body), note='api')
-                o.add_source(self.WEB_URL + '/DepartmentDetail.aspx?ID={BodyId}&GUID={BodyGuid}'.format(**body), note='web')
+                o.add_source(committee_url, note='web')
 
                 for office in self.body_offices(body):
                     role = office['OfficeRecordTitle']
