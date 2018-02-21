@@ -69,6 +69,8 @@ class Lametro(Jurisdiction):
 
         org.add_post("Chief Executive Officer", "Chief Executive Officer")
 
+        org.add_source('https://metro.legistar.com/DepartmentDetail.aspx?ID=28529&GUID=44319A1A-B2B7-48CC-B857-ADCE9064573B', note='web')
+
         yield org
 
         org = Organization(name="Crenshaw Project Corporation", classification="corporation")
