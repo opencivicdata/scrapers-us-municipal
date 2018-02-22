@@ -35,19 +35,19 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
     def scrape(self):
         '''
-        Scrape the web to create a dict with all active committees.
-        Then, we can access the correct URL for the committee detail page.
+        Scrape the web to create a dict with all active organizations.
+        Then, we can access the correct URL for the organization detail page.
         '''
         web_scraper = LegistarPersonScraper(None, None, fastmode=(self.requests_per_minute == 0))
         web_scraper.MEMBERLIST = 'https://metro.legistar.com/People.aspx'
         web_info = {}
 
-        for member, committees in web_scraper.councilMembers():
-            for committee, _, _ in committees:
-                committee_name = committee['Department Name']['label'].strip()
-                committee_info = committee['Department Name']
+        for _, organizations in web_scraper.councilMembers():
+            for organization, _, _ in organizations:
+                organization_name = organization['Department Name']['label'].strip()
+                organization_info = organization['Department Name']
 
-                web_info[committee_name] = committee_info
+                web_info[organization_name] = organization_info
 
         body_types = self.body_types()
 
@@ -95,16 +95,16 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
         for body in self.bodies():
             if body['BodyTypeId'] == body_types['Committee']:
-                org_name = body['BodyName'].strip()
-                o = Organization(org_name,
+                organization_name = body['BodyName'].strip()
+                o = Organization(organization_name,
                                  classification='committee',
                                  parent_id={'name' : 'Board of Directors'})
 
-                committee_info = web_info.get(org_name, {})
-                committee_url = committee_info.get('url', self.WEB_URL + 'https://metro.legistar.com/Departments.aspx')
+                organization_info = web_info.get(organization_name, {})
+                organization_url = organization_info.get('url', self.WEB_URL + 'https://metro.legistar.com/Departments.aspx')
 
                 o.add_source(self.BASE_URL + '/bodies/{BodyId}'.format(**body), note='api')
-                o.add_source(committee_url, note='web')
+                o.add_source(organization_url, note='web')
 
                 for office in self.body_offices(body):
                     role = office['OfficeRecordTitle']
@@ -129,7 +129,7 @@ class LametroPersonScraper(LegistarAPIPersonScraper):
 
                         members[person] = p
 
-                    p.add_membership(org_name,
+                    p.add_membership(organization_name,
                                      role=role,
                                      start_date = self.toDate(office['OfficeRecordStartDate']),
                                      end_date = self.toDate(office['OfficeRecordEndDate']))
