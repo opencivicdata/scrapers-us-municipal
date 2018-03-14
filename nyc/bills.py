@@ -330,6 +330,7 @@ class NYCBillScraper(LegistarAPIBillScraper):
                 print(v)
 
 
+# See BILL_CLASSIFICATIONS in opencivicdata.common for options
 BILL_TYPES = {'Introduction': 'bill',
               'Resolution'  : 'resolution',
               'Land Use Application': None,
@@ -356,6 +357,7 @@ BILL_TYPES = {'Introduction': 'bill',
               'Hearing Transcripts 2000': None,
               'Hearing Transcripts 2001': None,
               'Hearing Transcripts 2002': None,
+              'Past Policy Reports': None,
               'N/A': None}
 
 
