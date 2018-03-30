@@ -120,10 +120,9 @@ class ChicagoBillScraper(LegistarAPIBillScraper):
 
             # If a bill has a duplicate action item that's causing the entire scrape
             # to fail, add it to the `problem_bills` array to skip it.
-            # For the time being, we have a bill with duplicate vote events: https://chicago.legistar.com/LegislationDetail.aspx?ID=3313427&GUID=DF28AB92-3BB5-41FD-B96E-D019A1CC4B8A
-            # Skip it!
+            # For the time being...nothing to skip!
 
-            problem_bills = ['Or2018-22']
+            problem_bills = []
 
             if identifier in problem_bills:
                 continue
