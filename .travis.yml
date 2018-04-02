@@ -1,0 +1,36 @@
+branches:
+  only:
+  - master
+  - "/^v0.*$/"
+language: python
+python:
+- 3.5
+env:
+- secure: "niLcgC94hiFYsEnCkG6JaXVtljCVsS1okeMKfIDlA78BXP1DLhNULjb+hgwiR+1XPQbh4N4WVnRuNYtJQ/a3/6FsqAZzbF4ywzBkDCd9ENmjrHT1S0OBNXt8dx4Ebjy2emeWZOTrsm9vo9d+1YKEBIcNEiM2f63XTJ3yQXG27P0cP0XaJYesfAb/gNiQWPjJbmdY3sy189priZHMNa1eLr3tPvIzQeiT4X3mbSvi/GjzBJZASqaqICHXAER/j//qIr36ZIZZIXWhMltz3okaD6PJIpt2hRvH1PVR4T9912eYXjtiiSQdcnAxt8RQoGX1KOssvqdLJ/fpcDonzRrcD7siHIs10zeCNYONNHPqHh9YawEzSNaivWP/ozgeElAmU0ge8TXZX06UJzsKKvHgTOsjHP3NvOGMRLAWIkPg/nSQcOq8FdMPW/2FooZOCoIxC0vw26krkZl4fvgZOBjw1rWrP2uxcYmconSaePBp9FDk6rE1WJAJeL9Uk9BsEuOZxD72hFxnxpjXQ06crIEfLgZhnv8V0hd9pJFklF0fH+jc7OFtne5/CTjSm5AYoyDDyXfivruJDVEDXb2mXzhZLz2au7+/0eCwkm0VbeqDFr0GrR4ne6IMc6KzBIAdiaFktp5YgfecGw6areGdmr06fXT4UhIRfXZlrqIyN7EtUxw="
+cache: pip
+install:
+- pip install --upgrade pip
+- pip install --upgrade -r requirements.txt
+script:
+- true
+deploy:
+  provider: codedeploy
+  access_key_id: AKIAJNYGDLOJKHOUWCAA
+  secret_access_key:
+    secure: CpDzdMiluV31OF3DHshmSgQ0w3oMOP3Zyi/rLqJYqUbYhcP9tWMBHUo0VwjUUjtdt0PSAbP68rLFuLLKR4qAled6xA4Zdj/idtBBpykmu/rGQAJCxeEcjQyzuN59r1eX4BbbRk8Zw7Ts0ZNLKxEFyQg9L8KoPtwH3OuwJKc24zs4+nzjFFAM3len9u6lOtixZ0gtzY/TUOj7mAoqXIvPpB2x5tu9DfENF6HTbb85yZ4KlVFCMVKTyK5NooI+HWlxXsRS4srTT9icc/M1wrJC7BhJxZLkGEiQpdC2nga78dp/2SGJ0cFZUgZs/o97h5ILLEVDmXdQy0BHkuI6qr562y5sPngcis7y68eDB65UnxlFC/QhYii+hXRpLDse4LudSKZ+UHrtTH56aIBHrkVfj68BPkmnOWGy+tHuQPhpDsbFjtSvtwOWJNL/y+qosJj89ZrvDoEWneaFcwVbBvZuyURQ2KDXipZ2yQbGcL5cizebf2OdQke2fxRQMTROra3JA9BrxGEFQvDd0cT4wIBtbuELq5iQBoqj/ajwf0LfFrQhFLf6cFjKXR6BLEZJG8+oQJmuYfOoSMFxe0hvUjUperwejan8MmyNaXkDSFgv+5uVcD88Q4RNOiRKmlv+CpaSiv7IChwekTuSmzQdMa8AGAFuiAkZOctpx/JLL197w1o=
+  revision_type: github
+  application: scrapers-us-municipal
+  deployment_group: production
+  on:
+    tags: true
+after_deploy:
+- curl -sL https://sentry.io/get-cli/ | bash
+- export SENTRY_ORG=datamade
+ export SENTRY_PROJECT=ocd-scrapers
+- VERSION=$(sentry-cli releases propose-version)
+- sentry-cli releases new $VERSION
+- sentry-cli releases set-commits $VERSION --commit opencivicdata/scrapers-us-municipal@`git rev-parse HEAD`
+- sentry-cli releases finalize $VERSION
+
+sudo: required
+dist: trusty
