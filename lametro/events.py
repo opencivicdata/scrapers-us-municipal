@@ -12,6 +12,37 @@ class LametroEventScraper(LegistarAPIEventScraper):
     EVENTSPAGE = "https://metro.legistar.com/Calendar.aspx"
     TIMEZONE = "America/Los_Angeles"
 
+    def _pair_english_with_spanish_events(self):
+        pass
+
+    def search(self):
+
+    def api_events(self, *args, **kwargs):
+        events = list(super().api_events(*args, **kwargs))
+        paired, unpaired = self._pair_english_with_spanish_events(events)
+
+        yield from paired
+
+        for event in unpaired:
+            pass
+            # event_name = event['name']
+            # anglo_event = not event_name.endswith('(SAP)')
+            # if anglo_event:
+            #     spanish_event_name = '{} (SAP)'.format(anglo_event)
+            #     try:
+            #         spanish_event = self.search(name=spanish_event_name)
+            #         yield (event, spanish_event)
+            #     except DoesNotExist:
+            #         pass
+            # else:
+            #     anglo_event_name = event_name.rstrip(' (SAP)')
+            #     try:
+            #         anglo_event = self.search(name=anglo_event_name)
+            #         yield (anglo_event, event)
+            #     except DoesNotExist:
+            #         pass
+
+
     def scrape(self, window=None) :
         if window:
             n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
