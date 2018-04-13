@@ -38,10 +38,18 @@ class LametroEventScraper(LegistarAPIEventScraper):
             else:
                 status = 'tentative'
 
+            location = event["EventLocation"]
+
+            if not location:
+                # We expect some events to have no location. LA Metro would
+                # like these displayed in the Councilmatic interface. However,
+                # OCD requires a value for this field. Add a sane default.
+                location = 'Not available'
+
             e = Event(event_name,
                       start_date=event["start"],
                       description='',
-                      location_name=event["EventLocation"],
+                      location_name=location,
                       status=status)
 
             e.pupa_id = str(event['EventId'])
