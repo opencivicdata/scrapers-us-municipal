@@ -42,9 +42,8 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
             if not location:
                 # We expect some events to have no location. LA Metro would
-                # like these displayed, with no location, in the Councilmatic
-                # interface. However, OCD requires a value for this field. Add
-                # a sane default we can filter for in the interface.
+                # like these displayed in the Councilmatic interface. However,
+                # OCD requires a value for this field. Add a sane default.
                 location = 'Not available'
 
             e = Event(event_name,
