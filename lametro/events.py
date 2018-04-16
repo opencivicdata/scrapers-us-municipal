@@ -26,8 +26,8 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
     def _sort_event_pair(self, pair):
         '''
-        Given event pair like "Board of Directors" and "Board of Directors
-        (SAP)," return tuple such that English event comes first.
+        Given event pair like "Board of Directors" and "Board of Directors (SAP)",
+        return tuple such that English event comes first.
         '''
         event_pair = sorted(pair, key=lambda x: x['EventBodyName'])
         return tuple(event_pair)
