@@ -12,36 +12,76 @@ class LametroEventScraper(LegistarAPIEventScraper):
     EVENTSPAGE = "https://metro.legistar.com/Calendar.aspx"
     TIMEZONE = "America/Los_Angeles"
 
-    def _pair_english_with_spanish_events(self):
-        pass
+    def _get_partner_event_name(self, event):
+        '''
+        Generate name of partner event by adding or removing the (SAP) suffix.
+        '''
+        event_name = event['EventBodyName']
 
-    def search(self):
+        if event_name.endswith('(SAP)'):
+            return event_name.rstrip('(SAP)')
+
+        else:
+            return '{} (SAP)'.format(event_name)
+
+    def _sort_event_pair(self, pair):
+        '''
+        Given event pair like "Board of Directors" and "Board of Directors
+        (SAP)," return tuple such that English event comes first.
+        '''
+        event_pair = sorted(pair, key=lambda x: x['EventBodyName'])
+        return tuple(event_pair)
+
+    def _pair_english_with_spanish_events(self, events):
+        paired_events = []
+        unpaired_events = []
+
+        for incoming_event in events:
+            partner_name = self._get_partner_event_name(incoming_event)
+
+            try:
+                partner_event, = [e for e in unpaired_events
+                                  if e['EventBodyName'] == partner_name
+                                  and all(e[k] == incoming_event[k] for k in ['EventDate', 'EventTime'])]
+
+            except ValueError:
+                unpaired_events.append(incoming_event)
+
+            else:
+                event_pair = self._sort_event_pair([incoming_event, partner_event])
+                paired_events.append(event_pair)
+
+        return paired_events, unpaired_events
 
     def api_events(self, *args, **kwargs):
+        '''
+        Return tuples of (English, Spanish) events. Events that cannot
+        be found are None.
+        '''
         events = list(super().api_events(*args, **kwargs))
         paired, unpaired = self._pair_english_with_spanish_events(events)
 
         yield from paired
 
-        for event in unpaired:
-            pass
-            # event_name = event['name']
-            # anglo_event = not event_name.endswith('(SAP)')
-            # if anglo_event:
-            #     spanish_event_name = '{} (SAP)'.format(anglo_event)
-            #     try:
-            #         spanish_event = self.search(name=spanish_event_name)
-            #         yield (event, spanish_event)
-            #     except DoesNotExist:
-            #         pass
-            # else:
-            #     anglo_event_name = event_name.rstrip(' (SAP)')
-            #     try:
-            #         anglo_event = self.search(name=anglo_event_name)
-            #         yield (anglo_event, event)
-            #     except DoesNotExist:
-            #         pass
+        for unpaired_event in unpaired:
+            partner_name = self._get_partner_event_name(unpaired_event)
 
+            try:
+                partner_event, = self.search(EventBodyName=partner_name,
+                                             EventDate=unpaired_event['EventDate'],
+                                             EventTime=unpaired_event['EventTime'])
+
+            except ValueError:
+                if unpaired_event['EventBodyName'].endswith('(SAP)'):
+                    # TO-DO: Should we yield unpaired Spanish events?
+                    yield (None, unpaired_event)
+
+                else:
+                    yield (unpaired_event, None)
+
+            else:
+                event_pair = self._sort_event_pair([unpaired_event, partner_event])
+                yield event_pair
 
     def scrape(self, window=None) :
         if window:
