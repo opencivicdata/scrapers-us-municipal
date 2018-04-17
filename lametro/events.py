@@ -12,84 +12,89 @@ class LametroEventScraper(LegistarAPIEventScraper):
     EVENTSPAGE = "https://metro.legistar.com/Calendar.aspx"
     TIMEZONE = "America/Los_Angeles"
 
-    def _get_partner_event_name(self, event):
-        '''
-        Generate name of partner event by adding or removing the (SAP) suffix.
-        '''
-        event_name = event['EventBodyName']
-
-        if event_name.endswith('(SAP)'):
-            return event_name.rstrip('(SAP)')
-
-        else:
-            return '{} (SAP)'.format(event_name)
-
-    def _sort_event_pair(self, pair):
-        '''
-        Given event pair like "Board of Directors" and "Board of Directors (SAP)",
-        return tuple such that English event comes first.
-        '''
-        event_pair = sorted(pair, key=lambda x: x['EventBodyName'])
-        return tuple(event_pair)
-
-    def _pair_english_with_spanish_events(self, events):
+    def _pair_events(self, events):
         paired_events = []
         unpaired_events = []
 
         for incoming_event in events:
-            partner_name = self._get_partner_event_name(incoming_event)
-
             try:
                 partner_event, = [e for e in unpaired_events
-                                  if e['EventBodyName'] == partner_name
-                                  and all(e[k] == incoming_event[k] for k in ['EventDate', 'EventTime'])]
-
+                                  if incoming_event.is_partner(e)]
             except ValueError:
                 unpaired_events.append(incoming_event)
 
             else:
-                event_pair = self._sort_event_pair([incoming_event, partner_event])
-                paired_events.append(event_pair)
+                unpaired_events.remove(partner_event)
+                paired_events.append(incoming_event)
+                paired_events.append(partner_event)
 
         return paired_events, unpaired_events
+
+    def _find_partner(self, event):
+
+        results = list(self.search('/events/', 'EventId',
+                                   event.partner_search_string))
+        if results:
+            partner, = results
+            partner = APIEvent(partner)
+            assert event.is_partner(partner)
+            return partner
+
+        elif event.is_spanish:
+            raise ValueError("Can't find English companion for Spanish Event {}".format(event['EventId']))
+        
 
     def api_events(self, *args, **kwargs):
         '''
         Return tuples of (English, Spanish) events. Events that cannot
         be found are None.
         '''
-        events = list(super().api_events(*args, **kwargs))
-        paired, unpaired = self._pair_english_with_spanish_events(events)
+        events = [APIEvent(event) for event
+                  in super().api_events(*args, **kwargs)]
+
+        paired, unpaired = self._pair_events(events)
 
         yield from paired
 
         for unpaired_event in unpaired:
-            partner_name = self._get_partner_event_name(unpaired_event)
+            partner_event = self._find_partner(unpaired_event)
 
-            try:
-                partner_event, = self.search(EventBodyName=partner_name,
-                                             EventDate=unpaired_event['EventDate'],
-                                             EventTime=unpaired_event['EventTime'])
+            yield unpaired_event
+            yield partner_event
 
-            except ValueError:
-                if unpaired_event['EventBodyName'].endswith('(SAP)'):
-                    # TO-DO: Should we yield unpaired Spanish events?
-                    yield (None, unpaired_event)
-
-                else:
-                    yield (unpaired_event, None)
-
+    def _merge_events(self, events):
+        english_events = []
+        spanish_events = []
+        
+        for event, web_event in events:
+            if event.is_spanish:
+                spanish_events.append((event, web_event))
             else:
-                event_pair = self._sort_event_pair([unpaired_event, partner_event])
-                yield event_pair
+                english_events.append((event, web_event))
+
+        for event, web_event in english_events:
+            
+            matches = [spanish_web_event['Audio']
+                       for spanish_event, spanish_web_event
+                       in spanish_events
+                       if event.is_partner(spanish_event)]
+            if matches:
+                spanish_audio, = matches
+                event['audio'] = [web_event['Audio'], spanish_audio]
+            else:
+                event['audio'] = [web_event['Audio']]
+                
+        return english_events
 
     def scrape(self, window=None) :
         if window:
             n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
         else:
             n_days_ago = None
-        for event, web_event in self.events(n_days_ago):
 
+        events = self.events(n_days_ago)
+
+        for event, web_event in self._merge_events(events):
             body_name = event["EventBodyName"]
 
             if 'Board of Directors -' in body_name:
@@ -147,24 +152,22 @@ class LametroEventScraper(LegistarAPIEventScraper):
                                url = event['EventMinutesFile'],
                                media_type="application/pdf")
 
-            # Update 'e' with data from https://metro.legistar.com/Calendar.aspx, if that data exists.
-            if web_event['Audio'] != 'Not\xa0available':
-
-                try:
-                    redirect_url = self.head(web_event['Audio']['url']).headers['Location']
-
-                except KeyError:
-
-                    # In some cases, the redirect URL does not yet contain the
-                    # location of the audio file. Skip these events, and retry
-                    # on next scrape.
-
-                    continue
-
-
-                e.add_media_link(note=web_event['Audio']['label'],
-                                 url=redirect_url,
-                                 media_type='text/html')
+            for audio in event['audio']:
+                if audio != 'Not\xa0available':
+                
+                    try:
+                        redirect_url = self.head(audio['url']).headers['Location']
+                
+                    except KeyError:
+                        # In some cases, the redirect URL does not yet
+                        # contain the location of the audio file. Skip
+                        # these events, and retry on next scrape.
+                        continue
+                
+                
+                    e.add_media_link(note=audio['label'],
+                                     url=redirect_url,
+                                     media_type='text/html')
 
             if web_event['Recap/Minutes'] != 'Not\xa0available':
                 e.add_document(note=web_event['Recap/Minutes']['label'],
@@ -176,5 +179,33 @@ class LametroEventScraper(LegistarAPIEventScraper):
                     e.add_source(web_event['Meeting Details']['url'], note='web')
                 else:
                     e.add_source('https://metro.legistar.com/Calendar.aspx', note='web')
-
             yield e
+            
+
+class APIEvent(dict):
+
+    @property
+    def is_spanish(self):
+        return self['EventBodyName'].endswith(' (SAP)')
+
+    @property
+    def _partner_name(self):
+        if self.is_spanish:
+            return self['EventBodyName'].rstrip(' (SAP)')
+        else:
+            return self['EventBodyName'] + ' (SAP)'
+
+    def is_partner(self, other):
+        return (self._partner_name == other['EventBodyName'] and
+                self['EventDate'] == other['EventDate'] and
+                self['EventTime'] == other['EventTime'])
+
+    @property
+    def partner_search_string(self):
+        search_string = "EventBodyName eq '{}'".format(self._partner_name)
+        search_string += " and EventDate eq datetime'{}'".format(self['EventDate'])
+        search_string += " and EventTime eq '{}'".format(self['EventTime'])
+
+        return search_string
+
+    
