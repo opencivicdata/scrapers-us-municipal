@@ -42,6 +42,9 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
         elif event.is_spanish:
             raise ValueError("Can't find English companion for Spanish Event {}".format(event['EventId']))
+
+        else:
+            return None
         
 
     def api_events(self, *args, **kwargs):
@@ -70,10 +73,11 @@ class LametroEventScraper(LegistarAPIEventScraper):
         yield from paired
 
         for unpaired_event in unpaired:
-            partner_event = self._find_partner(unpaired_event)
-
             yield unpaired_event
-            yield partner_event
+
+            partner_event = self._find_partner(unpaired_event)
+            if partner_event is not None:
+                yield partner_event
 
     def _merge_events(self, events):
         english_events = []
