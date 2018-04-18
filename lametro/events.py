@@ -46,11 +46,24 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
     def api_events(self, *args, **kwargs):
         '''
-        Return tuples of (English, Spanish) events. Events that cannot
-        be found are None.
+        For meetings, Metro provides an English audio recording and a
+        Spanish recording. Due to limitations with the InSite system,
+        multiple audio recordings can't be associated with a single
+        InSite event. So, Metro creates two InSite event entries for
+        the same actual event, one Insite event entry has the English
+        audio and the other has the Spanish Audio. The Spanish InSite
+        event entry has the same name as the English event entry,
+        except the name is suffixed with ' (SAP)'.
+
+        We need to merge these companion events. In order to do that,
+        we must ensure that if we scrape one member of pair, we also
+        scrape its partner.
+
+        This method subclasses the normal api_event method to ensure
+        that we get both members of pairs.
         '''
-        events = [APIEvent(event) for event
-                  in super().api_events(*args, **kwargs)]
+        events = (APIEvent(event) for event
+                  in super().api_events(*args, **kwargs))
 
         paired, unpaired = self._pair_events(events)
 
