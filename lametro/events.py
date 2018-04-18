@@ -36,7 +36,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
                                    event.partner_search_string))
         if results:
             partner, = results
-            partner = APIEvent(partner)
+            partner = LAMetroAPIEvent(partner)
             assert event.is_partner(partner)
             return partner
 
@@ -62,7 +62,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
         This method subclasses the normal api_event method to ensure
         that we get both members of pairs.
         '''
-        events = (APIEvent(event) for event
+        events = (LAMetroAPIEvent(event) for event
                   in super().api_events(*args, **kwargs))
 
         paired, unpaired = self._pair_events(events)
@@ -195,7 +195,12 @@ class LametroEventScraper(LegistarAPIEventScraper):
             yield e
             
 
-class APIEvent(dict):
+class LAMetroAPIEvent(dict):
+    '''
+    This classs if for adding methods to the event dict
+    to faciliate maching events with their other-language
+    partners
+    '''
 
     @property
     def is_spanish(self):
