@@ -25,21 +25,22 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
         web_info = {}
 
         for member, _ in web_scraper.councilMembers():
-            web_info[member['Person Name']['label']] = member
+            name = member['Person Name']['label'].strip()
+            web_info[name] = member
 
         city_council, = [body for body in self.bodies()
                          if body['BodyName'] == 'City Council']
 
         terms = collections.defaultdict(list)
 
-        public_advocates = { # Match casing to Bill De Blasio as council member
+        public_advocates = {  # Match casing to Bill De Blasio as council member
             'The Public Advocate (Mr. de Blasio)': 'Bill De Blasio',
             'The Public Advocate (Ms. James)': 'Letitia James',
         }
 
         for office in self.body_offices(city_council):
             name = office['OfficeRecordFullName']
-            name = public_advocates.get(name, name)
+            name = public_advocates.get(name, name).strip()
 
             terms[name].append(office)
 
@@ -47,14 +48,20 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
             if name not in web_info:
                 web_info[name] = collections.defaultdict(lambda: None)
 
+        # Check that we have everyone we expect, formatted consistently, in
+        # both information arrays. For instance, this will fail if we forget to
+        # strip trailing spaces from names on one side or the other (which has
+        # the effect of omitting information, such as post, from the scrape).
+
+        assert set(web_info.keys()) == set(terms.keys())
+
         members = {}
 
         for member, offices in terms.items():
-            member = member.strip()  # Remove trailing space
 
             p = Person(member)
 
-            web = web_info.get(member)
+            web = web_info[member]
 
             for term in offices:
                 role = term['OfficeRecordTitle']
@@ -157,8 +164,8 @@ class NYCPersonScraper(LegistarAPIPersonScraper):
                     else:
                         role = 'Member'
 
-                    person = office['OfficeRecordFullName'].strip()
-                    person = public_advocates.get(person, person)
+                    person = office['OfficeRecordFullName']
+                    person = public_advocates.get(person, person).strip()
 
                     if person in members:
                         p = members[person]

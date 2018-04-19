@@ -45,11 +45,11 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper):
                            start_date = self.toDate(term['OfficeRecordStartDate']),
                            end_date = self.toDate(term['OfficeRecordEndDate']))
 
-            if web['Photo'] :
+            if web.get('Photo'):
                 p.image = web['Photo']
 
             contact_types = {
-                "City Hall Office": ("address", "City Hall Office"),
+                "City Hall Address": ("address", "City Hall Address"),
                 "City Hall Phone": ("voice", "City Hall Phone"),
                 "Ward Office Phone": ("voice", "Ward Office Phone"),
                 "Ward Office Address": ("address", "Ward Office Address"),
