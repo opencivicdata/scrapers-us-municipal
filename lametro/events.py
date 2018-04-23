@@ -37,8 +37,6 @@ class LametroEventScraper(LegistarAPIEventScraper):
         partners, but every Spanish event should have an
         English partner.
         '''
-
-
         results = list(self.search('/events/', 'EventId',
                                    event.partner_search_string))
         if results:
@@ -59,11 +57,10 @@ class LametroEventScraper(LegistarAPIEventScraper):
         sometimes a Spanish audio translation. Due to limitations with
         the InSite system, multiple audio recordings can't be
         associated with a single InSite event. So, Metro creates two
-        InSite event entries for the same actual event, one Insite
-        event entry has the English audio and the other has the
-        Spanish audio. The Spanish InSite event entry has the same
-        name as the English event entry, except the name is suffixed
-        with ' (SAP)'.
+        InSite event entries for the same actual event, one with the
+        English audio and the other with the Spanish audio. The Spanish
+        InSite event entry has the same name as the English event entry,
+        except the name is suffixed with ' (SAP)'.
 
         We need to merge these companion events. In order to do that,
         we must ensure that if we scrape one member of a pair, we also
@@ -71,7 +68,6 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
         This method subclasses the normal api_event method to ensure
         that we get both members of pairs.
-
         '''
         events = (LAMetroAPIEvent(event) for event
                   in super().api_events(*args, **kwargs))
@@ -90,7 +86,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
     def _merge_events(self, events):
         english_events = []
         spanish_events = []
-        
+
         for event, web_event in events:
             if event.is_spanish:
                 spanish_events.append((event, web_event))
@@ -98,17 +94,23 @@ class LametroEventScraper(LegistarAPIEventScraper):
                 english_events.append((event, web_event))
 
         for event, web_event in english_events:
-            
-            matches = [spanish_web_event['Audio']
-                       for spanish_event, spanish_web_event
-                       in spanish_events
-                       if event.is_partner(spanish_event)]
-            if matches:
-                spanish_audio, = matches
-                event['audio'] = [web_event['Audio'], spanish_audio]
-            else:
-                event['audio'] = [web_event['Audio']]
-                
+            english_audio = web_event['Audio']
+
+            if english_audio != 'Not\xa0available':
+                matches = [spanish_web_event['Audio']
+                           for spanish_event, spanish_web_event
+                           in spanish_events
+                           if event.is_partner(spanish_event)]
+
+                if matches:
+                    spanish_audio, = matches
+                    spanish_audio['Label'] = 'Audio (SAP)'
+                    english_audio['Label'] = 'Audio (ENG)'
+                    event['audio'] = [english_audio, spanish_audio]
+                    continue
+
+            event['audio'] = [english_audio]
+
         return english_events
 
     def scrape(self, window=None) :
@@ -187,17 +189,15 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
             for audio in event['audio']:
                 if audio != 'Not\xa0available':
-                
                     try:
                         redirect_url = self.head(audio['url']).headers['Location']
-                
+
                     except KeyError:
                         # In some cases, the redirect URL does not yet
                         # contain the location of the audio file. Skip
                         # these events, and retry on next scrape.
                         continue
-                
-                
+
                     e.add_media_link(note=audio['label'],
                                      url=redirect_url,
                                      media_type='text/html')
@@ -213,7 +213,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
                 else:
                     e.add_source('https://metro.legistar.com/Calendar.aspx', note='web')
             yield e
-            
+
 
 class LAMetroAPIEvent(dict):
     '''
