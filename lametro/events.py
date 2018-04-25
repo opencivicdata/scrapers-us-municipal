@@ -109,7 +109,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
                 if matches:
                     spanish_audio, = matches
-                    spanish_audio['Label'] = 'Audio (SAP)'
+                    spanish_audio['label'] = 'Audio (SAP)'
 
                     event_audio.append(spanish_audio)
 
