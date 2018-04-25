@@ -96,6 +96,8 @@ class LametroEventScraper(LegistarAPIEventScraper):
         for event, web_event in english_events:
             english_audio = web_event['Audio']
 
+            event_audio = [english_audio]
+
             if english_audio != 'Not\xa0available':
                 matches = [spanish_web_event['Audio']
                            for spanish_event, spanish_web_event
@@ -105,10 +107,9 @@ class LametroEventScraper(LegistarAPIEventScraper):
                 if matches:
                     spanish_audio, = matches
                     spanish_audio['Label'] = 'Audio (SAP)'
-                    event['audio'] = [english_audio, spanish_audio]
-                    continue
+                    event_audio.append(spanish_audio)
 
-            event['audio'] = [english_audio]
+            event['audio'] = event_audio
 
         return english_events
 
