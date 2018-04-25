@@ -105,7 +105,6 @@ class LametroEventScraper(LegistarAPIEventScraper):
                 if matches:
                     spanish_audio, = matches
                     spanish_audio['Label'] = 'Audio (SAP)'
-                    english_audio['Label'] = 'Audio (ENG)'
                     event['audio'] = [english_audio, spanish_audio]
                     continue
 
