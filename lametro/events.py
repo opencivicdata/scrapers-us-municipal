@@ -94,11 +94,14 @@ class LametroEventScraper(LegistarAPIEventScraper):
                 english_events.append((event, web_event))
 
         for event, web_event in english_events:
+            event_audio = []
+
             english_audio = web_event['Audio']
 
-            event_audio = [english_audio]
-
             if english_audio != 'Not\xa0available':
+
+                event_audio.append(english_audio)
+
                 matches = [spanish_web_event['Audio']
                            for spanish_event, spanish_web_event
                            in spanish_events
@@ -107,6 +110,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
                 if matches:
                     spanish_audio, = matches
                     spanish_audio['Label'] = 'Audio (SAP)'
+
                     event_audio.append(spanish_audio)
 
             event['audio'] = event_audio
@@ -188,19 +192,18 @@ class LametroEventScraper(LegistarAPIEventScraper):
                                media_type="application/pdf")
 
             for audio in event['audio']:
-                if audio != 'Not\xa0available':
-                    try:
-                        redirect_url = self.head(audio['url']).headers['Location']
+                try:
+                    redirect_url = self.head(audio['url']).headers['Location']
 
-                    except KeyError:
-                        # In some cases, the redirect URL does not yet
-                        # contain the location of the audio file. Skip
-                        # these events, and retry on next scrape.
-                        continue
+                except KeyError:
+                    # In some cases, the redirect URL does not yet
+                    # contain the location of the audio file. Skip
+                    # these events, and retry on next scrape.
+                    continue
 
-                    e.add_media_link(note=audio['label'],
-                                     url=redirect_url,
-                                     media_type='text/html')
+                e.add_media_link(note=audio['label'],
+                                 url=redirect_url,
+                                 media_type='text/html')
 
             if web_event['Recap/Minutes'] != 'Not\xa0available':
                 e.add_document(note=web_event['Recap/Minutes']['label'],
