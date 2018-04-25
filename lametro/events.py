@@ -88,6 +88,8 @@ class LametroEventScraper(LegistarAPIEventScraper):
         spanish_events = []
 
         for event, web_event in events:
+            web_event = LAMetroWebEvent(web_event)
+
             if event.is_spanish:
                 spanish_events.append((event, web_event))
             else:
@@ -96,16 +98,14 @@ class LametroEventScraper(LegistarAPIEventScraper):
         for event, web_event in english_events:
             event_audio = []
 
-            english_audio = web_event['Audio']
-
-            if english_audio != 'Not\xa0available':
-
-                event_audio.append(english_audio)
+            if web_event.has_audio:
+                event_audio.append(web_event['Audio'])
 
                 matches = [spanish_web_event['Audio']
                            for spanish_event, spanish_web_event
                            in spanish_events
-                           if event.is_partner(spanish_event)]
+                           if event.is_partner(spanish_event)
+                           and spanish_web_event.has_audio]
 
                 if matches:
                     spanish_audio, = matches
@@ -220,11 +220,10 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
 class LAMetroAPIEvent(dict):
     '''
-    This classs if for adding methods to the event dict
+    This class is for adding methods to the API event dict
     to faciliate maching events with their other-language
-    partners
+    partners.
     '''
-
     @property
     def is_spanish(self):
         return self['EventBodyName'].endswith(' (SAP)')
@@ -248,3 +247,13 @@ class LAMetroAPIEvent(dict):
         search_string += " and EventTime eq '{}'".format(self['EventTime'])
 
         return search_string
+
+
+class LAMetroWebEvent(dict):
+    '''
+    This class is for adding methods to the web event dict
+    to facilitate labeling audio appropriately.
+    '''
+    @property
+    def has_audio(self):
+        return self['Audio'] != 'Not\xa0available'
