@@ -96,23 +96,40 @@ class LametroEventScraper(LegistarAPIEventScraper):
                 english_events.append((event, web_event))
 
         for event, web_event in english_events:
+            event_details = []
             event_audio = []
+
+            if web_event.has_detail_url:
+                event_details.append({
+                    'url': web_event['Meeting Details']['url'],
+                    'note': 'web',
+                })
 
             if web_event.has_audio:
                 event_audio.append(web_event['Audio'])
 
-                matches = [spanish_web_event['Audio']
-                           for spanish_event, spanish_web_event
-                           in spanish_events
-                           if event.is_partner(spanish_event)
-                           and spanish_web_event.has_audio]
+            matches = [(spanish_event, spanish_web_event)
+                       for spanish_event, spanish_web_event
+                       in spanish_events
+                       if event.is_partner(spanish_event)]
 
-                if matches:
-                    spanish_audio, = matches
-                    spanish_audio['label'] = 'Audio (SAP)'
+            if matches:
+                partner_spanish_event, = matches
+                spanish_event, spanish_web_event = partner_spanish_event
 
-                    event_audio.append(spanish_audio)
+                event['SAPEventGuid'] = spanish_event['EventGuid']
 
+                if spanish_web_event.has_detail_url:
+                    event_details.append({
+                        'url': spanish_web_event['Meeting Details']['url'],
+                        'note': 'web (sap)',
+                    })
+
+                if spanish_web_event.has_audio:
+                    spanish_web_event['Audio']['label'] = 'Audio (SAP)'
+                    event_audio.append(spanish_web_event['Audio'])
+
+            event['event_details'] = event_details
             event['audio'] = event_audio
 
         return english_events
@@ -161,8 +178,13 @@ class LametroEventScraper(LegistarAPIEventScraper):
 
             e.pupa_id = str(event['EventId'])
 
-            # Metro requires the EventGuid to build out MediaPlayer links
+            # Metro requires the EventGuid to build out MediaPlayer links.
+            # Add both the English event GUID, and the Spanish event GUID if
+            # it exists, to the extras dict.
             e.extras = {'guid': event['EventGuid']}
+
+            if event.get('SAPEventGuid'):
+                e.extras['sap_guid'] = event['SAPEventGuid']
 
             for item in self.agenda(event):
                 agenda_item = e.add_agenda_item(item["EventItemTitle"])
@@ -210,11 +232,12 @@ class LametroEventScraper(LegistarAPIEventScraper):
                                url=web_event['Recap/Minutes']['url'],
                                media_type="application/pdf")
 
-            if web_event['Meeting Details'] != 'Meeting\xa0details':
-                if requests.head(web_event['Meeting Details']['url']).status_code == 200:
-                    e.add_source(web_event['Meeting Details']['url'], note='web')
-                else:
-                    e.add_source('https://metro.legistar.com/Calendar.aspx', note='web')
+            if event['event_details']:
+                for link in event['event_details']:
+                    e.add_source(**link)
+            else:
+                e.add_source('https://metro.legistar.com/Calendar.aspx', note='web')
+
             yield e
 
 
@@ -252,8 +275,20 @@ class LAMetroAPIEvent(dict):
 class LAMetroWebEvent(dict):
     '''
     This class is for adding methods to the web event dict
-    to facilitate labeling audio appropriately.
+    to facilitate labeling and sourcing audio appropriately.
     '''
     @property
     def has_audio(self):
         return self['Audio'] != 'Not\xa0available'
+
+    @property
+    def has_detail_url(self):
+        return self._detail_url_exists and self._detail_url_valid
+
+    @property
+    def _detail_url_exists(self):
+        return self['Meeting Details'] != 'Meeting\xa0details'
+
+    @property
+    def _detail_url_valid(self):
+        return requests.head(self['Meeting Details']['url']).status_code == 200
