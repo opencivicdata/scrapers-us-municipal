@@ -117,6 +117,7 @@ class LametroEventScraper(LegistarAPIEventScraper):
                 partner_spanish_event, = matches
                 spanish_event, spanish_web_event = partner_spanish_event
 
+                event['SAPEventId'] = spanish_event['EventId']
                 event['SAPEventGuid'] = spanish_event['EventGuid']
 
                 if spanish_web_event.has_detail_url:
@@ -200,8 +201,12 @@ class LametroEventScraper(LegistarAPIEventScraper):
             e.add_participant(name=body_name,
                               type="organization")
 
-            e.add_source(self.BASE_URL + '/events/{EventId}'.format(**event),
+            e.add_source(self.BASE_URL + '/events/{0}'.format(event['EventId']),
                          note='api')
+
+            if event.get('SAPEventId'):
+                e.add_source(self.BASE_URL + '/events/{0}'.format(event['SAPEventId']),
+                             note='api (sap)')
 
             if event['EventAgendaFile']:
                 e.add_document(note= 'Agenda',
