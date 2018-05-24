@@ -98,7 +98,7 @@ class ChicagoEventsScraper(Scraper, LegistarAPIEventScraper) :
 
             self.addDocs(e, event, 'Agenda')
             self.addDocs(e, event, 'Notice')
-            self.addDocs(e, event, 'Transcript')
+            self.addDocs(e, event, 'Captions')
             self.addDocs(e, event, 'Summary')
 
             participant = event["Name"]["label"]
