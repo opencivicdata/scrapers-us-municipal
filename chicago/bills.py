@@ -1,5 +1,5 @@
 from legistar.bills import LegistarBillScraper, LegistarAPIBillScraper
-from pupa.scrape import Bill, VoteEvent
+from pupa.scrape import Bill, VoteEvent, Scraper
 from pupa.utils import _make_pseudo_id
 import datetime
 import itertools
@@ -16,7 +16,7 @@ def sort_actions(actions):
 
     return sorted_actions
 
-class ChicagoBillScraper(LegistarAPIBillScraper):
+class ChicagoBillScraper(Scraper, LegistarAPIBillScraper):
     BASE_URL = 'http://webapi.legistar.com/v1/chicago'
     BASE_WEB_URL = 'https://chicago.legistar.com'
     TIMEZONE = "US/Central"

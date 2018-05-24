@@ -1,9 +1,9 @@
 import collections
 
-from pupa.scrape import Person, Organization
+from pupa.scrape import Person, Organization, Scraper
 from legistar.people import LegistarAPIPersonScraper, LegistarPersonScraper
 
-class ChicagoPersonScraper(LegistarAPIPersonScraper):
+class ChicagoPersonScraper(Scraper, LegistarAPIPersonScraper):
     BASE_URL = 'http://webapi.legistar.com/v1/chicago'
     WEB_URL = 'https://chicago.legistar.com'
     TIMEZONE = "America/Chicago"
@@ -19,9 +19,16 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper):
             if 'VACAN' not in office['OfficeRecordFullName']:
                 terms[office['OfficeRecordFullName'].strip()].append(office)
 
-        web_scraper = LegistarPersonScraper(None,None)
+        web_scraper = LegistarPersonScraper(requests_per_minute = self.requests_per_minute)
         web_scraper.MEMBERLIST = 'https://chicago.legistar.com/DepartmentDetail.aspx?ID=12357&GUID=4B24D5A9-FED0-4015-9154-6BFFFB2A8CB4&R=8bcbe788-98cd-4040-9086-b34fa8e49881'
         web_scraper.ALL_MEMBERS = '3:3'
+
+        if self.cache_storage:
+            web_scraper.cache_storage = self.cache_storage
+
+        if self.requests_per_minute == 0:
+            web_scraper.cache_write_only = False
+
 
         web_info = {}
         for member, _ in web_scraper.councilMembers({'ctl00$ContentPlaceHolder$lstName' : 'City Council'}):
