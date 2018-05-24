@@ -4,16 +4,17 @@ import json
 import pytz
 
 from legistar.bills import LegistarAPIBillScraper
-from pupa.scrape import Bill, VoteEvent
+from pupa.scrape import Bill, VoteEvent, Scraper
 from pupa.utils import _make_pseudo_id
 
 from .secrets import TOKEN
+
 
 DUPLICATED_ACTIONS = {21445, 28507, 28481,
                       49987, 48426}  # These two are stations of the cities
                                      # weird special events.
 
-class NYCBillScraper(LegistarAPIBillScraper):
+class NYCBillScraper(Scraper, LegistarAPIBillScraper):
     LEGISLATION_URL = 'http://legistar.council.nyc.gov/Legislation.aspx'
     BASE_URL = 'https://webapi.legistar.com/v1/nyc'
     BASE_WEB_URL = 'http://legistar.council.nyc.gov'

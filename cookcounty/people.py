@@ -2,10 +2,10 @@ from legistar.people import LegistarPersonScraper
 import datetime
 import re
 
-from pupa.scrape import Person, Organization
+from pupa.scrape import Person, Organization, Scraper
 
 
-class CookcountyPersonScraper(LegistarPersonScraper):
+class CookcountyPersonScraper(Scraper, LegistarPersonScraper):
     MEMBERLIST = 'https://cook-county.legistar.com/DepartmentDetail.aspx?ID=20924&GUID=B78A790A-5913-4FBF-8FBF-ECEE445B7796'
     TIMEZONE = 'US/Central'
     ALL_MEMBERS = "3:3"
