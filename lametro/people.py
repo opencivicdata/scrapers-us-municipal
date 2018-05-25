@@ -37,7 +37,7 @@ class LametroPersonScraper(Scraper, LegistarAPIPersonScraper):
         Scrape the web to create a dict with all active organizations.
         Then, we can access the correct URL for the organization detail page.
         '''
-        web_scraper = LegistarPersonScraper(None, None, fastmode=(self.requests_per_minute == 0))
+        web_scraper = LegistarPersonScraper(requests_per_minute=self.requests_per_minute)
         web_scraper.MEMBERLIST = 'https://metro.legistar.com/People.aspx'
         web_info = {}
 
