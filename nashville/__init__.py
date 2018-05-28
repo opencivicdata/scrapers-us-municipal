@@ -15,7 +15,7 @@ class Nashville(Jurisdiction):
     scrapers = {
         # "events": NashvilleEventScraper,
         "people": NashvillePersonScraper,
-        # "bills": NashvilleBillScraper,
+        "bills": NashvilleBillScraper,
         # "vote_events": NashvilleVoteEventScraper,
     }
 
@@ -86,7 +86,7 @@ class Nashville(Jurisdiction):
         yield mayors_office
         # City Council
         city_council = Organization(
-            name="Metropolitan Council", classification="legislature")
+            name="Nashville Metropolitan Council", classification="legislature")
         city_council.add_post(label="Vice Mayor",
                               role="vicemayor", division_id=self.division_id)
         AT_LARGE_SEATS = 4
