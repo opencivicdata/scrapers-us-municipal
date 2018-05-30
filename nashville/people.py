@@ -86,8 +86,7 @@ class NashvillePersonScraper(NashvilleScraper):
                 {'note': 'work', 'type': 'voice', 'value': work_phone, 'label': 'Work Phone Number'})
 
             council_member_doc = self.lxmlize(link)
-            (dnn_name, ) = council_member_doc.xpath(
-                '//div[@id="dnn_ContentPane"]/div/a/@name')
+            dnn_name = self.get_dnn_name(council_member_doc)
             info_div_id = 'dnn_ctr{}_HtmlModule_lblContent'.format(dnn_name)
             (data_div, ) = council_member_doc.xpath(
                 '//div[@id="{}"]'.format(info_div_id))
