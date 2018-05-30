@@ -9,6 +9,8 @@ class NashvilleBillScraper(NashvilleScraper):
 
     def scrape(self):
         yield from self.get_resolution_by_council_term()
+        # TODO: Add zoning amendments
+        # http://www.nashville.gov/Metro-Clerk/Council-Meeting-Schedules/Public-Hearing-Notice.aspx
 
     def get_resolution_by_council_term(self):
         base_url = 'http://www.nashville.gov/Metro-Clerk/Legislative/Resolutions.aspx'
