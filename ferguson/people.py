@@ -21,13 +21,16 @@ class FergusonPersonScraper(Scraper):
         for member_url in member_urls:
             member_doc = self.lxmlize(member_url)
 
-            (name, ) = member_doc.xpath('//span[@class="BioName"]/span/text()')
+            (name, ) = member_doc.xpath('//h1[@class="BioName"]/text()')
             (name, ) = re.findall(r'^(?:Mr\.|Mrs\.|Hon\.)?\s*(.*?)\s*$', name)
 
-            (title, ) = member_doc.xpath(
-                '//a[@class="BioLink"]/following-sibling::text()')
+            # Returning everything into a list because the number of values returned varies 
+            # depending on if the person has an email or not
+            text_list = member_doc.xpath(
+                '//a[@class="BioLink"]/parent::div/text()')
+            title = text_list[1].strip()
             (title, ) = re.findall(
-                r'^Title: (Council Member(?: Ward \d)|Mayor)\s*$', title)
+                r'^Title: (Council Member,?(?: Ward \d)|Mayor)\s*$', title)
 
             try:
                 (image_url, ) = member_doc.xpath(
