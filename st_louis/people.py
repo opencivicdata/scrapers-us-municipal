@@ -65,9 +65,8 @@ class StLouisPersonScraper(StlScraper):
                 landmark_node = page.xpath("//h2[text()='Committee Members']")[0]
 
 		# add memberships
-                member_names = landmark_node.xpath("following-sibling::ul/li/a/text()")
+                member_names = landmark_node.xpath("following-sibling::div/ul/li/a/text()")
                 fl_names = [HumanName.name_firstandlast(name) for name in member_names]
-                print(comm_name)
                 print("My attempt to scrub people's names:", 
                       list(zip(member_names, fl_names)))
                 chair_name, *other_names = fl_names
@@ -77,7 +76,8 @@ class StLouisPersonScraper(StlScraper):
                         if name not in {'Lewis Reed'} :
                                 comm.add_member(name, role="member")
 		# add description 
-                description = landmark_node.xpath("preceding-sibling::p/text()")[0]
+                about_node = page.xpath("//h2[text()='About']")[0]
+                (description, ) = about_node.xpath("parent::div//div[@class='content-block']/p[2]/text()")
                 description = description.strip()
                 comm.extras = {"description": description}
 
@@ -94,7 +94,6 @@ class StLouisPersonScraper(StlScraper):
 
 	def committee_url(self, comm_num):
 		return Urls.COMMITTEES_HOME + "?committeeDetail=true&comId={}".format(comm_num)
-
 
 	# TODO move this?
 	COMMITTEE_COUNT = 15
