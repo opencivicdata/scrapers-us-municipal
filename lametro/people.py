@@ -41,14 +41,6 @@ class LametroPersonScraper(Scraper, LegistarAPIPersonScraper):
         web_scraper.MEMBERLIST = 'https://metro.legistar.com/People.aspx'
         web_info = {}
 
-        for _, organizations in web_scraper.councilMembers():
-            for organization, _, _ in organizations:
-                organization_name = organization['Department Name']['label'].strip()
-                organization_info = organization['Department Name']
-
-                web_info[organization_name] = organization_info
-
-        body_types = self.body_types()
 
         board_of_directors, = [body for body in self.bodies()
                                if body['BodyName'] == 'Board of Directors - Regular Board Meeting']
@@ -57,19 +49,27 @@ class LametroPersonScraper(Scraper, LegistarAPIPersonScraper):
         terms = collections.defaultdict(list)
         for office in self.body_offices(board_of_directors):
             terms[office['OfficeRecordFullName']].append(office)
-
+        
         members = {}
-        for member, offices in terms.items():
+        for person, organizations in web_scraper.councilMembers():
+            for organization, _, _ in organizations:
+                organization_name = organization['Department Name']['label'].strip()
+                organization_info = organization['Department Name']
+
+                web_info[organization_name] = organization_info
+
+            member = person['Person Name']['label']
             p = Person(member)
+            offices = terms[member]
             for term in offices:
                 role = term['OfficeRecordTitle']
 
                 if role not in {'Board Member', 'non-voting member'}:
-                    p.add_term(role,
-                               'legislature',
-                               start_date = self.toDate(term['OfficeRecordStartDate']),
-                               end_date = self.toDate(term['OfficeRecordEndDate']),
-                               appointment = True)
+                        p.add_term(role,
+                                'legislature',
+                                start_date = self.toDate(term['OfficeRecordStartDate']),
+                                end_date = self.toDate(term['OfficeRecordEndDate']),
+                                appointment = True)
                 if role != 'Chief Executive Officer':
                     if role == 'non-voting member':
                         member_type = 'Nonvoting Board Member'
@@ -79,19 +79,21 @@ class LametroPersonScraper(Scraper, LegistarAPIPersonScraper):
                         post = VOTING_POSTS.get(member)
 
                     p.add_term(member_type,
-                               'legislature',
-                               district = post,
-                               start_date = self.toDate(term['OfficeRecordStartDate']),
-                               end_date = self.toDate(term['OfficeRecordEndDate']))
-
+                                'legislature',
+                                district = post,
+                                start_date = self.toDate(term['OfficeRecordStartDate']),
+                                end_date = self.toDate(term['OfficeRecordEndDate']))
+                
 
             source_urls = self.person_sources_from_office(term)
-            person_api_url, person_web_url = source_urls
+            person_api_url, _ = source_urls
+            person_web_url = person['Person Name']['url']
             p.add_source(person_api_url, note='api')
             p.add_source(person_web_url, note='web')
 
             members[member] = p
 
+        body_types = self.body_types()
         for body in self.bodies():
             if body['BodyTypeId'] == body_types['Committee']:
                 organization_name = body['BodyName'].strip()
@@ -100,7 +102,7 @@ class LametroPersonScraper(Scraper, LegistarAPIPersonScraper):
                                  parent_id={'name' : 'Board of Directors'})
 
                 organization_info = web_info.get(organization_name, {})
-                organization_url = organization_info.get('url', self.WEB_URL + 'https://metro.legistar.com/Departments.aspx')
+                organization_url = organization_info.get('url', self.WEB_URL + '/Departments.aspx')
 
                 o.add_source(self.BASE_URL + '/bodies/{BodyId}'.format(**body), note='api')
                 o.add_source(organization_url, note='web')
