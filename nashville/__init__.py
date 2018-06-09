@@ -13,7 +13,7 @@ class Nashville(Jurisdiction):
     url = "https://www.nashville.gov/"
 
     scrapers = {
-        # "events": NashvilleEventScraper,
+        "events": NashvilleEventScraper,
         "people": NashvillePersonScraper,
         "bills": NashvilleBillScraper,
         # "vote_events": NashvilleVoteEventScraper,
@@ -99,3 +99,5 @@ class Nashville(Jurisdiction):
                 district), role="councilmember", division_id=self.division_id)
 
         yield city_council
+        # @TODO Add committees
+       # https://www.nashville.gov/Metro-Council/Council-Committees.aspx
