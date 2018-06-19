@@ -26,7 +26,7 @@ VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of L
 
 NONVOTING_POSTS = {'Carrie Bowen' : 'Appointee of Governor of California'}
 
-class LametroPersonScraper(Scraper, LegistarAPIPersonScraper):
+class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
     WEB_URL = 'https://metro.legistar.com'
     TIMEZONE = "America/Los_Angeles"

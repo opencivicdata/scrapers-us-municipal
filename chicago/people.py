@@ -3,7 +3,7 @@ import collections
 from pupa.scrape import Person, Organization, Scraper
 from legistar.people import LegistarAPIPersonScraper, LegistarPersonScraper
 
-class ChicagoPersonScraper(Scraper, LegistarAPIPersonScraper):
+class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/chicago'
     WEB_URL = 'https://chicago.legistar.com'
     TIMEZONE = "America/Chicago"

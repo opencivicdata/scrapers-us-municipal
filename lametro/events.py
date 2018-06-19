@@ -4,7 +4,7 @@ import requests
 from legistar.events import LegistarAPIEventScraper
 from pupa.scrape import Event, Scraper
 
-class LametroEventScraper(Scraper, LegistarAPIEventScraper):
+class LametroEventScraper(LegistarAPIEventScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
     WEB_URL = 'https://metro.legistar.com/'
     EVENTSPAGE = "https://metro.legistar.com/Calendar.aspx"

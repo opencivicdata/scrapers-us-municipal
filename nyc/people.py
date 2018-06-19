@@ -8,7 +8,7 @@ from pupa.scrape import Person, Organization, Scraper
 from .secrets import TOKEN
 
 
-class NYCPersonScraper(Scraper, LegistarAPIPersonScraper):
+class NYCPersonScraper(LegistarAPIPersonScraper, Scraper):
     BASE_URL = 'https://webapi.legistar.com/v1/nyc'
     WEB_URL = 'http://legistar.council.nyc.gov'
     TIMEZONE = 'US/Eastern'

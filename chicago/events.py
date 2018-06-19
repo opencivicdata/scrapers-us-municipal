@@ -8,7 +8,7 @@ import requests
 from legistar.events import LegistarAPIEventScraper
 from pupa.scrape import Event, Scraper
 
-class ChicagoEventsScraper(Scraper, LegistarAPIEventScraper) :
+class ChicagoEventsScraper(LegistarAPIEventScraper, Scraper) :
     BASE_URL = 'http://webapi.legistar.com/v1/chicago'
     WEB_URL = "https://chicago.legistar.com/"
     EVENTSPAGE = "https://chicago.legistar.com/Calendar.aspx"
