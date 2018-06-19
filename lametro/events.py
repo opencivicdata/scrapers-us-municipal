@@ -78,6 +78,11 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
         for unpaired_event in unpaired:
             yield unpaired_event
 
+            # if are not getting every single event then it's possible
+            # that one member of a pair of English and Spanish will
+            # be included in the our partial scrape and the other
+            # member won't be. So, we try to find the partners for
+            # unpaired events.
             if partial_scrape:
                 partner_event = self._find_partner(unpaired_event)
                 if partner_event is not None:
