@@ -9,7 +9,7 @@ from pupa.utils import _make_pseudo_id
 
 from legistar.bills import LegistarBillScraper, LegistarAPIBillScraper
 
-class LametroBillScraper(Scraper, LegistarAPIBillScraper):
+class LametroBillScraper(LegistarAPIBillScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
     BASE_WEB_URL = 'https://metro.legistar.com'
     TIMEZONE = "America/Los_Angeles"

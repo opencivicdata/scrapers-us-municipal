@@ -4,7 +4,7 @@ import requests
 from legistar.events import LegistarAPIEventScraper
 from pupa.scrape import Event, Scraper
 
-class LametroEventScraper(Scraper, LegistarAPIEventScraper):
+class LametroEventScraper(LegistarAPIEventScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
     WEB_URL = 'https://metro.legistar.com/'
     EVENTSPAGE = "https://metro.legistar.com/Calendar.aspx"
@@ -12,17 +12,16 @@ class LametroEventScraper(Scraper, LegistarAPIEventScraper):
 
     def _pair_events(self, events):
         paired_events = []
-        unpaired_events = []
+        unpaired_events = {}
 
         for incoming_event in events:
             try:
-                partner_event, = [e for e in unpaired_events
-                                  if incoming_event.is_partner(e)]
-            except ValueError:
-                unpaired_events.append(incoming_event)
+                partner_event = unpaired_events[incoming_event.partner_key]
+            except KeyError:
+                unpaired_events[incoming_event.key] = incoming_event
 
             else:
-                unpaired_events.remove(partner_event)
+                del unpaired_events[incoming_event.partner_key]
                 paired_events.append(incoming_event)
                 paired_events.append(partner_event)
 
@@ -67,6 +66,8 @@ class LametroEventScraper(Scraper, LegistarAPIEventScraper):
         This method subclasses the normal api_event method to ensure
         that we get both members of pairs.
         '''
+        partial_scrape = kwargs.get('since_datetime', False)
+
         events = (LAMetroAPIEvent(event) for event
                   in super().api_events(*args, **kwargs))
 
@@ -77,19 +78,25 @@ class LametroEventScraper(Scraper, LegistarAPIEventScraper):
         for unpaired_event in unpaired:
             yield unpaired_event
 
-            partner_event = self._find_partner(unpaired_event)
-            if partner_event is not None:
-                yield partner_event
+            # if are not getting every single event then it's possible
+            # that one member of a pair of English and Spanish will
+            # be included in the our partial scrape and the other
+            # member won't be. So, we try to find the partners for
+            # unpaired events.
+            if partial_scrape:
+                partner_event = self._find_partner(unpaired_event)
+                if partner_event is not None:
+                    yield partner_event
 
     def _merge_events(self, events):
         english_events = []
-        spanish_events = []
+        spanish_events = {}
 
         for event, web_event in events:
             web_event = LAMetroWebEvent(web_event)
 
             if event.is_spanish:
-                spanish_events.append((event, web_event))
+                spanish_events[event.key] = (event, web_event)
             else:
                 english_events.append((event, web_event))
 
@@ -106,14 +113,10 @@ class LametroEventScraper(Scraper, LegistarAPIEventScraper):
             if web_event.has_audio:
                 event_audio.append(web_event['Audio'])
 
-            matches = [(spanish_event, spanish_web_event)
-                       for spanish_event, spanish_web_event
-                       in spanish_events
-                       if event.is_partner(spanish_event)]
+            matches = spanish_events.get(event.partner_key, None)
 
             if matches:
-                partner_spanish_event, = matches
-                spanish_event, spanish_web_event = partner_spanish_event
+                spanish_event, spanish_web_event = matches
 
                 event['SAPEventId'] = spanish_event['EventId']
                 event['SAPEventGuid'] = spanish_event['EventGuid']
@@ -185,16 +188,20 @@ class LametroEventScraper(Scraper, LegistarAPIEventScraper):
             if event.get('SAPEventGuid'):
                 e.extras['sap_guid'] = event['SAPEventGuid']
 
-            for item in self.agenda(event):
-                agenda_item = e.add_agenda_item(item["EventItemTitle"])
-                if item["EventItemMatterFile"]:
-                    identifier = item["EventItemMatterFile"]
-                    agenda_item.add_bill(identifier)
 
-                if item["EventItemAgendaNumber"]:
-                    # To the notes field, add the item number as given in the agenda minutes
-                    note = "Agenda number, {}".format(item["EventItemAgendaNumber"])
-                    agenda_item['notes'].append(note)
+            if 'event_details' in event:
+                # if there is not a meeting detail page on legistar
+                # don't capture the agenda data from the API
+                for item in self.agenda(event):
+                    agenda_item = e.add_agenda_item(item["EventItemTitle"])
+                    if item["EventItemMatterFile"]:
+                        identifier = item["EventItemMatterFile"]
+                        agenda_item.add_bill(identifier)
+
+                    if item["EventItemAgendaNumber"]:
+                        # To the notes field, add the item number as given in the agenda minutes
+                        note = "Agenda number, {}".format(item["EventItemAgendaNumber"])
+                        agenda_item['notes'].append(note)
 
             e.add_participant(name=body_name,
                               type="organization")
@@ -243,6 +250,31 @@ class LametroEventScraper(Scraper, LegistarAPIEventScraper):
 
             yield e
 
+    def _suppress_item_matter(self, item, agenda_url):
+        '''
+        Agenda items in Legistar do not always display links to
+        associated matter files even if the same agenda item
+        in the API references a Matter File. The agenda items
+        we scrape should honor the suppression on the Legistar
+        agendas.
+
+        This is also practical because matter files that are hidden
+        in the Legistar Agenda do not seem to available for scraping
+        on Legistar or through the API
+        '''
+
+        if item['EventItemMatterFile'] is not None:
+
+            if item['EventItemMatterStatus'] == 'Draft':
+                suppress = True
+            elif item['EventItemMatterType'] == 'Closed Session':
+                suppress = True
+            else:
+                suppress = False
+
+            if suppress:
+                item['EventItemMatterFile'] = None
+
 
 class LAMetroAPIEvent(dict):
     '''
@@ -266,6 +298,7 @@ class LAMetroAPIEvent(dict):
                 self['EventDate'] == other['EventDate'] and
                 self['EventTime'] == other['EventTime'])
 
+
     @property
     def partner_search_string(self):
         search_string = "EventBodyName eq '{}'".format(self._partner_name)
@@ -273,6 +306,14 @@ class LAMetroAPIEvent(dict):
         search_string += " and EventTime eq '{}'".format(self['EventTime'])
 
         return search_string
+
+    @property
+    def partner_key(self):
+        return (self._partner_name, self['EventDate'], self['EventTime'])
+
+    @property
+    def key(self):
+        return (self['EventBodyName'], self['EventDate'], self['EventTime'])
 
 
 class LAMetroWebEvent(dict):
