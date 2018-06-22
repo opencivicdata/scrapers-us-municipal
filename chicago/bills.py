@@ -16,7 +16,7 @@ def sort_actions(actions):
 
     return sorted_actions
 
-class ChicagoBillScraper(Scraper, LegistarAPIBillScraper):
+class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/chicago'
     BASE_WEB_URL = 'https://chicago.legistar.com'
     TIMEZONE = "US/Central"

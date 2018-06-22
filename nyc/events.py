@@ -8,7 +8,7 @@ from pupa.scrape import Event, Scraper
 
 from .secrets import TOKEN
 
-class NYCEventsScraper(Scraper, LegistarAPIEventScraper):
+class NYCEventsScraper(LegistarAPIEventScraper, Scraper):
     BASE_URL = 'https://webapi.legistar.com/v1/nyc'
     WEB_URL = "http://legistar.council.nyc.gov/"
     EVENTSPAGE = "http://legistar.council.nyc.gov/Calendar.aspx/"
