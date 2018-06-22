@@ -250,6 +250,31 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
 
             yield e
 
+    def _suppress_item_matter(self, item, agenda_url):
+        '''
+        Agenda items in Legistar do not always display links to
+        associated matter files even if the same agenda item
+        in the API references a Matter File. The agenda items
+        we scrape should honor the suppression on the Legistar
+        agendas.
+
+        This is also practical because matter files that are hidden
+        in the Legistar Agenda do not seem to available for scraping
+        on Legistar or through the API
+        '''
+
+        if item['EventItemMatterFile'] is not None:
+
+            if item['EventItemMatterStatus'] == 'Draft':
+                suppress = True
+            elif item['EventItemMatterType'] == 'Closed Session':
+                suppress = True
+            else:
+                suppress = False
+
+            if suppress:
+                item['EventItemMatterFile'] = None
+
 
 class LAMetroAPIEvent(dict):
     '''
