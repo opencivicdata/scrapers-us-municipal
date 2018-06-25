@@ -25,7 +25,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 paired_events.append(incoming_event)
                 paired_events.append(partner_event)
 
-        return paired_events, unpaired_events
+        return paired_events, unpaired_events.values()
 
     def _find_partner(self, event):
         '''
