@@ -189,7 +189,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 e.extras['sap_guid'] = event['SAPEventGuid']
 
 
-            if 'event_details' in event:
+            if event['EventAgendaStatusName'] != 'Draft':
                 # if there is not a meeting detail page on legistar
                 # don't capture the agenda data from the API
                 for item in self.agenda(event):
@@ -202,6 +202,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                         # To the notes field, add the item number as given in the agenda minutes
                         note = "Agenda number, {}".format(item["EventItemAgendaNumber"])
                         agenda_item['notes'].append(note)
+
 
             e.add_participant(name=body_name,
                               type="organization")
