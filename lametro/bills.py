@@ -20,17 +20,19 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                     'present' : 'abstain'}
 
     def session(self, action_date) :
+        from . import Lametro
+
         localize = pytz.timezone(self.TIMEZONE).localize
-        if action_date <  localize(datetime.datetime(2015, 7, 1)) :
-            return "2014"
-        if action_date <  localize(datetime.datetime(2016, 7, 1)) :
-            return "2015"
-        if action_date <  localize(datetime.datetime(2017, 7, 1)) :
-            return "2016"
-        if action_date <  localize(datetime.datetime(2018, 7, 1)) :
-            return "2017"                 
-        else:
-            raise ValueError("Invalid action date: {}".format(action_date))
+        fmt = '%Y-%m-%d'
+
+        for session in Lametro.legislative_sessions:
+            start_datetime = datetime.datetime.strptime(session['start_date'], fmt)
+            end_datetime = datetime.datetime.strptime(session['end_date'], fmt)
+
+            if localize(start_datetime) <= action_date <= localize(end_datetime):
+                return session['identifier']
+
+        raise ValueError("Invalid action date: {}".format(action_date))
 
     def sponsorships(self, matter_id) :
         for i, sponsor in enumerate(self.sponsors(matter_id)) :
