@@ -265,7 +265,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
 
         if item['EventItemMatterFile'] is not None:
 
-            if item['EventItemMatterStatus'] == 'Draft':
+            if item['EventItemMatterStatus'] in ('Draft', 'Approval Review'):
                 suppress = True
             elif item['EventItemMatterType'] == 'Closed Session':
                 suppress = True
