@@ -25,7 +25,7 @@ VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of L
                 'Michael Antonovich' : 'Los Angeles County Board Supervisor, District 5'}
 
 NONVOTING_POSTS = {'Carrie Bowen' : 'Appointee of Governor of California',
-                   'Shirley Choate' : 'Acting Caltrans District 7 Director, Appointee of Governor of California'}
+                   'Shirley Choate' : 'Caltrans District 7 Director, Appointee of Governor of California'}
 
 class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
