@@ -44,7 +44,12 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                 sponsorship['primary'] = False
                 sponsorship['classification'] = "Regular"
 
-            sponsorship['name'] = sponsor['MatterSponsorName'].strip()
+            sponsor_name = sponsor['MatterSponsorName'].strip()
+
+            if sponsor_name == 'Board of Directors - Regular Board Meeting':
+                sponsor_name = 'Board of Directors'
+
+            sponsorship['name'] = sponsor_name
             sponsorship['entity_type'] = 'organization'
             
             yield sponsorship
