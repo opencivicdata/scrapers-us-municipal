@@ -94,9 +94,33 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
                 yield bill_action, votes
 
-    def scrape(self, window=28) :
+    def scrape(self, window=28, matter_ids=None) :
+        '''By default, scrape board reports updated in the last 28 days.
+        Optionally specify a larger or smaller window of time from which to
+        scrape updates, or specific matters to scrape.
+        Note that passing a value for :matter_ids supercedes the value of
+        :window, such that the given matters will be scraped regardless of
+        when they were updated.
+        
+        Optional parameters
+        :window (numeric) - Amount of time for which to scrape updates, e.g.
+        a window of 7 will scrape legislation updated in the last week. Pass
+        a window of 0 to scrape all legislation.
+        :matter_ids (str) - Comma-separated list of matter IDs to scrape
+        '''
+
+        if matter_ids:
+            matters = [self.matter(matter_id) for matter_id in matter_ids.split(',')]
+            matters = filter(None, matters)  # Skip matters that are not yet in Legistar
+        elif float(window):  # Support for partial days, i.e., window=0.15
+            n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
+            matters = self.matters(n_days_ago)
+        else:
+            # Scrape all matters, including those without a last-modified date
+            matters = self.matters()
+
         n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
-        for matter in self.matters(n_days_ago) :
+        for matter in matters:
             matter_id = matter['MatterId']
 
             date = matter['MatterIntroDate']
