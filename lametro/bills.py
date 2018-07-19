@@ -108,7 +108,6 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
         a window of 0 to scrape all legislation.
         :matter_ids (str) - Comma-separated list of matter IDs to scrape
         '''
-        self.version_errors = []
 
         if matter_ids:
             matters = [self.matter(matter_id) for matter_id in matter_ids.split(',')]
