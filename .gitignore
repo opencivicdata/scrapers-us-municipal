@@ -52,3 +52,5 @@ nosetests.xml
 .pydevproject
 
 __pycache__
+
+venv
