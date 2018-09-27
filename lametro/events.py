@@ -114,7 +114,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             if web_event.has_audio:
                 event_audio.append(web_event['Audio'])
 
-            matches = spanish_events.get(event.partner_key, None)
+            matches = spanish_events.pop(event.partner_key, None)
 
             if matches:
                 spanish_event, spanish_web_event = matches
@@ -134,6 +134,13 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
 
             event['event_details'] = event_details
             event['audio'] = event_audio
+
+        try:
+            assert not spanish_events  # These should all be merged with an English event.
+
+        except AssertionError:
+            unpaired_events = '\n'.join(str(web_event) for _, web_event in spanish_events.values())
+            raise AssertionError('Unpaired Spanish events remain:\n{}'.format(unpaired_events))
 
         return english_events
 
