@@ -27,6 +27,8 @@ VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of L
 NONVOTING_POSTS = {'Carrie Bowen' : 'Appointee of Governor of California',
                    'Shirley Choate' : 'Caltrans District 7 Director, Appointee of Governor of California'}
 
+ACTING_MEMBERS = ['Shirley Choate']
+
 class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
     WEB_URL = 'https://metro.legistar.com'
@@ -129,10 +131,13 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
 
                         members[person] = p
 
-                    p.add_membership(organization_name,
+                    membership = p.add_membership(organization_name,
                                      role=role,
                                      start_date = self.toDate(office['OfficeRecordStartDate']),
                                      end_date = self.toDate(office['OfficeRecordEndDate']))
+
+                    if p.name in ACTING_MEMBERS:
+                        membership.extras = {'acting': 'true'}
 
                 yield o
 
