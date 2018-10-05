@@ -1,4 +1,4 @@
-import datetime
+from datetime import date
 import collections
 
 from legistar.people import LegistarAPIPersonScraper, LegistarPersonScraper
@@ -27,7 +27,7 @@ VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of L
 NONVOTING_POSTS = {'Carrie Bowen' : 'Appointee of Governor of California',
                    'Shirley Choate' : 'Caltrans District 7 Director, Appointee of Governor of California'}
 
-ACTING_MEMBERS = ['Shirley Choate']
+ACTING_MEMBERS_WITH_END_DATE = {'Shirley Choate': date(2019, 6, 30)}
 
 class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
@@ -131,12 +131,15 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
 
                         members[person] = p
 
+                    start_date = self.toDate(office['OfficeRecordStartDate'])
+                    end_date = self.toDate(office['OfficeRecordEndDate'])
                     membership = p.add_membership(organization_name,
                                      role=role,
-                                     start_date = self.toDate(office['OfficeRecordStartDate']),
-                                     end_date = self.toDate(office['OfficeRecordEndDate']))
+                                     start_date=start_date,
+                                     end_date=end_date)
 
-                    if p.name in ACTING_MEMBERS:
+                    acting_member_end_date = ACTING_MEMBERS_WITH_END_DATE.get(p.name)
+                    if acting_member_end_date and acting_member_end_date <= end_date:
                         membership.extras = {'acting': 'true'}
 
                 yield o
