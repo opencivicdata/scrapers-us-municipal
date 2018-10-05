@@ -1,4 +1,4 @@
-import datetime
+from datetime import date
 import collections
 
 from legistar.people import LegistarAPIPersonScraper, LegistarPersonScraper
@@ -131,12 +131,14 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
 
                         members[person] = p
 
+                    start_date = self.toDate(office['OfficeRecordStartDate'])
+                    end_date = self.toDate(office['OfficeRecordEndDate'])
                     membership = p.add_membership(organization_name,
                                      role=role,
-                                     start_date = self.toDate(office['OfficeRecordStartDate']),
-                                     end_date = self.toDate(office['OfficeRecordEndDate']))
+                                     start_date=start_date,
+                                     end_date=end_date)
 
-                    if p.name in ACTING_MEMBERS:
+                    if p.name in ACTING_MEMBERS and date.today() < end_date:
                         membership.extras = {'acting': 'true'}
 
                 yield o
