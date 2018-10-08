@@ -81,12 +81,17 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
                         member_type = 'Board Member'
                         post = VOTING_POSTS.get(member)
 
-                    p.add_term(member_type,
+                    start_date = self.toDate(term['OfficeRecordStartDate'])
+                    end_date = self.toDate(term['OfficeRecordEndDate'])
+                    board_membership = p.add_term(member_type,
                                'legislature',
                                district = post,
-                               start_date = self.toDate(term['OfficeRecordStartDate']),
-                               end_date = self.toDate(term['OfficeRecordEndDate']))
+                               start_date = start_date,
+                               end_date = end_date)
 
+                    acting_member_end_date = ACTING_MEMBERS_WITH_END_DATE.get(p.name)
+                    if acting_member_end_date and acting_member_end_date <= end_date:
+                        board_membership.extras = {'acting': 'true'}
 
             source_urls = self.person_sources_from_office(term)
             person_api_url, person_web_url = source_urls
