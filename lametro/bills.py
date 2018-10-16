@@ -222,6 +222,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                                            media_type="application/pdf")
 
             bill.extras = {'local_classification' : matter['MatterTypeName']}
+            bill.extras = {'restrict_view' : matter['MatterRestrictViewViaWeb']}
 
             text = self.text(matter_id)
 
