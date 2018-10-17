@@ -121,6 +121,12 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
         n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
         for matter in matters:
+            # If this Boolean field is True, then do not scrape the Bill.
+            # This issue explains why a restricted Bill might appear (unwelcome) in the Legistar API:
+            # https://github.com/datamade/la-metro-councilmatic/issues/345#issuecomment-421184826 
+            if matter['MatterRestrictViewViaWeb']:
+                continue
+
             matter_id = matter['MatterId']
 
             date = matter['MatterIntroDate']
@@ -222,7 +228,6 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                                            media_type="application/pdf")
 
             bill.extras = {'local_classification' : matter['MatterTypeName']}
-            bill.extras = {'restrict_view' : matter['MatterRestrictViewViaWeb']}
 
             text = self.text(matter_id)
 
