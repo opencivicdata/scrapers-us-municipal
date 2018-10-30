@@ -48,6 +48,10 @@ class Lametro(Jurisdiction):
                      'Nonvoting Board Member',  
                      division_id='ocd-division/country:us/state:ca')
 
+        org.add_post('District 7 Director, California Department of Transportation (Caltrans)',
+                     'Nonvoting Board Member',  
+                     division_id='ocd-division/country:us/state:ca')
+        
         org.add_post('Appointee of Los Angeles County City Selection Committee, North County/San Fernando Valley sector',
                      'Board Member',
                      division_id='ocd-division/country:us/state:ca/county:los_angeles/la_metro_sector:north_county_san_fernando_valley')
