@@ -44,7 +44,7 @@ class Lametro(Jurisdiction):
                      'Nonvoting Board Member',
                      division_id='ocd-division/country:us/state:ca')
 
-        org.add_post('District 7 Director, California Department of Transportation (Caltrans)',
+        org.add_post('District 7 Director, California Department of Transportation (Caltrans), Appointee of the Governor of California',
                      'Nonvoting Board Member',  
                      division_id='ocd-division/country:us/state:ca')
 
