@@ -9,8 +9,10 @@ from pupa.utils import _make_pseudo_id
 
 from legistar.bills import LegistarBillScraper, LegistarAPIBillScraper
 
+from .secrets import TOKEN
+
 class LametroBillScraper(LegistarAPIBillScraper, Scraper):
-    BASE_URL = 'http://webapi.legistar.com/v1/metro'
+    BASE_URL = 'https://webapi.legistar.com/v1/metro'
     BASE_WEB_URL = 'https://metro.legistar.com'
     TIMEZONE = "America/Los_Angeles"
 
@@ -18,6 +20,13 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                     'nay' : 'no',
                     'recused' : 'abstain',
                     'present' : 'abstain'}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # This adds default param values to all requests made by
+        # this session
+        self.params = {'Token': TOKEN}
 
     def session(self, action_date) :
         from . import Lametro
