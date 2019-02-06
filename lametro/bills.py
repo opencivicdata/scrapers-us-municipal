@@ -159,11 +159,11 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                         classification=bill_type,
                         from_organization={"name":"Board of Directors"})
             
-            legistar_web = matter['legistar_url']
+            legistar_web = matter.get('legistar_url', '')
+            if legistar_web:
+                bill.add_source(legistar_web, note='web')
             
             legistar_api = self.BASE_URL + '/matters/{0}'.format(matter_id)
-
-            bill.add_source(legistar_web, note='web')
             bill.add_source(legistar_api, note='api')
 
             for identifier in alternate_identifiers:
