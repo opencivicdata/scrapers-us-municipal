@@ -27,6 +27,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
         # This adds default param values to all requests made by
         # this session
         self.params = {'Token': TOKEN}
+        self.scrape_restricted = True
 
     def session(self, action_date) :
         from . import Lametro
@@ -103,7 +104,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
                 yield bill_action, votes
 
-    def scrape(self, window=28, matter_ids=None) :
+    def scrape(self, window=28, matter_ids=None, scrape_restricted=True) :
         '''By default, scrape board reports updated in the last 28 days.
         Optionally specify a larger or smaller window of time from which to
         scrape updates, or specific matters to scrape.
@@ -116,26 +117,22 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
         a window of 7 will scrape legislation updated in the last week. Pass
         a window of 0 to scrape all legislation.
         :matter_ids (str) - Comma-separated list of matter IDs to scrape
+        :scrape_restricted - A Boolean indicating that the scrape should either
+        skip or include restricted (i.e., private) bills.
         '''
 
         if matter_ids:
-            matters = [self.matter(matter_id) for matter_id in matter_ids.split(',')]
+            matters = [self.matter(matter_id, scrape_restricted) for matter_id in matter_ids.split(',')]
             matters = filter(None, matters)  # Skip matters that are not yet in Legistar
         elif float(window):  # Support for partial days, i.e., window=0.15
             n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
-            matters = self.matters(n_days_ago)
+            matters = self.matters(n_days_ago, scrape_restricted)
         else:
             # Scrape all matters, including those without a last-modified date
-            matters = self.matters()
+            matters = self.matters(scrape_restricted)
 
         n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
         for matter in matters:
-            # If this Boolean field is True, then do not scrape the Bill.
-            # This issue explains why a restricted Bill might appear (unwelcome) in the Legistar API:
-            # https://github.com/datamade/la-metro-councilmatic/issues/345#issuecomment-421184826 
-            if matter['MatterRestrictViewViaWeb']:
-                continue
-
             matter_id = matter['MatterId']
 
             date = matter['MatterIntroDate']
@@ -237,6 +234,8 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                                            media_type="application/pdf")
 
             bill.extras = {'local_classification' : matter['MatterTypeName']}
+            # The 
+            bill.extras = {'restrict_view' : matter['MatterRestrictViewViaWeb']}
 
             text = self.text(matter_id)
 
