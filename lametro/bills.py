@@ -22,10 +22,14 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                     'present' : 'abstain'}
 
     def __init__(self, *args, **kwargs):
+        '''
+        Initialize the Bill scraper with default param values,
+        and set the `scrape_restricted` property to True. 
+        Together, they enable the scraping of private bills, i.e., 
+        bills with 'MatterRestrictViewViaWeb' set as True.
+        '''
         super().__init__(*args, **kwargs)
 
-        # This adds default param values to all requests made by
-        # this session
         self.params = {'Token': TOKEN}
         self.scrape_restricted = True
 
@@ -104,7 +108,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
                 yield bill_action, votes
 
-    def scrape(self, window=28, matter_ids=None, scrape_restricted=True) :
+    def scrape(self, window=28, matter_ids=None) :
         '''By default, scrape board reports updated in the last 28 days.
         Optionally specify a larger or smaller window of time from which to
         scrape updates, or specific matters to scrape.
@@ -117,19 +121,17 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
         a window of 7 will scrape legislation updated in the last week. Pass
         a window of 0 to scrape all legislation.
         :matter_ids (str) - Comma-separated list of matter IDs to scrape
-        :scrape_restricted - A Boolean indicating that the scrape should either
-        skip or include restricted (i.e., private) bills.
         '''
 
         if matter_ids:
-            matters = [self.matter(matter_id, scrape_restricted) for matter_id in matter_ids.split(',')]
+            matters = [self.matter(matter_id) for matter_id in matter_ids.split(',')]
             matters = filter(None, matters)  # Skip matters that are not yet in Legistar
         elif float(window):  # Support for partial days, i.e., window=0.15
             n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
-            matters = self.matters(n_days_ago, scrape_restricted)
+            matters = self.matters(n_days_ago)
         else:
             # Scrape all matters, including those without a last-modified date
-            matters = self.matters(scrape_restricted)
+            matters = self.matters()
 
         n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
         for matter in matters:
