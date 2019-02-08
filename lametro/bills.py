@@ -159,6 +159,17 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                         classification=bill_type,
                         from_organization={"name":"Board of Directors"})
             
+            # Add comment here!
+            bill.extras = {'restrict_view' : matter['MatterRestrictViewViaWeb']}
+
+            if matter['MatterRestrictViewViaWeb']:
+                bill.title = 'Restricted View'
+                bill.save()
+                bill.add_subject('Restricted View')
+                bill.add_source('https://metro.legistar.com')
+
+                yield bill
+
             legistar_web = matter.get('legistar_url', '')
             if legistar_web:
                 bill.add_source(legistar_web, note='web')
@@ -236,7 +247,6 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                                            media_type="application/pdf")
 
             bill.extras = {'local_classification' : matter['MatterTypeName']}
-            bill.extras = {'restrict_view' : matter['MatterRestrictViewViaWeb']}
 
             text = self.text(matter_id)
 
