@@ -159,16 +159,31 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                         classification=bill_type,
                         from_organization={"name":"Board of Directors"})
             
-            # Add comment here!
+            # The Metro scraper scrapes private bills.
+            # However, we do not want to capture significant data about private bills,
+            # other than the value of `restrict_view` and a last modified timestamp.
+            # We yield private bills early, wipe data from previously imported once-public bills,
+            # and include only data *required* by the pupa schema.
+            # https://github.com/opencivicdata/pupa/blob/master/pupa/scrape/schemas/bill.py
             bill.extras = {'restrict_view' : matter['MatterRestrictViewViaWeb']}
 
             if matter['MatterRestrictViewViaWeb']:
+                # required fields
                 bill.title = 'Restricted View'
-                bill.save()
                 bill.add_subject('Restricted View')
                 bill.add_source('https://metro.legistar.com')
 
+                # wipe old data
+                bill.extras['plain_text'] = ''
+                bill.extras['rtf_text'] = ''
+                bill.sponsorships = []
+                bill.related_bills = []
+                bill.versions = []
+                bill.documents = []
+                bill.actions = []
+
                 yield bill
+                continue
 
             legistar_web = matter.get('legistar_url', '')
             if legistar_web:
@@ -246,7 +261,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                                            attachment['MatterAttachmentHyperlink'],
                                            media_type="application/pdf")
 
-            bill.extras = {'local_classification' : matter['MatterTypeName']}
+            bill.extras['local_classification'] = matter['MatterTypeName']
 
             text = self.text(matter_id)
 
