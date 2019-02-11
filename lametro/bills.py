@@ -171,7 +171,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                 # required fields
                 bill.title = 'Restricted View'
                 bill.add_subject('Restricted View')
-                bill.add_source('https://metro.legistar.com')
+                bill.add_source('https://metro.legistar.com', note='web')
 
                 # wipe old data
                 bill.extras['plain_text'] = ''
