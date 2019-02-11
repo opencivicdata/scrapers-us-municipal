@@ -167,11 +167,15 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
             # https://github.com/opencivicdata/pupa/blob/master/pupa/scrape/schemas/bill.py
             bill.extras = {'restrict_view' : matter['MatterRestrictViewViaWeb']}
 
+            # Add API source early. 
+            # Private bills should have this url for debugging.
+            legistar_api = self.BASE_URL + '/matters/{0}'.format(matter_id)
+            bill.add_source(legistar_api, note='api')
+
             if matter['MatterRestrictViewViaWeb']:
                 # required fields
                 bill.title = 'Restricted View'
                 bill.add_subject('Restricted View')
-                bill.add_source('https://metro.legistar.com')
 
                 # wipe old data
                 bill.extras['plain_text'] = ''
@@ -188,9 +192,6 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
             legistar_web = matter.get('legistar_url', '')
             if legistar_web:
                 bill.add_source(legistar_web, note='web')
-            
-            legistar_api = self.BASE_URL + '/matters/{0}'.format(matter_id)
-            bill.add_source(legistar_api, note='api')
 
             for identifier in alternate_identifiers:
                 bill.add_identifier(identifier)
