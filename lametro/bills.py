@@ -9,8 +9,10 @@ from pupa.utils import _make_pseudo_id
 
 from legistar.bills import LegistarBillScraper, LegistarAPIBillScraper
 
+from .secrets import TOKEN
+
 class LametroBillScraper(LegistarAPIBillScraper, Scraper):
-    BASE_URL = 'http://webapi.legistar.com/v1/metro'
+    BASE_URL = 'https://webapi.legistar.com/v1/metro'
     BASE_WEB_URL = 'https://metro.legistar.com'
     TIMEZONE = "America/Los_Angeles"
 
@@ -18,6 +20,18 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                     'nay' : 'no',
                     'recused' : 'abstain',
                     'present' : 'abstain'}
+
+    def __init__(self, *args, **kwargs):
+        '''
+        Initialize the Bill scraper with default param values,
+        and set the `scrape_restricted` property to True. 
+        Together, they enable the scraping of private bills, i.e., 
+        bills with 'MatterRestrictViewViaWeb' set as True.
+        '''
+        super().__init__(*args, **kwargs)
+
+        self.params = {'Token': TOKEN}
+        self.scrape_restricted = True
 
     def session(self, action_date) :
         from . import Lametro
@@ -121,12 +135,6 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
         n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
         for matter in matters:
-            # If this Boolean field is True, then do not scrape the Bill.
-            # This issue explains why a restricted Bill might appear (unwelcome) in the Legistar API:
-            # https://github.com/datamade/la-metro-councilmatic/issues/345#issuecomment-421184826 
-            if matter['MatterRestrictViewViaWeb']:
-                continue
-
             matter_id = matter['MatterId']
 
             date = matter['MatterIntroDate']
@@ -151,11 +159,37 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                         classification=bill_type,
                         from_organization={"name":"Board of Directors"})
             
-            legistar_web = matter['legistar_url']
+            # The Metro scraper scrapes private bills.
+            # However, we do not want to capture significant data about private bills,
+            # other than the value of `restrict_view` and a last modified timestamp.
+            # We yield private bills early, wipe data from previously imported once-public bills,
+            # and include only data *required* by the pupa schema.
+            # https://github.com/opencivicdata/pupa/blob/master/pupa/scrape/schemas/bill.py
+            bill.extras = {'restrict_view' : matter['MatterRestrictViewViaWeb']}
+
+            if matter['MatterRestrictViewViaWeb']:
+                # required fields
+                bill.title = 'Restricted View'
+                bill.add_subject('Restricted View')
+                bill.add_source('https://metro.legistar.com')
+
+                # wipe old data
+                bill.extras['plain_text'] = ''
+                bill.extras['rtf_text'] = ''
+                bill.sponsorships = []
+                bill.related_bills = []
+                bill.versions = []
+                bill.documents = []
+                bill.actions = []
+
+                yield bill
+                continue
+
+            legistar_web = matter.get('legistar_url', '')
+            if legistar_web:
+                bill.add_source(legistar_web, note='web')
             
             legistar_api = self.BASE_URL + '/matters/{0}'.format(matter_id)
-
-            bill.add_source(legistar_web, note='web')
             bill.add_source(legistar_api, note='api')
 
             for identifier in alternate_identifiers:
@@ -227,7 +261,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                                            attachment['MatterAttachmentHyperlink'],
                                            media_type="application/pdf")
 
-            bill.extras = {'local_classification' : matter['MatterTypeName']}
+            bill.extras['local_classification'] = matter['MatterTypeName']
 
             text = self.text(matter_id)
 
