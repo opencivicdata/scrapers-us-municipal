@@ -121,6 +121,21 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
         a window of 7 will scrape legislation updated in the last week. Pass
         a window of 0 to scrape all legislation.
         :matter_ids (str) - Comma-separated list of matter IDs to scrape
+
+
+        ### Notes on scraping private bills
+        The Metro scraper scrapes private bills.
+        
+        Private bills have 'MatterRestrictViewViaWeb' set to True.
+        However, the Metro system sometimes has discrepancies (e.g., a bill has
+        'MatterRestrictViewViaWeb' set to False, but with a status as 'draft' and no agenda date).
+        We thus also use the absence of a `legistar_web` link to determine if a bill is private.
+        
+        We do not want to capture significant data about private bills,
+        other than the value of `restrict_view` and a last modified timestamp.
+        We yield private bills early, wipe data from previously imported once-public bills,
+        and include only data *required* by the pupa schema.
+        https://github.com/opencivicdata/pupa/blob/master/pupa/scrape/schemas/bill.py
         '''
 
         if matter_ids:
@@ -159,12 +174,6 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                         classification=bill_type,
                         from_organization={"name":"Board of Directors"})
             
-            # The Metro scraper scrapes private bills.
-            # However, we do not want to capture significant data about private bills,
-            # other than the value of `restrict_view` and a last modified timestamp.
-            # We yield private bills early, wipe data from previously imported once-public bills,
-            # and include only data *required* by the pupa schema.
-            # https://github.com/opencivicdata/pupa/blob/master/pupa/scrape/schemas/bill.py
             bill.extras = {'restrict_view' : matter['MatterRestrictViewViaWeb']}
 
             # Add API source early. 
@@ -172,7 +181,12 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
             legistar_api = self.BASE_URL + '/matters/{0}'.format(matter_id)
             bill.add_source(legistar_api, note='api')
 
-            if matter['MatterRestrictViewViaWeb']:
+            legistar_web = matter.get('legistar_url', '')
+            if legistar_web:
+                bill.add_source(legistar_web, note='web')
+
+            # Yield private bills early.
+            if matter['MatterRestrictViewViaWeb'] or not legistar_web:
                 # required fields
                 bill.title = 'Restricted View'
                 bill.add_subject('Restricted View')
@@ -188,10 +202,6 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
                 yield bill
                 continue
-
-            legistar_web = matter.get('legistar_url', '')
-            if legistar_web:
-                bill.add_source(legistar_web, note='web')
 
             for identifier in alternate_identifiers:
                 bill.add_identifier(identifier)
@@ -215,6 +225,9 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                                            result=result,
                                            bill=bill)
 
+                    print("******sources")
+                    print(legistar_web)
+                    print(legistar_api + '/histories')
                     vote_event.add_source(legistar_web)
                     vote_event.add_source(legistar_api + '/histories')
 
@@ -226,7 +239,6 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                                         vote['VotePersonName'].strip())
 
                     yield vote_event
-
 
             for sponsorship in self.sponsorships(matter_id) :
                 bill.add_sponsorship(**sponsorship)
@@ -311,5 +323,7 @@ BILL_TYPES = {'Contract' : None,
               'Ordinance / Administrative Code': None,
               'Appointment': None,
               'Public Hearing': None,
-              'Application': None}
+              'Application': None,
+              'Board Correspondence': None,
+              'Closed Session': None}
 
