@@ -31,7 +31,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
         super().__init__(*args, **kwargs)
 
         self.params = {'Token': TOKEN}
-        self.scrape_restricted = True
+        self.scrape_restricted = False
 
     def session(self, action_date) :
         from . import Lametro
