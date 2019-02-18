@@ -50,6 +50,8 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
             matter['MatterStatusName'] == 'Draft' or
             not matter.get('legistar_url')):
             return True
+        else:
+            return False
 
     def session(self, action_date) :
         from . import Lametro
@@ -164,8 +166,6 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
             # Do not scrape private bills introduced before this timestamp.
             if self._is_restricted(matter) and (date < self.start_date_private_scrape):
-                print('skipping an early bill')
-                print(matter['MatterLastModifiedUtc'])
                 continue
 
             bill_session = self.session(self.toTime(date))

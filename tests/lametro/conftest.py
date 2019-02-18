@@ -7,11 +7,9 @@ import pytest
 
 from lametro import LametroBillScraper
 
-
 @pytest.fixture(scope='module')
 def scraper():
     scraper = LametroBillScraper(datadir='', jurisdiction='ocd-division/test')
-    
     return scraper
 
 @pytest.fixture
@@ -21,6 +19,7 @@ def matter():
     '''
     matter = {'MatterAgendaDate': '2017-11-16T00:00:00', 
               'MatterName': None, 
+              'MatterTypeName': 'Contract',
               'MatterId': 4450, 
               'MatterStatusName': 'Passed', 
               'MatterStatusId': 72, 
