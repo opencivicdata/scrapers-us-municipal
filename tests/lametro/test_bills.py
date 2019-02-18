@@ -2,31 +2,24 @@ import pytest
 
 from pupa.scrape.bill import Bill
 
-@pytest.mark.parametrize('field,value,assertion', [
-    ('MatterRestrictViewViaWeb', False, False),
-    ('MatterRestrictViewViaWeb', True, True),
-    ('MatterStatusName', 'Draft', True),
-    ('MatterStatusName', 'Passed', False),
-    ('legistar_url', None, True),
-])
-def test_is_restricted(scraper, matter, field, value, assertion):
+    
+def test_is_restricted(scraper, matter, bill_data_updates):
     '''
-    Unit test for `_is_restricted` function on bill scraper.
-    This function accepts as an argument a dict of matter values.
+    Tests that `_is_restricted` returns the correct value, given
+    a dict of matter values.
     '''
+    field,value,assertion = bill_data_updates
     matter[field] = value
 
     assert scraper._is_restricted(matter) == assertion
 
-@pytest.mark.parametrize('field,value,assertion', [
-    ('MatterRestrictViewViaWeb', True, True),
-    ('MatterRestrictViewViaWeb', False, False),
-    # ('MatterRestrictViewViaWeb', True),
-    # ('MatterStatusName', 'Draft'),
-    # ('MatterStatusName', 'Passed'),
-    # ('legistar_url', None),
-])
-def test_scraper(scraper, matter, field, value, assertion, mocker):
+
+def test_scraper(scraper, matter, bill_data_updates, mocker):
+    '''
+    Test that the scraper correctly assigns the value of 'restrict_view'
+    to bill extras.
+    '''
+    field,value,assertion = bill_data_updates
     matter[field] = value
     mocker.patch('lametro.LametroBillScraper.matter', return_value=matter)
 

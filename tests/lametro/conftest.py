@@ -1,11 +1,7 @@
 import pytest
 
-
-import os
-
-import pytest
-
 from lametro import LametroBillScraper
+
 
 @pytest.fixture(scope='module')
 def scraper():
@@ -34,3 +30,15 @@ def matter():
               'MatterRestrictViewViaWeb': False,
               'MatterTitle': 'AUTHORIZE the Chief Executive Officer'}
     return matter
+
+bill_data_updates = [
+    ('MatterRestrictViewViaWeb', False, False),
+    ('MatterRestrictViewViaWeb', True, True),
+    ('MatterStatusName', 'Draft', True),
+    ('MatterStatusName', 'Passed', False),
+    ('legistar_url', None, True),
+]
+
+@pytest.fixture(params=bill_data_updates)
+def bill_data_updates(request):
+    return request.param
