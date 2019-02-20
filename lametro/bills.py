@@ -21,17 +21,38 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                     'recused' : 'abstain',
                     'present' : 'abstain'}
 
+    START_DATE_PRIVATE_SCRAPE = '2016-07-01'
+
     def __init__(self, *args, **kwargs):
         '''
-        Initialize the Bill scraper with default param values,
-        and set the `scrape_restricted` property to True. 
-        Together, they enable the scraping of private bills, i.e., 
-        bills with 'MatterRestrictViewViaWeb' set as True.
+        Metro scrapes private (or restricted) bills. 
+        Private bills have 'MatterRestrictViewViaWeb' set as True
+        and/or a MatterStatusName of 'Draft' and/or do not appear in the 
+        Legistar web interface.
+
+        The following properties enable scraping private bills:
+        :params - URL params that include the secret Metro API Token
+        
+        :scrape_restricted - a boolean used in `python-legistar-scraper`: it
+        indicates that the scrape should continue, even if the bill does not exist in
+        the Legistar web interface
+        
+        START_DATE_PRIVATE_SCRAPE (class attr) - a timestamp that indicates when to start scraping 
+        private bills. The scraper can safely skip bills from early legislative sessions, 
+        because those bills will remain private.
         '''
         super().__init__(*args, **kwargs)
 
         self.params = {'Token': TOKEN}
-        self.scrape_restricted = False
+        self.scrape_restricted = True
+
+    def _is_restricted(self, matter):
+        if (matter['MatterRestrictViewViaWeb'] or
+            matter['MatterStatusName'] == 'Draft' or
+            not matter.get('legistar_url')):
+            return True
+        else:
+            return False
 
     def session(self, action_date) :
         from . import Lametro
@@ -144,6 +165,10 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
             if not all((date, title, identifier)) :
                 continue
 
+            # Do not scrape private bills introduced before this timestamp.
+            if self._is_restricted(matter) and (date < self.START_DATE_PRIVATE_SCRAPE):
+                continue
+
             bill_session = self.session(self.toTime(date))
             bill_type = BILL_TYPES[matter['MatterTypeName']]
 
@@ -157,22 +182,22 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                         legislative_session=bill_session,
                         title=title,
                         classification=bill_type,
-                        from_organization={"name":"Board of Directors"})
+                        from_organization={"name": "Board of Directors"})
             
             # The Metro scraper scrapes private bills.
             # However, we do not want to capture significant data about private bills,
-            # other than the value of `restrict_view` and a last modified timestamp.
+            # other than the value of the helper function `_is_restricted` and a last modified timestamp.
             # We yield private bills early, wipe data from previously imported once-public bills,
             # and include only data *required* by the pupa schema.
             # https://github.com/opencivicdata/pupa/blob/master/pupa/scrape/schemas/bill.py
-            bill.extras = {'restrict_view' : matter['MatterRestrictViewViaWeb']}
+            bill.extras = {'restrict_view' : self._is_restricted(matter)}
 
             # Add API source early. 
             # Private bills should have this url for debugging.
             legistar_api = self.BASE_URL + '/matters/{0}'.format(matter_id)
             bill.add_source(legistar_api, note='api')
 
-            if matter['MatterRestrictViewViaWeb']:
+            if self._is_restricted(matter):
                 # required fields
                 bill.title = 'Restricted View'
                 bill.add_subject('Restricted View')
@@ -189,9 +214,8 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                 yield bill
                 continue
 
-            legistar_web = matter.get('legistar_url', '')
-            if legistar_web:
-                bill.add_source(legistar_web, note='web')
+            legistar_web = matter['legistar_url']
+            bill.add_source(legistar_web, note='web')
 
             for identifier in alternate_identifiers:
                 bill.add_identifier(identifier)
