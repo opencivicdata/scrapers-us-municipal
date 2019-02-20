@@ -21,6 +21,8 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                     'recused' : 'abstain',
                     'present' : 'abstain'}
 
+    START_DATE_PRIVATE_SCRAPE = '2016-07-01'
+
     def __init__(self, *args, **kwargs):
         '''
         Metro scrapes private (or restricted) bills. 
@@ -35,7 +37,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
         indicates that the scrape should continue, even if the bill does not exist in
         the Legistar web interface
         
-        :start_date_private_scrape - a timestamp that indicates when to start scraping 
+        START_DATE_PRIVATE_SCRAPE (class attr) - a timestamp that indicates when to start scraping 
         private bills. The scraper can safely skip bills from early legislative sessions, 
         because those bills will remain private.
         '''
@@ -43,7 +45,6 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
         self.params = {'Token': TOKEN}
         self.scrape_restricted = True
-        self.start_date_private_scrape = '2016-07-01'
 
     def _is_restricted(self, matter):
         if (matter['MatterRestrictViewViaWeb'] or
@@ -165,7 +166,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                 continue
 
             # Do not scrape private bills introduced before this timestamp.
-            if self._is_restricted(matter) and (date < self.start_date_private_scrape):
+            if self._is_restricted(matter) and (date < self.START_DATE_PRIVATE_SCRAPE):
                 continue
 
             bill_session = self.session(self.toTime(date))
