@@ -3,23 +3,23 @@ import pytest
 from pupa.scrape.bill import Bill
 
     
-def test_is_restricted(scraper, matter, bill_data_updates):
+def test_is_restricted(scraper, matter, public_private_bill_data):
     '''
     Tests that `_is_restricted` returns the correct value, given
     a dict of matter values.
     '''
-    field,value,assertion = bill_data_updates
+    field, value, assertion = public_private_bill_data
     matter[field] = value
 
     assert scraper._is_restricted(matter) == assertion
 
 
-def test_scraper(scraper, matter, bill_data_updates, mocker):
+def test_scraper(scraper, matter, public_private_bill_data, mocker):
     '''
     Test that the scraper correctly assigns the value of 'restrict_view'
     to bill extras.
     '''
-    field,value,assertion = bill_data_updates
+    field, value, assertion = public_private_bill_data
     matter[field] = value
     mocker.patch('lametro.LametroBillScraper.matter', return_value=matter)
 

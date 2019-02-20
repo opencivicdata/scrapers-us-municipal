@@ -31,7 +31,7 @@ def matter():
               'MatterTitle': 'AUTHORIZE the Chief Executive Officer'}
     return matter
 
-bill_data_updates = [
+public_private_bill_data = [
     ('MatterRestrictViewViaWeb', False, False),
     ('MatterRestrictViewViaWeb', True, True),
     ('MatterStatusName', 'Draft', True),
@@ -39,6 +39,13 @@ bill_data_updates = [
     ('legistar_url', None, True),
 ]
 
-@pytest.fixture(params=bill_data_updates)
-def bill_data_updates(request):
+@pytest.fixture(params=public_private_bill_data)
+def public_private_bill_data(request):
+    '''
+    This parametrized fixture contains arguments for updating the values of a bill, namely:
+    'MatterRestrictViewViaWeb', 'MatterStatusName', and 'legistar_url'.
+    
+    Changing these values also determines whether the bill should be 
+    marked as having a 'restricted view,' i.e., private vs. public.
+    '''
     return request.param
