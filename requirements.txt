@@ -3,3 +3,6 @@ pupa==0.9.0
 https://github.com/opencivicdata/python-legistar-scraper/zipball/master
 lxml
 sh 
+pytest==4.2.0
+pytest-mock==1.10.1
+requests-mock==1.5.2
