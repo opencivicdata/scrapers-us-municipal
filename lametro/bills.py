@@ -156,6 +156,10 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
         n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
         for matter in matters:
+            # Skip this bill, until Metro cleans up duplicate in Legistar API
+            if matter['MatterFile'] == '2017-0447':
+                continue
+
             matter_id = matter['MatterId']
 
             date = matter['MatterIntroDate']
