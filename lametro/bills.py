@@ -204,7 +204,6 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
             if self._is_restricted(matter):
                 # required fields
                 bill.title = 'Restricted View'
-                bill.add_subject('Restricted View')
 
                 # wipe old data
                 bill.extras['plain_text'] = ''
