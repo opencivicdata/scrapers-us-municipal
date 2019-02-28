@@ -135,9 +135,7 @@ class NYCPersonScraper(LegistarAPIPersonScraper, Scraper):
                            'Subcommittee',
                            'Task Force',
                            'Land Use', # Committee on Land Use
-                           'Charter Revision Commission 2019',
-                           'New York City Advisory Commission on Property Tax Reform',
-                           'Democratic Conference of the Council of the City of New York ',]
+                          ]
 
         body_types = {k: v for k, v in self.body_types().items()
                       if k in committee_types}
