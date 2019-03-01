@@ -134,7 +134,8 @@ class NYCPersonScraper(LegistarAPIPersonScraper, Scraper):
                            'Select Committee',
                            'Subcommittee',
                            'Task Force',
-                           'Land Use']  # Committee on Land Use
+                           'Land Use', # Committee on Land Use
+                          ]
 
         body_types = {k: v for k, v in self.body_types().items()
                       if k in committee_types}

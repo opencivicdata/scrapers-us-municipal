@@ -165,6 +165,19 @@ class NYCBillScraper(LegistarAPIBillScraper, Scraper):
 
     def get_bill(self, matter):
         '''Make Bill object from given matter.'''
+        
+        '''
+        Currently, NYC Legistar does not have conventional "Types" for 
+        three newly added committees: https://legistar.council.nyc.gov/Departments.aspx
+        We communicated the issue to NYC, and until we learn more, we will
+        skip the bills attached to those committees.
+        '''
+        orgs_without_type = ['Charter Revision Commission 2019',
+                             'New York City Advisory Commission on Property Tax Reform',
+                             'Democratic Conference of the Council of the City of New York']
+        if matter['MatterBodyName'].strip() in orgs_without_type:
+            return None
+
         matter_id = matter['MatterId']
         if matter_id in DUPLICATED_ACTIONS:
             return None
@@ -343,10 +356,12 @@ BILL_TYPES = {'Introduction': 'bill',
               'Local Laws 2015': 'bill',
               'Local Laws 2017': 'bill',
               'Local Laws 2018': 'bill',
+              'Local Laws 2019': 'bill',
               'Commissioner of Deeds': None,
               'Town Hall Meeting': None,
               'Tour': None,
               'Petition': 'petition',
+              'Public Meeting': None,
               'SLR': None,
               'City Agency Report': None,
               'Hearing Transcripts 1994': None,
