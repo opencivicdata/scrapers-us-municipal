@@ -154,11 +154,14 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             else:
                 event_name = body_name
 
+            # Events can have an EventAgendaStatusName of "Final", "Final Revised", 
+            # and "Final 2nd Revised."
+            # We classify these events as "passed."
             status_name = event['EventAgendaStatusName']
-            if status_name == 'Draft':
-                status = 'confirmed'
-            elif status_name == 'Final':
+            if status_name.startswith('Final'):
                 status = 'passed'
+            elif status_name == 'Draft':
+                status = 'confirmed'
             elif status_name == 'Canceled':
                 status = 'cancelled'
             else:
