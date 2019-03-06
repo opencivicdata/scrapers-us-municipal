@@ -5,7 +5,7 @@ import re
 
 from pupa.scrape.event import Event
 
-@pytest.mark.parametrize('status_name,status', [
+@pytest.mark.parametrize('api_status_name,scraper_assigned_status', [
     ('Final', 'passed'), 
     ('Final Revised', 'passed'),
     ('Final 2nd Revised', 'passed'),
@@ -13,10 +13,10 @@ from pupa.scrape.event import Event
     ('Canceled', 'cancelled')
 ])
 def test_status_assignment(event_scraper, 
-                           event, 
+                           api_event, 
                            web_event,
-                           status_name,
-                           status, 
+                           api_status_name,
+                           scraper_assigned_status, 
                            mocker):
     with requests_mock.Mocker() as m:
         matcher = re.compile('webapi.legistar.com')
@@ -25,9 +25,9 @@ def test_status_assignment(event_scraper,
         matcher = re.compile('metro.legistar.com')
         m.get(matcher, json={}, status_code=200)
 
-        event['EventAgendaStatusName'] = status_name
+        api_event['EventAgendaStatusName'] = api_status_name
 
-        mocker.patch('lametro.LametroEventScraper._merge_events', return_value=[(event, web_event)])
+        mocker.patch('lametro.LametroEventScraper._merge_events', return_value=[(api_event, web_event)])
 
         for event in event_scraper.scrape():
-            assert event.status == status
+            assert event.status == scraper_assigned_status

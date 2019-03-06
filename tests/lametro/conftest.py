@@ -15,7 +15,7 @@ def event_scraper():
     return scraper
 
 @pytest.fixture
-def event():
+def api_event():
     '''
     Dictionary with pertinent info for an event.
     '''
