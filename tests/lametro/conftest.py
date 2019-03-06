@@ -1,12 +1,68 @@
 import pytest
+import datetime
 
-from lametro import LametroBillScraper
+from lametro import LametroBillScraper, LametroEventScraper
 
 
 @pytest.fixture(scope='module')
-def scraper():
+def bill_scraper():
     scraper = LametroBillScraper(datadir='', jurisdiction='ocd-division/test')
     return scraper
+
+@pytest.fixture(scope='module')
+def event_scraper():
+    scraper = LametroEventScraper(datadir='', jurisdiction='ocd-division/test')
+    return scraper
+
+@pytest.fixture
+def api_event():
+    '''
+    Dictionary with pertinent info for an event.
+    '''
+    event = {'EventLastModifiedUtc': '2018-10-04T18:45:31.123',
+             'status': 'passed',
+             'EventVideoStatus': 'Public',
+             'EventMinutesFile': None, 
+             'EventAgendaLastPublishedUTC': '2019-02-22T23:50:26.483',
+             'EventMinutesStatusName': 'Draft',
+             'EventAgendaFile': 'http://metro.legistar1.com/metro/meetings/2019/2/1473_A_Board_of_Directors_-_Regular_Board_Meeting_19-02-28_Agenda.pdf',
+             'EventBodyId': 138, 
+             'audio': [], 
+             'EventGuid': '57DC7258-0E6D-42CA-BB9A-717FCC96E436',
+             'EventBodyName': 'Board of Directors - Regular Board Meeting',
+             'event_details': [], 
+             'EventItems': [], 
+             'EventRowVersion': 'AAAAAADdAQ0=',
+             'EventDate': '2019-02-28T00:00:00',
+             'EventId': 1473, 
+             'EventLocation': 'One Gateway Plaza, Los Angeles, CA 90012',
+             'SAPEventId': 1535, 
+             'EventAgendaStatusName': 'Final',
+             'SAPEventGuid': '8962CCBC-5E42-4B3B-91DA-6178D507079C',
+             'start': datetime.datetime(2019, 2, 28, 9, 30),
+             'EventInSiteURL': '', 
+             'EventTime': '9:30 AM'}
+
+    return event
+
+@pytest.fixture
+def web_event():
+    '''
+    Dictionary with pertinent info for a web_event.
+    Corresponds with the event fixture above.
+    '''
+    web_event = {'Meeting Details': {'label': 'Meeting\xa0details', 'url': ''}, 
+                 'Meeting Time': '9:30 AM', 
+                 'eComment': 'Not\xa0available', 
+                 'Name': {'label': 'Board of Directors - Regular Board Meeting', 'url': ''}, 
+                 'Meeting Date': '2/28/2019', 
+                 'Audio': {'label': 'Audio', 'url': ''},
+                 'Agenda': {'label': 'Agenda', 'url': ''}, 
+                 'iCalendar': {'url': ''}, 
+                 'Meeting Location': 'One Gateway Plaza, Los Angeles, CA 90012', 
+                 'Recap/Minutes': 'Not\xa0available'}
+    
+    return web_event
 
 @pytest.fixture
 def matter():
@@ -29,6 +85,7 @@ def matter():
               'MatterGuid': 'D0750C68-B1D1-4CE4-BC8A-A2EB64A68155',
               'MatterRestrictViewViaWeb': False,
               'MatterTitle': 'AUTHORIZE the Chief Executive Officer'}
+    
     return matter
 
 public_private_bill_data = [

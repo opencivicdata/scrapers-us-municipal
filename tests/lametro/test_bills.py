@@ -8,7 +8,7 @@ import requests
 from pupa.scrape.bill import Bill
 
     
-def test_is_restricted(scraper, matter, public_private_bill_data):
+def test_is_restricted(bill_scraper, matter, public_private_bill_data):
     '''
     Tests that `_is_restricted` returns the correct value, given
     a dict of matter values.
@@ -16,10 +16,10 @@ def test_is_restricted(scraper, matter, public_private_bill_data):
     field, value, assertion = public_private_bill_data
     matter[field] = value
 
-    assert scraper._is_restricted(matter) == assertion
+    assert bill_scraper._is_restricted(matter) == assertion
 
 
-def test_scraper(scraper, matter, public_private_bill_data, mocker):
+def test_scraper(bill_scraper, matter, public_private_bill_data, mocker):
     '''
     Test that the scraper correctly assigns the value of 'restrict_view'
     to bill extras.
@@ -35,7 +35,7 @@ def test_scraper(scraper, matter, public_private_bill_data, mocker):
         mocker.patch('lametro.LametroBillScraper.matter', return_value=matter)
         mocker.patch('lametro.LametroBillScraper.text', return_value='')
 
-        for bill in scraper.scrape(matter_ids=matter_id):
+        for bill in bill_scraper.scrape(matter_ids=matter_id):
             if type(bill) == Bill:
                 assert bill.extras['restrict_view'] == assertion
 
@@ -48,7 +48,7 @@ def test_scraper(scraper, matter, public_private_bill_data, mocker):
     ('2015-07-01T00:00:00', 0),
     ('2014-07-01T00:00:00', 0),
 ])
-def test_private_scrape_dates(scraper, matter, intro_date, num_bills_scraped, mocker):
+def test_private_scrape_dates(bill_scraper, matter, intro_date, num_bills_scraped, mocker):
     '''
     Test that the scraper skips early private bills (i.e., introduced before
     the START_DATE_PRIVATE_SCRAPE timestamp) and also scrapes later ones.
@@ -65,7 +65,7 @@ def test_private_scrape_dates(scraper, matter, intro_date, num_bills_scraped, mo
         mocker.patch('lametro.LametroBillScraper.text', return_value='')
 
         scrape_results = []
-        for bill in scraper.scrape(matter_ids=matter_id):
+        for bill in bill_scraper.scrape(matter_ids=matter_id):
             if type(bill) == Bill:
                 scrape_results.append(bill)
 
