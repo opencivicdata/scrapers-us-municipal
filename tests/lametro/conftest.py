@@ -91,6 +91,7 @@ def matter():
 public_private_bill_data = [
     ('MatterRestrictViewViaWeb', False, False),
     ('MatterRestrictViewViaWeb', True, True),
+    ('MatterBodyName', 'TO BE REMOVED', True),
     ('MatterStatusName', 'Draft', True),
     ('MatterStatusName', 'Passed', False),
     ('legistar_url', None, True),
