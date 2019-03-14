@@ -49,6 +49,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
     def _is_restricted(self, matter):
         if (matter['MatterRestrictViewViaWeb'] or
             matter['MatterStatusName'] == 'Draft' or
+            matter['MatterBodyName'] == 'TO BE REMOVED' or
             not matter.get('legistar_url')):
             return True
         else:
