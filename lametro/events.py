@@ -191,7 +191,6 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             if event.get('SAPEventGuid'):
                 e.extras['sap_guid'] = event['SAPEventGuid']
 
-
             if 'event_details' in event:
                 # if there is not a meeting detail page on legistar
                 # don't capture the agenda data from the API
@@ -205,6 +204,17 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                         # To the notes field, add the item number as given in the agenda minutes
                         note = "Agenda number, {}".format(item["EventItemAgendaNumber"])
                         agenda_item['notes'].append(note)
+
+                    # The EventItemAgendaSequence provides 
+                    # the line number of the Legistar agenda grid.
+                    agenda_item['extras']['item_agenda_sequence'] = item['EventItemAgendaSequence']
+
+                # Historically, the Legistar system has duplicated the EventItemAgendaSequence,
+                # resulting in data inaccuracies. The scrape should fail, until Metro
+                # cleans the data.
+                item_agenda_sequences = [item['extras']['item_agenda_sequence'] for item in e.agenda]
+                if len(item_agenda_sequences) != len(set(item_agenda_sequences)):
+                    raise ValueError('Agenda for Event {} has duplicate agenda items on the Legistar grid. Contact Metro, and ask them to remove the duplicate EventItemAgendaSequence.'.format(e.pupa_id))
 
             e.add_participant(name=body_name,
                               type="organization")
