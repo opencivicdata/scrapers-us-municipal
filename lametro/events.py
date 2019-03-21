@@ -188,6 +188,9 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             # it exists, to the extras dict.
             e.extras = {'guid': event['EventGuid']}
 
+            legistar_api_url = self.BASE_URL + '/events/{0}'.format(event['EventId'])
+            e.add_source(legistar_api_url, note='api')
+
             if event.get('SAPEventGuid'):
                 e.extras['sap_guid'] = event['SAPEventGuid']
 
@@ -214,13 +217,16 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 # cleans the data.
                 item_agenda_sequences = [item['extras']['item_agenda_sequence'] for item in e.agenda]
                 if len(item_agenda_sequences) != len(set(item_agenda_sequences)):
-                    raise ValueError('Agenda for Event {} has duplicate agenda items on the Legistar grid. Contact Metro, and ask them to remove the duplicate EventItemAgendaSequence.'.format(e.pupa_id))
+                    error_msg = 'An agenda has duplicate agenda items on the Legistar grid: \
+                        {event_name} on {event_date} ({legistar_api_url}). \
+                        Contact Metro, and ask them to remove the duplicate EventItemAgendaSequence.'
+
+                    raise ValueError(error_msg.format(event_name=e.name, 
+                                                      event_date=e.start_date.strftime("%B %d, %Y"),
+                                                      legistar_api_url=legistar_api_url))
 
             e.add_participant(name=body_name,
                               type="organization")
-
-            e.add_source(self.BASE_URL + '/events/{0}'.format(event['EventId']),
-                         note='api')
 
             if event.get('SAPEventId'):
                 e.add_source(self.BASE_URL + '/events/{0}'.format(event['SAPEventId']),
