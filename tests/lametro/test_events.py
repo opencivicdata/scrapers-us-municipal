@@ -35,6 +35,7 @@ def test_status_assignment(event_scraper,
 def test_sequence_duplicate_error(event_scraper,
                                   api_event, 
                                   web_event,
+                                  event_agenda_item,
                                   mocker):
     with requests_mock.Mocker() as m:
         matcher = re.compile('webapi.legistar.com')
@@ -47,12 +48,10 @@ def test_sequence_duplicate_error(event_scraper,
                                       'url': 'https://metro.legistar.com/MeetingDetail.aspx?ID=642118&GUID=F19B2133-928C-4390-9566-C293C61DC89A&Options=info&Search='}
 
         mocker.patch('lametro.LametroEventScraper._merge_events', return_value=[(api_event, web_event)])
-        # TODO: mock the value of https://github.com/opencivicdata/python-legistar-scraper/blob/master/legistar/events.py#L195 with EventItems
-        mocker.patch('lametro.LametroEventScraper.agenda', return_value=[{}])
+        mocker.patch('lametro.LametroEventScraper.agenda', return_value=[event_agenda_item, event_agenda_item])
 
         with pytest.raises(ValueError) as excinfo:
-            event_scraper.scrape()
-        
-        assert 'Agenda for Event {} has duplicate agenda items on the Legistar grid'\
-               .format(api_event['EventId'])\
-               in str(excinfo.value)
+            for event in event_scraper.scrape():
+                assert 'Agenda for Event {} has duplicate agenda items on the Legistar grid'\
+                       .format(api_event['EventId'])\
+                       in str(excinfo.value)

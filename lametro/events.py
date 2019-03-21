@@ -210,7 +210,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                     agenda_item['extras']['item_agenda_sequence'] = item['EventItemAgendaSequence']
 
                 # Historically, the Legistar system has duplicated the EventItemAgendaSequence,
-                # resulting in data inaccuracies. The scrape should fail, until Metro
+                # resulting in data inaccuracies. The scrape should fail in such cases, until Metro
                 # cleans the data.
                 item_agenda_sequences = [item['extras']['item_agenda_sequence'] for item in e.agenda]
                 if len(item_agenda_sequences) != len(set(item_agenda_sequences)):

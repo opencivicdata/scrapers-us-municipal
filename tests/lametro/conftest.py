@@ -75,8 +75,12 @@ def event_agenda_item():
                    'EventItemRollCallFlag': 0,
                    'EventItemAgendaSequence': 12,
                    'EventItemMinutesSequence': 12,
+                   'EventItemMatterFile': None,
+                   'EventItemAgendaNumber': None,
                    'EventItemLastModifiedUtc': '2019-03-04T19:47:09.387',
                    'EventItemTitle': 'Adjournment'}
+
+    return agenda_item
 
 @pytest.fixture
 def matter():
