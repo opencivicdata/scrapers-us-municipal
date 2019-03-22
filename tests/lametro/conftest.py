@@ -65,6 +65,24 @@ def web_event():
     return web_event
 
 @pytest.fixture
+def event_agenda_item():
+    '''
+    Dictionary with pertinent info for an event item. 
+    It corresponds with the above api_event.
+    '''
+    agenda_item = {'EventItemGuid': '57DC7258-0E6D-42CA-BB9A-717FCC96E436',
+                   'EventItemEventId': 1473,
+                   'EventItemRollCallFlag': 0,
+                   'EventItemAgendaSequence': 12,
+                   'EventItemMinutesSequence': 12,
+                   'EventItemMatterFile': None,
+                   'EventItemAgendaNumber': None,
+                   'EventItemLastModifiedUtc': '2019-03-04T19:47:09.387',
+                   'EventItemTitle': 'Adjournment'}
+
+    return agenda_item
+
+@pytest.fixture
 def matter():
     '''
     Dictionary with pertinent info for a bill. Bill is public.
