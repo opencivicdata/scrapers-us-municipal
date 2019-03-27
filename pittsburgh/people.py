@@ -71,13 +71,29 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
                 organization.add_source(self.WEB_URL + '/DepartmentDetail.aspx?ID={BodyId}&GUID={BodyGuid}'.format(**body), note='web')
 
                 for office in self.body_offices(body):
+                    role = office['OfficeRecordMemberType']
+                    if role not in ("Vice Chair", "Chair"):
+                        role = 'Member'
+
+                    person = office['OfficeRecordFullName'].strip()
+                    if person in members:
+                        person = members[person]
+                    else:
+                        person = Person(person)
+
+                        source_urls = self.person_sources_from_office(office)
+                        person_api_url, person_web_url = source_urls
+                        person.add_source(person_api_url, note='api')
+                        person.add_source(person_web_url, note='web')
+
+                    person.add_membership(body['BodyName'],
+                                     role=role,
+                                     start_date = self.toDate(office['OfficeRecordStartDate']),
+                                     end_date = self.toDate(office['OfficeRecordEndDate']))
+
+                yield organization
 
 
+        for person in members.values():
+            yield person
 
-
-
-
-        # for person in members.values():
-        #     yield person
-
-        # for body in self.bodies():
