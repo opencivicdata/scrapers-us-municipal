@@ -1,7 +1,7 @@
 # encoding=utf-8
 from pupa.scrape import Jurisdiction, Organization, Person
 
-from .events import PittsburghEventScraper
+from .events import PittsburghEventsScraper
 from .people import PittsburghPersonScraper
 from .bills import PittsburghBillScraper
 from .vote_events import PittsburghVoteEventScraper
@@ -17,7 +17,7 @@ class Pittsburgh(Jurisdiction):
     parties = [ {'name': 'Democrats' } ]
 
     scrapers = {
-        "events": PittsburghEventScraper,
+        "events": PittsburghEventsScraper,
         "people": PittsburghPersonScraper,
         "bills": PittsburghBillScraper,
     }
