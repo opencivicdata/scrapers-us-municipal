@@ -45,8 +45,8 @@ class PittsburghEventsScraper(LegistarAPIEventScraper, Scraper) :
 
             location = api_event['EventLocation']
             if location == 'Council Chambers':
-                location = 'Council Chambers, 5th Floor, City-County Building, '
-                ' 414 Grant Street, Pittsburgh, PA 15219'
+                location = 'Council Chambers, 5th Floor, City-County Building, ' \
+                            '414 Grant Street, Pittsburgh, PA 15219'
 
             if not location :
                 continue
@@ -97,15 +97,20 @@ class PittsburghEventsScraper(LegistarAPIEventScraper, Scraper) :
             else :
                 status = api_event['status']
 
+            if event["Name"] == 'Post Agenda':
+                event_name = 'Agenda Announcement'
+            else:
+                event_name = event["Name"]
+
 
             if description :
-                e = Event(name=event["Name"],
+                e = Event(name=event_name,
                           start_date=when,
                           description=description,
                           location_name=location,
                           status=status)
             else :
-                e = Event(name=event["Name"],
+                e = Event(name=event_name,
                           start_date=when,
                           location_name=location,
                           status=status)
