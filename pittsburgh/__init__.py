@@ -46,7 +46,7 @@ class Pittsburgh(Jurisdiction):
 
     def get_organizations(self):
         org = Organization(name="Pittsburgh City Council", classification="legislature")
-        for x in range(1, 9):
+        for x in range(1, 10):
             org.add_post(
                 "District {}".format(x),
                 "Councilmember",
