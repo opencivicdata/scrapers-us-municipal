@@ -4,7 +4,6 @@ from pupa.scrape import Jurisdiction, Organization, Person
 from .events import PittsburghEventsScraper
 from .people import PittsburghPersonScraper
 from .bills import PittsburghBillScraper
-from .vote_events import PittsburghVoteEventScraper
 
 import datetime
 
@@ -60,14 +59,14 @@ class Pittsburgh(Jurisdiction):
 
         yield city
 
-        peduto = Person(name="Peduto, Bill")
+        peduto = Person(name="William Peduto")
         peduto.add_term('Mayor',
                         'executive',
                         start_date=datetime.date(2014, 1, 6),
                         appointment=True)
         peduto.add_source('http://pittsburghpa.gov/mayor/mayor-profile')
 
-        ravenstahl = Person(name="Ravenstahl, Luke")
+        ravenstahl = Person(name="Luke Ravensthal")
         ravenstahl.add_term('Mayor',
                             'executive',
                             start_date=datetime.date(2006, 9, 1),
@@ -75,14 +74,14 @@ class Pittsburgh(Jurisdiction):
                             appointment=True)
         ravenstahl.add_source('')
 
-        pree = Person(name="Pree, Brenda")
+        pree = Person(name="Brenda Pree")
         pree.add_term('City Clerk',
                       'executive',
                       start_date=datetime.date(2017, 8, 29),
                       appointment=True)
         pree.add_source('http://pittsburghpa.gov/clerk/clerk-bio')
 
-        doheny = Person(name="Doheny, Mary Beth")
+        doheny = Person(name="Mary Beth Doheny")
         doheny.add_term('City Clerk',
                         'executive',
                         start_date=datetime.date(2014, 3, 18),
