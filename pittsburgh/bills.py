@@ -57,7 +57,9 @@ class PittsburghBillScraper(LegistarAPIBillScraper, Scraper):
             action_date =  self.toTime(action_date).date()
 
             responsible_person = None
-            if responsible_org == 'City Council' :
+            if (responsible_org == 'City Council' or
+                responsible_org == 'Standing Committee'
+                or responsible_org == 'Committee on Hearings'):
                 responsible_org = 'Pittsburgh City Council'
             elif responsible_org == 'Office of the Mayor':
                 responsible_org = 'City of Pittsburgh'
@@ -75,7 +77,6 @@ class PittsburghBillScraper(LegistarAPIBillScraper, Scraper):
                            'date' : action_date,
                            'organization' : {'name' : responsible_org},
                            'classification': ocd_classification,
-                           # 'classification' : ACTION[action_description]['ocd'],
                            'responsible person' : responsible_person}
             if bill_action != old_action:
                 old_action = bill_action
@@ -117,7 +118,11 @@ class PittsburghBillScraper(LegistarAPIBillScraper, Scraper):
                 continue
 
             bill_session = self.session(self.toTime(date))
-            bill_type = BILL_TYPES[matter['MatterTypeName']]
+
+            if matter['MatterTypeName'] in BILL_TYPES:
+                ocd_bill_type = BILL_TYPES[matter['MatterTypeName']]
+            else:
+                ocd_bill_type = None
 
             if identifier.startswith('S'):
                 alternate_identifiers = [identifier]
@@ -128,7 +133,7 @@ class PittsburghBillScraper(LegistarAPIBillScraper, Scraper):
             bill = Bill(identifier=identifier,
                         legislative_session=bill_session,
                         title=title,
-                        classification=bill_type,
+                        classification=ocd_bill_type,
                         from_organization={"name":"Pittsburgh City Council"})
 
             legistar_web = matter['legistar_url']
