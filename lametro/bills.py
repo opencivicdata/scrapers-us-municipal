@@ -292,7 +292,8 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
             bill.extras['local_classification'] = matter['MatterTypeName']
 
-            text = self.text(matter_id)
+            matter_version_value = matter['MatterVersion']
+            text = self.text(matter_id, matter_version_value)
 
             if text :
                 if text['MatterTextPlain'] :
