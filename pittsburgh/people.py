@@ -12,6 +12,21 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
     WEB_URL = 'https://pittsburgh.legistar.com'
     TIMEZONE = "America/New_York"
 
+    # Override method in LegistarAPIPersonScraper class to pull in contact
+    # info from call to /persons/PersonId endpoint
+
+    def person_sources_from_office(self, office):
+        person_api_url = (self.BASE_URL +
+                          '/persons/{OfficeRecordPersonId}'.format(**office))
+
+        response = self.get(person_api_url)
+
+        route = '/PersonDetail.aspx?ID={PersonId}&GUID={PersonGuid}'
+        person_web_url = self.WEB_URL + route.format(**response.json())
+        person_api_response = self.get(person_api_url).json()
+
+        return person_api_url, person_web_url, person_api_response
+
     def scrape(self):
         body_types = self.body_types()
 
@@ -54,10 +69,27 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
                                         value=web['E-mail']['label'],
                                         note='E-mail')
 
-            source_urls = self.person_sources_from_office(term)
-            person_api_url, person_web_url = source_urls
+            person_source_data = self.person_sources_from_office(term)
+            person_api_url, person_web_url, person_api_response = person_source_data
             person.add_source(person_api_url, note='api')
             person.add_source(person_web_url, note='web')
+
+            if person_api_response['PersonAddress1']:
+                address = (person_api_response['PersonAddress1'] + ', ' + person_api_response['PersonCity1']
+                          + ', ' + person_api_response['PersonState1'] + ' ' + person_api_response['PersonZip1'])
+                person.add_contact_detail(type="address",
+                                    value=address,
+                                    note='Office address')
+
+            if person_api_response['PersonPhone']:
+                person.add_contact_detail(type="voice",
+                                    value=person_api_response['PersonPhone'],
+                                    note='Office phone')
+
+            if person_api_response['PersonWWW']:
+                person.add_contact_detail(type="url",
+                                    value=person_api_response['PersonWWW'],
+                                    note='District website')
 
             members[member] = person
 
