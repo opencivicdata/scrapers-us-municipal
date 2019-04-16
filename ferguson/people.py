@@ -24,7 +24,7 @@ class FergusonPersonScraper(Scraper):
             (name, ) = member_doc.xpath('//h1[@class="BioName"]/text()')
             (name, ) = re.findall(r'^(?:Mr\.|Mrs\.|Hon\.)?\s*(.*?)\s*$', name)
 
-            # Returning everything into a list because the number of values returned varies
+            # Returning everything into a list because the number of values returned varies 
             # depending on if the person has an email or not
             text_list = member_doc.xpath(
                 '//a[@class="BioLink"]/parent::div/text()')
