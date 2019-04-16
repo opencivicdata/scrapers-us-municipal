@@ -39,7 +39,7 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
         web_info['Fioretti, Bob'] = collections.defaultdict(lambda : None)
         web_info['Balcer, James']['Ward/Office'] = 11
         web_info['Fioretti, Bob']['Ward/Office'] = 2
-
+        
         members = {}
         for member, offices in terms.items():
             web = web_info[member]
@@ -99,7 +99,7 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
                     # messed up record for joanna thompson
                     if office['OfficeRecordId'] == 1055:
                         continue
-
+                        
                     role = office['OfficeRecordTitle']
                     if role not in ("Vice Chair", "Chairman"):
                         role = 'Member'
@@ -109,7 +109,7 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
                         p = members[person]
                     else:
                         p = Person(person)
-
+                        
                         source_urls = self.person_sources_from_office(office)
                         person_api_url, person_web_url = source_urls
                         p.add_source(person_api_url, note='api')
@@ -120,9 +120,9 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
                     p.add_membership(body['BodyName'],
                                      role=role,
                                      start_date = self.toDate(office['OfficeRecordStartDate']),
-
+                        
                                      end_date = self.toDate(office['OfficeRecordEndDate']))
-
+                        
 
                 yield o
 
@@ -135,7 +135,7 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
                 o.add_source(self.BASE_URL + '/bodies/{BodyId}'.format(**body), note='api')
                 o.add_source(self.WEB_URL + '/DepartmentDetail.aspx?ID={BodyId}&GUID={BodyGuid}'.format(**body), note='web')
 
-                yield o
+                yield o        
 
         for p in members.values():
             yield p
