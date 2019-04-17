@@ -10,7 +10,7 @@ from .secrets import TOKEN
 
 class NYCPersonScraper(LegistarAPIPersonScraper, Scraper):
     BASE_URL = 'https://webapi.legistar.com/v1/nyc'
-    WEB_URL = 'http://legistar.council.nyc.gov'
+    WEB_URL = 'https://legistar.council.nyc.gov'
     TIMEZONE = 'US/Eastern'
 
     def __init__(self, *args, **kwargs):
