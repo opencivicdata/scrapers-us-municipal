@@ -10,8 +10,8 @@ from .secrets import TOKEN
 
 class NYCEventsScraper(LegistarAPIEventScraper, Scraper):
     BASE_URL = 'https://webapi.legistar.com/v1/nyc'
-    WEB_URL = "http://legistar.council.nyc.gov/"
-    EVENTSPAGE = "http://legistar.council.nyc.gov/Calendar.aspx/"
+    WEB_URL = "https://legistar.council.nyc.gov/"
+    EVENTSPAGE = "https://legistar.council.nyc.gov/Calendar.aspx/"
     TIMEZONE = "America/New_York"
 
     def __init__(self, *args, **kwargs):

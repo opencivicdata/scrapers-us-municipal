@@ -15,9 +15,9 @@ DUPLICATED_ACTIONS = {21445, 28507, 28481,
                                      # weird special events.
 
 class NYCBillScraper(LegistarAPIBillScraper, Scraper):
-    LEGISLATION_URL = 'http://legistar.council.nyc.gov/Legislation.aspx'
+    LEGISLATION_URL = 'https://legistar.council.nyc.gov/Legislation.aspx'
     BASE_URL = 'https://webapi.legistar.com/v1/nyc'
-    BASE_WEB_URL = 'http://legistar.council.nyc.gov'
+    BASE_WEB_URL = 'https://legistar.council.nyc.gov'
     TIMEZONE = 'US/Eastern'
 
     VOTE_OPTIONS = {'affirmative': 'yes',
