@@ -19,7 +19,8 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
     VOTE_OPTIONS = {'aye' : 'yes',
                     'nay' : 'no',
                     'recused' : 'abstain',
-                    'present' : 'abstain'}
+                    'present' : 'abstain',
+                    'conflict': 'abstain'}
 
     START_DATE_PRIVATE_SCRAPE = '2016-07-01'
 
