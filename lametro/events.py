@@ -344,7 +344,6 @@ class LAMetroWebEvent(dict):
 
     web_scraper = LegistarScraper(retry_attempts=3,
                                   requests_per_minute=0)
-    web_scraper.params = {}
 
     @property
     def has_audio(self):
