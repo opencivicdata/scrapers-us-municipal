@@ -320,7 +320,7 @@ ACTION_CLASSIFICATION = {'WITHDRAWN' : 'withdrawal',
                          'RECEIVED' : 'receipt',
                          'REFERRED' : 'referral-committee',
                          'FORWARDED DUE TO ABSENCES AND CONFLICTS' : 'committee-passage',
-                         'NO ACTION TAKEN': None}
+                         'NO ACTION TAKEN': 'filing'}
 
 BILL_TYPES = {'Contract' : None,
               'Budget' : None,
