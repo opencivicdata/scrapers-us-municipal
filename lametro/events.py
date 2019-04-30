@@ -1,8 +1,9 @@
 import datetime
 
-import requests
 from legistar.events import LegistarAPIEventScraper
 from pupa.scrape import Event, Scraper
+from legistar.base import LegistarScraper
+
 
 class LametroEventScraper(LegistarAPIEventScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
@@ -340,6 +341,10 @@ class LAMetroWebEvent(dict):
     This class is for adding methods to the web event dict
     to facilitate labeling and sourcing audio appropriately.
     '''
+
+    web_scraper = LegistarScraper(retry_attempts=3,
+                                  requests_per_minute=0)
+
     @property
     def has_audio(self):
         return self['Audio'] != 'Not\xa0available'
@@ -354,4 +359,5 @@ class LAMetroWebEvent(dict):
 
     @property
     def _detail_url_valid(self):
-        return requests.head(self['Meeting Details']['url']).status_code == 200
+        response = self.web_scraper.head(self['Meeting Details']['url'])
+        return response.status_code == 200
