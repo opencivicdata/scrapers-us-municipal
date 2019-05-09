@@ -20,7 +20,8 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                     'nay' : 'no',
                     'recused' : 'abstain',
                     'present' : 'abstain',
-                    'conflict': 'abstain'}
+                    'conflict': 'abstain',
+                    None : 'abstain'}
 
     START_DATE_PRIVATE_SCRAPE = '2016-07-01'
 
@@ -250,8 +251,8 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                     for vote in votes :
                         try:
                             raw_option = vote['VoteValueName'].lower()
-                        except:
-                            raw_option = 'present'
+                        except AttributeError:
+                            raw_option = None
                         clean_option = self.VOTE_OPTIONS.get(raw_option,
                                                              raw_option)
                         vote_event.vote(clean_option,
