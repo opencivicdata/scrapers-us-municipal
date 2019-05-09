@@ -20,26 +20,27 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                     'nay' : 'no',
                     'recused' : 'abstain',
                     'present' : 'abstain',
-                    'conflict': 'abstain'}
+                    'conflict': 'abstain',
+                    None : 'abstain'}
 
     START_DATE_PRIVATE_SCRAPE = '2016-07-01'
 
     def __init__(self, *args, **kwargs):
         '''
-        Metro scrapes private (or restricted) bills. 
+        Metro scrapes private (or restricted) bills.
         Private bills have 'MatterRestrictViewViaWeb' set as True
-        and/or a MatterStatusName of 'Draft' and/or do not appear in the 
+        and/or a MatterStatusName of 'Draft' and/or do not appear in the
         Legistar web interface.
 
         The following properties enable scraping private bills:
         :params - URL params that include the secret Metro API Token
-        
+
         :scrape_restricted - a boolean used in `python-legistar-scraper`: it
         indicates that the scrape should continue, even if the bill does not exist in
         the Legistar web interface
-        
-        START_DATE_PRIVATE_SCRAPE (class attr) - a timestamp that indicates when to start scraping 
-        private bills. The scraper can safely skip bills from early legislative sessions, 
+
+        START_DATE_PRIVATE_SCRAPE (class attr) - a timestamp that indicates when to start scraping
+        private bills. The scraper can safely skip bills from early legislative sessions,
         because those bills will remain private.
         '''
         super().__init__(*args, **kwargs)
@@ -88,7 +89,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
             sponsorship['name'] = sponsor_name
             sponsorship['entity_type'] = 'organization'
-            
+
             yield sponsorship
 
     def actions(self, matter_id) :
@@ -119,13 +120,13 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                 if (action['MatterHistoryEventId'] is not None
                     and action['MatterHistoryRollCallFlag'] is not None
                     and action['MatterHistoryPassedFlag'] is not None) :
-                    
+
                     # Do we want to capture vote events for voice votes?
-                    # Right now we are not? 
+                    # Right now we are not?
                     bool_result = action['MatterHistoryPassedFlag']
                     result = 'pass' if bool_result else 'fail'
 
-                    votes = (result, self.votes(action['MatterHistoryId'])) 
+                    votes = (result, self.votes(action['MatterHistoryId']))
                 else :
                     votes = (None, [])
 
@@ -138,7 +139,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
         Note that passing a value for :matter_ids supercedes the value of
         :window, such that the given matters will be scraped regardless of
         when they were updated.
-        
+
         Optional parameters
         :window (numeric) - Amount of time for which to scrape updates, e.g.
         a window of 7 will scrape legislation updated in the last week. Pass
@@ -189,7 +190,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                         title=title,
                         classification=bill_type,
                         from_organization={"name": "Board of Directors"})
-            
+
             # The Metro scraper scrapes private bills.
             # However, we do not want to capture significant data about private bills,
             # other than the value of the helper function `_is_restricted` and a last modified timestamp.
@@ -198,7 +199,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
             # https://github.com/opencivicdata/pupa/blob/master/pupa/scrape/schemas/bill.py
             bill.extras = {'restrict_view' : self._is_restricted(matter)}
 
-            # Add API source early. 
+            # Add API source early.
             # Private bills should have this url for debugging.
             legistar_api = self.BASE_URL + '/matters/{0}'.format(matter_id)
             bill.add_source(legistar_api, note='api')
@@ -236,7 +237,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
                 result, votes = vote
                 if result :
-                    vote_event = VoteEvent(legislative_session=bill.legislative_session, 
+                    vote_event = VoteEvent(legislative_session=bill.legislative_session,
                                            motion_text=action['description'],
                                            organization=action['organization'],
                                            classification=None,
@@ -248,10 +249,13 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                     vote_event.add_source(legistar_api + '/histories')
 
                     for vote in votes :
-                        raw_option = vote['VoteValueName'].lower()
+                        try:
+                            raw_option = vote['VoteValueName'].lower()
+                        except AttributeError:
+                            raw_option = None
                         clean_option = self.VOTE_OPTIONS.get(raw_option,
                                                              raw_option)
-                        vote_event.vote(clean_option, 
+                        vote_event.vote(clean_option,
                                         vote['VotePersonName'].strip())
 
                     yield vote_event
@@ -265,7 +269,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
             for relation in self.relations(matter_id):
                 try:
-                    # Get data (i.e., json) for the related bill. 
+                    # Get data (i.e., json) for the related bill.
                     # Then, we can find the 'MatterFile' (i.e., identifier) and the 'MatterIntroDate' (i.e., to determine its legislative session).
                     # Sometimes, the related bill does not yet exist: in this case, throw an error, and continue.
                     related_bill = self.endpoint('/matters/{0}', relation['MatterRelationMatterId'])
