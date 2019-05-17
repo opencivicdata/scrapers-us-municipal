@@ -93,6 +93,7 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
 
             members[member] = person
 
+
         for body in self.bodies():
             if body['BodyTypeId'] == body_types['Committee']:
                 organization = Organization(body['BodyName'],
@@ -104,7 +105,7 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
 
                 for office in self.body_offices(body):
                     role = office['OfficeRecordMemberType']
-                    if role not in ("Vice Chair", "Chair"):
+                    if role not in ("Vice Chair", "Chair") or role == 'Councilmember':
                         role = 'Member'
 
                     person = office['OfficeRecordFullName'].strip()
@@ -113,10 +114,11 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
                     else:
                         person = Person(person)
 
-                        source_urls = self.person_sources_from_office(office)
-                        person_api_url, person_web_url = source_urls
-                        person.add_source(person_api_url, note='api')
-                        person.add_source(person_web_url, note='web')
+                    source_urls = self.person_sources_from_office(office)
+                    person_api_url = source_urls[0]
+                    person_web_url = source_urls[1]
+                    person.add_source(person_api_url, note='api')
+                    person.add_source(person_web_url, note='web')
 
                     person.add_membership(body['BodyName'],
                                      role=role,

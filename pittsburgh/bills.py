@@ -61,12 +61,6 @@ class PittsburghBillScraper(LegistarAPIBillScraper, Scraper):
                 responsible_org == 'Standing Committee'
                 or responsible_org == 'Committee on Hearings'):
                 responsible_org = 'Pittsburgh City Council'
-            elif responsible_org == 'Office of the Mayor':
-                responsible_org = 'City of Pittsburgh'
-                if action_date < datetime.date(2014, 1, 3):
-                    responsible_person = 'William Peduto'
-                else:
-                    responsible_person = 'Luke Ravensthal'
 
             if action_description in ACTION:
                 ocd_classification = ACTION[action_description]['ocd']

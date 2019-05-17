@@ -10,16 +10,26 @@ import datetime
 
 class Pittsburgh(Jurisdiction):
     division_id = "ocd-division/country:us/state:pa/place:pittsburgh"
-    classification = "legislature"
-    name = "Pittsburgh City Council"
+    classification = "government"
+    name = "Pittsburgh City Government"
+    timezone = "America/New_York"
     url = "https://pittsburgh.legistar.com"
-    parties = [ {'name': 'Democrats' } ]
 
     scrapers = {
         "events": PittsburghEventsScraper,
         "people": PittsburghPersonScraper,
         "bills": PittsburghBillScraper,
     }
+
+    # legislative_sessions = []
+
+    # def get_legislative_sessions(self):
+    #     for year in range(2001, 2030):
+    #         legislative_sessions.append({"identifier": str(year),
+    #                 "name": str(year) + ' Session',
+    #                 "start_date": str(year) + '-01-01',
+    #                 "end_date": str(year) + '-12-31'})
+
 
     legislative_sessions = [{"identifier": "2019",
             "name": "2019 Session",
@@ -40,7 +50,63 @@ class Pittsburgh(Jurisdiction):
             {"identifier": "2015",
             "name": "2015 Session",
             "start_date": "2015-01-01",
-            "end_date": "2015-12-31"}
+            "end_date": "2015-12-31"},
+            {"identifier": "2014",
+            "name": "2015 Session",
+            "start_date": "2014-01-01",
+            "end_date": "2014-12-31"},
+            {"identifier": "2013",
+            "name": "2013 Session",
+            "start_date": "2013-01-01",
+            "end_date": "2013-12-31"},
+            {"identifier": "2012",
+            "name": "2012 Session",
+            "start_date": "2012-01-01",
+            "end_date": "2012-12-31"},
+            {"identifier": "2011",
+            "name": "2011 Session",
+            "start_date": "2011-01-01",
+            "end_date": "2011-12-31"},
+            {"identifier": "2015",
+            "name": "2010 Session",
+            "start_date": "2010-01-01",
+            "end_date": "2010-12-31"},
+            {"identifier": "2009",
+            "name": "2009 Session",
+            "start_date": "2009-01-01",
+            "end_date": "2009-12-31"},
+            {"identifier": "2008",
+            "name": "2008 Session",
+            "start_date": "2008-01-01",
+            "end_date": "2008-12-31"},
+            {"identifier": "2007",
+            "name": "2007 Session",
+            "start_date": "2007-01-01",
+            "end_date": "2007-12-31"},
+            {"identifier": "2008",
+            "name": "2006 Session",
+            "start_date": "2006-01-01",
+            "end_date": "2006-12-31"},
+            {"identifier": "2005",
+            "name": "2005 Session",
+            "start_date": "2005-01-01",
+            "end_date": "2005-12-31"},
+            {"identifier": "2004",
+            "name": "2004 Session",
+            "start_date": "2004-01-01",
+            "end_date": "2004-12-31"},
+            {"identifier": "2003",
+            "name": "2003 Session",
+            "start_date": "2003-01-01",
+            "end_date": "2003-12-31"},
+            {"identifier": "2008",
+            "name": "2002 Session",
+            "start_date": "2002-01-01",
+            "end_date": "2002-12-31"},
+            {"identifier": "2008",
+            "name": "2001 Session",
+            "start_date": "2001-01-01",
+            "end_date": "2001-12-31"},
             ]
 
     def get_organizations(self):
@@ -53,38 +119,50 @@ class Pittsburgh(Jurisdiction):
 
         yield org
 
-        city = Organization('City of Pittsburgh', classification='executive')
-        city.add_post('Mayor', 'Mayor', division_id='ocd-division/country:us/state:pa/place:pittsburgh')
-        city.add_post('City Clerk', 'City Clerk', division_id='ocd-division/country:us/state:pa/place:pittsburgh')
+        standing_committee = Organization(name='Standing Committee', classification='committee')
 
-        yield city
+        standing_committee.add_source('http://pittsburghpa.gov/council/standing-committees', note='web')
 
-        peduto = Person(name="William Peduto")
-        peduto.add_term('Mayor',
-                        'executive',
-                        start_date=datetime.date(2014, 1, 6),
-                        appointment=True)
-        peduto.add_source('http://pittsburghpa.gov/mayor/mayor-profile')
+        yield standing_committee
 
-        ravenstahl = Person(name="Luke Ravensthal")
-        ravenstahl.add_term('Mayor',
-                            'executive',
-                            start_date=datetime.date(2006, 9, 1),
-                            end_date=datetime.date(2014, 1, 5),
-                            appointment=True)
-        ravenstahl.add_source('')
+
+        mayor = Organization(name='Mayor', classification='executive')
+
+        mayor.add_source('http://pittsburghpa.gov/mayor/index.html', note='web')
+
+        yield mayor
+
+        city_clerk = Organization(name='City Clerk', classification='department')
+        city_clerk.add_post('City Clerk', 'City Clerk', division_id='ocd-division/country:us/state:pa/place:pittsburgh')
+        city_clerk.add_source('http://pittsburghpa.gov/clerk/', note='web')
+
+        yield city_clerk
 
         pree = Person(name="Brenda Pree")
         pree.add_term('City Clerk',
-                      'executive',
+                      'department',
                       start_date=datetime.date(2017, 8, 29),
                       appointment=True)
         pree.add_source('http://pittsburghpa.gov/clerk/clerk-bio')
 
+        yield pree
+
         doheny = Person(name="Mary Beth Doheny")
         doheny.add_term('City Clerk',
-                        'executive',
+                        'department',
                         start_date=datetime.date(2014, 3, 18),
                         end_date=datetime.date(2017, 8, 28),
                         appointment=True)
-        doheny.add_source('')
+        doheny.add_source('http://pittsburghpa.gov')
+
+        yield doheny
+
+        all_members = Person(name="All Members")
+        all_members.add_term('City Council',
+                              'legislature',
+                              start_date=datetime.date(1816, 3, 18))
+        all_members.add_source('http://pittsburghpa.gov/council/index.html')
+
+        yield all_members
+
+
