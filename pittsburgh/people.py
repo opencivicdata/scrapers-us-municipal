@@ -1,6 +1,3 @@
-# TODO: get legistar access and update https://pittsburgh.legistar.com/People.aspx
-# and https://pittsburgh.legistar.com/Departments.aspx
-
 import collections
 
 from pupa.scrape import Person, Organization, Scraper
@@ -10,7 +7,7 @@ from legistar.people import LegistarAPIPersonScraper, LegistarPersonScraper
 class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/pittsburgh'
     WEB_URL = 'https://pittsburgh.legistar.com'
-    TIMEZONE = "America/New_York"
+    TIMEZONE = 'America/New_York'
 
     # Override method in LegistarAPIPersonScraper class to pull in contact
     # info from call to /persons/PersonId endpoint
@@ -127,7 +124,5 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
 
                 yield organization
 
-
         for person in members.values():
             yield person
-

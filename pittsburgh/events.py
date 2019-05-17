@@ -8,24 +8,18 @@ import requests
 from legistar.events import LegistarAPIEventScraper
 from pupa.scrape import Event, Scraper
 
+
 class PittsburghEventsScraper(LegistarAPIEventScraper, Scraper) :
     BASE_URL = 'http://webapi.legistar.com/v1/pittsburgh'
-    WEB_URL = "https://pittsburgh.legistar.com/"
-    EVENTSPAGE = "https://pittsburgh.legistar.com/Calendar.aspx"
+    WEB_URL = 'https://pittsburgh.legistar.com/'
+    EVENTSPAGE = 'https://pittsburgh.legistar.com/Calendar.aspx'
     TIMEZONE = "America/New_York"
 
     def _event_key(self, event, web_scraper):
         '''
-        Since Legistar InSite contains more information about events than
-        are available in the API, we need to scrape both. Then, we have
-        to line them up. This method makes a key that should be
-        uniquely identify every event and will allow us to link
-        events from the two data sources.
-
-        Overrides method from the parent class (LegistarAPIEventScraper,
-        from the legistar package); the package looks for
-        event['Name']['label'], however in Pittsburgh's case there's no
-        'label'.
+        Overrides method from LegistarAPIEventScraper.
+        The package looks for event['Name']['label'],
+        however in Pittsburgh's case there's no 'label'.
         '''
         response = web_scraper.get(event['iCalendar']['url'], verify=False)
         event_time = web_scraper.ical(response.text).subcomponents[0]['DTSTART'].dt
@@ -42,8 +36,8 @@ class PittsburghEventsScraper(LegistarAPIEventScraper, Scraper) :
 
             description = api_event['EventComment']
             when = api_event['start']
-
             location = api_event['EventLocation']
+
             if location == 'Council Chambers':
                 location = 'Council Chambers, 5th Floor, City-County Building, ' \
                             '414 Grant Street, Pittsburgh, PA 15219'
@@ -52,6 +46,7 @@ class PittsburghEventsScraper(LegistarAPIEventScraper, Scraper) :
                 continue
 
             status_string = api_event['status']
+
             if len(status_string) > 1 and status_string[1] :
                 status_text = status_string[1].lower()
                 if any(phrase in status_text
@@ -102,7 +97,6 @@ class PittsburghEventsScraper(LegistarAPIEventScraper, Scraper) :
             else:
                 event_name = event["Name"]
 
-
             if description :
                 e = Event(name=event_name,
                           start_date=when,
@@ -127,6 +121,7 @@ class PittsburghEventsScraper(LegistarAPIEventScraper, Scraper) :
             self.addDocs(e, event, 'Minutes')
 
             participant = event["Name"]
+
             if participant == 'City Council' or participant == 'Post Agenda':
                 participant = 'Pittsburgh City Council'
 
@@ -140,6 +135,7 @@ class PittsburghEventsScraper(LegistarAPIEventScraper, Scraper) :
                     agenda_item.add_bill(identifier)
 
             participants = set()
+
             for call in self.rollcalls(api_event):
                 if call['RollCallValueName'] == 'Present':
                     participants.add(call['RollCallPersonName'])
