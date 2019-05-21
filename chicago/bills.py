@@ -28,15 +28,11 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
 
     def session(self, action_date) :
         localize = pytz.timezone(self.TIMEZONE).localize
-        # 2011 Kill Bill https://chicago.legistar.com/LegislationDetail.aspx?ID=907351&GUID=6118274B-A598-4584-AA5B-ABDFA5F79506
-        if action_date <  localize(datetime.datetime(2011, 5, 4)) :
+        if action_date < localize(datetime.datetime(2011, 5, 18)) :
             return "2007"
-        # 2015 Kill Bill https://chicago.legistar.com/LegislationDetail.aspx?ID=2321351&GUID=FBA81B7C-8A33-4D6F-92A7-242B537069B3
-        elif action_date < localize(datetime.datetime(2015, 5, 6)) :
+        elif action_date < localize(datetime.datetime(2015, 5, 18)) :
             return "2011"
-        # The 2019 Kill Bill has not been introduced yet, so this date
-        # might be pushed back
-        elif action_date < localize(datetime.datetime(2019, 5, 19)):
+        elif action_date < localize(datetime.datetime(2019, 5, 20)):
             return "2015"
         else :
             return "2019"
