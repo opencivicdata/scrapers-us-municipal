@@ -34,8 +34,12 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
         # 2015 Kill Bill https://chicago.legistar.com/LegislationDetail.aspx?ID=2321351&GUID=FBA81B7C-8A33-4D6F-92A7-242B537069B3
         elif action_date < localize(datetime.datetime(2015, 5, 6)) :
             return "2011"
-        else :
+        # The 2019 Kill Bill has not been introduced yet, so this date
+        # might be pushed back
+        elif action_date < localize(datetime.datetime(2019, 5, 19)):
             return "2015"
+        else :
+            return "2019"
 
     def sponsorships(self, matter_id) :
         for i, sponsor in enumerate(self.sponsors(matter_id)) :
