@@ -20,19 +20,24 @@ class Chicago(Jurisdiction):
         "bills": ChicagoBillScraper,
     }
 
-    legislative_sessions = [{"identifier":"2015",
-            "name":"2015 Regular Session",
-            "start_date": "2015-05-18",
-            "end_date": "2019-05-17"},
-            {"identifier":"2011",
-            "name":"2011 Regular Session",
-            "start_date": "2011-05-18",
-            "end_date": "2015-05-17"},
-            {"identifier":"2007",
-            "name":"2007 Regular Session",
-            "start_date": "2007-05-18",
-            "end_date": "2011-05-17"}
-            ]
+    legislative_sessions = [
+        {"identifier":"2019",
+         "name":"2019 Regular Session",
+         "start_date": "2019-05-20",
+         "end_date": "2023-05-19"},
+        {"identifier":"2015",
+         "name":"2015 Regular Session",
+         "start_date": "2015-05-18",
+         "end_date": "2019-05-19"},
+        {"identifier":"2011",
+         "name":"2011 Regular Session",
+         "start_date": "2011-05-18",
+         "end_date": "2015-05-17"},
+        {"identifier":"2007",
+         "name":"2007 Regular Session",
+         "start_date": "2007-05-18",
+         "end_date": "2011-05-17"}
+    ]
 
     def get_organizations(self):
         org = Organization(name="Chicago City Council", classification="legislature")
