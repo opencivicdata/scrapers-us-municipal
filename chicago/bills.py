@@ -24,8 +24,7 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
     VOTE_OPTIONS = {'yea' : 'yes',
                     'rising vote' : 'yes',
                     'nay' : 'no',
-                    'recused' : 'excused',
-                    None: 'abstain'}
+                    'recused' : 'excused'}
 
     def session(self, action_date) :
         localize = pytz.timezone(self.TIMEZONE).localize
@@ -198,10 +197,7 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
                     vote_event.add_source(legistar_api + '/histories')
 
                     for vote in votes :
-                        try:
-                            raw_option = vote['VoteValueName'].lower()
-                        except AttributeError:
-                            raw_option = vote['VoteValueName']
+                        raw_option = vote['VoteValueName'].lower()
                         clean_option = self.VOTE_OPTIONS.get(raw_option,
                                                              raw_option)
                         vote_event.vote(clean_option, 
