@@ -99,12 +99,24 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
                 and action['MatterHistoryRollCallFlag'] is not None
                 and action['MatterHistoryPassedFlag'] is not None) :
 
-                # Do we want to capture vote events for voice votes?
-                # Right now we are not? 
                 bool_result = action['MatterHistoryPassedFlag']
                 result = 'pass' if bool_result else 'fail'
 
-                votes = (result, self.votes(action['MatterHistoryId'])) 
+                # Votes that are not roll calls, i.e., voice votes, sometimes
+                # include "votes" that omit the vote option (yea, nay, etc.).
+                # Capture that a vote occurred, but skip recording the
+                # null votes, as they break the scraper.
+
+                action_text = action['MatterHistoryActionText'] or ''
+
+                if 'voice vote' in action_text.lower():
+                    assert not any(v for v in self.votes(action['MatterHistoryId']) if v['VoteValueName'] is not None)
+
+                    print('Skipping votes for history {0} of matter ID {1}'.format(action['MatterHistoryId'],
+                                                                                   matter_id))
+                    votes = (result, [])
+                else:
+                    votes = (result, self.votes(action['MatterHistoryId']))
             else :
                 votes = (None, [])
 
