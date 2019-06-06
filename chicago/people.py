@@ -117,12 +117,14 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
 
                         members[person] = p
 
+                    try:
+                        end_date = self.toDate(office['OfficeRecordEndDate'])
+                    except TypeError:
+                        end_date = ''
                     p.add_membership(body['BodyName'],
                                      role=role,
-                                     start_date = self.toDate(office['OfficeRecordStartDate']),
-                        
-                                     end_date = self.toDate(office['OfficeRecordEndDate']))
-                        
+                                     start_date=self.toDate(office['OfficeRecordStartDate']),
+                                     end_date=end_date)
 
                 yield o
 
