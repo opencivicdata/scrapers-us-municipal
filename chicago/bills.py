@@ -109,7 +109,7 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
                 action_text = action['MatterHistoryActionText'] or ''
 
                 if 'voice vote' in action_text.lower():
-                    assert not any(v for v in self.votes(action['MatterHistoryId']) if v['VoteValueName'] is not None)
+                    assert not any(v for v in self.votes(action['MatterHistoryId']) if v['VoteValueName'] not in (None, 'Absent'))
 
                     self.info('Skipping votes for history {0} of matter ID {1}'.format(action['MatterHistoryId'],
                                                                                        matter_id))
