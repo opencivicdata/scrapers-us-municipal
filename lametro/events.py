@@ -94,7 +94,6 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 else:
                     logging.warning('No Spanish/English match found for {0} {1} {2}'.format(
                         unpaired_event['EventBodyName'], unpaired_event['EventDate'], unpaired_event['EventTime']))
-                    import ipdb; ipdb.set_trace()
 
     def _merge_events(self, events):
         english_events = []
