@@ -1,9 +1,12 @@
 import datetime
+import logging
 
 from legistar.events import LegistarAPIEventScraper
 from pupa.scrape import Event, Scraper
 from legistar.base import LegistarScraper
 
+
+LOGGER = logging.getLogger(__name__)
 
 class LametroEventScraper(LegistarAPIEventScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
@@ -44,7 +47,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             return partner
 
         elif event.is_spanish:
-            raise ValueError("Can't find English companion for Spanish Event {}".format(event['EventId']))
+            logger.warning("Can't find English companion for Spanish Event {}".format(event['EventId']))
 
         else:
             return None
@@ -88,6 +91,10 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 partner_event = self._find_partner(unpaired_event)
                 if partner_event is not None:
                     yield partner_event
+                else:
+                    logging.warning('No Spanish/English match found for {0} {1} {2}'.format(
+                        unpaired_event['EventBodyName'], unpaired_event['EventDate'], unpaired_event['EventTime']))
+                    import ipdb; ipdb.set_trace()
 
     def _merge_events(self, events):
         english_events = []
@@ -140,7 +147,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
 
         except AssertionError:
             unpaired_events = '\n'.join(str(web_event) for _, web_event in spanish_events.values())
-            raise AssertionError('Unpaired Spanish events remain:\n{}'.format(unpaired_events))
+            logging.warning('Unpaired Spanish events remain:\n{}'.format(unpaired_events))
 
         return english_events
 
