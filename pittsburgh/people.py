@@ -1,4 +1,5 @@
 import collections
+import datetime
 
 from pupa.scrape import Person, Organization, Scraper
 from legistar.people import LegistarAPIPersonScraper, LegistarPersonScraper
@@ -112,4 +113,17 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
                 yield organization
 
         for person in members.values():
+
+            if person.name == "William Peduto":
+                person.add_term("Mayor",
+                                "executive",
+                                start_date=datetime.date(2014, 1 ,6),
+                                appointment=True)
+            elif person.name == "Luke Ravenstahl":
+                person.add_term("Mayor",
+                                "executive",
+                                start_date=datetime.date(2006, 9, 1),
+                                end_date=datetime.date(2014, 1 ,6),
+                                appointment=True)
+            
             yield person
