@@ -17,7 +17,7 @@ class Lametro(Jurisdiction):
     }
 
     legislative_sessions = []
-    for year in range(2014, 2019):
+    for year in range(2014, 2020):
         session = {"identifier": "{}".format(year),
                    "start_date": "{}-07-01".format(year),
                    "end_date": "{}-06-30".format(year + 1)}
@@ -45,7 +45,7 @@ class Lametro(Jurisdiction):
                      division_id='ocd-division/country:us/state:ca')
 
         org.add_post('District 7 Director, California Department of Transportation (Caltrans), Appointee of the Governor of California',
-                     'Nonvoting Board Member',  
+                     'Nonvoting Board Member',
                      division_id='ocd-division/country:us/state:ca')
 
         org.add_post('Appointee of Los Angeles County City Selection Committee, North County/San Fernando Valley sector',
