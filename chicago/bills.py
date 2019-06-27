@@ -28,14 +28,14 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
 
     def session(self, action_date) :
         localize = pytz.timezone(self.TIMEZONE).localize
-        # 2011 Kill Bill https://chicago.legistar.com/LegislationDetail.aspx?ID=907351&GUID=6118274B-A598-4584-AA5B-ABDFA5F79506
-        if action_date <  localize(datetime.datetime(2011, 5, 4)) :
+        if action_date < localize(datetime.datetime(2011, 5, 18)) :
             return "2007"
-        # 2015 Kill Bill https://chicago.legistar.com/LegislationDetail.aspx?ID=2321351&GUID=FBA81B7C-8A33-4D6F-92A7-242B537069B3
-        elif action_date < localize(datetime.datetime(2015, 5, 6)) :
+        elif action_date < localize(datetime.datetime(2015, 5, 18)) :
             return "2011"
-        else :
+        elif action_date < localize(datetime.datetime(2019, 5, 20)):
             return "2015"
+        else :
+            return "2019"
 
     def sponsorships(self, matter_id) :
         for i, sponsor in enumerate(self.sponsors(matter_id)) :
@@ -98,12 +98,24 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
                 and action['MatterHistoryRollCallFlag'] is not None
                 and action['MatterHistoryPassedFlag'] is not None) :
 
-                # Do we want to capture vote events for voice votes?
-                # Right now we are not? 
                 bool_result = action['MatterHistoryPassedFlag']
                 result = 'pass' if bool_result else 'fail'
 
-                votes = (result, self.votes(action['MatterHistoryId'])) 
+                # Votes that are not roll calls, i.e., voice votes, sometimes
+                # include "votes" that omit the vote option (yea, nay, etc.).
+                # Capture that a vote occurred, but skip recording the
+                # null votes, as they break the scraper.
+
+                action_text = action['MatterHistoryActionText'] or ''
+
+                if 'voice vote' in action_text.lower():
+                    assert not any(v for v in self.votes(action['MatterHistoryId']) if v['VoteValueName'] not in (None, 'Absent'))
+
+                    self.info('Skipping votes for history {0} of matter ID {1}'.format(action['MatterHistoryId'],
+                                                                                       matter_id))
+                    votes = (result, [])
+                else:
+                    votes = (result, self.votes(action['MatterHistoryId']))
             else :
                 votes = (None, [])
 
