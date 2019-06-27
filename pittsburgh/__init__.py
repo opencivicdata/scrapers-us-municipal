@@ -48,6 +48,25 @@ class Pittsburgh(Jurisdiction):
         mayor.add_source("http://pittsburghpa.gov/mayor/index.html", note="web")
         yield mayor
 
+        # TODO: figure out disambiguation for councilman/mayor positions (using birth_date?)
+
+        # peduto = Person(name="William Peduto", birth_date=datetime.date(1964, 10, 30))
+        # peduto.add_term("Mayor",
+        #                 "executive",
+        #                 start_date=datetime.date(2014, 1 ,6),
+        #                 appointment=True)
+        # peduto.add_source("http://pittsburghpa.gov/mayor/mayor-profile")
+        # yield peduto
+
+        # ravenstahl = Person(name="Luke Ravenstahl", birth_date=datetime.date(1980, 2, 6))
+        # ravenstahl.add_term("Mayor",
+        #                 "executive",
+        #                 start_date=datetime.date(2006, 9, 1),
+        #                 end_date=datetime.date(2014, 1 ,6),
+        #                 appointment=True)
+        # ravenstahl.add_source("https://www.post-gazette.com/local/city/2006/09/01/Ravenstahl-sworn-in-as-Pittsburgh-mayor/stories/200609010229")
+        # yield ravenstahl
+
         city_clerk = Organization(name="City Clerk", classification="department")
         city_clerk.add_post("City Clerk", "City Clerk", division_id="ocd-division/country:us/state:pa/place:pittsburgh")
         city_clerk.add_source("http://pittsburghpa.gov/clerk/", note="web")

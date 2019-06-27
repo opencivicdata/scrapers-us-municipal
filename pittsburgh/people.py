@@ -18,7 +18,7 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
         response = self.get(person_api_url)
         person_api_response = self.get(person_api_url).json()
 
-        return person_api_url, person_web_url, person_api_response
+        return person_api_url, person_api_response
 
     def scrape(self):
         body_types = self.body_types()
@@ -62,9 +62,8 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
                                         note="E-mail")
 
             person_source_data = self.person_sources_from_office(term)
-            person_api_url, person_web_url, person_api_response = person_source_data
+            person_api_url, person_api_response = person_source_data
             person.add_source(person_api_url, note="api")
-            person.add_source(person_web_url, note="web")
 
             if person_api_response["PersonAddress1"]:
                 address = (person_api_response["PersonAddress1"] + ", " + person_api_response["PersonCity1"]
@@ -104,10 +103,6 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
                         person = members[person]
                     else:
                         person = Person(person)
-
-                    source_urls = self.person_sources_from_office(office)
-                    person_api_url = source_urls[0]
-                    person.add_source(person_api_url, note="api")
 
                     person.add_membership(body["BodyName"],
                                      role=role,
