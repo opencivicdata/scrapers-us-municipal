@@ -146,7 +146,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
 
         except AssertionError:
             unpaired_events = '\n'.join(str(web_event) for _, web_event in spanish_events.values())
-            logging.warning('Unpaired Spanish events remain:\n{}'.format(unpaired_events))
+            raise AssertionError('Unpaired Spanish events remain:\n{}'.format(unpaired_events))
 
         return english_events
 
