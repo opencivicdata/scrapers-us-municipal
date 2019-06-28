@@ -92,8 +92,8 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 if partner_event is not None:
                     yield partner_event
                 else:
-                    logging.warning('No Spanish/English match found for {0} {1} {2}'.format(
-                        unpaired_event['EventBodyName'], unpaired_event['EventDate'], unpaired_event['EventTime']))
+                    logging.warning('Cannot find Spanish companion event for {0} on {1} at {2}. {3}'.format(
+                        unpaired_event['EventBodyName'], unpaired_event['EventDate'], unpaired_event['EventTime'], unpaired_event['EventInSiteURL']))
 
     def _merge_events(self, events):
         english_events = []
