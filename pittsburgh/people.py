@@ -87,7 +87,8 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
 
         for body in self.bodies():
             if body["BodyTypeId"] == body_types["Committee"]:
-                organization = Organization(body["BodyName"],
+                body_name_clean = body["BodyName"].strip()
+                organization = Organization(body_name_clean,
                              classification="committee",
                              parent_id={"name" : "Pittsburgh City Council"})
 
@@ -104,7 +105,7 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
                     else:
                         person = Person(person)
 
-                    person.add_membership(body["BodyName"],
+                    person.add_membership(body_name_clean,
                                      role=role,
                                      start_date = self.toDate(office["OfficeRecordStartDate"]),
                                      end_date = self.toDate(office["OfficeRecordEndDate"]))

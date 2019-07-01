@@ -23,12 +23,11 @@ class Pittsburgh(Jurisdiction):
 
     legislative_sessions = []
 
-    def get_legislative_sessions(self):
-        for year in range(2001, 2030):
-            legislative_sessions.append({"identifier": str(year),
-                                         "name": str(year) + " Session",
-                                         "start_date": str(year) + "-01-01",
-                                         "end_date": str(year) + "-12-31"})
+    for year in range(2001, 2030):
+        legislative_sessions.append({"identifier": str(year),
+                                     "name": str(year) + " Session",
+                                     "start_date": str(year) + "-01-01",
+                                     "end_date": str(year) + "-12-31"})
 
     def get_organizations(self):
         org = Organization(name="Pittsburgh City Council", classification="legislature")

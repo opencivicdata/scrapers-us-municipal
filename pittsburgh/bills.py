@@ -61,8 +61,8 @@ class PittsburghBillScraper(LegistarAPIBillScraper, Scraper):
                 or responsible_org == "Committee on Hearings"):
                 responsible_org = "Pittsburgh City Council"
 
-            if action_description in ACTION:
-                ocd_classification = ACTION[action_description]["ocd"]
+            if action_description.lower() in ACTION:
+                ocd_classification = ACTION[action_description.lower()]["ocd"]
             else:
                 ocd_classification = None
 
@@ -202,70 +202,72 @@ class PittsburghBillScraper(LegistarAPIBillScraper, Scraper):
 
             yield bill
 
-ACTION = {"Committee Report":
-              {"ocd" : None, "order" : 0},
-          "Interview Held":
-              {"ocd": None, "order": 0},
-          "Meeting Held":
-              {"ocd": None, "order": 0},
-          "On File":
-              {"ocd": "filing", "order": 0},
-          "Read, Received And Filed":
-              {"ocd": "filing", "order": 0},
-          "Read and referred":
-              {"ocd": "filing", "order": 0},
-          "Recorded":
-              {"ocd": "receipt", "order": 0},
-          "Reported from Standing Committee":
-              {"ocd": None, "order": 0},
-          "Scheduled":
-              {"ocd": None, "order": 0},
-          "Not introduced":
-              {"ocd": "failure", "order": 0},
-          "Post Agenda Held":
-              {"ocd": None, "order": 0},
-          "Held for Post Agenda":
-              {"ocd": None, "order": 0},
-          "Withdrawn":
-              {"ocd": "withdrawal", "order": 1},
-          "Held in Standing Committee":
-              {"ocd": "committee-failure", "order": 1},
-          "Held in Council":
-              {"ocd": "committee-failure", "order": 1},
-          "In Standing Committee":
-              {"ocd": "referral-committee", "order": 1},
-          "Read and referred":
-              {"ocd": "referral", "order": 1},
-          "Defeated":
-              {"ocd": "failure", "order": 2},
-          "Died due to expiration of legislative council session":
-              {"ocd": "failure", "order": 2},
-          "Passed Finally":
-              {"ocd": "passage", "order": 2},
-          "Postponed":
-              {"ocd": "deferral", "order": 2},
-          "Re-Scheduled":
-              {"ocd": "deferral", "order": 2},
-          "Not Introduced":
-              {"ocd": "deferral", "order": 2},
-          "Adopted":
-              {"ocd": "passage", "order": 2},
-          "Approved":
-              {"ocd": "passage", "order": 2},
-          "TABLED":
-              {"ocd": "deferral", "order": 2},
-          "Vetoed":
-              {"ocd": "failure", "order": 2},
-          "Cancelled":
-              {"ocd": "withdrawal", "order": 2},
-          "Mayor\"s Office for Signature":
-              {"ocd": "executive-receipt", "order": 3},
-          "Veto was Overridden":
-              {"ocd": "veto-override-passage", "order": 3},
-          "Veto was Sustained":
-              {"ocd": "veto-override-failure", "order": 3},
-          "Signed by the Mayor":
-              {"ocd": "executive-signature", "order": 4}
+ACTION = {"committee report":
+              {"ocd" : None},
+          "interview held":
+              {"ocd": None},
+          "meeting held":
+              {"ocd": None},
+          "on file":
+              {"ocd": "filing"},
+          "read, received and filed":
+              {"ocd": "filing"},
+          "read and referred":
+              {"ocd": "filing"},
+          "recorded":
+              {"ocd": "receipt"},
+          "reported from standing committee":
+              {"ocd": None},
+          "scheduled":
+              {"ocd": None},
+          "not introduced":
+              {"ocd": "failure"},
+          "post agenda held":
+              {"ocd": None},
+          "held for post agenda":
+              {"ocd": None},
+          "withdrawn":
+              {"ocd": "withdrawal"},
+          "held in standing committee":
+              {"ocd": "committee-failure"},
+          "held in council":
+              {"ocd": "committee-failure"},
+          "held in committee":
+              {"ocd": "committee-failure"},
+          "in standing committee":
+              {"ocd": "referral-committee"},
+          "read and referred":
+              {"ocd": "referral"},
+          "defeated":
+              {"ocd": "failure"},
+          "died due to expiration of legislative council session":
+              {"ocd": "failure"},
+          "passed finally":
+              {"ocd": "passage"},
+          "postponed":
+              {"ocd": "deferral"},
+          "re-scheduled":
+              {"ocd": "deferral"},
+          "not introduced":
+              {"ocd": "deferral"},
+          "adopted":
+              {"ocd": "passage"},
+          "approved":
+              {"ocd": "passage"},
+          "tabled":
+              {"ocd": "deferral"},
+          "vetoed":
+              {"ocd": "failure"},
+          "cancelled":
+              {"ocd": "withdrawal"},
+          "mayor\'s office for signature":
+              {"ocd": "executive-receipt"},
+          "veto was overridden":
+              {"ocd": "veto-override-passage"},
+          "veto was sustained":
+              {"ocd": "veto-override-failure"},
+          "signed by the mayor":
+              {"ocd": "executive-signature"}
         }
 
 BILL_TYPES = {"Ordinance" : "ordinance",
