@@ -101,6 +101,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
     def _merge_events(self, events):
         english_events = []
         spanish_events = {}
+        test_event = None
 
         for event, web_event in events:
             web_event = LAMetroWebEvent(web_event)
@@ -113,6 +114,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
         for event, web_event in english_events:
             event_details = []
             event_audio = []
+            test_event = event
 
             if web_event.has_detail_url:
                 event_details.append({
@@ -143,12 +145,16 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
 
             event['event_details'] = event_details
             event['audio'] = event_audio
+            test_event = event
 
         try:
             assert not spanish_events  # These should all be merged with an English event.
-
         except AssertionError:
             unpaired_events = '\n'.join(str(web_event) for _, web_event in spanish_events.values())
+
+            for key, value in spanish_events.items():
+                logging.warning('Orphaned Spanish event: {0} at {1} on {2} - {3}'.format(value[0]['EventBodyName'], value[0]['EventDate'], value[0]['EventTime'], value[0]['EventInSiteURL']))
+
             raise AssertionError('Unpaired Spanish events remain:\n{}'.format(unpaired_events))
 
         return english_events
