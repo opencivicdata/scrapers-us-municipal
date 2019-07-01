@@ -47,7 +47,10 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             return partner
 
         elif event.is_spanish:
-            logger.warning("Can't find English companion for Spanish Event {}".format(event['EventId']))
+            raise ValueError("Can't find English companion for Spanish Event \
+                                        {0} at {1} on {2} - {3}"
+                                        .format(event['EventId'], event['EventTime'],
+                                        event['EventDate'], event['EventInSiteURL']))
 
         else:
             return None
