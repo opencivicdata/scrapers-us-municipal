@@ -114,7 +114,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             if web_event.has_audio:
                 event_audio.append(web_event['Audio'])
 
-            matches = spanish_events.get(event.partner_key, None)
+            matches = spanish_events.pop(event.partner_key, None)
 
             if matches:
                 spanish_event, spanish_web_event = matches
@@ -155,7 +155,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             else:
                 event_name = body_name
 
-            # Events can have an EventAgendaStatusName of "Final", "Final Revised", 
+            # Events can have an EventAgendaStatusName of "Final", "Final Revised",
             # and "Final 2nd Revised."
             # We classify these events as "passed."
             status_name = event['EventAgendaStatusName']
@@ -209,7 +209,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                         note = "Agenda number, {}".format(item["EventItemAgendaNumber"])
                         agenda_item['notes'].append(note)
 
-                    # The EventItemAgendaSequence provides 
+                    # The EventItemAgendaSequence provides
                     # the line number of the Legistar agenda grid.
                     agenda_item['extras']['item_agenda_sequence'] = item['EventItemAgendaSequence']
 
@@ -222,7 +222,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                         {event_name} on {event_date} ({legistar_api_url}). \
                         Contact Metro, and ask them to remove the duplicate EventItemAgendaSequence.'
 
-                    raise ValueError(error_msg.format(event_name=e.name, 
+                    raise ValueError(error_msg.format(event_name=e.name,
                                                       event_date=e.start_date.strftime("%B %d, %Y"),
                                                       legistar_api_url=legistar_api_url))
 
@@ -329,11 +329,11 @@ class LAMetroAPIEvent(dict):
 
     @property
     def partner_key(self):
-        return (self._partner_name, self['EventDate'], self['EventTime'])
+        return (self._partner_name, self['EventDate'])
 
     @property
     def key(self):
-        return (self['EventBodyName'], self['EventDate'], self['EventTime'])
+        return (self['EventBodyName'], self['EventDate'])
 
 
 class LAMetroWebEvent(dict):
