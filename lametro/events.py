@@ -97,6 +97,10 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             web_event = LAMetroWebEvent(web_event)
 
             if event.is_spanish:
+                try:
+                    assert spanish_events.get(event.key, None) == None
+                except AssertionError:
+                    raise AssertionError('{0} already exists as a key with a value of {1}'.format(event.key, spanish_events[event.key]))
                 spanish_events[event.key] = (event, web_event)
             else:
                 english_events.append((event, web_event))
