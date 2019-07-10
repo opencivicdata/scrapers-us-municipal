@@ -67,7 +67,7 @@ class Lametro(Jurisdiction):
 
         org.add_post('Chair', 'Chair')
 
-        org.add_post('Vice Chair', '1st Vice Chair')
+        org.add_post('Vice Chair', 'Vice Chair')
 
         org.add_post('1st Vice Chair', '1st Vice Chair')
 
