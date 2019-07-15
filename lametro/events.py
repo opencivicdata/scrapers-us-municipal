@@ -105,7 +105,6 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
     def _merge_events(self, events):
         english_events = []
         spanish_events = {}
-        test_event = None
 
         for event, web_event in events:
             web_event = LAMetroWebEvent(web_event)
@@ -118,7 +117,6 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
         for event, web_event in english_events:
             event_details = []
             event_audio = []
-            test_event = event
 
             if web_event.has_detail_url:
                 event_details.append({
@@ -149,7 +147,6 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
 
             event['event_details'] = event_details
             event['audio'] = event_audio
-            test_event = event
 
         try:
             assert not spanish_events  # These should all be merged with an English event.
