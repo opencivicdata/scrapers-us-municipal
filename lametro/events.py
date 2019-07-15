@@ -8,6 +8,14 @@ from legistar.base import LegistarScraper
 
 LOGGER = logging.getLogger(__name__)
 
+class UnmatchedEventError(Exception):
+    def __init__(self, event):
+        self.message = "Can't find companion for Event \
+                                    {0} at {1} on {2} - {3}" \
+                                    .format(event['EventId'], event['EventTime'], \
+                                    event['EventDate'], event['EventInSiteURL'])
+        self.event = event
+
 class LametroEventScraper(LegistarAPIEventScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
     WEB_URL = 'https://metro.legistar.com/'
@@ -47,10 +55,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             return partner
 
         elif event.is_spanish:
-            raise ValueError("Can't find English companion for Spanish Event \
-                                        {0} at {1} on {2} - {3}"
-                                        .format(event['EventId'], event['EventTime'],
-                                        event['EventDate'], event['EventInSiteURL']))
+            raise UnmatchedEventError(event)
 
         else:
             return None
@@ -95,8 +100,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 if partner_event is not None:
                     yield partner_event
                 else:
-                    logging.warning('Cannot find Spanish companion event for {0} on {1} at {2}. {3}'.format(
-                        unpaired_event['EventBodyName'], unpaired_event['EventDate'], unpaired_event['EventTime'], unpaired_event['EventInSiteURL']))
+                    raise UnmatchedEventError(unpaired_event)
 
     def _merge_events(self, events):
         english_events = []
@@ -153,7 +157,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             unpaired_events = '\n'.join(str(web_event) for _, web_event in spanish_events.values())
 
             for key, value in spanish_events.items():
-                logging.warning('Orphaned Spanish event: {0} at {1} on {2} - {3}'.format(value[0]['EventBodyName'], value[0]['EventDate'], value[0]['EventTime'], value[0]['EventInSiteURL']))
+                raise UnmatchedEventError(value[0])
 
             raise AssertionError('Unpaired Spanish events remain:\n{}'.format(unpaired_events))
 
