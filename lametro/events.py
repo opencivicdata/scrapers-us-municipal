@@ -14,11 +14,11 @@ class UnmatchedEventError(Exception):
         if type(events) is dict:
             message = message_format.format(events['EventId'], events['EventTime'], \
             events['EventDate'], EventInSiteURL['EventInSiteURL'], '')
-        elif type(events) is list and type(events[0]) is tuple:
+        elif type(events) is list:
             message = ''
-            for event in events: # indexed because each event is a tuple
-                temp = message_format.format(event[0]['EventId'], event[0]['EventTime'], \
-                            event[0]['EventDate'], event[0]['EventInSiteURL'], '\n')
+            for event in events:
+                temp = message_format.format(event['EventId'], event['EventTime'], \
+                            event['EventDate'], event['EventInSiteURL'], '\n')
                 message += temp
         else:
             message = "Can't find companion event"
@@ -166,8 +166,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
         try:
             assert not spanish_events  # These should all be merged with an English event.
         except AssertionError:
-            import ipdb; ipdb.set_trace()
-            unpaired_events = [event for event in spanish_events.values()]
+            unpaired_events = [event for event, _ in spanish_events.values()]
             raise UnmatchedEventError(unpaired_events)
 
         return english_events
