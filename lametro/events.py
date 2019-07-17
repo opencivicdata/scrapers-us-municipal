@@ -9,12 +9,22 @@ from legistar.base import LegistarScraper
 LOGGER = logging.getLogger(__name__)
 
 class UnmatchedEventError(Exception):
-    def __init__(self, event):
-        self.message = "Can't find companion for Event \
+    def __init__(self, events):
+        if type(events) is dictionary:
+            message = "Can't find companion for Event \
                                     {0} at {1} on {2} - {3}" \
-                                    .format(event['EventId'], event['EventTime'], \
-                                    event['EventDate'], event['EventInSiteURL'])
-        self.event = event
+                                    .format(events['EventId'], events['EventTime'], \
+                                    events['EventDate'], EventInSiteURL['EventInSiteURL'])
+        elif type(events) is list:
+            message = ''
+            for event in events:
+                temp = "Can't find companion for Event \
+                                        {0} at {1} on {2} - {3} \n" \
+                                        .format(event['EventId'], event['EventTime'], \
+                                        event['EventDate'], event['EventInSiteURL'])
+                message += temp
+
+        super().__init__(message)
 
 class LametroEventScraper(LegistarAPIEventScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
@@ -154,9 +164,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             unpaired_events = '\n'.join(str(web_event) for _, web_event in spanish_events.values())
 
             for key, value in spanish_events.items():
-                raise UnmatchedEventError(value[0])
-
-            raise AssertionError('Unpaired Spanish events remain:\n{}'.format(unpaired_events))
+                UnmatchedEventError(value[0])
 
         return english_events
 
