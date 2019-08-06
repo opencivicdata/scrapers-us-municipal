@@ -109,7 +109,11 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
                 action_text = action['MatterHistoryActionText'] or ''
 
                 if 'voice vote' in action_text.lower():
-                    assert not any(v for v in self.votes(action['MatterHistoryId']) if v['VoteValueName'] not in (None, 'Absent'))
+                    # while there should not be individual votes
+                    # for voice votes, sometimes there are.
+                    #
+                    # http://webapi.legistar.com/v1/chicago/eventitems/163705/votes
+                    # http://webapi.legistar.com/v1/chicago/matters/26788/histories
 
                     self.info('Skipping votes for history {0} of matter ID {1}'.format(action['MatterHistoryId'],
                                                                                        matter_id))
@@ -134,7 +138,7 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
             # to fail, add it to the `problem_bills` array to skip it.
             # For the time being...nothing to skip!
 
-            problem_bills = []
+            problem_bills = ['Or2011-189']
 
             if identifier in problem_bills:
                 continue
@@ -197,7 +201,10 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
                     vote_event.add_source(legistar_api + '/histories')
 
                     for vote in votes :
-                        raw_option = vote['VoteValueName'].lower()
+                        vote_value = vote['VoteValueName']
+                        if vote_value is None:
+                            continue
+                        raw_option = vote_value.lower()
                         clean_option = self.VOTE_OPTIONS.get(raw_option,
                                                              raw_option)
                         vote_event.vote(clean_option, 
@@ -225,9 +232,6 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
             if text :
                 if text['MatterTextPlain'] :
                     bill.extras['plain_text'] = text['MatterTextPlain']
-
-                if text['MatterTextRtf'] :
-                    bill.extras['rtf_text'] = text['MatterTextRtf'].replace(u'\u0000', '')
 
             yield bill
 
