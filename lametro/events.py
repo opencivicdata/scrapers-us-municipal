@@ -1,9 +1,29 @@
 import datetime
+import logging
 
 from legistar.events import LegistarAPIEventScraper
 from pupa.scrape import Event, Scraper
 from legistar.base import LegistarScraper
 
+
+LOGGER = logging.getLogger(__name__)
+
+class UnmatchedEventError(Exception):
+    def __init__(self, events):
+        message_format = "Can't find companion for Event {0} at {1} on {2} - {3} {4}"
+        if type(events) is dict:
+            message = message_format.format(events['EventId'], events['EventTime'], \
+            events['EventDate'], EventInSiteURL['EventInSiteURL'], '')
+        elif type(events) is list:
+            message = ''
+            for event in events:
+                temp = message_format.format(event['EventId'], event['EventTime'], \
+                            event['EventDate'], event['EventInSiteURL'], '\n')
+                message += temp
+        else:
+            message = "Can't find companion event"
+
+        super().__init__(message)
 
 class LametroEventScraper(LegistarAPIEventScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
@@ -44,7 +64,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             return partner
 
         elif event.is_spanish:
-            raise ValueError("Can't find English companion for Spanish Event {}".format(event['EventId']))
+            raise UnmatchedEventError(event)
 
         else:
             return None
@@ -84,10 +104,18 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             # be included in the our partial scrape and the other
             # member won't be. So, we try to find the partners for
             # unpaired events.
+
+            # Spanish broadcasting didn't start until 5/16/2018, so we
+            # check the date of any unpaired events to make sure they
+            # should have a pair.
+
+            spanish_start_date = datetime.datetime(2018, 5, 15, 0, 0, 0, 0)
             if partial_scrape:
                 partner_event = self._find_partner(unpaired_event)
                 if partner_event is not None:
                     yield partner_event
+                elif unpaired_event['EventDate'] > spanish_start_date:
+                    raise UnmatchedEventError(unpaired_event)
 
     def _merge_events(self, events):
         english_events = []
@@ -97,6 +125,10 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             web_event = LAMetroWebEvent(web_event)
 
             if event.is_spanish:
+                try:
+                    assert event.key not in spanish_events
+                except AssertionError:
+                    raise AssertionError('{0} already exists as a key with a value of {1}'.format(event.key, spanish_events[event.key]))
                 spanish_events[event.key] = (event, web_event)
             else:
                 english_events.append((event, web_event))
@@ -114,7 +146,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             if web_event.has_audio:
                 event_audio.append(web_event['Audio'])
 
-            matches = spanish_events.get(event.partner_key, None)
+            matches = spanish_events.pop(event.partner_key, None)
 
             if matches:
                 spanish_event, spanish_web_event = matches
@@ -134,6 +166,12 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
 
             event['event_details'] = event_details
             event['audio'] = event_audio
+
+        try:
+            assert not spanish_events  # These should all be merged with an English event.
+        except AssertionError:
+            unpaired_events = [event for event, _ in spanish_events.values()]
+            raise UnmatchedEventError(unpaired_events)
 
         return english_events
 
@@ -155,7 +193,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             else:
                 event_name = body_name
 
-            # Events can have an EventAgendaStatusName of "Final", "Final Revised", 
+            # Events can have an EventAgendaStatusName of "Final", "Final Revised",
             # and "Final 2nd Revised."
             # We classify these events as "passed."
             status_name = event['EventAgendaStatusName']
@@ -209,7 +247,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                         note = "Agenda number, {}".format(item["EventItemAgendaNumber"])
                         agenda_item['notes'].append(note)
 
-                    # The EventItemAgendaSequence provides 
+                    # The EventItemAgendaSequence provides
                     # the line number of the Legistar agenda grid.
                     agenda_item['extras']['item_agenda_sequence'] = item['EventItemAgendaSequence']
 
@@ -222,7 +260,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                         {event_name} on {event_date} ({legistar_api_url}). \
                         Contact Metro, and ask them to remove the duplicate EventItemAgendaSequence.'
 
-                    raise ValueError(error_msg.format(event_name=e.name, 
+                    raise ValueError(error_msg.format(event_name=e.name,
                                                       event_date=e.start_date.strftime("%B %d, %Y"),
                                                       legistar_api_url=legistar_api_url))
 
@@ -329,11 +367,11 @@ class LAMetroAPIEvent(dict):
 
     @property
     def partner_key(self):
-        return (self._partner_name, self['EventDate'], self['EventTime'])
+        return (self._partner_name, self['EventDate'])
 
     @property
     def key(self):
-        return (self['EventBodyName'], self['EventDate'], self['EventTime'])
+        return (self['EventBodyName'], self['EventDate'])
 
 
 class LAMetroWebEvent(dict):
