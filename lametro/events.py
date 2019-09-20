@@ -291,9 +291,21 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                     # these events, and retry on next scrape.
                     continue
 
+                # Sometimes if there is an issue getting the Spanish
+                # audio created, Metro has the Spanish Audio link
+                # go to the English Audio.
+                #
+                # Pupa does not allow the for duplicate media links,
+                # so we'll ignore the the second media link if it's
+                # the same as the first media link.
+                #
+                # Because of the way that the event['audio'] is created
+                # the first audio link is always English and the
+                # second is always Spanish
                 e.add_media_link(note=audio['label'],
                                  url=redirect_url,
-                                 media_type='text/html')
+                                 media_type='text/html',
+                                 on_duplicate='ignore')
 
             if web_event['Recap/Minutes'] != 'Not\xa0available':
                 e.add_document(note=web_event['Recap/Minutes']['label'],
