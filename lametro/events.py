@@ -3,7 +3,6 @@ import logging
 
 from legistar.events import LegistarAPIEventScraper
 from pupa.scrape import Event, Scraper
-from pupa.exceptions import ScrapeValueError
 from legistar.base import LegistarScraper
 
 
