@@ -11,6 +11,8 @@ from legistar.bills import LegistarBillScraper, LegistarAPIBillScraper
 
 from .secrets import TOKEN
 
+LOGGER = logging.getLogger(__name__)
+
 class LametroBillScraper(LegistarAPIBillScraper, Scraper):
     BASE_URL = 'https://webapi.legistar.com/v1/metro'
     BASE_WEB_URL = 'https://metro.legistar.com'
@@ -276,7 +278,10 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                 except scrapelib.HTTPError:
                     continue
                 else:
-                    date = related_bill['MatterIntroDate']
+                    try:
+                        date = related_bill['MatterAgendaDate']
+                    except AttributeError:
+                        raise AttributeError('Bill with MatterId {} has no MatterAgendaDate'.(matter_id))
                     related_bill_session = self.session(self.toTime(date))
                     identifier = related_bill['MatterFile']
                     bill.add_related_bill(identifier=identifier,
