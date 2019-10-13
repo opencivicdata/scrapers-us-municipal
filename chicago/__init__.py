@@ -72,11 +72,11 @@ class Chicago(Jurisdiction):
         emanuel.add_source('https://chicago.legistar.com/People.aspx')
         yield emanuel
 
-        lightfoot = Person(name="lightfoot, Lori E.")
+        lightfoot = Person(name="Lightfoot, Lori E.")
         lightfoot.add_term('Mayor',
-                         'executive',
-                         start_date=datetime.date(2019, 5, 20),
-                         appointment=True)
+                           'executive',
+                           start_date=datetime.date(2019, 5, 20),
+                           appointment=True)
         lightfoot.add_source('https://chicago.legistar.com/People.aspx')
         yield lightfoot
 
