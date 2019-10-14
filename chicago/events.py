@@ -87,12 +87,7 @@ class ChicagoEventsScraper(LegistarAPIEventScraper, Scraper) :
             e.add_source(self.BASE_URL + '/events/{EventId}'.format(**api_event), 
                          note='api')
 
-            try:
-                detail_url = web_event['Meeting Name']['url']
-            except TypeError:
-                e.add_source(self.EVENTSPAGE, note='web')
-            else:
-                e.add_source(detail_url, note='web')
+            e.add_source(web_event['Meeting Name']['url'], note='web')
 
             yield e
 
