@@ -53,11 +53,12 @@ class ChicagoEventsScraper(LegistarAPIEventScraper, Scraper) :
                                  url = web_event['Meeting video']['url'],
                                  type="recording",
                                  media_type = 'text/html')
-
             self.addDocs(e, web_event, 'Published agenda')
             self.addDocs(e, web_event, 'Notice')
-            self.addDocs(e, web_event, 'Captions')
             self.addDocs(e, web_event, 'Published summary')
+            if 'Captions' in web_event:
+                self.addDocs(e, web_event, 'Captions')
+
 
             participant = api_event["EventBodyName"]
             if participant == 'City Council' :
