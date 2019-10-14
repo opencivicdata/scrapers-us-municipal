@@ -3,12 +3,12 @@ import re
 
 import pytz
 import requests
-from legistar.events import LegistarAPIEventScraper
+from legistar.events import LegistarAPIEventScraperZip
 from pupa.scrape import Event, Scraper
 
 from .secrets import TOKEN
 
-class NYCEventsScraper(LegistarAPIEventScraper, Scraper):
+class NYCEventsScraper(LegistarAPIEventScraperZip, Scraper):
     BASE_URL = 'https://webapi.legistar.com/v1/nyc'
     WEB_URL = "https://legistar.council.nyc.gov/"
     EVENTSPAGE = "https://legistar.council.nyc.gov/Calendar.aspx/"
