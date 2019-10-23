@@ -23,10 +23,11 @@ class NYCEventsScraper(LegistarAPIEventScraperZip, Scraper):
 
     def scrape(self, window=3):
         n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
+
         for api_event, event in self.events(n_days_ago):
 
             when = api_event['start']
-            location = api_event['EventLocation']
+            location = self._clean_location(api_event['EventLocation'])
 
             description = event['Meeting\xa0Topic']
 
@@ -107,6 +108,9 @@ class NYCEventsScraper(LegistarAPIEventScraperZip, Scraper):
                     e.add_source(detail_url, note='web')
 
             yield e
+
+    def _clean_location(self, location_string):
+        return re.sub(r'\s{2,}', ' ', location_string)
 
     def _parse_location(self, location_string):
         other_orgs = None
