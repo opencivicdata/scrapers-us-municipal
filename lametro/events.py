@@ -137,14 +137,13 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             event_details = []
             event_audio = []
 
-            if web_event.has_detail_url:
-                event_details.append({
-                    'url': web_event['Meeting Details']['url'],
-                    'note': 'web',
-                })
+            event_details.append({
+                'url': web_event['Meeting Details']['url'],
+                'note': 'web',
+            })
 
             if web_event.has_audio:
-                event_audio.append(web_event['Audio'])
+                event_audio.append(web_event['Meeting video'])
 
             matches = spanish_events.pop(event.partner_key, None)
 
@@ -154,15 +153,14 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 event['SAPEventId'] = spanish_event['EventId']
                 event['SAPEventGuid'] = spanish_event['EventGuid']
 
-                if spanish_web_event.has_detail_url:
-                    event_details.append({
-                        'url': spanish_web_event['Meeting Details']['url'],
-                        'note': 'web (sap)',
-                    })
+                event_details.append({
+                    'url': spanish_web_event['Meeting Details']['url'],
+                    'note': 'web (sap)',
+                })
 
                 if spanish_web_event.has_audio:
-                    spanish_web_event['Audio']['label'] = 'Audio (SAP)'
-                    event_audio.append(spanish_web_event['Audio'])
+                    spanish_web_event['Meeting video']['label'] = 'Audio (SAP)'
+                    event_audio.append(spanish_web_event['Meeting video'])
 
             event['event_details'] = event_details
             event['audio'] = event_audio
@@ -277,8 +275,13 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                                media_type="application/pdf")
 
             if event['EventMinutesFile']:
-                e.add_document(note= 'Minutes',
-                               url = event['EventMinutesFile'],
+                e.add_document(note='Minutes',
+                               url=event['EventMinutesFile'],
+                               media_type="application/pdf")
+
+            if web_event['Published minutes'] != 'Not\xa0available':
+                e.add_document(note=web_event['Published minutes']['label'],
+                               url=web_event['Published minutes']['url'],
                                media_type="application/pdf")
 
             for audio in event['audio']:
@@ -306,11 +309,6 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                                  url=redirect_url,
                                  media_type='text/html',
                                  on_duplicate='ignore')
-
-            if web_event['Recap/Minutes'] != 'Not\xa0available':
-                e.add_document(note=web_event['Recap/Minutes']['label'],
-                               url=web_event['Recap/Minutes']['url'],
-                               media_type="application/pdf")
 
             if event['event_details']:
                 for link in event['event_details']:
@@ -397,17 +395,5 @@ class LAMetroWebEvent(dict):
 
     @property
     def has_audio(self):
-        return self['Audio'] != 'Not\xa0available'
+        return self['Meeting video'] != 'Not\xa0available'
 
-    @property
-    def has_detail_url(self):
-        return self._detail_url_exists and self._detail_url_valid
-
-    @property
-    def _detail_url_exists(self):
-        return self['Meeting Details'] != 'Meeting\xa0details'
-
-    @property
-    def _detail_url_valid(self):
-        response = self.web_scraper.head(self['Meeting Details']['url'])
-        return response.status_code == 200
