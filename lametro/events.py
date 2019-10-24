@@ -278,7 +278,8 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 e.add_document(note='Minutes',
                                url=event['EventMinutesFile'],
                                media_type="application/pdf")
-            elif web_event['Published minutes'] != 'Not\xa0available':
+
+            if web_event['Published minutes'] != 'Not\xa0available':
                 e.add_document(note=web_event['Published minutes']['label'],
                                url=web_event['Published minutes']['url'],
                                media_type="application/pdf")
