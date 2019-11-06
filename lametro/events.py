@@ -242,8 +242,15 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
 
                     if item["EventItemAgendaNumber"]:
                         # To the notes field, add the item number as given in the agenda minutes
-                        note = "Agenda number, {}".format(item["EventItemAgendaNumber"])
+                        agenda_number = item["EventItemAgendaNumber"]
+                        note = "Agenda number, {}".format(agenda_number)
                         agenda_item['notes'].append(note)
+
+                        try:
+                            agenda_item['extras']['agenda_number'] = int(float(agenda_number))
+                        except ValueError:
+                            import pdb
+                            pdb.set_trace()
 
                     # The EventItemAgendaSequence provides
                     # the line number of the Legistar agenda grid.
@@ -270,14 +277,16 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                              note='api (sap)')
 
             if event['EventAgendaFile']:
-                e.add_document(note= 'Agenda',
-                               url = event['EventAgendaFile'],
-                               media_type="application/pdf")
+                e.add_document(note='Agenda',
+                               url=event['EventAgendaFile'],
+                               media_type="application/pdf",
+                               date=self.to_utc_timestamp(event['EventAgendaLastPublishedUTC']).date())
 
             if event['EventMinutesFile']:
                 e.add_document(note='Minutes',
                                url=event['EventMinutesFile'],
-                               media_type="application/pdf")
+                               media_type="application/pdf",
+                               date=self.to_utc_timestamp(event['EventMinutesLastPublishedUTC']).date())
             elif web_event['Published minutes'] != 'Not\xa0available':
                 e.add_document(note=web_event['Published minutes']['label'],
                                url=web_event['Published minutes']['url'],
@@ -287,7 +296,8 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 if approved_minutes:
                     e.add_document(note=approved_minutes['MatterAttachmentName'],
                                    url=approved_minutes['MatterAttachmentHyperlink'],
-                                   media_type="application/pdf")
+                                   media_type="application/pdf",
+                                   date=self.to_utc_timestamp(approved_minutes['MatterAttachmentLastModifiedUtc']).date())
 
             for audio in event['audio']:
                 try:
@@ -362,7 +372,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
         name = event['EventBodyName']
 
         if name not in {'Board of Directors - Regular Board Meeting',
-                        'LA SAFE'}
+                        'LA SAFE'}:
             return None
 
         # if the event is the future, there won't have been a chance to
