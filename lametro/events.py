@@ -246,11 +246,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                         note = "Agenda number, {}".format(agenda_number)
                         agenda_item['notes'].append(note)
 
-                        try:
-                            agenda_item['extras']['agenda_number'] = int(float(agenda_number))
-                        except ValueError:
-                            import pdb
-                            pdb.set_trace()
+                        agenda_item['extras']['agenda_number'] = agenda_number
 
                     # The EventItemAgendaSequence provides
                     # the line number of the Legistar agenda grid.
