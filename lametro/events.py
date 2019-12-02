@@ -183,7 +183,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
         else:
             n_days_ago = None
 
-        events = self.events(n_days_ago)
+        events = self.events(since_datetime=n_days_ago)
 
         for event, web_event in self._merge_events(events):
             body_name = event["EventBodyName"]
