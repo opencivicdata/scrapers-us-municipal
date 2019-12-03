@@ -104,17 +104,21 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             # be included in the our partial scrape and the other
             # member won't be. So, we try to find the partners for
             # unpaired events.
-
+            #
             # Spanish broadcasting didn't start until 5/16/2018, so we
             # check the date of any unpaired events to make sure they
             # should have a pair.
 
-            spanish_start_date = datetime.datetime(2018, 5, 15, 0, 0, 0, 0)
             if partial_scrape:
                 partner_event = self._find_partner(unpaired_event)
+
+                spanish_start_date = datetime.datetime(2018, 5, 15, 0, 0, 0, 0)
+                event_date = datetime.datetime.strptime(unpaired_event['EventDate'], '%Y-%m-%dT%H:%M:%S')
+
                 if partner_event is not None:
                     yield partner_event
-                elif unpaired_event['EventDate'] > spanish_start_date:
+
+                elif event_date > spanish_start_date and unpaired_event.is_spanish:
                     raise UnmatchedEventError(unpaired_event)
 
     def _merge_events(self, events):
@@ -179,7 +183,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
         else:
             n_days_ago = None
 
-        events = self.events(n_days_ago)
+        events = self.events(since_datetime=n_days_ago)
 
         for event, web_event in self._merge_events(events):
             body_name = event["EventBodyName"]
