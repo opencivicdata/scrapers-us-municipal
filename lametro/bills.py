@@ -309,6 +309,8 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
             yield bill
 
+# Defined according to OCD standard here:
+# https://github.com/opencivicdata/python-opencivicdata/blob/master/opencivicdata/common.py#L113
 ACTION_CLASSIFICATION = {'WITHDRAWN' : 'withdrawal',
                          'APPROVED' : 'passage',
                          'RECOMMENDED FOR APPROVAL' : 'committee-passage-favorable',
@@ -325,7 +327,8 @@ ACTION_CLASSIFICATION = {'WITHDRAWN' : 'withdrawal',
                          'RECEIVED' : 'receipt',
                          'REFERRED' : 'referral-committee',
                          'FORWARDED DUE TO ABSENCES AND CONFLICTS' : 'committee-passage',
-                         'NO ACTION TAKEN': 'filing'}
+                         'NO ACTION TAKEN': 'filing',
+                         'FAILED' : 'failure'}
 
 BILL_TYPES = {'Contract' : None,
               'Budget' : None,
