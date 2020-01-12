@@ -23,7 +23,7 @@ class Pittsburgh(Jurisdiction):
 
     legislative_sessions = []
 
-    for year in range(2001, 2030):
+    for year in range(2001, 2019):
         legislative_sessions.append({"identifier": str(year),
                                      "name": str(year) + " Session",
                                      "start_date": str(year) + "-01-01",
@@ -38,9 +38,81 @@ class Pittsburgh(Jurisdiction):
                 division_id="ocd-division/country:us/state:pa/place:pittsburgh/council_district:{}".format(x))
         yield org
 
+        pgh_legistar_url = "https://pittsburgh.legistar.com"
+
         standing_committee = Organization(name="Standing Committee", classification="committee")
         standing_committee.add_source("http://pittsburghpa.gov/council/standing-committees", note="web")
         yield standing_committee
+
+        # there are a number of committees that no longer exist but have old bills attached to them
+        construction_committee = Organization(name="Committee on Engineering & Construction",
+                                              classification="committee")
+        construction_committee.add_source(url=pgh_legistar_url, note="web")
+        yield construction_committee
+
+        forestry_committee = Organization(name="Committee on Engineering, Fleet and Forestry",
+                                          classification="committee")
+        forestry_committee.add_source(pgh_legistar_url, note="web")
+        yield forestry_committee
+
+        facilities_committee = Organization(name="Committee on Facilities, Technology & the Arts",
+                                            classification="committee")
+        facilities_committee.add_source(pgh_legistar_url, note="web")
+        yield facilities_committee
+
+        budget_committee = Organization(name="Committee on Finance & Budget", classification="committee")
+        budget_committee.add_source(pgh_legistar_url, note="web")
+        yield budget_committee
+
+        purchasing_committee = Organization(name="Committee on Finance, Law and Purchasing", classification="committee")
+        purchasing_committee.add_source(pgh_legistar_url, note="web")
+        yield purchasing_committee
+
+        govt_services_committee = Organization(name="Committee on General and Government Services",
+                                               classification="committee")
+        govt_services_committee.add_source(pgh_legistar_url, note="web")
+        yield govt_services_committee
+
+        telecom_committee = Organization(name="Committee on General Services & Telecommunications",
+                                         classification="committee")
+        telecom_committee.add_source(pgh_legistar_url, note="web")
+        yield telecom_committee
+
+        arts_committee = Organization(name="Committee on General Services, Technology & the Arts",
+                                      classification="committee")
+        arts_committee.add_source(pgh_legistar_url, note="web")
+        yield arts_committee
+
+        housing_committee = Organization(name="Committee on Housing, Economic Development & Promotion",
+                                         classification="committee")
+        housing_committee.add_source(pgh_legistar_url, note="web")
+        yield housing_committee
+
+        parks_committee = Organization(name="Committee on Parks, Recreation & Youth Policy", classification="committee")
+        parks_committee.add_source(pgh_legistar_url, note="web")
+        yield parks_committee
+
+        zoning_committee = Organization(name="Committee on Planning, Zoning & Land Use", classification="committee")
+        zoning_committee.add_source(pgh_legistar_url, note="web")
+        yield zoning_committee
+
+        env_committee = Organization(name="Committee on Public Works & Environmental Services",
+                                     classification="committee")
+        env_committee.add_source(pgh_legistar_url, note="web")
+        yield env_committee
+
+        # for whatever reason these the clerk's office has also classified these last 3 as committees in Legistar
+        mayor_agenda = Organization(name="Mayor's Agenda - Legislation to be Presented", classification="committee")
+        mayor_agenda.add_source(pgh_legistar_url, note="web")
+        yield mayor_agenda
+
+        post_agenda = Organization(name="Post Agenda Meeting", classification="committee")
+        post_agenda.add_source(pgh_legistar_url, note="web")
+        yield post_agenda
+
+        hearing_sched = Organization(name="PUBLIC HEARING SCHEDULE", classification="committee")
+        hearing_sched.add_source(pgh_legistar_url, note="web")
+        yield hearing_sched
 
         mayor = Organization(name="Mayor", classification="executive")
         mayor.add_post("Mayor", "Mayor", division_id="ocd-division/country:us/state:pa/place:pittsburgh")

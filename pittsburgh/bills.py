@@ -44,6 +44,14 @@ class PittsburghBillScraper(LegistarAPIBillScraper, Scraper):
                                             "Dept./Agency")):
                 yield sponsorship
 
+    def clean_org_name(self, org):
+        if (org == "City Council" or org == "Standing Committee" or "Committee on Hearings" in org):
+            return "Pittsburgh City Council"
+        elif "Finance" in org:
+            return "Committee on Finance and Law"
+        else:
+            return org
+
     def actions(self, matter_id):
         old_action = None
         actions = self.history(matter_id)
@@ -55,11 +63,7 @@ class PittsburghBillScraper(LegistarAPIBillScraper, Scraper):
 
             action_date =  self.toTime(action_date).date()
             responsible_person = None
-
-            if (responsible_org == "City Council" or
-                responsible_org == "Standing Committee"
-                or responsible_org == "Committee on Hearings"):
-                responsible_org = "Pittsburgh City Council"
+            responsible_org = self.clean_org_name(responsible_org)
 
             if action_description.lower() in ACTION:
                 ocd_classification = ACTION[action_description.lower()]["ocd"]
