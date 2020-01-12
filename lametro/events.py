@@ -104,17 +104,21 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             # be included in the our partial scrape and the other
             # member won't be. So, we try to find the partners for
             # unpaired events.
-
+            #
             # Spanish broadcasting didn't start until 5/16/2018, so we
             # check the date of any unpaired events to make sure they
             # should have a pair.
 
-            spanish_start_date = datetime.datetime(2018, 5, 15, 0, 0, 0, 0)
             if partial_scrape:
                 partner_event = self._find_partner(unpaired_event)
+
+                spanish_start_date = datetime.datetime(2018, 5, 15, 0, 0, 0, 0)
+                event_date = datetime.datetime.strptime(unpaired_event['EventDate'], '%Y-%m-%dT%H:%M:%S')
+
                 if partner_event is not None:
                     yield partner_event
-                elif unpaired_event['EventDate'] > spanish_start_date:
+
+                elif event_date > spanish_start_date and unpaired_event.is_spanish:
                     raise UnmatchedEventError(unpaired_event)
 
     def _merge_events(self, events):
@@ -137,14 +141,13 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             event_details = []
             event_audio = []
 
-            if web_event.has_detail_url:
-                event_details.append({
-                    'url': web_event['Meeting Details']['url'],
-                    'note': 'web',
-                })
+            event_details.append({
+                'url': web_event['Meeting Details']['url'],
+                'note': 'web',
+            })
 
             if web_event.has_audio:
-                event_audio.append(web_event['Audio'])
+                event_audio.append(web_event['Meeting video'])
 
             matches = spanish_events.pop(event.partner_key, None)
 
@@ -154,15 +157,14 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 event['SAPEventId'] = spanish_event['EventId']
                 event['SAPEventGuid'] = spanish_event['EventGuid']
 
-                if spanish_web_event.has_detail_url:
-                    event_details.append({
-                        'url': spanish_web_event['Meeting Details']['url'],
-                        'note': 'web (sap)',
-                    })
+                event_details.append({
+                    'url': spanish_web_event['Meeting Details']['url'],
+                    'note': 'web (sap)',
+                })
 
                 if spanish_web_event.has_audio:
-                    spanish_web_event['Audio']['label'] = 'Audio (SAP)'
-                    event_audio.append(spanish_web_event['Audio'])
+                    spanish_web_event['Meeting video']['label'] = 'Audio (SAP)'
+                    event_audio.append(spanish_web_event['Meeting video'])
 
             event['event_details'] = event_details
             event['audio'] = event_audio
@@ -181,7 +183,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
         else:
             n_days_ago = None
 
-        events = self.events(n_days_ago)
+        events = self.events(since_datetime=n_days_ago)
 
         for event, web_event in self._merge_events(events):
             body_name = event["EventBodyName"]
@@ -277,8 +279,13 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                                media_type="application/pdf")
 
             if event['EventMinutesFile']:
-                e.add_document(note= 'Minutes',
-                               url = event['EventMinutesFile'],
+                e.add_document(note='Minutes',
+                               url=event['EventMinutesFile'],
+                               media_type="application/pdf")
+
+            if web_event['Published minutes'] != 'Not\xa0available':
+                e.add_document(note=web_event['Published minutes']['label'],
+                               url=web_event['Published minutes']['url'],
                                media_type="application/pdf")
 
             for audio in event['audio']:
@@ -291,14 +298,21 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                     # these events, and retry on next scrape.
                     continue
 
+                # Sometimes if there is an issue getting the Spanish
+                # audio created, Metro has the Spanish Audio link
+                # go to the English Audio.
+                #
+                # Pupa does not allow the for duplicate media links,
+                # so we'll ignore the the second media link if it's
+                # the same as the first media link.
+                #
+                # Because of the way that the event['audio'] is created
+                # the first audio link is always English and the
+                # second is always Spanish
                 e.add_media_link(note=audio['label'],
                                  url=redirect_url,
-                                 media_type='text/html')
-
-            if web_event['Recap/Minutes'] != 'Not\xa0available':
-                e.add_document(note=web_event['Recap/Minutes']['label'],
-                               url=web_event['Recap/Minutes']['url'],
-                               media_type="application/pdf")
+                                 media_type='text/html',
+                                 on_duplicate='ignore')
 
             if event['event_details']:
                 for link in event['event_details']:
@@ -385,17 +399,5 @@ class LAMetroWebEvent(dict):
 
     @property
     def has_audio(self):
-        return self['Audio'] != 'Not\xa0available'
+        return self['Meeting video'] != 'Not\xa0available'
 
-    @property
-    def has_detail_url(self):
-        return self._detail_url_exists and self._detail_url_valid
-
-    @property
-    def _detail_url_exists(self):
-        return self['Meeting Details'] != 'Meeting\xa0details'
-
-    @property
-    def _detail_url_valid(self):
-        response = self.web_scraper.head(self['Meeting Details']['url'])
-        return response.status_code == 200
