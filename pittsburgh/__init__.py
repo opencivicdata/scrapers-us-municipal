@@ -23,7 +23,7 @@ class Pittsburgh(Jurisdiction):
 
     legislative_sessions = []
 
-    for year in range(2001, 2019):
+    for year in range(2001, 2030):
         legislative_sessions.append({"identifier": str(year),
                                      "name": str(year) + " Session",
                                      "start_date": str(year) + "-01-01",
@@ -119,23 +119,26 @@ class Pittsburgh(Jurisdiction):
         mayor.add_source("http://pittsburghpa.gov/mayor/index.html", note="web")
         yield mayor
 
-        # TODO: figure out disambiguation for councilman/mayor positions (using birth_date?)
+        # TODO: figure out disambiguation for councilman/mayor positions—using birth_date isn't working
 
-        # peduto = Person(name="William Peduto", birth_date=datetime.date(1964, 10, 30))
+        # peduto = Person(name="William Peduto", birth_date=datetime.date(1964, 10, 30), biography="Councilman later "
+        #                                                                                          "elected mayor")
         # peduto.add_term("Mayor",
         #                 "executive",
-        #                 start_date=datetime.date(2014, 1 ,6),
+        #                 start_date=datetime.date(2014, 1, 6),
         #                 appointment=True)
         # peduto.add_source("http://pittsburghpa.gov/mayor/mayor-profile")
         # yield peduto
-
-        # ravenstahl = Person(name="Luke Ravenstahl", birth_date=datetime.date(1980, 2, 6))
+        #
+        # ravenstahl = Person(name="Luke Ravenstahl", birth_date=datetime.date(1980, 2, 6), biography="Councilman later "
+        #                                                                                             "elected mayor")
         # ravenstahl.add_term("Mayor",
         #                 "executive",
         #                 start_date=datetime.date(2006, 9, 1),
-        #                 end_date=datetime.date(2014, 1 ,6),
+        #                 end_date=datetime.date(2014, 1, 6),
         #                 appointment=True)
-        # ravenstahl.add_source("https://www.post-gazette.com/local/city/2006/09/01/Ravenstahl-sworn-in-as-Pittsburgh-mayor/stories/200609010229")
+        # ravenstahl.add_source("https://www.post-gazette.com/local/city/2006/09/01/Ravenstahl-sworn-in-as-Pittsburgh"
+        #                       "-mayor/stories/200609010229")
         # yield ravenstahl
 
         city_clerk = Organization(name="City Clerk", classification="department")
