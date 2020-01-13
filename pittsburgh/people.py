@@ -1,7 +1,9 @@
 import collections
+import datetime
 
-from pupa.scrape import Person, Organization, Scraper
+from pupa.scrape import Person, Organization, Membership, Post, Scraper
 from legistar.people import LegistarAPIPersonScraper, LegistarPersonScraper
+from .member_districts import MEMBER_DISTRICTS
 
 
 class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
@@ -19,6 +21,12 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
         person_api_response = self.get(person_api_url).json()
 
         return person_api_url, person_api_response
+
+    def get_district(self, member):
+        if member.name in MEMBER_DISTRICTS:
+            return "District {}".format(MEMBER_DISTRICTS[member.name])
+        else:
+            return None
 
     def scrape(self):
         body_types = self.body_types()
@@ -51,15 +59,16 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
                 role = term["OfficeRecordTitle"]
                 person.add_term("Councilmember",
                                 "legislature",
-                                start_date = self.toDate(term["OfficeRecordStartDate"]),
-                                end_date = self.toDate(term["OfficeRecordEndDate"]))
+                                district=self.get_district(person),
+                                start_date=self.toDate(term["OfficeRecordStartDate"]),
+                                end_date=self.toDate(term["OfficeRecordEndDate"]))
 
             if member in web_info:
                 web = web_info[member]
                 if web["E-mail"] and web["E-mail"]["label"] and web["E-mail"]["label"] != "N/A":
                     person.add_contact_detail(type="email",
-                                        value=web["E-mail"]["label"],
-                                        note="E-mail")
+                                              value=web["E-mail"]["label"],
+                                              note="E-mail")
 
             person_source_data = self.person_sources_from_office(term)
             person_api_url, person_api_response = person_source_data
@@ -67,30 +76,29 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
 
             if person_api_response["PersonAddress1"]:
                 address = (person_api_response["PersonAddress1"] + ", " + person_api_response["PersonCity1"]
-                          + ", " + person_api_response["PersonState1"] + " " + person_api_response["PersonZip1"])
+                           + ", " + person_api_response["PersonState1"] + " " + person_api_response["PersonZip1"])
                 person.add_contact_detail(type="address",
-                                    value=address,
-                                    note="Office address")
+                                          value=address,
+                                          note="Office address")
 
             if person_api_response["PersonPhone"]:
                 person.add_contact_detail(type="voice",
-                                    value=person_api_response["PersonPhone"],
-                                    note="Office phone")
+                                          value=person_api_response["PersonPhone"],
+                                          note="Office phone")
 
             if person_api_response["PersonWWW"]:
                 person.add_contact_detail(type="url",
-                                    value=person_api_response["PersonWWW"],
-                                    note="District website")
+                                          value=person_api_response["PersonWWW"],
+                                          note="District website")
 
             members[member] = person
-
 
         for body in self.bodies():
             if body["BodyTypeId"] == body_types["Committee"]:
                 body_name_clean = body["BodyName"].strip()
                 organization = Organization(body_name_clean,
-                             classification="committee",
-                             parent_id={"name" : "Pittsburgh City Council"})
+                                            classification="committee",
+                                            parent_id={"name": "Pittsburgh City Council"})
 
                 organization.add_source(self.BASE_URL + "/bodies/{BodyId}".format(**body), note="api")
 
@@ -106,11 +114,25 @@ class PittsburghPersonScraper(LegistarAPIPersonScraper, Scraper):
                         person = Person(person)
 
                     person.add_membership(body_name_clean,
-                                     role=role,
-                                     start_date = self.toDate(office["OfficeRecordStartDate"]),
-                                     end_date = self.toDate(office["OfficeRecordEndDate"]))
+                                          role=role,
+                                          start_date=self.toDate(office["OfficeRecordStartDate"]),
+                                          end_date=self.toDate(office["OfficeRecordEndDate"]))
 
                 yield organization
+
+        # add mayoralties
+        peduto = members["William Peduto"]
+        peduto.add_term("Mayor",
+                        "executive",
+                        start_date=datetime.date(2014, 1, 6),
+                        appointment=True)
+        ravenstahl = members["Luke Ravensthal"]
+
+        ravenstahl.add_term("Mayor",
+                            "executive",
+                            start_date=datetime.date(2006, 9, 1),
+                            end_date=datetime.date(2014, 1, 6),
+                            appointment=True)
 
         for person in members.values():
             yield person
