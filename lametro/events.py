@@ -132,7 +132,8 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 try:
                     assert event.key not in spanish_events
                 except AssertionError:
-                    raise AssertionError('{0} already exists as a key with a value of {1}'.format(event.key, spanish_events[event.key]))
+                    # Don't allow SAP events to be overwritten in the event dictionary
+                    raise ValueError('{0} already exists as a key with a value of {1}'.format(event.key, spanish_events[event.key]))
                 spanish_events[event.key] = (event, web_event)
             else:
                 english_events.append((event, web_event))

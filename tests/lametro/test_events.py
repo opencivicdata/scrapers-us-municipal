@@ -110,7 +110,7 @@ def test_events_paired(event_scraper, api_event, web_event, mocker):
     events.append((LAMetroAPIEvent(sap_api_event), web_event))
 
     # Assert that duplicate SAP events raise an exception
-    with pytest.raises(AssertionError) as excinfo:
+    with pytest.raises(ValueError) as excinfo:
         event_scraper._merge_events(events)
 
         event_key = LAMetroAPIEvent(sap_api_event).key
