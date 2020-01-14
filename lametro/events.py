@@ -369,7 +369,6 @@ class LAMetroAPIEvent(dict):
         return (self._partner_name == other['EventBodyName'] and
                 self['EventDate'] == other['EventDate'])
 
-
     @property
     def partner_search_string(self):
         search_string = "EventBodyName eq '{}'".format(self._partner_name)
