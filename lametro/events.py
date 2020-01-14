@@ -132,7 +132,13 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 try:
                     assert event.key not in spanish_events
                 except AssertionError:
-                    # Don't allow SAP events to be overwritten in the event dictionary
+                    # Don't allow SAP events to be overwritten in the event
+                    # dictionary. If this error is raised, there is more than
+                    # one SAP event for a meeting body on the same day, i.e.,
+                    # our event pairing criteria are too broad. Consider adding
+                    # back event time as a match constraint. See:
+                    # https://github.com/opencivicdata/scrapers-us-municipal/pull/284 &
+                    # https://github.com/opencivicdata/scrapers-us-municipal/pull/309.
                     raise ValueError('{0} already exists as a key with a value of {1}'.format(event.key, spanish_events[event.key]))
                 spanish_events[event.key] = (event, web_event)
             else:
