@@ -132,7 +132,14 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 try:
                     assert event.key not in spanish_events
                 except AssertionError:
-                    raise AssertionError('{0} already exists as a key with a value of {1}'.format(event.key, spanish_events[event.key]))
+                    # Don't allow SAP events to be overwritten in the event
+                    # dictionary. If this error is raised, there is more than
+                    # one SAP event for a meeting body on the same day, i.e.,
+                    # our event pairing criteria are too broad. Consider adding
+                    # back event time as a match constraint. See:
+                    # https://github.com/opencivicdata/scrapers-us-municipal/pull/284 &
+                    # https://github.com/opencivicdata/scrapers-us-municipal/pull/309.
+                    raise ValueError('{0} already exists as a key with a value of {1}'.format(event.key, spanish_events[event.key]))
                 spanish_events[event.key] = (event, web_event)
             else:
                 english_events.append((event, web_event))
@@ -367,15 +374,12 @@ class LAMetroAPIEvent(dict):
 
     def is_partner(self, other):
         return (self._partner_name == other['EventBodyName'] and
-                self['EventDate'] == other['EventDate'] and
-                self['EventTime'] == other['EventTime'])
-
+                self['EventDate'] == other['EventDate'])
 
     @property
     def partner_search_string(self):
         search_string = "EventBodyName eq '{}'".format(self._partner_name)
         search_string += " and EventDate eq datetime'{}'".format(self['EventDate'])
-        search_string += " and EventTime eq '{}'".format(self['EventTime'])
 
         return search_string
 
