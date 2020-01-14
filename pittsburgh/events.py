@@ -25,7 +25,7 @@ class PittsburghEventsScraper(LegistarAPIEventScraper, Scraper) :
         event_time = web_scraper.ical(response.text).subcomponents[0]["DTSTART"].dt
         event_time = pytz.timezone(self.TIMEZONE).localize(event_time)
 
-        key = (event["Name"],
+        key = (event["Meeting Name"],
                event_time)
 
         return key
@@ -101,10 +101,10 @@ class PittsburghEventsScraper(LegistarAPIEventScraper, Scraper) :
             else :
                 status = api_event["status"]
 
-            if event["Name"] == "Post Agenda":
+            if event["Meeting Name"] == "Post Agenda":
                 event_name = "Agenda Announcement"
             else:
-                event_name = event["Name"]
+                event_name = event["Meeting Name"]
 
             if description :
                 e = Event(name=event_name,
@@ -120,16 +120,16 @@ class PittsburghEventsScraper(LegistarAPIEventScraper, Scraper) :
 
             e.pupa_id = str(api_event["EventId"])
 
-            if event["Video"] != "Not\xa0available":
+            if event["Meeting video"] != "Not\xa0available":
                 e.add_media_link(note="Recording",
                                  url = event["Video"]["url"],
                                  type="recording",
-                                 media_type = "text/html")
+                                 media_type="text/html")
 
-            self.addDocs(e, event, "Agenda")
-            self.addDocs(e, event, "Minutes")
+            self.addDocs(e, event, "Published agenda")
+            self.addDocs(e, event, "Published minutes")
 
-            participant = event["Name"]
+            participant = event["Meeting Name"]
 
             if participant == "City Council" or participant == "Post Agenda":
                 participant = "Pittsburgh City Council"

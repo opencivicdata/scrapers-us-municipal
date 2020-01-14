@@ -33,14 +33,15 @@ class Pittsburgh(Jurisdiction):
         org = Organization(name="Pittsburgh City Council", classification="legislature")
         for x in range(1, 10):
             org.add_post(
-                "District {}".format(x),
-                "Councilmember",
+                label="District {}".format(str(x)),
+                role="Councilmember",
                 division_id="ocd-division/country:us/state:pa/place:pittsburgh/council_district:{}".format(x))
         yield org
 
-        city = Organization('City of Pittsburgh', classification='executive')
-        city.add_post('Mayor', 'Mayor', division_id='ocd-division/country:us/state:pa/place:pittsburgh')
-        city.add_post('City Clerk', 'City Clerk', division_id='ocd-division/country:us/state:pa/place:pittsburgh')
+        mayor = Organization(name="Mayor", classification="executive")
+        mayor.add_post("Mayor", "Mayor", division_id="ocd-division/country:us/state:pa/place:pittsburgh")
+        mayor.add_source("http://pittsburghpa.gov/mayor/index.html", note="web")
+        yield mayor
 
         standing_committee = Organization(name="Standing Committee", classification="committee")
         standing_committee.add_source("http://pittsburghpa.gov/council/standing-committees", note="web")
@@ -115,6 +116,11 @@ class Pittsburgh(Jurisdiction):
         hearing_sched = Organization(name="PUBLIC HEARING SCHEDULE", classification="committee")
         hearing_sched.add_source(self.url, note="web")
         yield hearing_sched
+
+        city_clerk = Organization(name="City Clerk", classification="department")
+        city_clerk.add_post("City Clerk", "City Clerk", division_id="ocd-division/country:us/state:pa/place:pittsburgh")
+        city_clerk.add_source("http://pittsburghpa.gov/clerk/", note="web")
+        yield city_clerk
 
         pree = Person(name="Brenda Pree")
         pree.add_term("City Clerk",
