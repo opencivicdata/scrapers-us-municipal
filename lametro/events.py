@@ -242,6 +242,10 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             if event.get('SAPEventGuid'):
                 e.extras['sap_guid'] = event['SAPEventGuid']
 
+            if web_event.has_ecomment:
+                print('\n\n\n\nAdding ecomment! {}'.format(web_event['eComment']))
+                e.extras['ecomment'] = web_event['eComment']
+
             if 'event_details' in event:
                 # if there is not a meeting detail page on legistar
                 # don't capture the agenda data from the API
@@ -405,3 +409,6 @@ class LAMetroWebEvent(dict):
     def has_audio(self):
         return self['Meeting video'] != 'Not\xa0available'
 
+    @property
+    def has_ecomment(self):
+        return self['eComment'] != 'Not\xa0available'
