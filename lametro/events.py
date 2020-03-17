@@ -243,7 +243,8 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 e.extras['sap_guid'] = event['SAPEventGuid']
 
             if web_event.has_ecomment:
-                print('\n\n\n\nAdding ecomment! {}'.format(web_event['eComment']))
+                self.info('Adding eComment link {0} from {1}'.format(web_event['eComment'],
+                                                                     web_event['Meeting Details']['url']))
                 e.extras['ecomment'] = web_event['eComment']
 
             if 'event_details' in event:
