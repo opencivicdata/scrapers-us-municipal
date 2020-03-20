@@ -107,7 +107,7 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
             members[member] = p
 
         for body in self.bodies():
-            if body['BodyTypeId'] == body_types['Committee']:
+            if body['BodyTypeId'] in (body_types['Committee'], body_types['Independent Taxpayer Oversight Committee']):
                 organization_name = body['BodyName'].strip()
                 o = Organization(organization_name,
                                  classification='committee',

@@ -104,17 +104,21 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             # be included in the our partial scrape and the other
             # member won't be. So, we try to find the partners for
             # unpaired events.
-
+            #
             # Spanish broadcasting didn't start until 5/16/2018, so we
             # check the date of any unpaired events to make sure they
             # should have a pair.
 
-            spanish_start_date = datetime.datetime(2018, 5, 15, 0, 0, 0, 0)
             if partial_scrape:
                 partner_event = self._find_partner(unpaired_event)
+
+                spanish_start_date = datetime.datetime(2018, 5, 15, 0, 0, 0, 0)
+                event_date = datetime.datetime.strptime(unpaired_event['EventDate'], '%Y-%m-%dT%H:%M:%S')
+
                 if partner_event is not None:
                     yield partner_event
-                elif unpaired_event['EventDate'] > spanish_start_date:
+
+                elif event_date > spanish_start_date and unpaired_event.is_spanish:
                     raise UnmatchedEventError(unpaired_event)
 
     def _merge_events(self, events):
@@ -128,7 +132,14 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 try:
                     assert event.key not in spanish_events
                 except AssertionError:
-                    raise AssertionError('{0} already exists as a key with a value of {1}'.format(event.key, spanish_events[event.key]))
+                    # Don't allow SAP events to be overwritten in the event
+                    # dictionary. If this error is raised, there is more than
+                    # one SAP event for a meeting body on the same day, i.e.,
+                    # our event pairing criteria are too broad. Consider adding
+                    # back event time as a match constraint. See:
+                    # https://github.com/opencivicdata/scrapers-us-municipal/pull/284 &
+                    # https://github.com/opencivicdata/scrapers-us-municipal/pull/309.
+                    raise ValueError('{0} already exists as a key with a value of {1}'.format(event.key, spanish_events[event.key]))
                 spanish_events[event.key] = (event, web_event)
             else:
                 english_events.append((event, web_event))
@@ -179,7 +190,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
         else:
             n_days_ago = None
 
-        events = self.events(n_days_ago)
+        events = self.events(since_datetime=n_days_ago)
 
         for event, web_event in self._merge_events(events):
             body_name = event["EventBodyName"]
@@ -230,6 +241,11 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
 
             if event.get('SAPEventGuid'):
                 e.extras['sap_guid'] = event['SAPEventGuid']
+
+            if web_event.has_ecomment:
+                self.info('Adding eComment link {0} from {1}'.format(web_event['eComment'],
+                                                                     web_event['Meeting Details']['url']))
+                e.extras['ecomment'] = web_event['eComment']
 
             if 'event_details' in event:
                 # if there is not a meeting detail page on legistar
@@ -434,15 +450,12 @@ class LAMetroAPIEvent(dict):
 
     def is_partner(self, other):
         return (self._partner_name == other['EventBodyName'] and
-                self['EventDate'] == other['EventDate'] and
-                self['EventTime'] == other['EventTime'])
-
+                self['EventDate'] == other['EventDate'])
 
     @property
     def partner_search_string(self):
         search_string = "EventBodyName eq '{}'".format(self._partner_name)
         search_string += " and EventDate eq datetime'{}'".format(self['EventDate'])
-        search_string += " and EventTime eq '{}'".format(self['EventTime'])
 
         return search_string
 
@@ -468,3 +481,6 @@ class LAMetroWebEvent(dict):
     def has_audio(self):
         return self['Meeting video'] != 'Not\xa0available'
 
+    @property
+    def has_ecomment(self):
+        return self['eComment'] != 'Not\xa0available'

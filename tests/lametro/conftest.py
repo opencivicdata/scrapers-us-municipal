@@ -60,7 +60,8 @@ def web_event():
                  'Agenda': {'label': 'Agenda', 'url': ''}, 
                  'iCalendar': {'url': ''}, 
                  'Meeting Location': 'One Gateway Plaza, Los Angeles, CA 90012', 
-                 'Recap/Minutes': 'Not\xa0available'}
+                 'Recap/Minutes': 'Not\xa0available',
+                 'Meeting video': 'Not\xa0available'}
     
     return web_event
 
