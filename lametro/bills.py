@@ -350,4 +350,5 @@ BILL_TYPES = {'Contract' : None,
               'Appointment': None,
               'Public Hearing': None,
               'Application': None,
-              'Closed Session': None}
+              'Closed Session': None,
+              'Board Correspondence': None}
