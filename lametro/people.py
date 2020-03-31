@@ -65,6 +65,7 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
         members = {}
         for member, offices in terms.items():
             p = Person(member)
+
             p.family_name = office['OfficeRecordLastName']
             p.given_name = office['OfficeRecordFirstName']
 
@@ -104,9 +105,6 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
 
             p.add_source(person_api_url, note='api')
             p.add_source(person_web_url, note='web')
-
-            p.family_name = term['OfficeRecordLastName']
-            p.given_name = term['OfficeRecordFirstName']
 
             members[member] = p
 
