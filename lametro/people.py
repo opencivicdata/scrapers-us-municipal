@@ -65,6 +65,10 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
         members = {}
         for member, offices in terms.items():
             p = Person(member)
+
+            p.family_name = office['OfficeRecordLastName']
+            p.given_name = office['OfficeRecordFirstName']
+
             for term in offices:
                 role = term['OfficeRecordTitle']
 
@@ -74,6 +78,7 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
                                start_date = self.toDate(term['OfficeRecordStartDate']),
                                end_date = self.toDate(term['OfficeRecordEndDate']),
                                appointment = True)
+
                 if role != 'Chief Executive Officer':
                     if role == 'non-voting member':
                         member_type = 'Nonvoting Board Member'
@@ -91,11 +96,13 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
                                end_date = end_date)
 
                     acting_member_end_date = ACTING_MEMBERS_WITH_END_DATE.get(p.name)
+
                     if acting_member_end_date and acting_member_end_date <= end_date:
                         board_membership.extras = {'acting': 'true'}
 
             source_urls = self.person_sources_from_office(term)
             person_api_url, person_web_url = source_urls
+
             p.add_source(person_api_url, note='api')
             p.add_source(person_web_url, note='web')
 

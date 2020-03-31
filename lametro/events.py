@@ -258,8 +258,11 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
 
                     if item["EventItemAgendaNumber"]:
                         # To the notes field, add the item number as given in the agenda minutes
-                        note = "Agenda number, {}".format(item["EventItemAgendaNumber"])
+                        agenda_number = item["EventItemAgendaNumber"]
+                        note = "Agenda number, {}".format(agenda_number)
                         agenda_item['notes'].append(note)
+
+                        agenda_item['extras']['agenda_number'] = agenda_number
 
                     # The EventItemAgendaSequence provides
                     # the line number of the Legistar agenda grid.
@@ -286,19 +289,27 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                              note='api (sap)')
 
             if event['EventAgendaFile']:
-                e.add_document(note= 'Agenda',
-                               url = event['EventAgendaFile'],
-                               media_type="application/pdf")
+                e.add_document(note='Agenda',
+                               url=event['EventAgendaFile'],
+                               media_type="application/pdf",
+                               date=self.to_utc_timestamp(event['EventAgendaLastPublishedUTC']).date())
 
             if event['EventMinutesFile']:
                 e.add_document(note='Minutes',
                                url=event['EventMinutesFile'],
-                               media_type="application/pdf")
-
-            if web_event['Published minutes'] != 'Not\xa0available':
+                               media_type="application/pdf",
+                               date=self.to_utc_timestamp(event['EventMinutesLastPublishedUTC']).date())
+            elif web_event['Published minutes'] != 'Not\xa0available':
                 e.add_document(note=web_event['Published minutes']['label'],
                                url=web_event['Published minutes']['url'],
                                media_type="application/pdf")
+            else:
+                approved_minutes = self.find_approved_minutes(event)
+                if approved_minutes:
+                    e.add_document(note=approved_minutes['MatterAttachmentName'],
+                                   url=approved_minutes['MatterAttachmentHyperlink'],
+                                   media_type="application/pdf",
+                                   date=self.to_utc_timestamp(approved_minutes['MatterAttachmentLastModifiedUtc']).date())
 
             for audio in event['audio']:
                 try:
@@ -358,6 +369,66 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
 
             if suppress:
                 item['EventItemMatterFile'] = None
+
+    def find_approved_minutes(self, event):
+        '''
+        The minutes of some meetings are available as a legislative item
+        that are approved at the subsequent meeting. This method tries
+        to find them.
+
+        This method is pretty complicated, but if we can get it right
+        here, it avoids many complicated and expensive queries in the
+        councilmatic app.
+
+        '''
+        name = event['EventBodyName']
+
+        if name not in {'Board of Directors - Regular Board Meeting',
+                        'LA SAFE'}:
+            return None
+
+        # if the event is the future, there won't have been a chance to
+        # approve the minutes
+        if event['start'] > datetime.datetime.now(datetime.timezone.utc):
+            return None
+
+        date = event['start'].strftime('%B %-d, %Y')
+        result = self.search(
+            '/matters/',
+            'MatterId',
+            "MatterBodyId eq {} and substringof('{}', MatterTitle) and substringof('Minutes', MatterTitle)".format(event['EventBodyId'], date))
+
+        try:
+            matter, = result
+        except ValueError as e:
+            if 'not enough values' in str(e):
+                self.warning(
+                    "Couldn't find minutes for the {} meeting of {}."\
+                        .format(name, date))
+                return None
+            else:
+                raise
+
+        attachment_url = self.BASE_URL + '/matters/{}/attachments'.format(matter['MatterId'])
+
+
+        attachments = self.get(attachment_url).json()
+
+        if len(attachments) == 0:
+            raise ValueError('No attachments for the approved minutes matter')
+        elif len(attachments) == 1:
+            return attachments[0]
+        else:
+            # this meeting had both special and regular board meeting
+            # attached to the minutes matter
+            if date == 'May 28, 2015':
+                attachment_name = 'Regular Board Meeting Minutes on May 28, 2015'
+                attachment, = [each for each in attachments
+                               if each['MatterAttachmentName'] == attachment_name]
+                return attachment
+            else:
+                raise ValueError("More than one attachement for the approved minutes matter")
+
 
 
 class LAMetroAPIEvent(dict):
