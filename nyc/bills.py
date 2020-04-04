@@ -14,10 +14,10 @@ DUPLICATED_ACTIONS = {21445, 28507, 28481,
                       49987, 48426}  # These two are stations of the cities
                                      # weird special events.
 
-class NYCBillScraper(Scraper, LegistarAPIBillScraper):
-    LEGISLATION_URL = 'http://legistar.council.nyc.gov/Legislation.aspx'
+class NYCBillScraper(LegistarAPIBillScraper, Scraper):
+    LEGISLATION_URL = 'https://legistar.council.nyc.gov/Legislation.aspx'
     BASE_URL = 'https://webapi.legistar.com/v1/nyc'
-    BASE_WEB_URL = 'http://legistar.council.nyc.gov'
+    BASE_WEB_URL = 'https://legistar.council.nyc.gov'
     TIMEZONE = 'US/Eastern'
 
     VOTE_OPTIONS = {'affirmative': 'yes',
@@ -165,6 +165,19 @@ class NYCBillScraper(Scraper, LegistarAPIBillScraper):
 
     def get_bill(self, matter):
         '''Make Bill object from given matter.'''
+        
+        '''
+        Currently, NYC Legistar does not have conventional "Types" for 
+        three newly added committees: https://legistar.council.nyc.gov/Departments.aspx
+        We communicated the issue to NYC, and until we learn more, we will
+        skip the bills attached to those committees.
+        '''
+        orgs_without_type = ['Charter Revision Commission 2019',
+                             'New York City Advisory Commission on Property Tax Reform',
+                             'Democratic Conference of the Council of the City of New York']
+        if matter['MatterBodyName'].strip() in orgs_without_type:
+            return None
+
         matter_id = matter['MatterId']
         if matter_id in DUPLICATED_ACTIONS:
             return None
@@ -343,10 +356,12 @@ BILL_TYPES = {'Introduction': 'bill',
               'Local Laws 2015': 'bill',
               'Local Laws 2017': 'bill',
               'Local Laws 2018': 'bill',
+              'Local Laws 2019': 'bill',
               'Commissioner of Deeds': None,
               'Town Hall Meeting': None,
               'Tour': None,
               'Petition': 'petition',
+              'Public Meeting': None,
               'SLR': None,
               'City Agency Report': None,
               'Hearing Transcripts 1994': None,
@@ -386,7 +401,8 @@ ACTION_CLASSIFICATION = {
     'Approved by Subcommittee with Modifications': 'committee-passage',
     'Approved by Subcommittee with Modifications and Referred pursuant to Rule 11.20(b) of the Rules of the Council and Section 197(d) of the New York City Charter': 'committee-passage',
     'Approved by Subcommittee with Modifications and Referred to CPC': 'committee-passage',
-    'Approved with Modifications and Referred to the City Planning Commission pursuant to Rule 11.70(b) of the Rules of the Council and Section 197-(d) of the New York City Charter.': 'referral',
+    'Approved with Modifications and Referred to the City Planning Commission pursuant to Rule 11.70(b) of the Rules of the Council and Section 197-(d) of the New York City Charter.': 'committee-passage',
+    'Approved with Modifications and Referred to the City Planning Commission pursuant to Section 197-(d) of the New York City Charter.': 'committee-passage',
     'Approved, by Council': 'passage',
     'Approved/Ordered in Part by Council': 'passage',
     'Bill Signing Scheduled by Mayor': None,

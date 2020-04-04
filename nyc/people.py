@@ -8,9 +8,9 @@ from pupa.scrape import Person, Organization, Scraper
 from .secrets import TOKEN
 
 
-class NYCPersonScraper(Scraper, LegistarAPIPersonScraper):
+class NYCPersonScraper(LegistarAPIPersonScraper, Scraper):
     BASE_URL = 'https://webapi.legistar.com/v1/nyc'
-    WEB_URL = 'http://legistar.council.nyc.gov'
+    WEB_URL = 'https://legistar.council.nyc.gov'
     TIMEZONE = 'US/Eastern'
 
     def __init__(self, *args, **kwargs):
@@ -134,7 +134,8 @@ class NYCPersonScraper(Scraper, LegistarAPIPersonScraper):
                            'Select Committee',
                            'Subcommittee',
                            'Task Force',
-                           'Land Use']  # Committee on Land Use
+                           'Land Use', # Committee on Land Use
+                          ]
 
         body_types = {k: v for k, v in self.body_types().items()
                       if k in committee_types}

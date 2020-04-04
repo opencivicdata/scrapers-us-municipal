@@ -1,6 +1,7 @@
 .#*
 *#
 nyc/secrets.py
+lametro/secrets.py
 pupa_settings.py
 
 # Pupa bits.
@@ -52,3 +53,5 @@ nosetests.xml
 .pydevproject
 
 __pycache__
+
+venv

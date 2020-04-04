@@ -10,9 +10,8 @@ class StLouisBillScraper(StlScraper):
 			session_id = session["identifier"]
 			session_url = self.bill_session_url(session_id)
 			page = self.lxmlize(session_url)
-
-			# bills are in a <table class="data"> 
-			bill_rows = page.xpath("//table[@class='data']/tr")
+			# bills are in a <table class="data stripped"> 
+			bill_rows = page.xpath("//table[contains(@class, 'data')]/tr")
 			# first row is headers, so ignore it
 			bill_rows.pop(0)
 			
@@ -25,9 +24,8 @@ class StLouisBillScraper(StlScraper):
 
 	def scrape_bill(self, bill_url, bill_id, session_id):
 		page = self.lxmlize(bill_url)
-
 		# create bill
-		title = page.xpath("//em/text()")[0]
+		title = page.xpath("//h1/text()")[0]
 		bill = Bill(identifier=bill_id,
 			        legislative_session=session_id,
 			        title=title)
@@ -46,7 +44,7 @@ class StLouisBillScraper(StlScraper):
 			print("No abstract for bill {} in session {}".format(bill_id, session_id))
 
 		# the rest of the fields are found inside this <table>
-		data_table = page.xpath("//table[@class='data vertical_table']")[0]
+		data_table = page.xpath("//table[contains(@class, 'data')]")[0]
 
 		# sponsor
 		sponsor_name = data_table.xpath(self.bill_table_query("Sponsor") + "/text()")[0]
@@ -59,6 +57,7 @@ class StLouisBillScraper(StlScraper):
 		# actions
 		action_lines = data_table.xpath(self.bill_table_query("Actions") + "/text()")
 		for line in action_lines:
+			line = line.join('')
 			try:
 				for date_str, action_type in self.parse_actions(line):
 					bill.add_action(date=date_str,
@@ -133,7 +132,7 @@ class StLouisBillScraper(StlScraper):
 		# See http://docs.opencivicdata.org/en/latest/scrape/bills.html
 
 		# what does "Perfection" map to?
-		"Perfection": "committee-referral", # ???
+		"Perfection": "referral", # ???
 
 		# what does "Informal Calendar" map to?
 		"Informal Calendar": "filing", # ???

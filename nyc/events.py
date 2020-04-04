@@ -3,15 +3,15 @@ import re
 
 import pytz
 import requests
-from legistar.events import LegistarAPIEventScraper
+from legistar.events import LegistarAPIEventScraperZip
 from pupa.scrape import Event, Scraper
 
 from .secrets import TOKEN
 
-class NYCEventsScraper(Scraper, LegistarAPIEventScraper):
+class NYCEventsScraper(LegistarAPIEventScraperZip, Scraper):
     BASE_URL = 'https://webapi.legistar.com/v1/nyc'
-    WEB_URL = "http://legistar.council.nyc.gov/"
-    EVENTSPAGE = "http://legistar.council.nyc.gov/Calendar.aspx/"
+    WEB_URL = "https://legistar.council.nyc.gov/"
+    EVENTSPAGE = "https://legistar.council.nyc.gov/Calendar.aspx/"
     TIMEZONE = "America/New_York"
 
     def __init__(self, *args, **kwargs):
@@ -23,10 +23,11 @@ class NYCEventsScraper(Scraper, LegistarAPIEventScraper):
 
     def scrape(self, window=3):
         n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
+
         for api_event, event in self.events(n_days_ago):
 
             when = api_event['start']
-            location = api_event['EventLocation']
+            location = self._clean_location(api_event['EventLocation'])
 
             description = event['Meeting\xa0Topic']
 
@@ -107,6 +108,9 @@ class NYCEventsScraper(Scraper, LegistarAPIEventScraper):
                     e.add_source(detail_url, note='web')
 
             yield e
+
+    def _clean_location(self, location_string):
+        return re.sub(r'\s{2,}', ' ', location_string)
 
     def _parse_location(self, location_string):
         other_orgs = None

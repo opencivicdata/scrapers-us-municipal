@@ -3,7 +3,7 @@ import collections
 from pupa.scrape import Person, Organization, Scraper
 from legistar.people import LegistarAPIPersonScraper, LegistarPersonScraper
 
-class ChicagoPersonScraper(Scraper, LegistarAPIPersonScraper):
+class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/chicago'
     WEB_URL = 'https://chicago.legistar.com'
     TIMEZONE = "America/Chicago"
@@ -16,7 +16,7 @@ class ChicagoPersonScraper(Scraper, LegistarAPIPersonScraper):
 
         terms = collections.defaultdict(list)
         for office in self.body_offices(city_council):
-            if 'VACAN' not in office['OfficeRecordFullName']:
+            if 'vacan' not in office['OfficeRecordFullName'].lower():
                 terms[office['OfficeRecordFullName'].strip()].append(office)
 
         web_scraper = LegistarPersonScraper(requests_per_minute = self.requests_per_minute)
@@ -117,12 +117,14 @@ class ChicagoPersonScraper(Scraper, LegistarAPIPersonScraper):
 
                         members[person] = p
 
+                    try:
+                        end_date = self.toDate(office['OfficeRecordEndDate'])
+                    except TypeError:
+                        end_date = ''
                     p.add_membership(body['BodyName'],
                                      role=role,
-                                     start_date = self.toDate(office['OfficeRecordStartDate']),
-                        
-                                     end_date = self.toDate(office['OfficeRecordEndDate']))
-                        
+                                     start_date=self.toDate(office['OfficeRecordStartDate']),
+                                     end_date=end_date)
 
                 yield o
 

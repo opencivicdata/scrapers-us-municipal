@@ -16,7 +16,7 @@ def sort_actions(actions):
 
     return sorted_actions
 
-class ChicagoBillScraper(Scraper, LegistarAPIBillScraper):
+class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/chicago'
     BASE_WEB_URL = 'https://chicago.legistar.com'
     TIMEZONE = "US/Central"
@@ -28,14 +28,14 @@ class ChicagoBillScraper(Scraper, LegistarAPIBillScraper):
 
     def session(self, action_date) :
         localize = pytz.timezone(self.TIMEZONE).localize
-        # 2011 Kill Bill https://chicago.legistar.com/LegislationDetail.aspx?ID=907351&GUID=6118274B-A598-4584-AA5B-ABDFA5F79506
-        if action_date <  localize(datetime.datetime(2011, 5, 4)) :
+        if action_date < localize(datetime.datetime(2011, 5, 18)) :
             return "2007"
-        # 2015 Kill Bill https://chicago.legistar.com/LegislationDetail.aspx?ID=2321351&GUID=FBA81B7C-8A33-4D6F-92A7-242B537069B3
-        elif action_date < localize(datetime.datetime(2015, 5, 6)) :
+        elif action_date < localize(datetime.datetime(2015, 5, 18)) :
             return "2011"
-        else :
+        elif action_date < localize(datetime.datetime(2019, 5, 20)):
             return "2015"
+        else :
+            return "2019"
 
     def sponsorships(self, matter_id) :
         for i, sponsor in enumerate(self.sponsors(matter_id)) :
@@ -98,12 +98,28 @@ class ChicagoBillScraper(Scraper, LegistarAPIBillScraper):
                 and action['MatterHistoryRollCallFlag'] is not None
                 and action['MatterHistoryPassedFlag'] is not None) :
 
-                # Do we want to capture vote events for voice votes?
-                # Right now we are not? 
                 bool_result = action['MatterHistoryPassedFlag']
                 result = 'pass' if bool_result else 'fail'
 
-                votes = (result, self.votes(action['MatterHistoryId'])) 
+                # Votes that are not roll calls, i.e., voice votes, sometimes
+                # include "votes" that omit the vote option (yea, nay, etc.).
+                # Capture that a vote occurred, but skip recording the
+                # null votes, as they break the scraper.
+
+                action_text = action['MatterHistoryActionText'] or ''
+
+                if 'voice vote' in action_text.lower():
+                    # while there should not be individual votes
+                    # for voice votes, sometimes there are.
+                    #
+                    # http://webapi.legistar.com/v1/chicago/eventitems/163705/votes
+                    # http://webapi.legistar.com/v1/chicago/matters/26788/histories
+
+                    self.info('Skipping votes for history {0} of matter ID {1}'.format(action['MatterHistoryId'],
+                                                                                       matter_id))
+                    votes = (result, [])
+                else:
+                    votes = (result, self.votes(action['MatterHistoryId']))
             else :
                 votes = (None, [])
 
@@ -122,7 +138,7 @@ class ChicagoBillScraper(Scraper, LegistarAPIBillScraper):
             # to fail, add it to the `problem_bills` array to skip it.
             # For the time being...nothing to skip!
 
-            problem_bills = []
+            problem_bills = ['Or2011-189']
 
             if identifier in problem_bills:
                 continue
@@ -185,7 +201,10 @@ class ChicagoBillScraper(Scraper, LegistarAPIBillScraper):
                     vote_event.add_source(legistar_api + '/histories')
 
                     for vote in votes :
-                        raw_option = vote['VoteValueName'].lower()
+                        vote_value = vote['VoteValueName']
+                        if vote_value is None:
+                            continue
+                        raw_option = vote_value.lower()
                         clean_option = self.VOTE_OPTIONS.get(raw_option,
                                                              raw_option)
                         vote_event.vote(clean_option, 
@@ -213,9 +232,6 @@ class ChicagoBillScraper(Scraper, LegistarAPIBillScraper):
             if text :
                 if text['MatterTextPlain'] :
                     bill.extras['plain_text'] = text['MatterTextPlain']
-
-                if text['MatterTextRtf'] :
-                    bill.extras['rtf_text'] = text['MatterTextRtf'].replace(u'\u0000', '')
 
             yield bill
 

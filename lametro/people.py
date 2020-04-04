@@ -1,4 +1,4 @@
-import datetime
+from datetime import date
 import collections
 
 from legistar.people import LegistarAPIPersonScraper, LegistarPersonScraper
@@ -24,9 +24,13 @@ VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of L
                 'Don Knabe' : 'Los Angeles County Board Supervisor, District 4',
                 'Michael Antonovich' : 'Los Angeles County Board Supervisor, District 5'}
 
-NONVOTING_POSTS = {'Carrie Bowen' : 'Appointee of Governor of California'}
+NONVOTING_POSTS = {'Carrie Bowen' : 'Appointee of Governor of California',
+                   'Shirley Choate' : 'District 7 Director, California Department of Transportation (Caltrans), Appointee of the Governor of California',
+                   'John Bulinski' : 'District 7 Director, California Department of Transportation (Caltrans), Appointee of the Governor of California'}
 
-class LametroPersonScraper(Scraper, LegistarAPIPersonScraper):
+ACTING_MEMBERS_WITH_END_DATE = {'Shirley Choate': date(2018, 10, 24)}
+
+class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
     WEB_URL = 'https://metro.legistar.com'
     TIMEZONE = "America/Los_Angeles"
@@ -61,6 +65,10 @@ class LametroPersonScraper(Scraper, LegistarAPIPersonScraper):
         members = {}
         for member, offices in terms.items():
             p = Person(member)
+
+            p.family_name = office['OfficeRecordLastName']
+            p.given_name = office['OfficeRecordFirstName']
+
             for term in offices:
                 role = term['OfficeRecordTitle']
 
@@ -70,6 +78,7 @@ class LametroPersonScraper(Scraper, LegistarAPIPersonScraper):
                                start_date = self.toDate(term['OfficeRecordStartDate']),
                                end_date = self.toDate(term['OfficeRecordEndDate']),
                                appointment = True)
+
                 if role != 'Chief Executive Officer':
                     if role == 'non-voting member':
                         member_type = 'Nonvoting Board Member'
@@ -78,22 +87,29 @@ class LametroPersonScraper(Scraper, LegistarAPIPersonScraper):
                         member_type = 'Board Member'
                         post = VOTING_POSTS.get(member)
 
-                    p.add_term(member_type,
+                    start_date = self.toDate(term['OfficeRecordStartDate'])
+                    end_date = self.toDate(term['OfficeRecordEndDate'])
+                    board_membership = p.add_term(member_type,
                                'legislature',
                                district = post,
-                               start_date = self.toDate(term['OfficeRecordStartDate']),
-                               end_date = self.toDate(term['OfficeRecordEndDate']))
+                               start_date = start_date,
+                               end_date = end_date)
 
+                    acting_member_end_date = ACTING_MEMBERS_WITH_END_DATE.get(p.name)
+
+                    if acting_member_end_date and acting_member_end_date <= end_date:
+                        board_membership.extras = {'acting': 'true'}
 
             source_urls = self.person_sources_from_office(term)
             person_api_url, person_web_url = source_urls
+
             p.add_source(person_api_url, note='api')
             p.add_source(person_web_url, note='web')
 
             members[member] = p
 
         for body in self.bodies():
-            if body['BodyTypeId'] == body_types['Committee']:
+            if body['BodyTypeId'] in (body_types['Committee'], body_types['Independent Taxpayer Oversight Committee']):
                 organization_name = body['BodyName'].strip()
                 o = Organization(organization_name,
                                  classification='committee',
@@ -108,7 +124,8 @@ class LametroPersonScraper(Scraper, LegistarAPIPersonScraper):
                 for office in self.body_offices(body):
                     role = office['OfficeRecordTitle']
 
-                    if role not in ("Chair", "Vice Chair"):
+
+                    if role not in ("Chair", "Vice Chair", "Chief Executive Officer"):
                         if role == 'non-voting member':
                             role = 'Nonvoting Member'
                         else:
@@ -128,10 +145,16 @@ class LametroPersonScraper(Scraper, LegistarAPIPersonScraper):
 
                         members[person] = p
 
-                    p.add_membership(organization_name,
+                    start_date = self.toDate(office['OfficeRecordStartDate'])
+                    end_date = self.toDate(office['OfficeRecordEndDate'])
+                    membership = p.add_membership(organization_name,
                                      role=role,
-                                     start_date = self.toDate(office['OfficeRecordStartDate']),
-                                     end_date = self.toDate(office['OfficeRecordEndDate']))
+                                     start_date=start_date,
+                                     end_date=end_date)
+
+                    acting_member_end_date = ACTING_MEMBERS_WITH_END_DATE.get(p.name)
+                    if acting_member_end_date and acting_member_end_date <= end_date:
+                        membership.extras = {'acting': 'true'}
 
                 yield o
 
