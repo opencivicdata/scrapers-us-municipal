@@ -19,6 +19,17 @@ class Nashville(Jurisdiction):
         # "vote_events": NashvilleVoteEventScraper,
     }
 
+            # Technically these might be terms. They mirror the format being scrapped.
+    legislative_sessions = [
+        {"identifier":"2019-2023", "name":"2019 - 2023 Term", "start_date": "2019", "end_date": "2023"},
+        {"identifier":"2015-2019", "name":"2015 - 2019 Term", "start_date": "2015", "end_date": "2019"},
+        {"identifier":"2011-2015", "name":"2011 - 2015 Term", "start_date": "2015", "end_date": "2011"},
+        {"identifier":"2007-2011", "name":"2007 - 2011 Term", "start_date": "2007", "end_date": "2011"},
+        {"identifier":"2003-2007", "name":"2003 - 2007 Term", "start_date": "2003", "end_date": "2007"},
+        {"identifier":"1999-2003", "name":"1999 - 2003 Term", "start_date": "1999", "end_date": "2003"},
+        {"identifier":"1995-1999", "name":"1995 - 1999 Term", "start_date": "1995", "end_date": "1999"},
+    ]
+
     def get_organizations(self):
         # Mayor's Office
         mayors_office = Organization(
@@ -100,4 +111,4 @@ class Nashville(Jurisdiction):
 
         yield city_council
         # @TODO Add committees
-       # https://www.nashville.gov/Metro-Council/Council-Committees.aspx
+        # https://www.nashville.gov/Metro-Council/Council-Committees.aspx

@@ -1,12 +1,13 @@
 from os import path
 from datetime import datetime
 from collections import namedtuple
-from pupa.scrape import Bill
+from pupa.scrape import Bill, Jurisdiction
+from pupa.exceptions import DuplicateItemError
 from .utils import NashvilleScraper
 
 
 class NashvilleBillScraper(NashvilleScraper):
-
+    titles = []
     def scrape(self):
         yield from self.get_resolution_by_council_term()
         # TODO: Add zoning amendments
@@ -27,17 +28,24 @@ class NashvilleBillScraper(NashvilleScraper):
         self.bill_session = self.get_session_year(url)
 
         current_year = datetime.now().year
-        current_session = int(self.bill_session[0:4]) + 4 >= current_year
+        session_year = int(self.bill_session[0:4])
+        current_session = session_year + 4 >= current_year
         if current_session:
             (dnn_name, ) = doc.xpath(
                 '//div[contains(@class, "DnnModule-NV-LVMSLegislation-List")]/a/@name')
             bill_elements = doc.xpath(
                 '//div[@id="dnn_ctr{}_LVMSLegislationList_pnlListWrap"]/p'.format(dnn_name))
             yield from self.get_session_bills(bill_elements)
-            (second_list, ) = doc.xpath(
-                '//div[contains(@class, "DnnModule-{}")]/following-sibling::div[1]'.format(dnn_name))
+            second_list = []
+            try:
+                (second_list, ) = doc.xpath(
+                    '//div[contains(@class, "DnnModule-{}")]/following-sibling::div[1]'.format(dnn_name))
+            except ValueError:
+                pass
+            
             yield from self.get_session_bills(second_list)
         else:
+            # Skipping non dot net bill pages
             dnn_name = self.get_dnn_name(doc)
             bill_elements = doc.xpath(
                 '//div[@id="dnn_ctr{}_HtmlModule_lblContent"]/p'.format(dnn_name))
@@ -59,18 +67,20 @@ class NashvilleBillScraper(NashvilleScraper):
                 except ValueError:
                     # The first row might be the title and won't contain an anchor tag
                     continue
-                (link, ) = title_p.xpath('./a/@href')
-                (title, ) = bill.xpath('./text()')
                 (*classification, identifier) = administrative_title.split(' ')
-                self.current_bill_identifier = identifier
-
-                bill = Bill(identifier=identifier,
-                            title=title,
-                            classification='resolution',
-                            legislative_session=self.bill_session,
-                            from_organization={"name": "Nashville Metropolitan Council"})
-                bill = self.get_bill_detail(link, bill)
-                if(bill):
+                if identifier not in self.titles:
+                    (link, ) = title_p.xpath('./a/@href')
+                    (title, ) = bill.xpath('./text()')
+                    self.titles.append(identifier)
+                    self.current_bill_identifier = identifier
+                    bill = Bill(identifier=identifier,
+                                title=title,
+                                classification='resolution',
+                                legislative_session=self.bill_session,
+                                from_organization={"name": "Nashville Metropolitan Council"})
+                    bill = self.get_bill_detail(link, bill)
+                    # We can't save a bill with no sources
+                    bill.add_source(link)
                     yield bill
 
             else:
@@ -84,6 +94,7 @@ class NashvilleBillScraper(NashvilleScraper):
         except ValueError:
             # TODO: Handle non dot net bill pages
             pass
+        return bill
 
     def dot_net_bill_detail(self, dnn_name, bill_doc, bill):
         legislative_div_id = 'dnn_ctr{}_LVMSLegislationDetails_pnlLegislationDetails'.format(dnn_name)
@@ -109,7 +120,7 @@ class NashvilleBillScraper(NashvilleScraper):
             else:
                 try:
                     note = filename[:len(filename)-4].split('_')[1].lower()
-                    bill.add_document_link(note=note, url=support_file, media_type="application/pdf")
+                    bill.add_document_link(note=note if note else ' - ', url=support_file, media_type="application/pdf")
                 except:
                     # It is possible that the doc doesn't fit either format so let's add it as detail
                     bill.add_source(note='detail', url=support_file)

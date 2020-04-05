@@ -16,25 +16,24 @@ class NashvillePersonScraper(NashvilleScraper):
 
         # Yield mayor
         (name, *summary, bio, email_updates) = doc.xpath(
-            '//div[@id="dnn_ctr15874_HtmlModule_lblContent"]/descendant::*/text()')
-        (bio_doc_link, ) = doc.xpath(
-            '//div[@id="dnn_ctr15874_HtmlModule_lblContent"]/descendant::*/a[contains(@href, "/Mayors-Biography.aspx")]/@href')
-        bio_doc = self.lxmlize(bio_doc_link)
-        (name, *biography, image) = bio_doc.xpath(
-            '//div[@id="dnn_ctr3974_HtmlModule_lblContent"]/descendant::*/text()')
+            '//div[@id="dnn_ctr16977_HtmlModule_lblContent"]/descendant::*/text()')
+        # (bio_doc_link, ) = doc.xpath('//div[@id="dnn_ctr15874_HtmlModule_lblContent"]/descendant::*/a[contains(@href, "/Mayors-Biography.aspx")]/@href')
+        # bio_doc = self.lxmlize(bio_doc_link)
+        # (name, *biography, image) = bio_doc.xpath(
+            # '//div[@id="dnn_ctr3974_HtmlModule_lblContent"]/descendant::*/text()')
 
-        (image_url, ) = bio_doc.xpath(
-            '//div[@id="dnn_ctr3974_HtmlModule_lblContent"]/descendant::*/a[@target="_blank"]/@href')
+        (image_url, ) = doc.xpath('//div[@id="dnn_ctr16977_HtmlModule_lblContent"]/descendant::*/img/@src')
 
         mayor = Person(name=name,
                        image=image_url,
                        primary_org='executive',
                        role='Mayor',
-                       summary=''.join(summary),
-                       biography=''.join(biography),
+                    #    summary=''.join(summary),
+                       birth_date='1800-01-01',
+                       biography=''.join(summary),
                        )
 
-        mayor.add_source(bio_doc_link)
+        mayor.add_source(base_url)
         yield mayor
 
         # Yield Staff
@@ -49,13 +48,14 @@ class NashvillePersonScraper(NashvilleScraper):
             formated_name = '{} {}'.format(first.strip(), last)
             staff = Person(name=formated_name,
                            primary_org='executive',
-                           role=title)
+                           role=title,
+                           birth_date='1800-01-01',)
 
             staff.add_source(link)
             yield staff
 
     def get_city_council(self):
-        base_url = 'http://www.nashville.gov/Metro-Clerk/Metropolitan-Council/Council-Members.aspx'
+        base_url = 'https://www.nashville.gov/Metro-Council/Metro-Council-Members.aspx'
         doc = self.lxmlize(base_url)
         council_member_rows = doc.xpath(
             '//table[@id="CouncilRoster"]/tbody/tr')
@@ -98,6 +98,9 @@ class NashvillePersonScraper(NashvilleScraper):
                                     image=image_url,
                                     primary_org='executive',
                                     role=role,
+                                    # Including a default birthdate so we can handle duplicates
+                                    # @TODO Strategy for handling birthdays
+                                    birth_date='1800-01-01'
                                     )
             council_member.contact_details = contact_details
             council_member.add_source(link)

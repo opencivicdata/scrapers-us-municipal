@@ -8,9 +8,9 @@ from .utils import NashvilleScraper
 class NashvilleEventScraper(NashvilleScraper):
 
     def scrape(self):
-        # needs to be implemented
         yield from self.scheduled_meetings()
-        yield from self.meeting_minutes_archive()
+        # needs to be implemented
+        # yield from self.meeting_minutes_archive()
 
     def scheduled_meetings(self):
         base_url = 'http://www.nashville.gov/Metro-Council/Council-Events-Calendar.aspx'
@@ -25,21 +25,30 @@ class NashvilleEventScraper(NashvilleScraper):
             date_time =  meeting_doc.xpath('//div[@id="{}"]/p/em/text()'.format(event_id))
             
             date_time = self.strip_string_array(date_time)
-            start = datetime.datetime.strptime(date_time, '%m-%d-%Y %I:%M %p')
+            try:
+                start = datetime.datetime.strptime(date_time, '%m-%d-%Y %I:%M %p')
+            except ValueError:
+                start = datetime.datetime.strptime(date_time.replace('.', ''), '%m/%d/%Y %I:%M %p')
             tz = pytz.timezone("US/Central")
             start = tz.localize(start)
             event_location_id = 'dnn_ctr{}_EventDetails_pnlLocation'.format(dnn_name)
-            (location_name, *address) =  meeting_doc.xpath('//div[@id="{}"]/p/text()'.format(event_location_id))
+            try:
+                (location_name, *address) =  meeting_doc.xpath('//div[@id="{}"]/p/text()'.format(event_location_id))
+            except ValueError:
+                location_name = ' - '
             description =  meeting_doc.xpath('//div[@id="{}"]/p[3]/text()'.format(event_id))
             description = self.strip_string_array(description)
-            # Marking everything as confirmed - need to learn how cancelled meetings are posted
+            # @TODO: Marking everything as confirmed - need to learn how cancelled meetings are posted
             status = 'confirmed'
             # @TODO: Geocode *address
-            e = Event(name=title, 
+            e = Event(
+                    name=title,
                     start_date=start,
-                    location_name={'name': location_name, 'note': ''},
+                    location_name=location_name,
                     description=description,
-                    status=status)
+                    status=status
+                )
+            e.add_source(event_link)
             yield e
 
     def meeting_minutes_archive(self):

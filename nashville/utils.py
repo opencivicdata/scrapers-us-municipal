@@ -14,8 +14,7 @@ class NashvilleScraper(Scraper):
         return ' '.join(stripped)
 
     def get_dnn_name(self, doc):
-        (dnn_name, ) = doc.xpath(
-                '//div[@id="dnn_ContentPane"]/div/a/@name')
+        (dnn_name, *rest) = doc.xpath('//div[@id="dnn_ContentPane"]/div/a/@name')
         return dnn_name
     
     def pdf_to_lxml(self, url):
