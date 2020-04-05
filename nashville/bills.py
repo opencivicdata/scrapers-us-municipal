@@ -44,7 +44,7 @@ class NashvilleBillScraper(NashvilleScraper):
                 pass
             
             yield from self.get_session_bills(second_list)
-        else:
+        elif session_year > 2011:
             # Skipping non dot net bill pages
             dnn_name = self.get_dnn_name(doc)
             bill_elements = doc.xpath(
