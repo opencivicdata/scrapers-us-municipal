@@ -199,6 +199,9 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 body_name, event_name = [part.strip()
                                          for part
                                          in body_name.split('-')]
+            elif body_name.endswith('Service Council'):
+                # Don't scrape service council events.
+                continue
             else:
                 event_name = body_name
 
