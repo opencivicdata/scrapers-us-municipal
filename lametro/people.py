@@ -66,9 +66,6 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
         for member, offices in terms.items():
             p = Person(member)
 
-            p.family_name = office['OfficeRecordLastName']
-            p.given_name = office['OfficeRecordFirstName']
-
             for term in offices:
                 role = term['OfficeRecordTitle']
 
@@ -99,6 +96,20 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
 
                     if acting_member_end_date and acting_member_end_date <= end_date:
                         board_membership.extras = {'acting': 'true'}
+
+            # Each term contains first and last names. This should be the same
+            # across all of a person's terms, so go ahead and grab them from the
+            # last term in the array.
+            p.family_name = term['OfficeRecordLastName']
+            p.given_name = term['OfficeRecordFirstName']
+
+            # Defensively assert that the given and family names match the
+            # expected value.
+            if member == 'Hilda L. Solis':
+                # Given/family name does not contain middle initial.
+                assert p.given_name == 'Hilda' and p.family_name == 'Solis'
+            else:
+                assert member == ' '.join([p.given_name, p.family_name])
 
             source_urls = self.person_sources_from_office(term)
             person_api_url, person_web_url = source_urls
