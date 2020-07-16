@@ -292,7 +292,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
             for attachment in self.attachments(matter_id) :
                 if attachment['MatterAttachmentName'] :
                     bill.add_document_link(attachment['MatterAttachmentName'],
-                                           attachment['MatterAttachmentHyperlink'],
+                                           attachment['MatterAttachmentHyperlink'].strip(),
                                            media_type="application/pdf")
 
             bill.extras['local_classification'] = matter['MatterTypeName']
