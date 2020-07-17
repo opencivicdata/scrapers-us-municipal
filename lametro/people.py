@@ -135,7 +135,6 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
                 for office in self.body_offices(body):
                     role = office['OfficeRecordTitle']
 
-
                     if role not in ("Chair", "Vice Chair", "Chief Executive Officer"):
                         if role == 'non-voting member':
                             role = 'Nonvoting Member'
