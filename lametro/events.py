@@ -192,6 +192,10 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
 
         events = self.events(since_datetime=n_days_ago)
 
+        service_councils = set(
+            sc['BodyId'] for sc in self.search('/bodies/', 'BodyId', 'BodyTypeId eq 70 or BodyTypeId eq 75')
+        )
+
         for event, web_event in self._merge_events(events):
             body_name = event["EventBodyName"]
 
@@ -199,8 +203,9 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 body_name, event_name = [part.strip()
                                          for part
                                          in body_name.split('-')]
-            elif body_name.endswith('Service Council') or body_name.endswith('Service Council Public Hearing'):
+            elif event['EventBodyId'] in service_councils:
                 # Don't scrape service council or service council public hearing events.
+                self.info('Skipping event {0} for {1}'.format(event['EventId'], event['EventBodyName']))
                 continue
             else:
                 event_name = body_name
