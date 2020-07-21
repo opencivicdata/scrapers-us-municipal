@@ -53,6 +53,19 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
             matter['MatterStatusName'] == 'Draft' or
             matter['MatterBodyName'] == 'TO BE REMOVED' or
             not matter.get('legistar_url')):
+
+            if (matter['MatterRestrictViewViaWeb'] == False and
+                matter['MatterStatusName'] != 'Draft' and
+                matter['MatterBodyName'] != 'TO BE REMOVED'):
+
+                print(
+                    matter['MatterId'],
+                    matter['MatterRestrictViewViaWeb'],
+                    matter['MatterStatusName'],
+                    matter['MatterBodyName'],
+                    matter.get('legistar_url', 'No Legistar URL')
+                )
+
             return True
         else:
             return False
