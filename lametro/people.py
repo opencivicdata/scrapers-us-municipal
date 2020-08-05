@@ -30,11 +30,17 @@ NONVOTING_POSTS = {'Carrie Bowen' : 'Appointee of Governor of California',
 
 ACTING_MEMBERS_WITH_END_DATE = {'Shirley Choate': date(2018, 10, 24)}
 
+BOARD_OFFICE_ROLES = ("Chair",
+                      "Vice Chair",
+                      "1st Vice Chair",
+                      "2nd Vice Chair",
+                      "Chief Executive Officer")
+
+
 class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
     WEB_URL = 'https://metro.legistar.com'
     TIMEZONE = "America/Los_Angeles"
-
 
     def scrape(self):
         '''
@@ -135,7 +141,7 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
                 for office in self.body_offices(body):
                     role = office['OfficeRecordTitle']
 
-                    if role not in ("Chair", "Vice Chair", "Chief Executive Officer"):
+                    if role not in BOARD_OFFICE_ROLES:
                         if role == 'non-voting member':
                             role = 'Nonvoting Member'
                         else:
