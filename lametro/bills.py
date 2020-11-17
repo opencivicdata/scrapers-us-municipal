@@ -57,6 +57,9 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
         else:
             return False
 
+    def _show_attachment(self, attachment):
+        return attachment['MatterAttachmentShowOnInternetPage']
+
     def session(self, action_date) :
         from . import Lametro
 
@@ -290,7 +293,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                                    media_type="application/pdf")
 
             for attachment in self.attachments(matter_id) :
-                if attachment['MatterAttachmentName'] :
+                if attachment['MatterAttachmentName'] and self._show_attachment(attachment):
                     bill.add_document_link(attachment['MatterAttachmentName'],
                                            attachment['MatterAttachmentHyperlink'].strip(),
                                            media_type="application/pdf")
