@@ -185,7 +185,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
         return english_events
 
     def scrape(self, window=None) :
-        if window:
+        if window and float(window):
             n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
         else:
             n_days_ago = None
