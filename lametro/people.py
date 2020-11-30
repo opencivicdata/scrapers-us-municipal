@@ -26,7 +26,8 @@ VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of L
 
 NONVOTING_POSTS = {'Carrie Bowen' : 'Appointee of Governor of California',
                    'Shirley Choate' : 'District 7 Director, California Department of Transportation (Caltrans), Appointee of the Governor of California',
-                   'John Bulinski' : 'District 7 Director, California Department of Transportation (Caltrans), Appointee of the Governor of California'}
+                   'John Bulinski' : 'District 7 Director, California Department of Transportation (Caltrans), Appointee of the Governor of California',
+                   'Tony Tavares' : 'District 7 Director, California Department of Transportation (Caltrans), Appointee of the Governor of California'}
 
 ACTING_MEMBERS_WITH_END_DATE = {'Shirley Choate': date(2018, 10, 24)}
 
