@@ -271,6 +271,14 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                 bill.add_subject(topic['MatterIndexName'].strip())
 
             for relation in self.relations(matter_id):
+                # pupa update --scrape lametro bills matter_ids=7156 --rpm=0
+                if str(matter_id) == str(7156):
+                    import pdb
+                    pdb.set_trace()
+                    # Use 's' to 'step' into the relations method
+                    # See: https://docs.python.org/3/library/pdb.html#pdbcommand-step
+                    self.relations(matter_id)
+
                 try:
                     # Get data (i.e., json) for the related bill.
                     # Then, we can find the 'MatterFile' (i.e., identifier) and the 'MatterIntroDate' (i.e., to determine its legislative session).
