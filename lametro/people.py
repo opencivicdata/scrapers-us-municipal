@@ -12,6 +12,7 @@ VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of L
                 'Mike Bonin' : 'Appointee of Mayor of the City of Los Angeles',
                 'Paul Krekorian' : 'Appointee of Mayor of the City of Los Angeles',
                 'Hilda L. Solis' : 'Los Angeles County Board Supervisor, District 1',
+                'Holly Mitchell' : 'Los Angeles County Board Supervisor, District 2',
                 'Mark Ridley-Thomas' : 'Los Angeles County Board Supervisor, District 2',
                 'Sheila Kuehl' : 'Los Angeles County Board Supervisor, District 3',
                 'Janice Hahn' : 'Los Angeles County Board Supervisor, District 4',
