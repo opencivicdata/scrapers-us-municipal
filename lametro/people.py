@@ -38,6 +38,10 @@ BOARD_OFFICE_ROLES = ("Chair",
                       "2nd Vice Chair",
                       "Chief Executive Officer")
 
+PENDING_COMMITTEE_MEMBERS = (
+    'Holly Mitchell',
+)
+
 
 class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
@@ -150,6 +154,13 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
                             role = 'Member'
 
                     person = office['OfficeRecordFullName']
+
+                    # Temporarily skip committee memberships, e.g., for
+                    # new board members. The content of this array is provided
+                    # by Metro.
+                    if person in PENDING_COMMITTEE_MEMBERS:
+                        self.warning('Skipping {0} membership for {1}'.format(organization_name, person))
+                        continue
 
                     if person in members:
                         p = members[person]
