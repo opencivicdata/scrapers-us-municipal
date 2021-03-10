@@ -14,6 +14,7 @@ services:
       - .:/src
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres/opencivicdata
+      DJANGO_SETTINGS_MODULE: pupa.settings
     command: pupa update lametro
 
   postgres:
