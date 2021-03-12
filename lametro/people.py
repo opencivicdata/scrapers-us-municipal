@@ -21,7 +21,7 @@ VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of L
                 'James Butts' : 'Appointee of Los Angeles County City Selection Committee, Southwest Corridor sector',
                 'Diane DuBois' : 'Appointee of Los Angeles County City Selection Committee, Southeast Long Beach sector',
                 'Ara Najarian' : 'Appointee of Los Angeles County City Selection Committee, North County/San Fernando Valley sector',
-                'Robert Garcia' : 'Appointee of Los Angeles County City Selection Committee, Southeast Long Beach sector',
+                'Fernando Dutra' : 'Appointee of Los Angeles County City Selection Committee, Southeast Long Beach sector',
                 'Don Knabe' : 'Los Angeles County Board Supervisor, District 4',
                 'Michael Antonovich' : 'Los Angeles County Board Supervisor, District 5',
                 'Tim Sandoval': 'Appointee of Los Angeles County City Selection Committee, San Gabriel Valley sector'}
