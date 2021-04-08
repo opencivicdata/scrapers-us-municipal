@@ -40,9 +40,7 @@ BOARD_OFFICE_ROLES = ("Chair",
                       "2nd Vice Chair",
                       "Chief Executive Officer")
 
-PENDING_COMMITTEE_MEMBERS = (
-    'Holly Mitchell',
-)
+PENDING_COMMITTEE_MEMBERS = ()
 
 
 class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
