@@ -9,7 +9,6 @@ from pupa.utils import _make_pseudo_id
 
 from legistar.bills import LegistarBillScraper, LegistarAPIBillScraper
 
-from .events import LametroEventScraper
 from .secrets import TOKEN
 
 class LametroBillScraper(LegistarAPIBillScraper, Scraper):
@@ -136,36 +135,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
                 yield bill_action, votes
 
-    def matters(self, since_datetime=None):
-        '''
-        If a since_datetime is provided, scrape matters updated within the
-        window, as well as matters on agendas of events updated within the
-        window or scheduled to happen in the future, as they are likely to
-        change.
-        '''
-        if since_datetime:
-            seen = set()
-
-            for matter in super().matters(since_datetime=since_datetime):
-                seen.add(matter['MatterId'])
-                yield matter
-
-            event_scraper = LametroEventScraper(self.jurisdiction, self.datadir)
-            event_scraper.requests_per_minute = self.requests_per_minute
-            event_scraper.cache_write_only = self.cache_write_only
-
-            for api_event, _ in event_scraper.events(since_datetime=since_datetime):
-                for agenda_item in event_scraper.agenda(api_event):
-                    matter_id = agenda_item['EventItemMatterId']  # Can be null
-
-                    if matter_id and matter_id not in seen:
-                        yield self.matter(matter_id)
-                        seen.add(matter_id)
-
-        else:
-            yield from super().matters()
-
-    def scrape(self, window=28, matter_ids=None):
+    def scrape(self, window=28, matter_ids=None) :
         '''By default, scrape board reports updated in the last 28 days.
         Optionally specify a larger or smaller window of time from which to
         scrape updates, or specific matters to scrape.
