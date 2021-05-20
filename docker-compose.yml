@@ -1,0 +1,37 @@
+version: '2.4'
+
+services:
+  scrapers:
+    image: scrapers-us-municipal
+    container_name: scrapers-us-municipal
+    build: .
+    stdin_open: true
+    tty: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/src
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres/opencivicdata
+      DJANGO_SETTINGS_MODULE: pupa.settings
+    command: pupa update lametro
+
+  postgres:
+    container_name: scrapers-us-municipal-postgres
+    image: postgis/postgis:latest
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_DB: opencivicdata
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - scrapers-us-municipal-db-data:/var/lib/postgresql/data
+    ports:
+      - 32001:5432
+
+volumes:
+  scrapers-us-municipal-db-data:

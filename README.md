@@ -1,21 +1,32 @@
-municipal-scrapers
-==================
+scrapers-us-municipal
+=====================
 
-source for municipal scrapers
+Source for municipal scrapers
 
 To find out more about the ins and outs of these scrapers, as well as how to create your own, head on over to [docs.opencivicdata.org's scraping page](http://docs.opencivicdata.org/en/latest/scrape/index.html).
 
 Issues?
 -------
 
-Issues with the data coming from these scrapers should be filed at the [OCD Data issue tracker](https://sunlight.atlassian.net/browse/DATA/)
-
-All Open Civic Data issues can be browsed and filed at [the Open Civic Data JIRA instance](https://sunlight.atlassian.net/browse/OCD/).
+Issues with the data coming from these scrapers should be filed [in this repository](https://github.com/opencivicdata/scrapers-us-municipal/issues).
 
 ## Development
-Requires python3, postgresql
 
-### Initialization
+### With Docker
+
+Requires Docker and Docker Compose
+
+#### Initialization
+
+```bash
+docker-compose run --rm scrapers pupa init YOUR_CITY_SCRAPER
+```
+
+### Without Docker
+
+Requires Python 3, PostGIS
+
+#### Initialization
 Assuming that you want to have your database be called `opencivicdata` on your local machine
 
 ```bash
@@ -45,8 +56,17 @@ django-admin makemigrations
 django-admin migrate
 ```
 
-### Testing
-Before submitting a PR, please run `pupa update YOUR_CITY_SCRAPER`
+## Testing
+
+Before submitting a PR, please run your scraper.
+
+### With Docker
+
+```bash
+docker-compose run --rm scrapers pupa update YOUR_CITY_SCRAPER
+```
+
+### Without Docker
 
 ```bash
 export DATABASE_URL=postgresql:///opencivicdata
