@@ -210,7 +210,9 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
                 continue
 
             bill_session = self.session(self.toTime(date))
-            bill_type = BILL_TYPES[matter['MatterTypeName']]
+            # Metro uses different classifications than OCD's controlled
+            # vocabulary. We store that under extras -> local_classification.
+            bill_type = None
 
             if identifier.startswith('S'):
                 alternate_identifiers = [identifier]
@@ -362,26 +364,3 @@ ACTION_CLASSIFICATION = {'WITHDRAWN' : 'withdrawal',
                          'FORWARDED DUE TO ABSENCES AND CONFLICTS' : 'committee-passage',
                          'NO ACTION TAKEN': 'filing',
                          'FAILED' : 'failure'}
-
-BILL_TYPES = {'Contract' : None,
-              'Budget' : None,
-              'Program' : None,
-              'Motion / Motion Response' : None,
-              'Policy' : None,
-              'Informational Report' : None,
-              'Fare / Tariff / Service Change' : None,
-              'Agreement' : None,
-              'Oral Report / Presentation' : None,
-              'Resolution' : None,
-              'Project' : None,
-              'Formula Allocation / Local Return' : None,
-              'Federal Legislation / State Legislation (Position)': None,
-              'Plan': None,
-              'Minutes': None,
-              'Ordinance': None,
-              'Ordinance / Administrative Code': None,
-              'Appointment': None,
-              'Public Hearing': None,
-              'Application': None,
-              'Closed Session': None,
-              'Board Correspondence': None}
