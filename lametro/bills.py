@@ -48,7 +48,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
         self.scrape_restricted = True
 
     def _is_restricted(self, matter):
-        is_board_correspondence = matter['MatterTypeName'] in ('Board Box', 'Board Correspondence')
+        is_board_correspondence = matter['MatterTypeName'] in {'Board Box', 'Board Correspondence'}
         is_not_sent = matter['MatterStatusName'] != 'Sent'
 
         if (matter['MatterRestrictViewViaWeb'] or
