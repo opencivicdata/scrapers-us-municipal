@@ -29,11 +29,9 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
     def __init__(self, *args, **kwargs):
         '''
         Metro scrapes private (or restricted) bills.
-        Private bills have 'MatterRestrictViewViaWeb' set as True
-        and/or a MatterStatusName of 'Draft' and/or do not appear in the
-        Legistar web interface.
 
         The following properties enable scraping private bills:
+
         :params - URL params that include the secret Metro API Token
 
         :scrape_restricted - a boolean used in `python-legistar-scraper`: it
@@ -50,9 +48,13 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
         self.scrape_restricted = True
 
     def _is_restricted(self, matter):
+        is_board_correspondence = matter['MatterTypeName'] in ('Board Box', 'Board Correspondence')
+        is_not_sent = matter['MatterStatusName'] != 'Sent'
+
         if (matter['MatterRestrictViewViaWeb'] or
             matter['MatterStatusName'] == 'Draft' or
             matter['MatterBodyName'] == 'TO BE REMOVED' or
+            (is_board_correspondence and is_not_sent) or
             not matter.get('legistar_url')):
             return True
         else:
