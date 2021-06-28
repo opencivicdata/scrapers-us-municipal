@@ -414,6 +414,11 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                     "Couldn't find minutes for the {} meeting of {}."\
                         .format(name, date))
                 return None
+            elif 'too many values to unpack' in str(e):
+                self.warning(
+                    "Found more than one minutes file for the {} meeting of {}."\
+                        .format(name, date))
+                return None
             else:
                 raise
 
