@@ -365,4 +365,5 @@ ACTION_CLASSIFICATION = {'WITHDRAWN' : 'withdrawal',
                          'REFERRED' : 'referral-committee',
                          'FORWARDED DUE TO ABSENCES AND CONFLICTS' : 'committee-passage',
                          'NO ACTION TAKEN': 'filing',
-                         'FAILED' : 'failure'}
+                         'FAILED' : 'failure',
+                         'APPROVED UNDER RECONSIDERATION': 'passage'}
