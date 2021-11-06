@@ -12,6 +12,8 @@ from legistar.bills import LegistarBillScraper, LegistarAPIBillScraper
 from .events import LametroEventScraper
 from .secrets import TOKEN
 
+LOGGER = logging.getLogger(__name__)
+
 class LametroBillScraper(LegistarAPIBillScraper, Scraper):
     BASE_URL = 'https://webapi.legistar.com/v1/metro'
     BASE_WEB_URL = 'https://metro.legistar.com'
@@ -200,7 +202,7 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
 
             matter_id = matter['MatterId']
 
-            date = matter['MatterIntroDate']
+            date = matter['MatterAgendaDate']
             title = matter['MatterTitle']
             identifier = matter['MatterFile']
 
@@ -307,13 +309,16 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
             for relation in self.relations(matter_id):
                 try:
                     # Get data (i.e., json) for the related bill.
-                    # Then, we can find the 'MatterFile' (i.e., identifier) and the 'MatterIntroDate' (i.e., to determine its legislative session).
+                    # Then, we can find the 'MatterFile' (i.e., identifier) and the 'MatterAgendaDate' (i.e., to determine its legislative session).
                     # Sometimes, the related bill does not yet exist: in this case, throw an error, and continue.
                     related_bill = self.endpoint('/matters/{0}', relation['MatterRelationMatterId'])
                 except scrapelib.HTTPError:
                     continue
                 else:
-                    date = related_bill['MatterIntroDate']
+                    try:
+                        date = related_bill['MatterAgendaDate']
+                    except AttributeError:
+                        raise AttributeError('Bill with MatterId {} has no MatterAgendaDate'.(matter_id))
                     related_bill_session = self.session(self.toTime(date))
                     identifier = related_bill['MatterFile']
                     bill.add_related_bill(identifier=identifier,
