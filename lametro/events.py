@@ -442,7 +442,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 'December 2, 2021': 'Regular Board Meeting MINUTES - December 2, 2021',
             }
 
-            if handled_cases.get(date):
+            if date in handled_cases:
                 attachment_name = handled_cases[date]
                 attachment, = [
                     each for each in attachments
