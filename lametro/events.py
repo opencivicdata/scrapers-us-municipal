@@ -424,7 +424,6 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
 
         attachment_url = self.BASE_URL + '/matters/{}/attachments'.format(matter['MatterId'])
 
-
         attachments = self.get(attachment_url).json()
 
         if len(attachments) == 0:
@@ -432,15 +431,27 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
         elif len(attachments) == 1:
             return attachments[0]
         else:
-            # this meeting had both special and regular board meeting
-            # attached to the minutes matter
-            if date == 'May 28, 2015':
-                attachment_name = 'Regular Board Meeting Minutes on May 28, 2015'
-                attachment, = [each for each in attachments
-                               if each['MatterAttachmentName'] == attachment_name]
+            # This dictionary contains a mapping of dates of events known to
+            # have more than one minutes file attached to the approval matter,
+            # to the name of the attachment representing the correct minutes
+            # file.
+            handled_cases = {
+                'May 28, 2015': 'Regular Board Meeting Minutes on May 28, 2015',
+                'September 24, 2020': 'LA SAFE Minutes - September 24, 2020',
+                'June 24, 2021': 'LA SAFE MINUTES - June 24, 2021',
+                'December 2, 2021': 'Regular Board Meeting MINUTES - December 2, 2021',
+            }
+
+            if date in handled_cases:
+                attachment_name = handled_cases[date]
+                attachment, = [
+                    each for each in attachments
+                    if each['MatterAttachmentName'] == attachment_name
+                ]
                 return attachment
+
             else:
-                raise ValueError("More than one attachement for the approved minutes matter")
+                raise ValueError("More than one attachment for the approved minutes matter")
 
 
 
