@@ -440,6 +440,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 'September 24, 2020': 'LA SAFE Minutes - September 24, 2020',
                 'June 24, 2021': 'LA SAFE MINUTES - June 24, 2021',
                 'December 2, 2021': 'Regular Board Meeting MINUTES - December 2, 2021',
+                'January 27, 2022': 'Regular Board Meeting MINUTES - January 27, 2022',
             }
 
             if date in handled_cases:
