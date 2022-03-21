@@ -441,6 +441,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 'June 24, 2021': 'LA SAFE MINUTES - June 24, 2021',
                 'December 2, 2021': 'Regular Board Meeting MINUTES - December 2, 2021',
                 'January 27, 2022': 'Regular Board Meeting MINUTES - January 27, 2022',
+                'February 24, 2022': 'MINUTES - February 24, 2022 RBM',
             }
 
             if date in handled_cases:
@@ -452,7 +453,21 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 return attachment
 
             else:
-                raise ValueError("More than one attachment for the approved minutes matter")
+                try:
+                    attachment, = [
+                        each for each in attachments
+                        if 'minutes' in each['MatterAttachmentName'].lower()
+                    ]
+                except ValueError:
+                    raise ValueError(
+                        "More than one attachment for the approved minutes matter"
+                    )
+                else:
+                    msg = 'More than attachment for minutes matter {0}, using {1}'.format(
+                        matter['MatterId'], attachment['MatterAttachmentName']
+                    )
+                    self.info(msg)
+                    return attachment
 
 
 
