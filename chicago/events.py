@@ -54,7 +54,7 @@ class ChicagoEventsScraper(LegistarAPIEventScraper, Scraper) :
                                  type="recording",
                                  media_type = 'text/html')
             self.addDocs(e, web_event, 'Published agenda')
-            self.addDocs(e, web_event, 'Notice')
+            self.addDocs(e, web_event, 'Meeting Extra1')
             self.addDocs(e, web_event, 'Published summary')
             if 'Captions' in web_event:
                 self.addDocs(e, web_event, 'Captions')
