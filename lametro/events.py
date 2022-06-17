@@ -318,6 +318,9 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                                    url=approved_minutes['MatterAttachmentHyperlink'],
                                    media_type="application/pdf",
                                    date=self.to_utc_timestamp(approved_minutes['MatterAttachmentLastModifiedUtc']).date())
+                    e.extras['approved_minutes'] = True
+                else:
+                    e.extras['approved_minutes'] = False
 
             for audio in event['audio']:
                 try:
