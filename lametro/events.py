@@ -446,6 +446,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                 'December 2, 2021': 'Regular Board Meeting MINUTES - December 2, 2021',
                 'January 27, 2022': 'Regular Board Meeting MINUTES - January 27, 2022',
                 'February 24, 2022': 'MINUTES - February 24, 2022 RBM',
+                'June 23, 2022': 'Regular Board Meeting MINUTES - June 23, 2022'
             }
 
             if date in handled_cases:
