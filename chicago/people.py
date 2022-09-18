@@ -97,7 +97,7 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
 
                 for office in self.body_offices(body):
                     # messed up record for joanna thompson
-                    if office['OfficeRecordId'] == 1055:
+                    if office['OfficeRecordId'] in {1055, 2513, 4383}:
                         continue
                         
                     role = office['OfficeRecordTitle']
