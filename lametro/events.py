@@ -110,16 +110,20 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             # should have a pair.
 
             if partial_scrape:
-                partner_event = self._find_partner(unpaired_event)
+                try:
+                    partner_event = self._find_partner(unpaired_event)
 
-                spanish_start_date = datetime.datetime(2018, 5, 15, 0, 0, 0, 0)
-                event_date = datetime.datetime.strptime(unpaired_event['EventDate'], '%Y-%m-%dT%H:%M:%S')
+                    spanish_start_date = datetime.datetime(2018, 5, 15, 0, 0, 0, 0)
+                    event_date = datetime.datetime.strptime(unpaired_event['EventDate'], '%Y-%m-%dT%H:%M:%S')
 
-                if partner_event is not None:
-                    yield partner_event
+                    if partner_event is not None:
+                        yield partner_event
 
-                elif event_date > spanish_start_date and unpaired_event.is_spanish:
-                    raise UnmatchedEventError(unpaired_event)
+                    elif event_date > spanish_start_date and unpaired_event.is_spanish:
+                        raise UnmatchedEventError(unpaired_event)
+
+                except UnmatchedEventError as e:
+                    LOGGER.critical(e)
 
     def _merge_events(self, events):
         english_events = []
@@ -181,10 +185,12 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
         except AssertionError:
             unpaired_events = [event for event, _ in spanish_events.values()]
             raise UnmatchedEventError(unpaired_events)
+        except UnmatchedEventError as e:
+            LOGGER.critical(e)
 
         return english_events
 
-    def scrape(self, window=None) :
+    def scrape(self, window=None):
         if window and float(window) != 0:
             n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
         else:
@@ -529,3 +535,4 @@ class LAMetroWebEvent(dict):
     @property
     def has_ecomment(self):
         return self['eComment'] != 'Not\xa0available'
+
