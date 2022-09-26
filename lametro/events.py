@@ -184,9 +184,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             assert not spanish_events  # These should all be merged with an English event.
         except AssertionError:
             unpaired_events = [event for event, _ in spanish_events.values()]
-            raise UnmatchedEventError(unpaired_events)
-        except UnmatchedEventError as e:
-            LOGGER.critical(e)
+            LOGGER.critical(unpaired_events)
 
         return english_events
 
