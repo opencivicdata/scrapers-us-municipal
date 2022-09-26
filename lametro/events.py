@@ -63,10 +63,10 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             assert event.is_partner(partner)
             return partner
 
-        elif event.is_spanish:
-            raise UnmatchedEventError(event)
-
         else:
+            if event.is_spanish:
+                LOGGER.critical("Could not find English event partner.")
+
             return None
 
     def api_events(self, *args, **kwargs):
@@ -110,20 +110,16 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             # should have a pair.
 
             if partial_scrape:
-                try:
-                    partner_event = self._find_partner(unpaired_event)
+                partner_event = self._find_partner(unpaired_event)
 
-                    spanish_start_date = datetime.datetime(2018, 5, 15, 0, 0, 0, 0)
-                    event_date = datetime.datetime.strptime(unpaired_event['EventDate'], '%Y-%m-%dT%H:%M:%S')
+                spanish_start_date = datetime.datetime(2018, 5, 15, 0, 0, 0, 0)
+                event_date = datetime.datetime.strptime(unpaired_event['EventDate'], '%Y-%m-%dT%H:%M:%S')
 
-                    if partner_event is not None:
-                        yield partner_event
+                if partner_event is not None:
+                    yield partner_event
 
-                    elif event_date > spanish_start_date and unpaired_event.is_spanish:
-                        raise UnmatchedEventError(unpaired_event)
-
-                except UnmatchedEventError as e:
-                    LOGGER.critical(e)
+                elif event_date > spanish_start_date and unpaired_event.is_spanish:
+                    LOGGER.critical("Could not find English event partner.")
 
     def _merge_events(self, events):
         english_events = []
@@ -184,7 +180,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             assert not spanish_events  # These should all be merged with an English event.
         except AssertionError:
             unpaired_events = [event for event, _ in spanish_events.values()]
-            LOGGER.critical(unpaired_events)
+            LOGGER.critical(f"Found {len(unpaired_events)} Spanish event(s) without partners.")
 
         return english_events
 
