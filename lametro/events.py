@@ -26,16 +26,6 @@ class UnmatchedEventError(Exception):
         super().__init__(message)
 
 
-class MultipleMinutesError(Exception):
-    def __init__(self, event, minutes):
-        message = f"Event {event} has more than one attachment for the \
-approved minutes matter:\n"
-        for file in minutes:
-            message += f"{file}\n"
-
-        super().__init__(message)
-
-
 class LametroEventScraper(LegistarAPIEventScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
     WEB_URL = 'https://metro.legistar.com/'
