@@ -25,6 +25,7 @@ class UnmatchedEventError(Exception):
 
         super().__init__(message)
 
+
 class LametroEventScraper(LegistarAPIEventScraper, Scraper):
     BASE_URL = 'http://webapi.legistar.com/v1/metro'
     WEB_URL = 'https://metro.legistar.com/'
@@ -464,7 +465,7 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
                         if 'minutes' in each['MatterAttachmentName'].lower()
                     ]
                 except ValueError:
-                    raise ValueError(
+                    LOGGER.critical(
                         "More than one attachment for the approved minutes matter"
                     )
                 else:
