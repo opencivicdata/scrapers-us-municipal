@@ -19,7 +19,7 @@ services:
 
   postgres:
     container_name: scrapers-us-municipal-postgres
-    image: postgis/postgis:latest
+    image: gangstead/postgis:latest-arm
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
