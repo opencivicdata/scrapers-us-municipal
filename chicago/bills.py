@@ -119,6 +119,7 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
                 # Capture that a vote occurred, but skip recording the
                 # null votes, as they break the scraper.
 
+                matter_history_id = action["MatterHistoryId"]
                 action_text = action["MatterHistoryActionText"] or ""
 
                 if "voice vote" in action_text.lower():
@@ -130,12 +131,12 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
 
                     self.info(
                         "Skipping votes for history {0} of matter ID {1}".format(
-                            action["MatterHistoryId"], matter_id
+                            matter_history_id, matter_id
                         )
                     )
                     votes = (result, [])
                 else:
-                    votes = (result, self.votes(action["MatterHistoryId"]))
+                    votes = (result, self.votes(matter_history_id))
             else:
                 votes = (None, [])
 
@@ -191,7 +192,8 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
             for identifier in alternate_identifiers:
                 bill.add_identifier(identifier)
 
-            for action, vote in self.actions(matter_id):
+            for current, subsequent in pairwise(self.actions(matter_id)):
+                action, vote = current
                 responsible_person = action.pop("responsible person")
                 motion_text = action.pop("motion_text")
                 act = bill.add_action(**action)
@@ -203,14 +205,24 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
                         entity_id=_make_pseudo_id(name=responsible_person),
                     )
 
-                if action["description"] == "Referred":
-                    body_name = matter["MatterBodyName"]
-                    if body_name != "City Council":
-                        act.add_related_entity(
-                            body_name,
-                            "organization",
-                            entity_id=_make_pseudo_id(name=body_name),
-                        )
+                if action["description"] in {"Referred", "Re-Referred"}:
+                    if subsequent is None:
+                        body_name = matter["MatterBodyName"]
+                        if body_name != "City Council":
+                            act.add_related_entity(
+                                body_name,
+                                "organization",
+                                entity_id=_make_pseudo_id(name=body_name),
+                            )
+                    else:
+                        next_action, _ = subsequent
+                        next_body_name = next_action["organization"]["name"]
+                        if next_body_name != "City Council":
+                            act.add_related_entity(
+                                next_body_name,
+                                "organization",
+                                entity_id=_make_pseudo_id(name=next_body_name),
+                            )
 
                 result, votes = vote
                 if result:
@@ -252,15 +264,57 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
                         media_type="application/pdf",
                     )
 
+            relations = self.relations(matter_id)
+            identified_relations = []
+            for relation in relations:
+                relation_matter_id = relation["MatterRelationMatterId"]
+                relation_matter = self.matter(relation_matter_id)
+                relation_identifier = relation_matter["MatterFile"]
+                relation_date = self.toTime(relation_matter["MatterIntroDate"])
+                relation_bill_session = self.session(relation_date)
+                identified_relations.append(
+                    {
+                        "identifier": relation_identifier,
+                        "legislative_session": relation_bill_session,
+                        "date": relation_date,
+                    }
+                )
+
+            if identified_relations:
+                intro_date = self.toTime(date)
+                relation_type = None
+                if len(identified_relations) == 1:
+                    if identified_relations[0]["date"] > intro_date:
+                        relation_type = "replaced-by"
+                elif all(
+                    relation["date"] < intro_date for relation in identified_relations
+                ):
+                    relation_type = "replaces"
+
+                for relation in identified_relations:
+                    bill.add_related_bill(
+                        relation["identifier"],
+                        relation["legislative_session"],
+                        relation_type,
+                    )
+
             bill.extras = {"local_classification": matter["MatterTypeName"]}
 
             text = self.text(matter_id)
 
             if text:
                 if text["MatterTextPlain"]:
-                    bill.extras["plain_text"] = text["MatterTextPlain"]
+                    plain_text = text["MatterTextPlain"]
+                    bill.extras["plain_text"] = plain_text
 
             yield bill
+
+
+def pairwise(iterable):
+    # pairwise('ABCDEFG') --> AB BC CD DE EF FG
+    a, b = itertools.tee(iterable)
+    next(b, None)
+    return itertools.zip_longest(a, b)
 
 
 ACTION = {

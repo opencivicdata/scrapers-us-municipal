@@ -7,6 +7,7 @@ import pytz
 import requests
 from legistar.events import LegistarAPIEventScraper
 from pupa.scrape import Event, Scraper
+from pupa.utils import _make_pseudo_id
 
 
 class ChicagoEventsScraper(LegistarAPIEventScraper, Scraper):
@@ -80,9 +81,26 @@ class ChicagoEventsScraper(LegistarAPIEventScraper, Scraper):
 
             for item in self.agenda(api_event):
                 agenda_item = e.add_agenda_item(item["EventItemTitle"])
+                bill_identifier = None
                 if item["EventItemMatterFile"]:
-                    identifier = item["EventItemMatterFile"]
-                    agenda_item.add_bill(identifier)
+                    bill_identifier = item["EventItemMatterFile"]
+                    agenda_item.add_bill(bill_identifier)
+                    if (
+                        item["EventItemRollCallFlag"] is not None
+                        and item["EventItemPassedFlag"] is not None
+                        and item["EventItemActionText"] is not None
+                    ):
+
+                        agenda_item["related_entities"].append(
+                            {
+                                "vote_event_id": _make_pseudo_id(
+                                    motion_text=item["EventItemActionText"],
+                                    start_date=str(when.date()),
+                                    organization__name=participant,
+                                    bill__identifier=bill_identifier,
+                                )
+                            }
+                        )
 
             participants = set()
             for call in self.rollcalls(api_event):
