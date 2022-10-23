@@ -98,7 +98,9 @@ class ChicagoEventsScraper(LegistarAPIEventScraper, Scraper):
                                     start_date=str(when.date()),
                                     organization__name=participant,
                                     bill__identifier=bill_identifier,
-                                )
+                                ),
+                                "entity_type": "vote_event",
+                                "note": "consideration",
                             }
                         )
 
