@@ -198,17 +198,16 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
             if matter['MatterFile'] == '2017-0447':
                 continue
 
-            bill_is_temporary = matter['MatterFile'].lower().startswith('tmp')
-            if bill_is_temporary:
-                continue
-
             matter_id = matter['MatterId']
-
             date = matter['MatterIntroDate']
             title = matter['MatterTitle']
             identifier = matter['MatterFile']
 
             if not all((date, title, identifier)) :
+                continue
+
+            bill_is_temporary = identifier.lower().startswith('tmp')
+            if bill_is_temporary:
                 continue
 
             # Do not scrape private bills introduced before this timestamp.
