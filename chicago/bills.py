@@ -1,10 +1,12 @@
-from legistar.bills import LegistarBillScraper, LegistarAPIBillScraper
-from pupa.scrape import Bill, VoteEvent, Scraper
-from pupa.utils import _make_pseudo_id
 import datetime
 import itertools
+
 import pytz
 import requests
+import scrapelib
+from legistar.bills import LegistarAPIBillScraper, LegistarBillScraper
+from pupa.scrape import Bill, Scraper, VoteEvent
+from pupa.utils import _make_pseudo_id
 
 
 def sort_actions(actions):
@@ -195,7 +197,7 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
             for current, subsequent in pairwise(self.actions(matter_id)):
                 action, vote = current
                 responsible_person = action.pop("responsible person")
-                motion_text = action.pop("motion_text")
+                motion_text = action.pop("motion_text") or action["description"]
                 act = bill.add_action(**action)
 
                 if responsible_person:
@@ -268,9 +270,15 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
             identified_relations = []
             for relation in relations:
                 relation_matter_id = relation["MatterRelationMatterId"]
-                relation_matter = self.matter(relation_matter_id)
+                try:
+                    relation_matter = self.matter(relation_matter_id)
+                except scrapelib.HTTPError:
+                    continue
                 relation_identifier = relation_matter["MatterFile"]
-                relation_date = self.toTime(relation_matter["MatterIntroDate"])
+                try:
+                    relation_date = self.toTime(relation_matter["MatterIntroDate"])
+                except TypeError:
+                    continue
                 relation_bill_session = self.session(relation_date)
                 identified_relations.append(
                     {
@@ -284,19 +292,23 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
                 intro_date = self.toTime(date)
                 relation_type = None
                 if len(identified_relations) == 1:
-                    if identified_relations[0]["date"] > intro_date:
+                    if identified_relations[0]["date"] >= intro_date:
                         relation_type = "replaced-by"
                 elif all(
-                    relation["date"] < intro_date for relation in identified_relations
+                    relation["date"] <= intro_date for relation in identified_relations
                 ):
                     relation_type = "replaces"
 
-                for relation in identified_relations:
-                    bill.add_related_bill(
-                        relation["identifier"],
-                        relation["legislative_session"],
-                        relation_type,
-                    )
+                if relation_type is None:
+                    self.warn("Unclear relation for {0}".format(matter_id))
+
+                else:
+                    for relation in identified_relations:
+                        bill.add_related_bill(
+                            relation["identifier"],
+                            relation["legislative_session"],
+                            relation_type,
+                        )
 
             bill.extras = {"local_classification": matter["MatterTypeName"]}
 

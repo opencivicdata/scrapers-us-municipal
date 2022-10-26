@@ -1,12 +1,13 @@
-from pupa.scrape import Scraper
-import lxml.html
-import lxml.etree as etree
-import traceback
 import datetime
-from collections import defaultdict
 import itertools
-import pytz
 import re
+import traceback
+from collections import defaultdict
+
+import lxml.etree as etree
+import lxml.html
+import pytz
+from pupa.scrape import Scraper
 
 
 class LegistarScraper(Scraper):

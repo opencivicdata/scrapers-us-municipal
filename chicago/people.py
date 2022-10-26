@@ -1,7 +1,7 @@
 import collections
 
-from pupa.scrape import Person, Organization, Scraper
 from legistar.people import LegistarAPIPersonScraper, LegistarPersonScraper
+from pupa.scrape import Organization, Person, Scraper
 
 
 class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
@@ -168,6 +168,26 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
                 )
 
                 yield o
+
+        extra_committees = (
+            "Joint Committee: Pedestrian and Traffic Safety; Transportation and Public Way",
+            "Joint Committee: Health and Environmental Protection; License and Consumer Protection",
+            "Joint Committee: Finance; Special Events, Cultural Affairs and Recreation",
+            "Joint Committee: Economic, Capital and Technology Development; Housing and Real Estate; Zoning, Landmarks and Building Standards",
+            "Joint Committee: Budget and Government Operations; Health and Environmental Protection",
+            "Joint Committee: Budget and Government Operations; Housing and Real Estate; Special Events, Cultural Affairs and Recreation",
+        )
+
+        for committee in extra_committees:
+
+            o = Organization(
+                committee,
+                classification="committee",
+                parent_id={"name": "Chicago City Council"},
+            )
+            o.add_source("http://seen_in_data.com")
+
+            yield o
 
         for p in members.values():
             yield p

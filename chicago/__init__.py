@@ -1,10 +1,10 @@
+import datetime
+
 from pupa.scrape import Jurisdiction, Organization, Person
 
-from .people import ChicagoPersonScraper
-from .events import ChicagoEventsScraper
 from .bills import ChicagoBillScraper
-
-import datetime
+from .events import ChicagoEventsScraper
+from .people import ChicagoPersonScraper
 
 
 class Chicago(Jurisdiction):
