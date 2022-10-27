@@ -300,7 +300,7 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
                     relation_type = "replaces"
 
                 if relation_type is None:
-                    self.warn("Unclear relation for {0}".format(matter_id))
+                    self.warning("Unclear relation for {0}".format(matter_id))
 
                 else:
                     for relation in identified_relations:
