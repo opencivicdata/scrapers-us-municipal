@@ -176,7 +176,12 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
             "Joint Committee: Economic, Capital and Technology Development; Housing and Real Estate; Zoning, Landmarks and Building Standards",
             "Joint Committee: Budget and Government Operations; Health and Environmental Protection",
             "Joint Committee: Budget and Government Operations; Housing and Real Estate; Special Events, Cultural Affairs and Recreation",
-            "Joint Committee: Health and Environmental Protection; Housing and Real Estate"
+            "Joint Committee: Health and Environmental Protection; Housing and Real Estate",
+            "Joint Committee: Budget and Government Operations; License and Consumer Protection",
+            "Office of the City Clerk",  # remove this hack
+            "Joint Committee: Finance; Human Relations",
+            "Joint Committee: Finance; Housing and Real Estate",
+            "Joint Committee: Finance; Health and Environmental Protection",
         )
 
         for committee in extra_committees:

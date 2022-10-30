@@ -47,7 +47,8 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
         else:
             return "2019"
 
-    def sponsorships(self, matter_id):
+    def sponsorships(self, matter_id, intro_date_str):
+        intro_date = self.toTime(intro_date_str)
         for i, sponsor in enumerate(self.sponsors(matter_id)):
             sponsorship = {}
             if i == 0:
@@ -60,12 +61,18 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
             sponsor_name = sponsor["MatterSponsorName"].strip()
 
             if sponsor_name.startswith(("City Clerk",)):
-                sponsorship["name"] = "Office of the City Clerk"
-                sponsorship["entity_type"] = "organization"
+                sponsorship["entity_type"] = "person"
+                if intro_date < datetime.date(2011, 5, 16):
+                    sponsorship["name"] = "Del Valle, Miguel"
+                elif intro_date < datetime.date(2017, 1, 25):
+                    sponsorship["name"] = "Mendoza, Susana A."
+                else:
+                    sponsorship["name"] = "Valencia, Anna M."
             else:
                 sponsorship["name"] = sponsor_name
                 sponsorship["entity_type"] = "person"
 
+            # maybe handle departments differently?
             if not sponsor_name.startswith(
                 ("Misc. Transmittal", "No Sponsor", "Dept./Agency")
             ):
@@ -91,8 +98,10 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
                 responsible_org = "City of Chicago"
                 if action_date < datetime.date(2011, 5, 16):
                     responsible_person = "Daley, Richard M."
-                else:
+                elif action_date < datetime.date(2019, 5, 20):
                     responsible_person = "Emanuel, Rahm"
+                else:
+                    responsible_person = "Lightfoot, Lori E."
 
             bill_action = {
                 "description": action_description,
@@ -252,7 +261,7 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
 
                     yield vote_event
 
-            for sponsorship in self.sponsorships(matter_id):
+            for sponsorship in self.sponsorships(matter_id, date):
                 bill.add_sponsorship(**sponsorship)
 
             for topic in self.topics(matter_id):

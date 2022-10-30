@@ -84,7 +84,11 @@ class ChicagoEventsScraper(LegistarAPIEventScraper, Scraper):
                 bill_identifier = None
                 if item["EventItemMatterFile"]:
                     bill_identifier = item["EventItemMatterFile"]
-                    agenda_item.add_bill(bill_identifier)
+                    if bill_identifier.startswith("S"):
+                        canonical_identifier = bill_identifier[1:]
+                    else:
+                        canonical_identifier = bill_identifier
+                    agenda_item.add_bill(canonical_identifier)
                     if (
                         item["EventItemRollCallFlag"] is not None
                         and item["EventItemPassedFlag"] is not None
@@ -97,7 +101,7 @@ class ChicagoEventsScraper(LegistarAPIEventScraper, Scraper):
                                     motion_text=item["EventItemActionText"],
                                     start_date=str(when.date()),
                                     organization__name=participant,
-                                    bill__identifier=bill_identifier,
+                                    bill__identifier=canonical_identifier,
                                 ),
                                 "entity_type": "vote_event",
                                 "note": "consideration",
