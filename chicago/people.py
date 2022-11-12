@@ -39,9 +39,7 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
         ):
             web_info[member["Person Name"]["label"]] = member
 
-        web_info["Balcer, James"] = collections.defaultdict(lambda: None)
         web_info["Fioretti, Bob"] = collections.defaultdict(lambda: None)
-        web_info["Balcer, James"]["Ward/Office"] = 11
         web_info["Fioretti, Bob"]["Ward/Office"] = 2
 
         members = {}
@@ -87,10 +85,16 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
             if web["Website"]:
                 p.add_link(web["Website"]["url"])
 
-            source_urls = self.person_sources_from_office(term)
-            person_api_url, person_web_url = source_urls
+            person_api_url = self.BASE_URL + "/persons/{OfficeRecordPersonId}".format(
+                **term
+            )
             p.add_source(person_api_url, note="api")
-            p.add_source(person_web_url, note="web")
+            try:
+                person_web_url = web["Person Name"]["url"]
+            except TypeError:
+                pass
+            else:
+                p.add_source(person_web_url, note="web")
 
             members[member] = p
 
@@ -128,10 +132,17 @@ class ChicagoPersonScraper(LegistarAPIPersonScraper, Scraper):
                     else:
                         p = Person(person)
 
-                        source_urls = self.person_sources_from_office(office)
-                        person_api_url, person_web_url = source_urls
+                        person_api_url = (
+                            self.BASE_URL
+                            + "/persons/{OfficeRecordPersonId}".format(**term)
+                        )
                         p.add_source(person_api_url, note="api")
-                        p.add_source(person_web_url, note="web")
+                        try:
+                            person_web_url = web["Person Name"]["url"]
+                        except TypeError:
+                            pass
+                        else:
+                            p.add_source(person_web_url, note="web")
 
                         members[person] = p
 
