@@ -26,7 +26,8 @@ VOTING_POSTS = {'Jacquelyn Dupont-Walker' : 'Appointee of Mayor of the City of L
                 'Michael Antonovich' : 'Los Angeles County Board Supervisor, District 5',
                 'Tim Sandoval': 'Appointee of Los Angeles County City Selection Committee, San Gabriel Valley sector',
                 'Fernando Dutra' : 'Appointee of Los Angeles County City Selection Committee, Southeast Long Beach sector',
-                'Lindsey Horvath' : 'Los Angeles County Board Supervisor, District 3'}
+                'Lindsey Horvath' : 'Los Angeles County Board Supervisor, District 3',
+                'Karen Bass' : 'Mayor of the City of Los Angeles'}
 
 NONVOTING_POSTS = {'Carrie Bowen' : 'Appointee of Governor of California',
                    'Shirley Choate' : 'District 7 Director, California Department of Transportation (Caltrans), Appointee of the Governor of California',
