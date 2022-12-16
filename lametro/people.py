@@ -79,6 +79,7 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
 
         members = {}
         for member, offices in terms.items():
+            member = member.replace(' (Interim)', '')
             p = Person(member)
 
             for term in offices:
@@ -123,8 +124,6 @@ class LametroPersonScraper(LegistarAPIPersonScraper, Scraper):
             if member == 'Hilda L. Solis':
                 # Given/family name does not contain middle initial.
                 assert p.given_name == 'Hilda' and p.family_name == 'Solis'
-            elif member == 'Gloria Roberts (Interim)':
-                assert p.given_name == 'Gloria' and p.family_name == 'Roberts'
             else:
                 assert member == ' '.join([p.given_name, p.family_name])
 
