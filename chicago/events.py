@@ -111,7 +111,12 @@ class ChicagoEventsScraper(LegistarAPIEventScraper, Scraper):
             participants = set()
             for call in self.rollcalls(api_event):
                 if call["RollCallValueName"] == "Present":
-                    participants.add(call["RollCallPersonName"])
+                    person_name = call["RollCallPersonName"].strip()
+                    if (
+                        "vacant" not in person_name.lower()
+                        and "vacancy" not in person_name.lower()
+                    ):
+                        participants.add(person_name)
 
             for person in participants:
                 e.add_participant(name=person, type="person")
