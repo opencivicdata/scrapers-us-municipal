@@ -39,7 +39,7 @@ def api_event():
              'SAPEventId': 1535, 
              'EventAgendaStatusName': 'Final',
              'SAPEventGuid': '8962CCBC-5E42-4B3B-91DA-6178D507079C',
-             'start': datetime.datetime(2019, 2, 28, 9, 30),
+             'start': datetime.datetime(2019, 2, 28, 9, 30, tzinfo=datetime.timezone.utc),
              'EventInSiteURL': '', 
              'EventTime': '9:30 AM'}
 
@@ -54,6 +54,7 @@ def web_event():
     web_event = {'Meeting Details': {'label': 'Meeting\xa0details', 'url': ''}, 
                  'Meeting Time': '9:30 AM', 
                  'eComment': 'Not\xa0available', 
+                 'Published minutes': 'Not\xa0available', 
                  'Name': {'label': 'Board of Directors - Regular Board Meeting', 'url': ''}, 
                  'Meeting Date': '2/28/2019', 
                  'Audio': {'label': 'Audio', 'url': ''},
