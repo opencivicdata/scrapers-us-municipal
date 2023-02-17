@@ -203,6 +203,10 @@ class LametroBillScraper(LegistarAPIBillScraper, Scraper):
             title = matter['MatterTitle']
             identifier = matter['MatterFile']
 
+            is_board_correspondence = matter['MatterTypeName'] in {'Board Box', 'Board Correspondence'}
+            if is_board_correspondence and not title:
+                title = f"Board Correspondence {identifier}"
+
             if not all((date, title, identifier)) :
                 continue
 

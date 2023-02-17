@@ -7,7 +7,40 @@ import requests
 
 from pupa.scrape.bill import Bill
 
-    
+
+def test_unnamed_board_correspondences(bill_scraper, matter, mocker):
+    '''
+    Test that unrestricted, unnamed board correspondences are scraped and given
+    a temporary name.
+    '''
+    matter_id = matter['MatterFile']
+    matter['MatterTypeName'] = 'Board Correspondence'
+    matter['MatterTitle'] = ''
+
+    with requests_mock.Mocker() as m:
+        matcher = re.compile('webapi.legistar.com')
+        m.get(matcher, json={}, status_code=200)
+
+        mocker.patch('lametro.LametroBillScraper.matter', return_value=matter)
+        mocker.patch('lametro.LametroBillScraper.text', return_value='')
+        mocker.patch(
+            'lametro.LametroBillScraper._is_restricted',
+            return_value=False
+        )
+
+        scrape_results = []
+        for bill in bill_scraper.scrape(matter_ids=matter_id):
+            if type(bill) == Bill:
+                scrape_results.append(bill)
+
+        assert (
+            len(scrape_results) == 1
+        ), "Should scrape unnamed board correspondences"
+        assert (
+            scrape_results[0].title
+        ), "Should assign unnamed board correspondences temporary name"
+
+
 def test_is_restricted(bill_scraper, matter, public_private_bill_data):
     '''
     Tests that `_is_restricted` returns the correct value, given
