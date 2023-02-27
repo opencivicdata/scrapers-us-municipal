@@ -5,7 +5,7 @@ import re
 
 from pupa.scrape.event import Event
 
-from lametro.events import LAMetroAPIEvent
+from lametro.events import LAMetroAPIEvent, LAMetroWebEvent
 
 
 @pytest.mark.parametrize('api_status_name,scraper_assigned_status', [
@@ -30,7 +30,7 @@ def test_status_assignment(event_scraper,
 
         api_event['EventAgendaStatusName'] = api_status_name
 
-        mocker.patch('lametro.LametroEventScraper._merge_events', return_value=[(api_event, web_event)])
+        mocker.patch('lametro.LametroEventScraper._merge_events', return_value=[(api_event, LAMetroWebEvent(web_event))])
 
         for event in event_scraper.scrape():
             assert event.status == scraper_assigned_status
@@ -60,7 +60,7 @@ def test_sequence_duplicate_error(event_scraper,
         event_agenda_item_b = event_agenda_item.copy()
         event_agenda_item_b['EventItemAgendaSequence'] = item_sequence
 
-        mocker.patch('lametro.LametroEventScraper._merge_events', return_value=[(api_event, web_event)])
+        mocker.patch('lametro.LametroEventScraper._merge_events', return_value=[(api_event, LAMetroWebEvent(web_event))])
         mocker.patch('lametro.LametroEventScraper.agenda', return_value=[event_agenda_item, event_agenda_item_b])
 
         if should_error:
