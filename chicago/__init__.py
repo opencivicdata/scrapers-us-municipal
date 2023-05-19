@@ -24,8 +24,14 @@ class Chicago(Jurisdiction):
         {
             "identifier": "2019",
             "name": "2019 Regular Session",
+            "start_date": "2023-05-15",
+            "end_date": "2027-05-15",
+        },
+        {
+            "identifier": "2019",
+            "name": "2019 Regular Session",
             "start_date": "2019-05-20",
-            "end_date": "2023-05-19",
+            "end_date": "2023-05-14",
         },
         {
             "identifier": "2015",
