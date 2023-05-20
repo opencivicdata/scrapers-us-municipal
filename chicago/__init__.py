@@ -96,6 +96,7 @@ class Chicago(Jurisdiction):
             "Mayor",
             "executive",
             start_date=datetime.date(2011, 5, 16),
+            end_date=datetime.date(2019, 5, 20),
             appointment=True,
         )
         emanuel.add_source("https://chicago.legistar.com/People.aspx")
@@ -106,10 +107,21 @@ class Chicago(Jurisdiction):
             "Mayor",
             "executive",
             start_date=datetime.date(2019, 5, 20),
+            end_date=datetime.date(2023, 5, 15),
             appointment=True,
         )
         lightfoot.add_source("https://chicago.legistar.com/People.aspx")
         yield lightfoot
+
+        johnson = Person(name='Johnson, Brandon')
+        johnson.add_term(
+            "Mayor",
+            "executive",
+            start_date=datetime.date(2023, 5, 15),
+            appointment=True,
+        )
+        johnson.add_source("https://chicago.legistar.com/People.aspx")
+        yield johnson
 
         mendoza = Person(name="Mendoza, Susana A.")
         mendoza.add_term(
