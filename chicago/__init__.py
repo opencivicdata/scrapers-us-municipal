@@ -22,7 +22,7 @@ class Chicago(Jurisdiction):
 
     legislative_sessions = [
         {
-            "identifier": "2019",
+            "identifier": "2023",
             "name": "2019 Regular Session",
             "start_date": "2023-05-15",
             "end_date": "2027-05-15",

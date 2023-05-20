@@ -44,8 +44,10 @@ class ChicagoBillScraper(LegistarAPIBillScraper, Scraper):
             return "2011"
         elif action_date < localize(datetime.datetime(2019, 5, 20)):
             return "2015"
-        else:
+        elif action_date < localize(datetime.datetime(2023, 5, 15)):
             return "2019"
+        else:
+            return "2023"
 
     def sponsorships(self, matter_id, intro_date_str):
         intro_date = self.toTime(intro_date_str)
