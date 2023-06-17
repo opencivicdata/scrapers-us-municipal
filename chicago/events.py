@@ -1,11 +1,5 @@
 import datetime
-from collections import defaultdict
 
-import lxml
-import lxml.etree
-import pytz
-import requests
-from legistar.events import LegistarAPIEventScraper
 from pupa.scrape import Event, Scraper
 from pupa.utils import _make_pseudo_id
 
@@ -57,6 +51,18 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
                     media_type="application/pdf",
                 )
 
+            participant = event["body"]
+            e.add_participant(name=participant, type="organization")
+
+            participants = set()
+            for attendance in event["attendance"]:
+                for call in attendance["votes"]:
+                    if call["vote"] == "Present":
+                        participants.add(call["voterName"].strip())
+
+            for person in participants:
+                e.add_participant(name=person, type="person")
+
             for item in event["agenda"]:
                 if not (matterTitle := item["matterTitle"]):
                     continue
@@ -88,18 +94,6 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
                                 "note": "consideration",
                             }
                         )
-
-            participant = event["body"]
-            e.add_participant(name=participant, type="organization")
-
-            participants = set()
-            for attendance in event["attendance"]:
-                for call in attendance["votes"]:
-                    if call["vote"] == "Present":
-                        participants.add(call["voterName"].strip())
-
-            for person in participants:
-                e.add_participant(name=person, type="person")
 
             e.add_source(self._endpoint(f'/matter/{event["meetingId"]}'), note="api")
 
