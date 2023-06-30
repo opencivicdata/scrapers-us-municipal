@@ -1,6 +1,7 @@
 import datetime
 
 from pupa.scrape import Organization, Person, Scraper
+import scrapelib
 
 from .base import ElmsAPI
 
@@ -42,7 +43,11 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
             person_url = self._endpoint(f"/person/{person.extras['personId']}")
             person.add_source(person_url, note="api")
 
-            response = self.get(person_url)
+            try:
+                response = self.get(person_url)
+            except scrapelib.HTTPError as error:
+                if error.response.status_code == 404:
+                    continue
             person_details = response.json()
 
             if image := person_details["photo"]:
