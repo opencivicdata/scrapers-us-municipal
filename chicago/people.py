@@ -13,7 +13,7 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
         ):
             yield body
 
-    def scrape(self):
+    def scrape(self, window=None):
 
         (city_council,) = self._bodies("bodyType eq 'Full City Council'")
 
