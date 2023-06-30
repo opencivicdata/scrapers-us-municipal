@@ -34,7 +34,7 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
             person.add_term(
                 "Alderman",
                 "legislature",
-                district=f"Ward {term['ward']}",
+                district=f"Ward {int(term['ward'])}",
                 start_date=datetime.datetime.fromisoformat(term["startDate"]).date(),
                 end_date=datetime.datetime.fromisoformat(term["endDate"]).date(),
             )
