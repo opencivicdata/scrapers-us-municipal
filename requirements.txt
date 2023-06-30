@@ -6,3 +6,4 @@ sh
 pytest==4.2.0
 pytest-mock==1.10.1
 requests-mock==1.5.2
+https://github.com/datamade/scrapelib/archive/refs/heads/master.zip
