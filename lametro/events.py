@@ -40,6 +40,12 @@ class LametroEventScraper(LegistarAPIEventScraper, Scraper):
             try:
                 partner_event = unpaired_events[incoming_event.partner_key]
             except KeyError:
+                if incoming_event.key in unpaired_events:
+                    raise ValueError(
+                        '{0} already exists as a key with a value of {1}'.format(incoming_event.key,
+                                                                                 unpaired_events[incoming_event.key])
+                    )
+
                 unpaired_events[incoming_event.key] = incoming_event
 
             else:
