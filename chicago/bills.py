@@ -81,25 +81,27 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             title = matter["title"]
             identifier = matter["recordNumber"]
 
-            alternate_identifiers = []
-            legacy_identifier = matter["legacyRecordNumber"]
-            if legacy_identifier:
-                alternate_identifiers.append(legacy_identifier.strip())
-
             if not all((title, identifier)):
                 raise
+
+            canonical_identifier = normalize_substitute(identifier)
+
+            alternate_identifiers = []
+            if canonical_identifier != identifier:
+                alternate_identifiers.append(identifier)
+
+            if legacy_identifier := matter["legacyRecordNumber"]:
+                alternate_identifiers.append(legacy_identifier.strip())
+                if legacy_identifier.startswith("S"):
+                    alternate_identifiers.append(
+                        normalize_substitute(legacy_identifier.strip())
+                    )
 
             bill_session = self.session(intro_date)
             if matter["type"] == "Placed on File":
                 bill_type = None
             else:
                 bill_type = BILL_TYPES[matter["type"]]
-
-            if identifier.startswith("S"):
-                alternate_identifiers.append(identifier)
-                canonical_identifier = identifier[1:]
-            else:
-                canonical_identifier = identifier
 
             bill = Bill(
                 identifier=canonical_identifier,
@@ -111,11 +113,6 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
             bill_detail_url = self._endpoint(f"/matter/{matter_id}")
             bill.add_source(bill_detail_url, note="api")
-
-            for identifier in alternate_identifiers:
-                bill.add_identifier(identifier)
-                if identifier.startswith("S"):
-                    bill.add_identifier(identifier[1:])
 
             for current, subsequent in pairwise(matter["actions"]):
                 if not (action_name_raw := current["actionName"]):
@@ -208,7 +205,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             relations = [
                 record_number
                 for record_number in matter["relations"]
-                if record_number != "CL2012-149"
+                if record_number != "CL2012-149" and record_number != identifier
             ]
             identified_relations = []
             for record_number in relations:
@@ -258,6 +255,13 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             }
 
             yield bill
+
+
+def normalize_substitute(identifier):
+    if identifier.startswith("S"):
+        return identifier[1:]
+    else:
+        return identifier
 
 
 def pairwise(iterable):
