@@ -49,12 +49,13 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
     def _matters(self, n_days_ago):
 
+        formatted_start = n_days_ago.isoformat()
         seen_ids = set()
         for matter in self._paginate(
             self._endpoint("/matter"),
             {
-                "filter": f"finalActionDate gt {n_days_ago.isoformat()}",
-                "sort": "finalActionDate asc",
+                "filter": f"actions/any(a: a/actionDate gt {formatted_start}) or introductionDate gt {formatted_start}",
+                "sort": "introductionDate asc",
             },
         ):
             matter_id = matter["matterId"]
@@ -79,20 +80,25 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             title = matter["title"]
             identifier = matter["recordNumber"]
 
+            alternate_identifiers = []
+            legacy_identifier = matter["legacyRecordNumber"]
+            if legacy_identifier:
+                alternate_identifiers.append(legacy_identifier.strip())
+
             if not all((title, identifier)):
                 raise
 
             bill_session = self.session(intro_date)
-            bill_type = BILL_TYPES[matter["type"]]
-
-            alternate_identifiers = [identifier]
-            prefix, serial = identifier.strip().split("-")
-            short_form = f"{prefix}-{int(serial)}"
-            if short_form.startswith("S"):
-                alternate_identifiers.append(short_form)
-                canonical_identifier = short_form[1:]
+            if matter["type"] == "Placed on File":
+                bill_type = None
             else:
-                canonical_identifier = short_form
+                bill_type = BILL_TYPES[matter["type"]]
+
+            if identifier.startswith("S"):
+                alternate_identifiers.append(identifier)
+                canonical_identifier = identifier[1:]
+            else:
+                canonical_identifier = identifier
 
             bill = Bill(
                 identifier=canonical_identifier,
@@ -107,6 +113,8 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
             for identifier in alternate_identifiers:
                 bill.add_identifier(identifier)
+                if identifier.startswith("S"):
+                    bill.add_identifier(identifier[1:])
 
             for current, subsequent in pairwise(matter["actions"]):
                 if not (action_name_raw := current["actionName"]):
@@ -163,16 +171,25 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
                     for vote in votes:
                         vote_value = vote["vote"].lower()
+                        if vote_value == "vacant":
+                            continue
                         clean_option = self.VOTE_OPTIONS.get(vote_value, vote_value)
                         vote_event.vote(clean_option, vote["voterName"].strip())
 
                     yield vote_event
 
             for sponsor in matter["sponsors"]:
-                if sponsor_name := sponsor["sponsorName"]:
+                if sponsor_name := sponsor["sponsorName"].strip():
+                    sponsor_type = sponsor["sponsorType"]
+                    if sponsor_type == "Sponsor":
+                        sponsor_classification = "primary"
+                    elif sponsor_type == "":
+                        sponsor_classification = "co-sponsor"
+                    elif sponsor_type == "CoSponsor":
+                        sponsor_classification = "co-sponsor"
                     bill.add_sponsorship(
-                        sponsor_name.strip(),
-                        sponsor["sponsorType"],
+                        sponsor_name,
+                        sponsor_classification,
                         "person",
                         sponsor["sponsorType"] == "Filing Sponsor",
                     )
