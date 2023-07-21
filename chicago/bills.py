@@ -34,8 +34,22 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
         "recused": "excused",
     }
 
+    def session(self, action_date):
+        localize = pytz.timezone(self.TIMEZONE).localize
+        if action_date < localize(datetime.datetime(2011, 5, 18)):
+            return "2007"
+        elif action_date < localize(datetime.datetime(2015, 5, 18)):
+            return "2011"
+        elif action_date < localize(datetime.datetime(2019, 5, 20)):
+            return "2015"
+        elif action_date < localize(datetime.datetime(2023, 5, 15)):
+            return "2019"
+        else:
+            return "2023"
+
     def _matters(self, n_days_ago):
 
+        seen_ids = set()
         for matter in self._paginate(
             self._endpoint("/matter"),
             {
@@ -43,8 +57,13 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 "sort": "finalActionDate asc",
             },
         ):
-            detailed_matter = self.get(self._endpoint(f'/matter/{matter["matterId"]}'))
-            yield detailed_matter.json()
+            matter_id = matter["matterId"]
+            if matter_id in seen_ids:
+                continue
+            else:
+                seen_ids.add(matter_id)
+                detailed_matter = self.get(self._endpoint(f"/matter/{matter_id}"))
+                yield detailed_matter.json()
 
     def scrape(self, window=3):
         n_days_ago = datetime.datetime.now().astimezone() - datetime.timedelta(
@@ -66,14 +85,17 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             bill_session = self.session(intro_date)
             bill_type = BILL_TYPES[matter["type"]]
 
-            if identifier.startswith("S"):
-                alternate_identifiers = [identifier]
-                identifier = identifier[1:]
+            alternate_identifiers = [identifier]
+            prefix, serial = identifier.strip().split("-")
+            short_form = f"{prefix}-{int(serial)}"
+            if short_form.startswith("S"):
+                alternate_identifiers.append(short_form)
+                canonical_identifier = short_form[1:]
             else:
-                alternate_identifiers = []
+                canonical_identifier = short_form
 
             bill = Bill(
-                identifier=identifier,
+                identifier=canonical_identifier,
                 legislative_session=bill_session,
                 title=title,
                 classification=bill_type,
@@ -98,11 +120,18 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 if not (action_date := current["actionDate"]):
                     continue
 
+                if not (action_org := current["actionByName"]):
+                    self.warning(f"{bill_detail_url} is missing a organization")
+                    continue
+
+                if action_org == "City Council":
+                    action_org = "Chicago City Council"
+
                 action = bill.add_action(
                     action_name,
                     datetime.datetime.fromisoformat(action_date),
                     classification=ACTION[action_name]["ocd"],
-                    organization={"name": current["actionByName"]},
+                    organization={"name": action_org},
                 )
 
                 if action["classification"] == ["referral-committee"] and subsequent:
@@ -114,14 +143,15 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                             entity_id=_make_pseudo_id(name=next_body_name),
                         )
 
-                if votes := current["votes"]:
-
+                if (votes := current["votes"]) and (
+                    motion_text := current["actionText"]
+                ):
                     # result is not always pass, like i say it is here.
                     # let's address that later
                     vote_event = VoteEvent(
                         legislative_session=bill.legislative_session,
-                        motion_text=current["actionText"],
-                        organization=current["actionByName"],
+                        motion_text=motion_text,
+                        organization={"name": action_org},
                         classification=action["classification"],
                         start_date=action["date"],
                         result="pass",
@@ -221,6 +251,7 @@ def pairwise(iterable):
 
 ACTION = {
     "Introduce": {"ocd": "introduction", "order": 0},
+    "Introduced": {"ocd": "introduction", "order": 0},
     "Direct Introduction": {"ocd": "introduction", "order": 0},
     "Introduced (Agreed Calendar)": {"ocd": "introduction", "order": 0},
     "Rules Suspended - Immediate Consideration": {"ocd": "introduction", "order": 0},
@@ -229,11 +260,14 @@ ACTION = {
     "Re-Referred": {"ocd": "referral-committee", "order": 1},
     "Substituted in Committee": {"ocd": "substitution", "order": 1},
     "Single Substitute": {"ocd": "substitution", "order": 1},
+    "Substituted-Aggregated": {"ocd": "substitution", "order": 1},
+    "Substituted": {"ocd": "substitution", "order": 1},
     "Amended in Committee": {"ocd": "amendment-passage", "order": 1},
     "Amended": {"ocd": "amendment-passage", "order": 1},
     "Withdrawn": {"ocd": "withdrawal", "order": 1},
     "Remove Co-Sponsor(s)": {"ocd": None, "order": 1},
     "Add Co-Sponsor(s)": {"ocd": None, "order": 1},
+    "Journaled": {"ocd": None, "order": 1},
     "Recommended for Re-Referral": {"ocd": None, "order": 1},
     "Committee Discharged": {"ocd": "committee-passage", "order": 1},
     "Held in Committee": {"ocd": "committee-failure", "order": 1},
@@ -269,4 +303,5 @@ BILL_TYPES = {
     "Communication": None,
     "Appointment": "appointment",
     "Report": None,
+    "Executive Order": None,
 }

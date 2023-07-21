@@ -55,6 +55,7 @@ class Chicago(Jurisdiction):
 
     def get_organizations(self):
         org = Organization(name="Chicago City Council", classification="legislature")
+        org.add_name("City Council")
         for x in range(1, 51):
             org.add_post(
                 "Ward {}".format(x),
@@ -113,7 +114,7 @@ class Chicago(Jurisdiction):
         lightfoot.add_source("https://chicago.legistar.com/People.aspx")
         yield lightfoot
 
-        johnson = Person(name='Johnson, Brandon')
+        johnson = Person(name="Johnson, Brandon")
         johnson.add_term(
             "Mayor",
             "executive",

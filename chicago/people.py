@@ -103,13 +103,14 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
 
             org.add_source(self._endpoint(f'/body/{body["bodyId"]}'), note="api")
 
-            for term in body["members"]:
+            terms = longest_memberships(body["members"])
+            for term in terms:
                 person_name = term["displayName"].strip()
                 if person_name in {"Allen, Thomas"}:
                     continue
                 person = alders[person_name]
                 person.add_membership(
-                    body["body"],
+                    org,
                     role="Member",
                     start_date=datetime.datetime.fromisoformat(
                         term["startDate"]
@@ -133,3 +134,18 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
 
         for person in alders.values():
             yield person
+
+
+def longest_memberships(memberships):
+
+    collapsed = {}
+
+    for membership in memberships:
+        key = (membership["displayName"], membership["startDate"])
+        if key in collapsed:
+            if membership["endDate"] > collapsed[key]["endDate"]:
+                collapsed[key] = membership
+        else:
+            collapsed[key] = membership
+
+    return list(collapsed.values())

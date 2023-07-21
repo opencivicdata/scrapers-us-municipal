@@ -69,10 +69,13 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
 
                 agenda_item = e.add_agenda_item(matterTitle)
                 if bill_identifier := item["recordNumber"]:
-                    if bill_identifier.startswith("S"):
-                        canonical_identifier = bill_identifier[1:]
+                    prefix, serial = bill_identifier.strip().split("-")
+                    short_form = f"{prefix}-{int(serial)}"
+                    if short_form.startswith("S"):
+                        canonical_identifier = short_form[1:]
                     else:
-                        canonical_identifier = bill_identifier
+                        canonical_identifier = short_form
+
                     agenda_item.add_bill(canonical_identifier)
 
                     response = self.get(
