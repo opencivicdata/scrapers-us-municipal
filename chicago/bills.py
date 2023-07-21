@@ -32,6 +32,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
         "rising vote": "yes",
         "nay": "no",
         "recused": "excused",
+        "present": "abstain",
     }
 
     def session(self, action_date):
