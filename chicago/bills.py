@@ -79,7 +79,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
             intro_date = datetime.datetime.fromisoformat(intro_date_str)
             title = matter["title"]
-            identifier = matter["recordNumber"]
+            identifier = matter["recordNumber"].strip()
 
             if not all((title, identifier)):
                 raise
@@ -91,11 +91,11 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 alternate_identifiers.append(identifier)
 
             if legacy_identifier := matter["legacyRecordNumber"]:
-                alternate_identifiers.append(legacy_identifier.strip())
-                if legacy_identifier.startswith("S"):
-                    alternate_identifiers.append(
-                        normalize_substitute(legacy_identifier.strip())
-                    )
+                legacy_identifier = legacy_identifier.strip()
+                canonical_legacy_identifier = normalize_substitute(legacy_identifier)
+                alternate_identifiers.append(canonical_legacy_identifier)
+                if canonical_legacy_identifier != legacy_identifier:
+                    alternate_identifiers.append(legacy_identifier)
 
             bill_session = self.session(intro_date)
             if matter["type"] == "Placed on File":
@@ -205,7 +205,9 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             relations = [
                 record_number
                 for record_number in matter["relations"]
-                if record_number != "CL2012-149" and record_number != identifier
+                if record_number
+                and record_number != "CL2012-149"
+                and record_number != identifier
             ]
             identified_relations = []
             for record_number in relations:
@@ -213,8 +215,14 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                     relation_matter = self.get(
                         self._endpoint(f"/matter/recordNumber/{record_number}")
                     ).json()
-                except scrapelib.HTTPError:
-                    continue
+                except scrapelib.HTTPError as err:
+                    if err.response.status_code == 404:
+                        try:
+                            relation_matter = self.get(
+                                self._endpoint(f"/matter/recordNumber/{record_number} ")
+                            ).json()
+                        except scrapelib.HTTPError:
+                            continue
 
                 relation_date = datetime.datetime.fromisoformat(
                     relation_matter["introductionDate"]
@@ -222,7 +230,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 relation_bill_session = self.session(relation_date)
                 identified_relations.append(
                     {
-                        "identifier": record_number,
+                        "identifier": record_number.strip(),
                         "legislative_session": relation_bill_session,
                         "date": relation_date,
                     }
