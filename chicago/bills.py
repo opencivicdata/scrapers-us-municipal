@@ -182,16 +182,19 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 if sponsor_name := sponsor["sponsorName"].strip():
                     sponsor_type = sponsor["sponsorType"]
                     if sponsor_type == "Sponsor":
-                        sponsor_classification = "primary"
+                        sponsor_classification = "Primary"
                     elif sponsor_type == "":
-                        sponsor_classification = "co-sponsor"
+                        sponsor_classification = "Regular"
                     elif sponsor_type == "CoSponsor":
-                        sponsor_classification = "co-sponsor"
+                        sponsor_classification = "Regular"
+                    else:
+                        raise ValueError(f"don't know about {sponsor_type}")
+
                     bill.add_sponsorship(
                         sponsor_name,
                         sponsor_classification,
                         "person",
-                        sponsor["sponsorType"] == "Filing Sponsor",
+                        sponsor_classification == "Primary",
                     )
 
             if subject := matter["matterCategory"]:
