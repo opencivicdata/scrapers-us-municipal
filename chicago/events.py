@@ -69,12 +69,9 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
 
                 agenda_item = e.add_agenda_item(matterTitle)
                 if bill_identifier := item["recordNumber"]:
-                    if bill_identifier.startswith("S"):
-                        canonical_identifier = bill_identifier[1:]
-                    else:
-                        canonical_identifier = bill_identifier
+                    bill_identifier = bill_identifier.strip()
 
-                    agenda_item.add_bill(canonical_identifier)
+                    agenda_item.add_bill(bill_identifier)
 
                     response = self.get(
                         self._endpoint(
@@ -89,7 +86,7 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
                                     motion_text=item["actionText"],
                                     start_date=str(when.date()),
                                     organization__name=participant,
-                                    bill__identifier=canonical_identifier,
+                                    bill__identifier=bill_identifier,
                                 ),
                                 "entity_type": "vote_event",
                                 "note": "consideration",

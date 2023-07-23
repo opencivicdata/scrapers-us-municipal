@@ -84,17 +84,17 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             if not all((title, identifier)):
                 raise
 
-            canonical_identifier = normalize_substitute(identifier)
+            original_identifier = normalize_substitute(identifier)
 
             alternate_identifiers = []
-            if canonical_identifier != identifier:
-                alternate_identifiers.append(identifier)
+            if original_identifier != identifier:
+                alternate_identifiers.append(original_identifier)
 
             if legacy_identifier := matter["legacyRecordNumber"]:
                 legacy_identifier = legacy_identifier.strip()
-                canonical_legacy_identifier = normalize_substitute(legacy_identifier)
-                alternate_identifiers.append(canonical_legacy_identifier)
-                if canonical_legacy_identifier != legacy_identifier:
+                original_legacy_identifier = normalize_substitute(legacy_identifier)
+                alternate_identifiers.append(original_legacy_identifier)
+                if original_legacy_identifier != legacy_identifier:
                     alternate_identifiers.append(legacy_identifier)
 
             bill_session = self.session(intro_date)
@@ -104,12 +104,14 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 bill_type = BILL_TYPES[matter["type"]]
 
             bill = Bill(
-                identifier=canonical_identifier,
+                identifier=identifier,
                 legislative_session=bill_session,
                 title=title,
                 classification=bill_type,
                 from_organization={"name": "Chicago City Council"},
             )
+            for identifier in alternate_identifiers:
+                bill.add_identifier(identifier)
 
             bill_detail_url = self._endpoint(f"/matter/{matter_id}")
             bill.add_source(bill_detail_url, note="api")
