@@ -118,8 +118,8 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 classification=bill_type,
                 from_organization={"name": "Chicago City Council"},
             )
-            for identifier in alternate_identifiers:
-                bill.add_identifier(identifier)
+            for alt_identifier in alternate_identifiers:
+                bill.add_identifier(alt_identifier)
 
             bill_detail_url = self._endpoint(f"/matter/{matter_id}")
             bill.add_source(bill_detail_url, note="api")
