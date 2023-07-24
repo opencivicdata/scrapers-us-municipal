@@ -187,6 +187,8 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                         sponsor_classification = "Regular"
                     elif sponsor_type == "CoSponsor":
                         sponsor_classification = "Regular"
+                    elif sponsor_type == "Filing Sponsor":
+                        sponsor_classification = "Primary"
                     else:
                         raise ValueError(f"don't know about {sponsor_type}")
 
