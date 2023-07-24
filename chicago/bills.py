@@ -52,6 +52,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
         formatted_start = n_days_ago.isoformat()
         seen_ids = set()
+        seen_legacy_ids = set()
         for matter in self._paginate(
             self._endpoint("/matter"),
             {
@@ -62,12 +63,17 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             matter_id = matter["matterId"]
             serial = matter["recordNumber"].split("-")[-1]
             if len(serial) > 4:
+                if legacy_id := matter["legacyRecordNumber"]:
+                    if legacy_id in seen_legacy_ids:
+                        continue
+                    seen_legacy_ids.add(legacy_id)
+
                 if matter_id in seen_ids:
                     continue
-                else:
-                    seen_ids.add(matter_id)
-                    detailed_matter = self.get(self._endpoint(f"/matter/{matter_id}"))
-                    yield detailed_matter.json()
+                seen_ids.add(matter_id)
+
+                detailed_matter = self.get(self._endpoint(f"/matter/{matter_id}"))
+                yield detailed_matter.json()
 
     def scrape(self, window=3):
         n_days_ago = datetime.datetime.now().astimezone() - datetime.timedelta(
