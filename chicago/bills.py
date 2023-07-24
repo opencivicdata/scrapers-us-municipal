@@ -60,7 +60,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             },
         ):
             matter_id = matter["matterId"]
-            serial = matter_id.split("-")[-1]
+            serial = matter["recordNumber"].split("-")[-1]
             if len(serial) > 4:
                 if matter_id in seen_ids:
                     continue
