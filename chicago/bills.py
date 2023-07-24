@@ -60,12 +60,14 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             },
         ):
             matter_id = matter["matterId"]
-            if matter_id in seen_ids:
-                continue
-            else:
-                seen_ids.add(matter_id)
-                detailed_matter = self.get(self._endpoint(f"/matter/{matter_id}"))
-                yield detailed_matter.json()
+            serial = matter_id.split("-")[-1]
+            if len(serial) > 4:
+                if matter_id in seen_ids:
+                    continue
+                else:
+                    seen_ids.add(matter_id)
+                    detailed_matter = self.get(self._endpoint(f"/matter/{matter_id}"))
+                    yield detailed_matter.json()
 
     def scrape(self, window=3):
         n_days_ago = datetime.datetime.now().astimezone() - datetime.timedelta(
