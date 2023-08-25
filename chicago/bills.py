@@ -122,7 +122,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 bill.add_identifier(alt_identifier)
 
             bill_detail_url = self._endpoint(f"/matter/{matter_id}")
-            bill.add_source(bill_detail_url, note="api")
+            bill.add_source(bill_detail_url, note="elms_api")
 
             for current, subsequent in pairwise(matter["actions"]):
                 if not (action_name_raw := current["actionName"]):
@@ -175,7 +175,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                         bill=bill,
                     )
 
-                    vote_event.add_source(bill_detail_url)
+                    vote_event.add_source(bill_detail_url, note="elms_api")
 
                     for vote in votes:
                         vote_value = vote["vote"].lower()
@@ -275,6 +275,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             bill.extras = {
                 "local_classification": matter["type"],
                 "key_legislation": matter["keyLegislation"] == "YES",
+                "matter_id": matter_id,
             }
 
             yield bill

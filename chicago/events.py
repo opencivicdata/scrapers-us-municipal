@@ -93,6 +93,8 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
                             }
                         )
 
-            e.add_source(self._endpoint(f'/matter/{event["meetingId"]}'), note="api")
+            e.add_source(
+                self._endpoint(f'/matter/{event["meetingId"]}'), note="elms_api"
+            )
 
             yield e

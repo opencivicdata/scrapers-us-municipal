@@ -41,7 +41,7 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
 
         for person in alders.values():
             person_url = self._endpoint(f"/person/{person.extras['personId']}")
-            person.add_source(person_url, note="api")
+            person.add_source(person_url, note="elms_api")
 
             try:
                 response = self.get(person_url)
@@ -101,13 +101,15 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
                 parent_id={"name": "Chicago City Council"},
             )
 
-            org.add_source(self._endpoint(f'/body/{body["bodyId"]}'), note="api")
+            org.add_source(self._endpoint(f'/body/{body["bodyId"]}'), note="elms_api")
 
             terms = longest_memberships(body["members"])
             for term in terms:
                 person_name = term["displayName"].strip()
                 if person_name in {"Allen, Thomas"}:
                     continue
+                elif person_name == "Fuentes, Jessica L.":
+                    person_name = "Fuentes, Jessica"
                 person = alders[person_name]
                 person.add_membership(
                     org,
@@ -128,7 +130,7 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
                 parent_id={"name": "Chicago City Council"},
             )
 
-            org.add_source(self._endpoint(f'/body/{body["bodyId"]}'), note="api")
+            org.add_source(self._endpoint(f'/body/{body["bodyId"]}'), note="elms_api")
 
             yield org
 
