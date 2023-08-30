@@ -115,10 +115,7 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
                     person_name = "Fuentes, Jessica"
                 elif person_name == "Rodriguez Sanchez, Rossana":
                     person_name = "Rodriguez-Sanchez, Rossana"
-                try:
-                    person = alders[person_name]
-                except:
-                    breakpoint()
+                person = alders[person_name]
                 person.add_membership(
                     org,
                     role="Member",
