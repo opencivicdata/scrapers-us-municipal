@@ -25,6 +25,9 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
             if "vacant" in person_name.lower():
                 continue
 
+            if person_name == "Fuentes, Jessica L.":
+                person_name = "Fuentes, Jessica"
+
             if person_name in alders:
                 person = alders[person_name]
             else:
@@ -110,7 +113,12 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
                     continue
                 elif person_name == "Fuentes, Jessica L.":
                     person_name = "Fuentes, Jessica"
-                person = alders[person_name]
+                elif person_name == "Rodriguez Sanchez, Rossana":
+                    person_name = "Rodriguez-Sanchez, Rossana"
+                try:
+                    person = alders[person_name]
+                except:
+                    breakpoint()
                 person.add_membership(
                     org,
                     role="Member",
