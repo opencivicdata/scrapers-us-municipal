@@ -301,6 +301,7 @@ ACTION = {
     "Direct Introduction": {"ocd": "introduction", "order": 0},
     "Introduced (Agreed Calendar)": {"ocd": "introduction", "order": 0},
     "Rules Suspended - Immediate Consideration": {"ocd": "introduction", "order": 0},
+    "Immediate Consideration": {"ocd": "introduction", "order": 0},
     "Refer": {"ocd": "referral-committee", "order": 1},
     "Referred": {"ocd": "referral-committee", "order": 1},
     "Re-Referred": {"ocd": "referral-committee", "order": 1},
