@@ -123,6 +123,10 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
             bill_detail_url = self._endpoint(f"/matter/{matter_id}")
             bill.add_source(bill_detail_url, note="elms_api")
+            bill.add_source(
+                f"https://chicityclerkelms.chicago.gov/Matter/?matterId={matter_id}",
+                note="web",
+            )
 
             for current, subsequent in pairwise(matter["actions"]):
                 if not (action_name_raw := current["actionName"]):

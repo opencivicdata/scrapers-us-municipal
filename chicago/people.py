@@ -25,14 +25,17 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
             if "vacant" in person_name.lower():
                 continue
 
-            if person_name == "Fuentes, Jessica L.":
-                person_name = "Fuentes, Jessica"
-
             if person_name in alders:
                 person = alders[person_name]
             else:
                 alders[person_name] = person = Person(person_name)
                 person.extras["personId"] = term["personId"]
+
+                if person_name == "Fuentes, Jessica L.":
+                    person.add_name("Fuentes, Jessica")
+
+                if person_name == "Robinson, Lamont J.":
+                    person.add_name("Robinson, Lamont")
 
             person.add_term(
                 "Alderman",
@@ -45,6 +48,10 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
         for person in alders.values():
             person_url = self._endpoint(f"/person/{person.extras['personId']}")
             person.add_source(person_url, note="elms_api")
+            person.add_source(
+                f"https://chicityclerkelms.chicago.gov/Legislative-Member-Details/?personId={person.extras['personId']}",
+                note="web",
+            )
 
             try:
                 response = self.get(person_url)
@@ -105,14 +112,16 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
             )
 
             org.add_source(self._endpoint(f'/body/{body["bodyId"]}'), note="elms_api")
+            org.add_source(
+                f"https://chicityclerkelms.chicago.gov/Legislative-Body-Details/?bodyId={body['bodyId']}",
+                note="web",
+            )
 
             terms = longest_memberships(body["members"])
             for term in terms:
                 person_name = term["displayName"].strip()
                 if person_name in {"Allen, Thomas"}:
                     continue
-                elif person_name == "Fuentes, Jessica L.":
-                    person_name = "Fuentes, Jessica"
                 elif person_name == "Rodriguez Sanchez, Rossana":
                     person_name = "Rodriguez-Sanchez, Rossana"
                 person = alders[person_name]
@@ -136,6 +145,10 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
             )
 
             org.add_source(self._endpoint(f'/body/{body["bodyId"]}'), note="elms_api")
+            org.add_source(
+                f"https://chicityclerkelms.chicago.gov/Legislative-Body-Details/?bodyId={body['bodyId']}",
+                note="web",
+            )
 
             yield org
 
