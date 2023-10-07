@@ -52,7 +52,8 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
         formatted_start = n_days_ago.isoformat()
         seen_ids = set()
-        seen_legacy_ids = set()
+        seen_legacy_ids = {}
+        filtered_matters = []
         for matter in self._paginate(
             self._endpoint("/matter"),
             {
@@ -67,23 +68,30 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             matter_id = matter["matterId"]
             serial = matter["recordNumber"].split("-")[-1]
             if len(serial) > 4:
-                if legacy_id := matter["legacyRecordNumber"]:
-                    if legacy_id in seen_legacy_ids:
-                        continue
-                    seen_legacy_ids.add(legacy_id)
 
                 if matter_id in seen_ids:
                     continue
+
                 seen_ids.add(matter_id)
 
+                if legacy_id := matter["legacyRecordNumber"]:
+                    if legacy_id in seen_legacy_ids:
+                        seen_legacy_ids[legacy_id].add(matter["recordNumber"].strip())
+                        continue
+
+                    seen_legacy_ids[legacy_id] = set()
+
                 detailed_matter = self.get(self._endpoint(f"/matter/{matter_id}"))
-                yield detailed_matter.json()
+                filtered_matters.append(detailed_matter)
+
+        return filtered_matters, seen_legacy_ids
 
     def scrape(self, window=7):
         n_days_ago = datetime.datetime.now().astimezone() - datetime.timedelta(
             float(window)
         )
-        for matter in self._matters(n_days_ago):
+        matters, legacy_id_duplicates = self._matters(n_days_ago)
+        for matter in matters:
             matter_id = matter["matterId"]
 
             if not (intro_date_str := matter["introductionDate"]):
@@ -108,6 +116,16 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 alternate_identifiers.append(original_legacy_identifier)
                 if original_legacy_identifier != legacy_identifier:
                     alternate_identifiers.append(legacy_identifier)
+
+                # sometimes the new system has duplicate identifiers that point to the
+                # same legacy identifier
+                for duplicate_identifier in legacy_id_duplicates[legacy_identifier]:
+                    original_duplicate_identifier = normalize_substitute(
+                        duplicate_identifier
+                    )
+                    alternate_identifiers.append(original_duplicate_identifier)
+                    if original_duplicate_identifier != duplicate_identifier:
+                        alternate_identifiers.append(duplicate_identifier)
 
             bill_session = self.session(intro_date)
             if matter["type"] == "Placed on File":
