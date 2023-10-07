@@ -52,6 +52,8 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
                 )
 
             participant = event["body"]
+            if participant == "City Council":
+                participant = "Chicago City Council"
             e.add_participant(name=participant, type="organization")
 
             participants = set()
