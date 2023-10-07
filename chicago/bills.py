@@ -56,7 +56,11 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
         for matter in self._paginate(
             self._endpoint("/matter"),
             {
-                "filter": f"actions/any(a: a/actionDate gt {formatted_start}) or introductionDate gt {formatted_start}",
+                "filter": (
+                    f"actions/any(a: a/actionDate gt {formatted_start}) or "
+                    f"introductionDate gt {formatted_start} or "
+                    f"recordCreateDate gt {formatted_start}"
+                ),
                 "sort": "introductionDate asc",
             },
         ):
