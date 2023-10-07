@@ -16,7 +16,7 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
             detailed_event = self.get(self._endpoint(f'/meeting/{event["meetingId"]}'))
             yield detailed_event.json()
 
-    def scrape(self, window=3):
+    def scrape(self, window=7):
         n_days_ago = datetime.datetime.now().astimezone() - datetime.timedelta(
             float(window)
         )

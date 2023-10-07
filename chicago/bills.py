@@ -79,7 +79,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 detailed_matter = self.get(self._endpoint(f"/matter/{matter_id}"))
                 yield detailed_matter.json()
 
-    def scrape(self, window=3):
+    def scrape(self, window=7):
         n_days_ago = datetime.datetime.now().astimezone() - datetime.timedelta(
             float(window)
         )
