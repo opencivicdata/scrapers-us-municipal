@@ -52,7 +52,6 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
         formatted_start = n_days_ago.isoformat()
         seen_ids = set()
-        seen_legacy_ids = {}
         legacy_cases = {}
         for matter in self._paginate(
             self._endpoint("/matter"),
@@ -74,10 +73,12 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
                 seen_ids.add(matter_id)
 
-                # sometimes the new system has duplicate identifiers that point to the
-                # same legacy identifier
+                # sometimes the new system has duplicate identifiers
+                # that point to the same legacy identifier, so we'll
+                # collect these types of bills and process them them
+                # once we've seen everything we are going to scrape
                 if legacy_id := matter["legacyRecordNumber"]:
-                    if legacy_id in seen_legacy_ids:
+                    if legacy_id in legacy_cases:
                         legacy_cases[legacy_id]["dupes"].add(matter["recordNumber"])
                     else:
                         legacy_cases[legacy_id] = {
@@ -92,7 +93,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 detailed_matter["duplicate_identifiers"] = []
                 yield detailed_matter
 
-        for legacy_id, data in legacy_cases.items():
+        for data in legacy_cases.values():
             matter_id = data["matter_id"]
             detailed_matter = self.get(self._endpoint(f"/matter/{matter_id}")).json()
             detailed_matter["duplicate_identifiers"] = data["dupes"]
