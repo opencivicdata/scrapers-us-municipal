@@ -53,7 +53,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
         formatted_start = n_days_ago.isoformat()
         seen_ids = set()
         seen_legacy_ids = {}
-        filtered_matters = []
+        legacy_cases = {}
         for matter in self._paginate(
             self._endpoint("/matter"),
             {
@@ -74,24 +74,36 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
                 seen_ids.add(matter_id)
 
+                # sometimes the new system has duplicate identifiers that point to the
+                # same legacy identifier
                 if legacy_id := matter["legacyRecordNumber"]:
                     if legacy_id in seen_legacy_ids:
-                        seen_legacy_ids[legacy_id].add(matter["recordNumber"].strip())
-                        continue
+                        legacy_cases[legacy_id]["dupes"].add(matter["recordNumber"])
+                    else:
+                        legacy_cases[legacy_id] = {
+                            "matter_id": matter_id,
+                            "dupes": set(),
+                        }
+                    continue
 
-                    seen_legacy_ids[legacy_id] = set()
+                detailed_matter = self.get(
+                    self._endpoint(f"/matter/{matter_id}")
+                ).json()
+                detailed_matter["duplicate_identifiers"] = []
+                yield detailed_matter
 
-                detailed_matter = self.get(self._endpoint(f"/matter/{matter_id}"))
-                filtered_matters.append(detailed_matter)
+        for legacy_id, data in legacy_cases.items():
+            matter_id = data["matter_id"]
+            detailed_matter = self.get(self._endpoint(f"/matter/{matter_id}")).json()
+            detailed_matter["duplicate_identifiers"] = data["dupes"]
 
-        return filtered_matters, seen_legacy_ids
+            yield detailed_matter
 
     def scrape(self, window=7):
         n_days_ago = datetime.datetime.now().astimezone() - datetime.timedelta(
             float(window)
         )
-        matters, legacy_id_duplicates = self._matters(n_days_ago)
-        for matter in matters:
+        for matter in self._matters(n_days_ago):
             matter_id = matter["matterId"]
 
             if not (intro_date_str := matter["introductionDate"]):
@@ -117,9 +129,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 if original_legacy_identifier != legacy_identifier:
                     alternate_identifiers.append(legacy_identifier)
 
-                # sometimes the new system has duplicate identifiers that point to the
-                # same legacy identifier
-                for duplicate_identifier in legacy_id_duplicates[legacy_identifier]:
+                for duplicate_identifier in matter["duplicate_identifiers"]:
                     original_duplicate_identifier = normalize_substitute(
                         duplicate_identifier
                     )
