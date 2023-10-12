@@ -27,10 +27,26 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
             if not location:
                 location = None
 
+            raw_status = event["status"]
+            if raw_status == "Scheduled":
+                if when > datetime.datetime.now().astimezone():
+                    status = "confirmed"
+                else:
+                    status = "passed"
+            elif raw_status in {"Recessed", "Reconvened"}:
+                status = "passed"
+            elif raw_status in {"Cancelled", "Rescheduled"}:
+                status = "cancelled"
+            else:
+                raise ValueError(
+                    f"don't know what to do with the {event['status']} status"
+                )
+
             e = Event(
                 name=event["body"],
                 start_date=when,
                 location_name=location,
+                status=status,
             )
 
             e.pupa_id = str(event["meetingId"])
@@ -88,7 +104,7 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
                                     motion_text=item["actionText"],
                                     start_date=str(when.date()),
                                     organization__name=participant,
-                                    bill__identifier=bill_identifier,
+                                    bill__other_identifiers__identifier=bill_identifier,
                                 ),
                                 "entity_type": "vote_event",
                                 "note": "consideration",
