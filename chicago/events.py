@@ -27,20 +27,10 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
             if not location:
                 location = None
 
-            raw_status = event["status"]
-            if raw_status == "Scheduled":
-                if when > datetime.datetime.now().astimezone():
-                    status = "confirmed"
-                else:
-                    status = "passed"
-            elif raw_status in {"Recessed", "Reconvened"}:
-                status = "passed"
-            elif raw_status in {"Cancelled", "Rescheduled"}:
-                status = "cancelled"
-            else:
-                raise ValueError(
-                    f"don't know what to do with the {event['status']} status"
-                )
+            if (event["comment"] or "").lower() == "wrong meeting date":
+                continue
+
+            status = self.infer_status(event, when)
 
             e = Event(
                 name=event["body"],
@@ -98,18 +88,31 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
                     )
                     votes = response.json()
                     if votes:
-                        agenda_item["related_entities"].append(
-                            {
-                                "vote_event_id": _make_pseudo_id(
-                                    motion_text=item["actionText"],
-                                    start_date=str(when.date()),
-                                    organization__name=participant,
-                                    bill__other_identifiers__identifier=bill_identifier,
-                                ),
-                                "entity_type": "vote_event",
-                                "note": "consideration",
-                            }
-                        )
+                        if item["actionText"]:
+                            agenda_item["related_entities"].append(
+                                {
+                                    "vote_event_id": _make_pseudo_id(
+                                        motion_text=item["actionText"],
+                                        start_date=str(when.date()),
+                                        organization__name=participant,
+                                        bill__other_identifiers__identifier=bill_identifier,
+                                    ),
+                                    "entity_type": "vote_event",
+                                    "note": "consideration",
+                                }
+                            )
+                        else:
+                            agenda_item["related_entities"].append(
+                                {
+                                    "vote_event_id": _make_pseudo_id(
+                                        start_date=str(when.date()),
+                                        organization__name=participant,
+                                        bill__other_identifiers__identifier=bill_identifier,
+                                    ),
+                                    "entity_type": "vote_event",
+                                    "note": "consideration",
+                                }
+                            )
 
             e.add_source(
                 self._endpoint(f'/matter/{event["meetingId"]}'), note="elms_api"
@@ -120,3 +123,46 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
             )
 
             yield e
+
+    def infer_status(self, event, when):
+        raw_status = event["status"]
+
+        if raw_status == "Scheduled":
+            if when > datetime.datetime.now().astimezone():
+                return "confirmed"
+            else:
+                return "passed"
+        elif raw_status in {"Recessed", "Reconvened"}:
+            return "passed"
+        elif raw_status in {"Cancelled", "Rescheduled"}:
+            return "cancelled"
+        elif not raw_status and not event["comment"]:
+            return "passed"
+
+        comment = event["comment"]
+        if comment is None:
+            comment = ""
+        else:
+            comment = comment.lower()
+
+        if any(
+            phrase in comment
+            for phrase in (
+                "rescheduled to",
+                "postponed to",
+                "rescheduled to",
+                "postponed to",
+                "deferred",
+                "time change",
+                "date change",
+                "cancelled",
+                "new date and time",
+                "rescheduled indefinitely",
+                "rescheduled for",
+            )
+        ):
+            return "cancelled"
+        elif comment in {"rescheduled", "recessed"}:
+            return "cancelled"
+        else:
+            return "passed"
