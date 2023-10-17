@@ -164,7 +164,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
             for current, subsequent in pairwise(sort_actions(matter["actions"])):
 
-                action_name = action_name_raw.strip()
+                action_name = current["actionName"].strip()
 
                 if not (action_org := current["actionByName"]):
                     self.warning(f"{bill_detail_url} is missing a organization")
