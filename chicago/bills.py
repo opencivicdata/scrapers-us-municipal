@@ -10,15 +10,9 @@ from .base import ElmsAPI
 
 
 def sort_actions(actions):
-    action_time = "MatterHistoryActionDate"
-    action_name = "MatterHistoryActionName"
     sorted_actions = sorted(
         actions,
-        key=lambda x: (
-            x[action_time].split("T")[0],
-            ACTION[x[action_name]]["order"],
-            x[action_time].split("T")[1],
-        ),
+        key=lambda x: (x["actionDate"], x["sort"]),
     )
 
     return sorted_actions
@@ -161,7 +155,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 note="web",
             )
 
-            for current, subsequent in pairwise(matter["actions"]):
+            for current, subsequent in pairwise(sort_actions(matter["actions"])):
                 if not (action_name_raw := current["actionName"]):
                     continue
 
