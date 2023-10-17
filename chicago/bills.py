@@ -10,8 +10,15 @@ from .base import ElmsAPI
 
 
 def sort_actions(actions):
+
     sorted_actions = sorted(
-        actions,
+        [
+            act
+            for act in actions
+            if act["actionDate"]
+            and act["actionName"]
+            not in {"Create", "Submit", "Accept", "Post to Public"}
+        ],
         key=lambda x: (x["actionDate"], x["sort"]),
     )
 
@@ -156,16 +163,8 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             )
 
             for current, subsequent in pairwise(sort_actions(matter["actions"])):
-                if not (action_name_raw := current["actionName"]):
-                    continue
 
                 action_name = action_name_raw.strip()
-
-                if action_name in {"Create", "Submit", "Accept", "Post to Public"}:
-                    continue
-
-                if not (action_date := current["actionDate"]):
-                    continue
 
                 if not (action_org := current["actionByName"]):
                     self.warning(f"{bill_detail_url} is missing a organization")
