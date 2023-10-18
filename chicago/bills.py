@@ -162,6 +162,20 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 note="web",
             )
 
+            if not any(
+                ACTION.get("actionName", {}).get("ocd") == "introduction"
+                for act in matter["actions"]
+            ):
+                matter["actions"].append(
+                    {
+                        "actionDate": matter["introductionDate"],
+                        "actionName": "Introduced",
+                        "actionByName": "City Council",
+                        "sort": 0,
+                        "votes": [],
+                    }
+                )
+
             for current, subsequent in pairwise(sort_actions(matter["actions"])):
 
                 action_name = current["actionName"].strip()
