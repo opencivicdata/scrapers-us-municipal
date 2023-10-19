@@ -171,7 +171,11 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             )
 
             if not any(
-                ACTION.get("actionName", {}).get("ocd") == "introduction"
+                (
+                    ACTION.get((act["actionName"] or "").strip(), {}).get("ocd")
+                    == "introduction"
+                )
+                or matter["introductionDate"] > (act["actionDate"] or "9999-99-99")
                 for act in matter["actions"]
             ):
                 matter["actions"].append(
