@@ -108,10 +108,6 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
         for matter in self._matters(n_days_ago):
             matter_id = matter["matterId"]
 
-            if not (intro_date_str := matter["introductionDate"]):
-                continue
-
-            intro_date = datetime.datetime.fromisoformat(intro_date_str)
             title = matter["title"]
             identifier = matter["recordNumber"].strip()
 
@@ -147,7 +143,17 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                     if original_duplicate_identifier != duplicate_identifier:
                         alternate_identifiers.append(duplicate_identifier)
 
-            bill_session = self.session(intro_date)
+            actions = self.repair_actions(
+                matter["actions"].copy(), matter["introductionDate"]
+            )
+            if not actions:
+                continue
+
+            first_action_date = datetime.datetime.fromisoformat(
+                actions[0]["actionDate"]
+            )
+
+            bill_session = self.session(first_action_date)
             if matter["type"] == "Placed on File":
                 bill_type = None
             else:
@@ -170,25 +176,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 note="web",
             )
 
-            if not any(
-                (
-                    ACTION.get((act["actionName"] or "").strip(), {}).get("ocd")
-                    == "introduction"
-                )
-                or matter["introductionDate"] > (act["actionDate"] or "9999-99-99")
-                for act in matter["actions"]
-            ):
-                matter["actions"].append(
-                    {
-                        "actionDate": matter["introductionDate"],
-                        "actionName": "Introduced",
-                        "actionByName": "City Council",
-                        "sort": 0,
-                        "votes": [],
-                    }
-                )
-
-            for current, subsequent in pairwise(sort_actions(matter["actions"])):
+            for current, subsequent in pairwise(actions):
 
                 action_name = current["actionName"].strip()
                 action_date = current["actionDate"]
@@ -311,10 +299,11 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             if identified_relations:
                 relation_type = None
                 if len(identified_relations) == 1:
-                    if identified_relations[0]["date"] >= intro_date:
+                    if identified_relations[0]["date"] >= first_action_date:
                         relation_type = "replaced-by"
                 elif all(
-                    relation["date"] <= intro_date for relation in identified_relations
+                    relation["date"] <= first_action_date
+                    for relation in identified_relations
                 ):
                     relation_type = "replaces"
 
@@ -336,6 +325,51 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             }
 
             yield bill
+
+    def repair_actions(self, actions, introduction_date_str):
+
+        sorted_actions = sort_actions(actions)
+
+        if introduction_date_str:
+
+            if not sorted_actions:
+                sorted_actions.append(
+                    {
+                        "actionDate": introduction_date_str,
+                        "actionName": "Introduced",
+                        "actionByName": "City Council",
+                        "sort": 0,
+                        "votes": [],
+                    }
+                )
+
+            elif not any(
+                (ACTION.get(act["actionName"].strip(), {}).get("ocd") == "introduction")
+                for act in sorted_actions
+            ):
+
+                introduction_date = datetime.datetime.fromisoformat(
+                    introduction_date_str
+                )
+
+                earliest_action_date = datetime.datetime.fromisoformat(
+                    sorted_actions[0]["actionDate"]
+                )
+                time_difference = earliest_action_date - introduction_date
+
+                if time_difference.days >= 0 and time_difference.days < 365:
+                    sorted_actions.insert(
+                        0,
+                        {
+                            "actionDate": introduction_date_str,
+                            "actionName": "Introduced",
+                            "actionByName": "City Council",
+                            "sort": 0,
+                            "votes": [],
+                        },
+                    )
+
+        return sorted_actions
 
 
 def normalize_substitute(identifier):
