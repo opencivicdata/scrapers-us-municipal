@@ -115,7 +115,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             title = matter["title"]
             identifier = matter["recordNumber"].strip()
 
-            if identifier in {'O2023-0002065', 'CL2023-0003775'}:
+            if identifier in {'O2023-0002065', 'CL2023-0003775', 'CL2023-0003676'}:
                 continue
 
             if not all((title, identifier)):
