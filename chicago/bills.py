@@ -58,9 +58,10 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             self._endpoint("/matter"),
             {
                 "filter": (
+                    "recordNumber eq 'O2023-0001988' and ("
                     f"actions/any(a: a/actionDate gt {formatted_start}) or "
                     f"introductionDate gt {formatted_start} or "
-                    f"recordCreateDate gt {formatted_start}"
+                    f"recordCreateDate gt {formatted_start})"
                 ),
                 "sort": "introductionDate asc",
             },
@@ -183,24 +184,22 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
                 if not (action_org := current["actionByName"]):
                     self.warning(f"{bill_detail_url} is missing a organization")
+                    bad_action_org = True
+                else:
+                    bad_action_org = False
 
-                if action_org == "City Council":
+                if action_org == "City Council" or not action_org:
                     action_org = "Chicago City Council"
 
-                if action_org:
-                    action = bill.add_action(
-                        action_name,
-                        datetime.datetime.fromisoformat(action_date).date(),
-                        classification=ACTION[action_name]["ocd"],
-                        organization={"name": action_org},
-                    )
-                else:
-                    action = bill.add_action(
-                        action_name,
-                        datetime.datetime.fromisoformat(action_date).date(),
-                        classification=ACTION[action_name]["ocd"],
-                        extras={"missing_organization": True},
-                    )
+                action = bill.add_action(
+                    action_name,
+                    datetime.datetime.fromisoformat(action_date).date(),
+                    classification=ACTION[action_name]["ocd"],
+                    organization={"name": action_org},
+                )
+
+                if bad_action_org:
+                    action["extras"]["missing_organization"] = True
 
                 if action["classification"] == ["referral-committee"] and subsequent:
                     next_body_name = subsequent["actionByName"]
