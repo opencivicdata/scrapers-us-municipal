@@ -192,7 +192,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                         action_name,
                         datetime.datetime.fromisoformat(action_date).date(),
                         classification=ACTION[action_name]["ocd"],
-                        organization=action_org,
+                        organization={"nam": action_org},
                     )
                 else:
                     action = bill.add_action(
