@@ -183,17 +183,24 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
                 if not (action_org := current["actionByName"]):
                     self.warning(f"{bill_detail_url} is missing a organization")
-                    continue
 
                 if action_org == "City Council":
                     action_org = "Chicago City Council"
 
-                action = bill.add_action(
-                    action_name,
-                    datetime.datetime.fromisoformat(action_date).date(),
-                    classification=ACTION[action_name]["ocd"],
-                    organization={"name": action_org},
-                )
+                if action_org:
+                    action = bill.add_action(
+                        action_name,
+                        datetime.datetime.fromisoformat(action_date).date(),
+                        classification=ACTION[action_name]["ocd"],
+                        organization=action_org,
+                    )
+                else:
+                    action = bill.add_action(
+                        action_name,
+                        datetime.datetime.fromisoformat(action_date).date(),
+                        classification=ACTION[action_name]["ocd"],
+                        extras={"missing_organization": True},
+                    )
 
                 if action["classification"] == ["referral-committee"] and subsequent:
                     next_body_name = subsequent["actionByName"]
@@ -351,7 +358,6 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 introduction_date = datetime.datetime.fromisoformat(
                     introduction_date_str
                 )
-
                 earliest_action_date = datetime.datetime.fromisoformat(
                     sorted_actions[0]["actionDate"]
                 )
