@@ -58,10 +58,9 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             self._endpoint("/matter"),
             {
                 "filter": (
-                    "recordNumber eq 'O2023-0001988' and ("
                     f"actions/any(a: a/actionDate gt {formatted_start}) or "
                     f"introductionDate gt {formatted_start} or "
-                    f"recordCreateDate gt {formatted_start})"
+                    f"recordCreateDate gt {formatted_start}"
                 ),
                 "sort": "introductionDate asc",
             },
