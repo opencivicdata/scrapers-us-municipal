@@ -145,7 +145,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                     if original_duplicate_identifier != duplicate_identifier:
                         alternate_identifiers.append(duplicate_identifier)
 
-            actions = self.repair_actions(
+            actions, introduction_failure_mode = self.repair_actions(
                 matter["actions"].copy(), matter["introductionDate"]
             )
             if not actions:
@@ -331,11 +331,15 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 "matter_id": matter_id,
             }
 
+            if introduction_failure_mode:
+                bill.extras["introduction_failure_mode"] = introduction_failure_mode
+
             yield bill
 
     def repair_actions(self, actions, introduction_date_str):
 
         sorted_actions = sort_actions(actions)
+        failure_mode = None
 
         if introduction_date_str:
 
@@ -374,8 +378,14 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                             "votes": [],
                         },
                     )
+                elif time_difference < 0:
+                    failure_mode = "introduction after other action"
+                elif time_difference >= 365:
+                    failure_mode = (
+                        "introduction more than a year before any other action"
+                    )
 
-        return sorted_actions
+        return sorted_actions, failure_mode
 
 
 def normalize_substitute(identifier):
