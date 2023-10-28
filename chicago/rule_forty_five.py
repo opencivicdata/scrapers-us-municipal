@@ -216,7 +216,7 @@ RULE_45 = {
         "2023-07-24": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/HHR%20Rule%2045%20-%207-23.pdf?VersionId=mdftjVy85e7StrSxph17ptOKjfLidsah",
             "attendance": [
-                "Rodriguez Sanchez,",
+                "Rodriguez Sanchez",
                 "Ramirez",
                 "Robinson",
                 "Yancy",
@@ -475,10 +475,8 @@ RULE_45 = {
         },
     },
     "Committee on Housing and Real Estate": {
-        "2023-06-14": {
+        "2023-06-12": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/RULE45JUNE2023.pdf?VersionId=1WEvyrbZOSPhZkLejexsNZc4ppGOwWcg",
-            "committee": "Committee on Housing and Real Estate",
-            "meeting_date": "2023-06-14",
             "attendance": [
                 "Sigcho-Lopez",
                 "Mitchell",

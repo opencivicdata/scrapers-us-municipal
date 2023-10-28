@@ -147,6 +147,8 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
                 return "passed"
         elif raw_status in {"Recessed", "Reconvened", "Rescheduled"}:
             return "passed"
+        elif raw_status == "Cancelled":
+            return "cancelled"
         elif not raw_status and not event["comment"]:
             return "passed"
 
