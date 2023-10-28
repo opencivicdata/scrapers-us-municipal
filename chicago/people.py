@@ -22,6 +22,8 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
 
         for term in city_council["members"]:
             person_name = term["displayName"].strip()
+            if person_name == "Rodriguez-Sanchez, Rossana":
+                person_name = "Rodriguez Sanchez, Rossana"
             if "vacant" in person_name.lower():
                 continue
 
@@ -29,13 +31,15 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
                 person = alders[person_name]
             else:
                 alders[person_name] = person = Person(person_name)
+                person.family_name = person_name.split(",")[0]
                 person.extras["personId"] = term["personId"]
 
                 if person_name == "Fuentes, Jessica L.":
                     person.add_name("Fuentes, Jessica")
-
-                if person_name == "Robinson, Lamont J.":
+                elif person_name == "Robinson, Lamont J.":
                     person.add_name("Robinson, Lamont")
+                elif person_name == "Rodriguez Sanchez, Rossana":
+                    person.add_name("Rodriguez-Sanchez, Rossana")
 
             person.add_term(
                 "Alderman",
@@ -122,8 +126,8 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
                 person_name = term["displayName"].strip()
                 if person_name in {"Allen, Thomas"}:
                     continue
-                elif person_name == "Rodriguez Sanchez, Rossana":
-                    person_name = "Rodriguez-Sanchez, Rossana"
+                elif person_name == "Rodriguez-Sanchez, Rossana":
+                    person_name = "Rodriguez Sanchez, Rossana"
                 person = alders[person_name]
                 person.add_membership(
                     org,
