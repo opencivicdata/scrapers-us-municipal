@@ -378,9 +378,9 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                             "votes": [],
                         },
                     )
-                elif time_difference < 0:
+                elif time_difference.days < 0:
                     failure_mode = "introduction after other action"
-                elif time_difference >= 365:
+                elif time_difference.days >= 365:
                     failure_mode = (
                         "introduction more than a year before any other action"
                     )
