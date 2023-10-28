@@ -4,6 +4,7 @@ from pupa.scrape import Event, Scraper
 from pupa.utils import _make_pseudo_id
 
 from .base import ElmsAPI
+from .rule_forty_five import RULE_45
 
 
 class ChicagoEventsScraper(ElmsAPI, Scraper):
@@ -67,6 +68,18 @@ class ChicagoEventsScraper(ElmsAPI, Scraper):
                 for call in attendance["votes"]:
                     if call["vote"] == "Present":
                         participants.add(call["voterName"].strip())
+
+            rule_45 = RULE_45.get(participant, {}).get(str(when.date()))
+
+            if rule_45:
+                if rule_45["source"]:
+                    e.add_document(
+                        note="Rule 45 Report",
+                        url=rule_45["source"],
+                        media_type="application/pdf",
+                    )
+                if not participants and rule_45["attendance"]:
+                    participants.update(rule_45["attendance"])
 
             for person in participants:
                 e.add_participant(name=person, type="person")
