@@ -15,11 +15,13 @@ def sort_actions(actions):
         [
             act
             for act in actions
-            if act["actionDate"]
-            and act["actionName"]
-            not in {"Create", "Submit", "Accept", "Post to Public"}
+            if (
+                act["actionDate"]
+                and act["actionName"]
+                not in {"Create", "Submit", "Accept", "Post to Public"}
+            )
         ],
-        key=lambda x: (x["actionDate"], x["sort"]),
+        key=lambda x: (x["actionDate"][:10], x["sort"]),
     )
 
     return sorted_actions
