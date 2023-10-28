@@ -333,6 +333,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
 
             if introduction_failure_mode:
                 bill.extras["introduction_failure_mode"] = introduction_failure_mode
+                bill.extras["introduction_str"] = matter["introductionDate"]
 
             yield bill
 
