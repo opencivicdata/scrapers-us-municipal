@@ -361,10 +361,10 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             ):
 
                 introduction_date = datetime.datetime.fromisoformat(
-                    introduction_date_str
+                    introduction_date_str[:10]
                 )
                 earliest_action_date = datetime.datetime.fromisoformat(
-                    sorted_actions[0]["actionDate"]
+                    sorted_actions[0]["actionDate"][:10]
                 )
                 time_difference = earliest_action_date - introduction_date
 
