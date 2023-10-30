@@ -131,7 +131,7 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
                 person = alders[person_name]
                 person.add_membership(
                     org,
-                    role="Member",
+                    role=term["memberType"],
                     start_date=datetime.datetime.fromisoformat(
                         term["startDate"]
                     ).date(),
