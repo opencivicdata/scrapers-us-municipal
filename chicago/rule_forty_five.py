@@ -5,6 +5,7 @@ RULE_45 = {
             "attendance": [
                 "Mitchell",
                 "Vasquez",
+                "Conway",
                 "Ervin",
                 "Gutierrez",
                 "Harris",
