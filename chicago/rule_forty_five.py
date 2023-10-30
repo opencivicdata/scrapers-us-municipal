@@ -60,7 +60,7 @@ RULE_45 = {
                 "Gutierrez",
                 "Harris",
                 "Hopkins",
-                "Moore",
+                "Moore, David H.",
                 "Mosley",
                 "Nugent",
                 "Rodriguez",
