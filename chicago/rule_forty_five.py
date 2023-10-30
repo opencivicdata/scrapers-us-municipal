@@ -1,4 +1,74 @@
 RULE_45 = {
+    "Committee on Transportation and Public Way": {
+        "2023-10-05": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Transportation%20Committee%20Rule%2045%20-%2010-23.pdf?VersionId=3u7aiZny8LVtE3Eh7AIVRW82hCRKn7DZ",
+            "attendance": [
+                "Mitchell",
+                "Vasquez",
+                "Ervin",
+                "Gutierrez",
+                "Harris",
+                "Hopkins",
+                "Moore, David H.",
+                "Mosley",
+                "Nugent",
+                "Rodriguez",
+                "Waguespack",
+                "Yancy",
+            ],
+        },
+        "2023-07-13": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Transportation%20Committee%20Rule%2045%20-%2007-23.pdf?VersionId=TvJr56KKN2ax_5fCFxJEq_Az8ac.ifQg",
+            "attendance": [
+                "Mitchell",
+                "Vasquez",
+                "Conway",
+                "Fuentes",
+                "Hopkins",
+                "Ervin",
+                "Moore, David H.",
+                "Mosley",
+                "Nugent",
+                "Rodriguez",
+                "Waguespack",
+                "Yancy",
+            ],
+        },
+        "2023-09-07": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Transportation%20Committee%20Rule%2045%20-%2009-23.pdf?VersionId=MRscyV2LLp2t76JhwCE7iu8zgC3PSRbt",
+            "attendance": [
+                "Mitchell",
+                "Vasquez",
+                "Gutierrez",
+                "Harris",
+                "Hopkins",
+                "Moore, David H.",
+                "Mosley",
+                "Nugent",
+                "Rodriguez",
+                "Waguespack",
+                "Yancy",
+            ],
+        },
+        "2023-06-13": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/DOC062123-06212023140325.pdf?VersionId=I.cbTXj.uuZmp6awTdrv3A8JpQ8BaX6O",
+            "attendance": [
+                "Mitchell",
+                "Vasquez",
+                "Conway",
+                "Fuentes",
+                "Gutierrez",
+                "Harris",
+                "Hopkins",
+                "Moore",
+                "Mosley",
+                "Nugent",
+                "Rodriguez",
+                "Waguespack",
+                "Yancy",
+            ],
+        },
+    },
     "Committee on Pedestrian and Traffic Safety": {
         "2023-10-05": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Pedestrian%20and%20Traffic%20Safety%20Rule%2045%20-%2010-23.pdf?VersionId=haM7hiXoi6nlZzbAPN7hg0..kIV3jqMe",
@@ -475,6 +545,28 @@ RULE_45 = {
         },
     },
     "Committee on Housing and Real Estate": {
+        "2023-07-10": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/RULE45JULY2023.pdf?VersionId=LbwYOtSKb9dnOjf3EmqRhPvxcntNWVWA",
+            "attendance": [
+                "Sigcho-Lopez",
+                "Mitchell",
+                "La Spata",
+                "Dowell",
+                "Robinson",
+                "Harris",
+                "Quinn",
+                "Taylor",
+                "Tabares",
+                "Scott, Monique L.",
+                "Fuentes",
+                "Burnett",
+                "Ramirez-Rosa",
+                "Villegas",
+                "Clay",
+                "Manaa-Hoppenworth",
+                "Hadden",
+            ],
+        },
         "2023-06-12": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/RULE45JUNE2023.pdf?VersionId=1WEvyrbZOSPhZkLejexsNZc4ppGOwWcg",
             "attendance": [
@@ -500,7 +592,7 @@ RULE_45 = {
     },
     "Committee on Zoning, Landmarks and Building Standards": {
         "2023-09-12": {
-            "source": "",
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Zoning%20Committee%20Rule%2045%20Report%20-%2009-22.pdf?VersionId=vKjSF.5ZJAdN_iz_uz8QEcDw.89ZJ4wh",
             "committee": "Committee on Zoning, Landmarks and Building Standards",
             "attendance": [
                 "Ramirez-Rosa",
@@ -524,7 +616,7 @@ RULE_45 = {
             ],
         },
         "2023-06-20": {
-            "source": "",
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Zoning_Committee_Rule_45_Report_0623.pdf?VersionId=mhELh5KTzkf_zfhTWc0Fnz6S789xI.2I",
             "attendance": [
                 "Ramirez-Rosa",
                 "Lawson",
