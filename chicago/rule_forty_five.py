@@ -693,6 +693,28 @@ RULE_45 = {
                 "Lawson",
             ],
         },
+        "2023-05-30": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/License%20Committee%20Rule%2045%20-%2005-23.pdf?VersionId=m5fqTHoA1ntdPwNeK3rodmu9Cd_ilxg4",
+            "attendance": [
+                "Silverstein",
+                "Chico",
+                "Coleman",
+                "Moore, David H.",
+                "Scott, Monique L.",
+                "Cardona",
+                "Waguespack",
+                "Conway",
+                "Villegas",
+                "Sposato",
+                "Napolitano",
+                "Reilly",
+                "Lawson",
+                "Gardiner",
+                "Martin",
+                "Burnett",
+                "Cruz",
+            ],
+        },
     },
     "Committee on Housing and Real Estate": {
         "2023-10-10": {
