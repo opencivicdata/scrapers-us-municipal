@@ -284,6 +284,23 @@ RULE_45 = {
         },
     },
     "Committee on Economic, Capital and Technology Development": {
+        "2023-09-12": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/ECTD%20Rule%2045%20Report%20September%202023.pdf?VersionId=KNuWWFC80GpHzqatO0urx8_MTiIk_BtB",
+            "attendance": [
+                "Villegas",
+                "Mosley",
+                "La Spata",
+                "Hall",
+                "Mitchell",
+                "Chico",
+                "Lee",
+                "Lopez",
+                "Cruz",
+                "Cardona",
+                "Mitts",
+                "Napolitano",
+            ],
+        },
         "2023-09-05": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/ECTD%20Rule%2045%20Report%20September%202023.pdf?VersionId=KNuWWFC80GpHzqatO0urx8_MTiIk_BtB",
             "attendance": [
@@ -700,7 +717,7 @@ RULE_45 = {
                 "Moore, David H.",
             ],
         },
-        "2023-09-28": {
+        "2023-08-28": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/HRE%20RULE45%2028AUG23.pdf?VersionId=OanykQe4Z2OhHbQqYRxDK_T325Cts24x",
             "attendance": [
                 "Sigcho-Lopez",
