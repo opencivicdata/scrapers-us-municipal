@@ -678,6 +678,48 @@ RULE_45 = {
         },
     },
     "Committee on Housing and Real Estate": {
+        "2023-10-10": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/HRE%20RULE%2045%2010OCT23.pdf?VersionId=zEy4hYH.vqFDVWrwWcR2h9K3OhgULrtg",
+            "attendance": [
+                "Sigcho-Lopez",
+                "Mitchell",
+                "La Spata",
+                "Harris",
+                "Robinson",
+                "Taylor",
+                "Tabares",
+                "Villegas",
+                "Clay",
+                "Manaa-Hoppenworth",
+                "Scott, Monique L.",
+                "Fuentes",
+                "Ramirez-Rosa",
+                "Burnett",
+                "Rodriguez-Sanchez",
+                "Quinn",
+                "Moore, David H.",
+            ],
+        },
+        "2023-09-28": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/HRE%20RULE45%2028AUG23.pdf?VersionId=OanykQe4Z2OhHbQqYRxDK_T325Cts24x",
+            "attendance": [
+                "Sigcho-Lopez",
+                "Mitchell",
+                "La Spata",
+                "Dowell",
+                "Quinn",
+                "Moore, David H.",
+                "Taylor",
+                "Tabares",
+                "Scott, Monique L.",
+                "Fuentes",
+                "Burnett",
+                "Ramirez-Rosa",
+                "Villegas",
+                "Manaa-Hoppenworth",
+                "Hadden",
+            ],
+        },
         "2023-07-10": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/RULE45JULY2023.pdf?VersionId=LbwYOtSKb9dnOjf3EmqRhPvxcntNWVWA",
             "attendance": [
@@ -722,6 +764,26 @@ RULE_45 = {
                 "Manaa-Hoppenworth",
             ],
         },
+    },
+    "Committee on Ethics and Government Oversight": {
+        "2023-07-13": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/July%202023%20Rule%2045%20Report%20Ethics%20Committee.pdf?VersionId=0.D_2QKie5F.1QRceaEOqaEqZ1P8Ng0M",
+            "attendance": [
+                "Martin",
+                "Hadden",
+                "Lee",
+                "O'Shea",
+                "Taylor",
+                "Tabares",
+                "Scott",
+                "Taliaferro",
+                "Waguespack",
+                "Sposato",
+                "Nugent",
+                "Vasquez",
+                "Lawson",
+            ],
+        }
     },
     "Committee on Zoning, Landmarks and Building Standards": {
         "2023-09-12": {
