@@ -779,7 +779,7 @@ RULE_45 = {
             "attendance": [
                 "Sigcho-Lopez",
                 "Mitchell",
-                "LaSpata",
+                "La Spata",
                 "Dowell",
                 "Robinson",
                 "Harris",
@@ -790,7 +790,7 @@ RULE_45 = {
                 "Scott, Monique L.",
                 "Fuentes",
                 "Burnett",
-                "Rodriguez-Sanchez",
+                "Rodriguez Sanchez",
                 "Ramirez-Rosa",
                 "Villegas",
                 "Clay",
