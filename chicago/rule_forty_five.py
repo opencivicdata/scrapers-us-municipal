@@ -264,7 +264,7 @@ RULE_45 = {
                 "Yancy",
                 "Chico",
                 "Quinn",
-                "Moore",
+                "Moore, David H.",
                 "Curtis",
                 "Burnett",
                 "Knudsen",
