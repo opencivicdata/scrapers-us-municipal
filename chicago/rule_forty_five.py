@@ -1,4 +1,65 @@
 RULE_45 = {
+    "Committee on Environmental Protection and Energy": {
+        "2023-11-06": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Environmental%20November%20Rule%2045.pdf?VersionId=KpVxhoT3yntrgcItUdg202jYB.AelUNe",
+            "attendance": [
+                "Hadden",
+                "Knudsen",
+                "La Spata",
+                "Ramirez",
+                "Lopez",
+                "Tabares",
+                "Scott, Monique L.",
+                "Sigcho-Lopez",
+                "Conway",
+                "Lawson",
+                "Martin",
+                "Manaa-Hoppenworth",
+                "Cruz",
+            ],
+        },
+        "2023-09-06": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Environmental%20September%20Rule%2045.pdf?VersionId=VJduMKrNe_TPdmRZePde1BuzivG4r_FK",
+            "attendance": [
+                "Hadden",
+                "Knudsen",
+                "La Spata",
+                "Ramirez",
+                "Lopez",
+                "Scott, Monique L.",
+                "Sigcho-Lopez",
+                "Cruz",
+                "Rodriguez-Sanchez",
+                "Conway",
+                "Lawson",
+                "Clay",
+                "Martin",
+                "Manaa-Hoppenworth",
+            ],
+        },
+    },
+    "Committee on Special Events, Cultural Affairs and Recreation": {
+        "2023-06-15": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/June2023MonthlyRule45.pdf?VersionId=whrd22bOZVscSDRAmtGvgu.OLy2tYF5d",
+            "attendance": [
+                "Sposato",
+                "Scott, Monique L.",
+                "Hopkins",
+                "Robinson",
+                "Hall",
+                "Coleman",
+                "Mosley",
+                "Rodriguez",
+                "Cruz",
+                "Waguespack",
+                "Nugent",
+                "Napolitano",
+                "Lawson",
+                "Gardiner",
+                "Silverstein",
+            ],
+        }
+    },
     "Committee on Finance": {
         "2023-09-11": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/September%202023%20Rule%2045%20Report%20102323.pdf?VersionId=eJXAGbD_8Jpt_dT3fOvepjOMTIyqy7d9",
