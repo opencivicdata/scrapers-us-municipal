@@ -37,6 +37,26 @@ RULE_45 = {
                 "Manaa-Hoppenworth",
             ],
         },
+        "2023-07-07": {
+            "source": None,
+            "attendance": [
+                "Hadden",
+                "Knudsen",
+                "La Spata",
+                "Ramirez",
+                "Lopez",
+                "Tabares",
+                "Scott, Monique L.",
+                "Sigcho-Lopez",
+                "Cruz",
+                "Conway",
+                "Reilly",
+                "Lawson",
+                "Clay",
+                "Martin",
+                "Manaa-Hoppenworth",
+            ],
+        },
     },
     "Committee on Special Events, Cultural Affairs and Recreation": {
         "2023-06-15": {
