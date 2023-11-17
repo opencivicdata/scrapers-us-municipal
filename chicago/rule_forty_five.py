@@ -37,7 +37,7 @@ RULE_45 = {
                 "Manaa-Hoppenworth",
             ],
         },
-        "2023-07-07": {
+        "2023-07-12": {
             "source": None,
             "attendance": [
                 "Hadden",
