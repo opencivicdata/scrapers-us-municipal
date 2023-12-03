@@ -1,4 +1,26 @@
 RULE_45 = {
+    "Committee on Aviation": {
+        "2023-10-30": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Rule%2045%20Report_October%202023_Aviation_10312023.pdf?VersionId=rlMVTSB2EOVOlU0gLSiDiXSGvPu36nAs",
+            "attendance": [
+                "O'Shea",
+                "Curtis",
+                "Hopkins",
+                "Robinson",
+                "Dowell",
+                "Harris",
+                "Lee",
+                "Quinn",
+                "Rodriquez",
+                "Tabares",
+                "Ervin",
+                "Cardona",
+                "Sposato",
+                "Nugent",
+                "Napolitano",
+            ],
+        },
+    },
     "Committee on Environmental Protection and Energy": {
         "2023-11-06": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Environmental%20November%20Rule%2045.pdf?VersionId=KpVxhoT3yntrgcItUdg202jYB.AelUNe",
@@ -213,6 +235,21 @@ RULE_45 = {
         },
     },
     "Committee on Transportation and Public Way": {
+        "2023-11-09": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Transportation%20Committee%20Rule%2045%20-%2011-23.pdf?VersionId=8ahmQy_vgGru4Cqi2EdpAvvO975t.yLM",
+            "attendance": [
+                "Mitchell",
+                "Vasquez",
+                "Ervin",
+                "Fuentes",
+                "Harris",
+                "Moore, David H.",
+                "Mosley",
+                "Nugent",
+                "Rodriguez",
+                "Yancy",
+            ],
+        },
         "2023-10-03": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Transportation%20Committee%20Rule%2045%20-%2010-23.pdf?VersionId=3u7aiZny8LVtE3Eh7AIVRW82hCRKn7DZ",
             "attendance": [
@@ -380,6 +417,25 @@ RULE_45 = {
         },
     },
     "Committee on Economic, Capital and Technology Development": {
+        "2023-10-02": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/ECTD%20Rule%2045%20Report%20October%202023.pdf?VersionId=8neVHsY1F0FcWKO_7VwAqKRy_E6KfhKL",
+            "attendance": [
+                "Villegas",
+                "Mosley",
+                "Hall",
+                "Mitchell",
+                "Chico",
+                "Lee",
+                "Gutierrez",
+                "Tabares",
+                "Cruz",
+                "Cardona",
+                "Waguespack",
+                "Mitts",
+                "Napolitano",
+                "Manaa-Hoppenworth",
+            ],
+        },
         "2023-09-12": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/ECTD%20Rule%2045%20Report%20September%202023.pdf?VersionId=KNuWWFC80GpHzqatO0urx8_MTiIk_BtB",
             "attendance": [
@@ -720,6 +776,21 @@ RULE_45 = {
         },
     },
     "Committee on Public Safety": {
+        "2023-10-13": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Public%20Safety%20Committee%20Rule%2045%20-%2010-23%20v2.pdf?VersionId=WXwAqfrTYLK_gK5fy0dKmKVWwgnHUIlu",
+            "attendance": [
+                "Hall",
+                "Lee",
+                "Tabares",
+                "Ervin",
+                "Cardona",
+                "Sposato",
+                "Nugent",
+                "Gardiner",
+                "Clay",
+                "Taliaferro",
+            ],
+        },
         "2023-07-11": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Public_Safety_Committee_Rule_45-07-23_2.pdf?VersionId=mbUyRHMPDI_37rFFXE0WjMqR8mcz9aE.",
             "committee": "Committee on Public Safety",
