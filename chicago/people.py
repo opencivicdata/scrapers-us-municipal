@@ -30,6 +30,9 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
             if person_name in alders:
                 person = alders[person_name]
             else:
+                if person_name == "Willie B. Cochran":
+                    person_name = "Cochran, Willie B."
+
                 alders[person_name] = person = Person(person_name)
                 person.family_name = person_name.split(",")[0]
                 person.extras["personId"] = term["personId"]
@@ -40,6 +43,9 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
                     person.add_name("Robinson, Lamont")
                 elif person_name == "Rodriguez Sanchez, Rossana":
                     person.add_name("Rodriguez-Sanchez, Rossana")
+                elif person_name == "Cochran, Willie B.":
+                    person.add_name("Willie B. Cochran")
+                    person.add_name("Willie B., Cochran")
 
             person.add_term(
                 "Alderman",
@@ -128,6 +134,8 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
                     continue
                 elif person_name == "Rodriguez-Sanchez, Rossana":
                     person_name = "Rodriguez Sanchez, Rossana"
+                elif person_name in {"Willie B., Cochran", "Willie B. Cochran"}:
+                    person_name = "Cochran, Willie B."
                 person = alders[person_name]
                 person.add_membership(
                     org,
