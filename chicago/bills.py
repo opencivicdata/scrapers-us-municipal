@@ -18,6 +18,7 @@ def sort_actions(actions):
             if (
                 act["actionDate"]
                 and act["actionName"]
+                and act["actionName"]
                 not in {"Create", "Submit", "Accept", "Post to Public"}
             )
         ],
