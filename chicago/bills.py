@@ -239,35 +239,43 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                     yield vote_event
 
             for sponsor in matter["sponsors"]:
-                if sponsor_name := sponsor["sponsorName"].strip():
-                    sponsor_type = sponsor["sponsorType"]
-                    if sponsor_type == "Sponsor":
-                        sponsor_classification = "Primary"
-                    elif sponsor_type == "":
-                        sponsor_classification = "Regular"
-                    elif sponsor_type == "CoSponsor":
-                        sponsor_classification = "Regular"
-                    elif sponsor_type == "Filing Sponsor":
-                        sponsor_classification = "Primary"
-                    else:
-                        raise ValueError(f"don't know about {sponsor_type}")
+                if sponsor["sponsorName"] is not None:
+                    if sponsor_name := sponsor["sponsorName"].strip():
+                        sponsor_type = sponsor["sponsorType"]
+                        if sponsor_type == "Sponsor":
+                            sponsor_classification = "Primary"
+                        elif sponsor_type == "":
+                            sponsor_classification = "Regular"
+                        elif sponsor_type == "CoSponsor":
+                            sponsor_classification = "Regular"
+                        elif sponsor_type == "Filing Sponsor":
+                            sponsor_classification = "Primary"
+                        else:
+                            raise ValueError(f"don't know about {sponsor_type}")
 
-                    bill.add_sponsorship(
-                        sponsor_name,
-                        sponsor_classification,
-                        "person",
-                        sponsor_classification == "Primary",
-                    )
+                        bill.add_sponsorship(
+                            sponsor_name,
+                            sponsor_classification,
+                            "person",
+                            sponsor_classification == "Primary",
+                        )
 
             if subject := matter["matterCategory"]:
                 bill.add_subject(subject)
 
             for attachment in matter["attachments"]:
-                bill.add_version_link(
-                    attachment["fileName"],
-                    attachment["path"],
-                    media_type="application/pdf",
-                )
+                if attachment["attachmentType"] == "Legislation":
+                    bill.add_version_link(
+                        attachment["fileName"],
+                        attachment["path"],
+                        media_type="application/pdf",
+                    )
+                else:
+                    bill.add_document_link(
+                        attachment["fileName"],
+                        attachment["path"],
+                        media_type="application/pdf",
+                    )
 
             relations = [
                 record_number
