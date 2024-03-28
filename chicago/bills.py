@@ -97,6 +97,12 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 detailed_matter["duplicate_identifiers"] = []
                 yield detailed_matter
 
+            elif matter_id not in legacy_cases:
+                legacy_cases[matter_id] = {
+                    "matter_id": matter_id,
+                    "dupes": set(),
+                }
+
         for data in legacy_cases.values():
             matter_id = data["matter_id"]
             detailed_matter = self.get(self._endpoint(f"/matter/{matter_id}")).json()
