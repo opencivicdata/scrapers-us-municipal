@@ -237,11 +237,12 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                     vote_event.add_source(bill_detail_url, note="elms_api")
 
                     for vote in votes:
-                        vote_value = vote["vote"].lower()
-                        if vote_value == "vacant":
-                            continue
-                        clean_option = self.VOTE_OPTIONS.get(vote_value, vote_value)
-                        vote_event.vote(clean_option, vote["voterName"].strip())
+                        if vote["vote"]:
+                            vote_value = vote["vote"].lower()
+                            if vote_value == "vacant":
+                                continue
+                            clean_option = self.VOTE_OPTIONS.get(vote_value, vote_value)
+                            vote_event.vote(clean_option, vote["voterName"].strip())
 
                     yield vote_event
 
