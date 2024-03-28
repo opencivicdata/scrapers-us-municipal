@@ -306,6 +306,9 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                         except scrapelib.HTTPError:
                             continue
 
+                if not relation_matter["introductionDate"]:
+                    continue
+
                 relation_date = datetime.datetime.fromisoformat(
                     relation_matter["introductionDate"]
                 )
