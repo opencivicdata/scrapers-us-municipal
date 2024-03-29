@@ -178,6 +178,9 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             for alt_identifier in alternate_identifiers:
                 bill.add_identifier(alt_identifier)
 
+            if identifier not in alternate_identifiers:
+                bill.add_identifier(identifier)
+
             bill_detail_url = self._endpoint(f"/matter/{matter_id}")
             bill.add_source(bill_detail_url, note="elms_api")
             bill.add_source(
