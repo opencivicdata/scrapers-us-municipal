@@ -123,6 +123,45 @@ RULE_45 = {
         },
     },
     "Committee on Finance": {
+        "2024-02-14": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/February%202024%20Rule%2045%20Report%20031524.pdf?VersionId=aPV3YL_FJ1uBd_6F6InL8LPFxw94badh",
+            "attendance": [
+                "Dowell",
+                "Conway",
+                "La Spata",
+                "Hopkins",
+                "Hall",
+                "Mitchell",
+                "Harris",
+                "Beale",
+                "Lee",
+                "Ramirez",
+                "Quinn",
+                "Lopez",
+                "Moore, David H.",
+                "Curtis",
+                "Taylor",
+                "Mosley",
+                "Rodriguez",
+                "Scott, Monique L.",
+                "Sigcho-Lopez",
+                "Burnett",
+                "Ervin",
+                "Taliaferro",
+                "Cardona",
+                "Waguespack",
+                "Rodriguez Sanchez",
+                "Ramirez-Rosa",
+                "Villegas",
+                "Mitts",
+                "Sposato",
+                "Vasquez",
+                "Reilly",
+                "Knudsen",
+                "Martin",
+                "Silverstein",
+            ],
+        },
         "2024-01-22": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/January%202024%20Rule%2045%20Report%20020924.pdf?VersionId=y0suqWHN5DIWt94n_3ATbFPJXw57KgpQ",
             "attendance": [
@@ -452,6 +491,25 @@ RULE_45 = {
         },
     },
     "Committee on Transportation and Public Way": {
+        "2024-03-13": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/March%20Committee%20Monthly%20Report.pdf?VersionId=OwG.A0.ty8XcBhJx4PPeFguzohpV8J3w",
+            "attendance": [
+                "Mitchell",
+                "Vasquez",
+                "Conway",
+                "Ervin",
+                "Fuentes",
+                "Gutierrez",
+                "Harris",
+                "Hopkins",
+                "Moore, David H.",
+                "Mosley",
+                "Nugent",
+                "Rodriguez",
+                "Waguespack",
+                "Yancy",
+            ],
+        },
         "2024-01-10": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/January%20Transportation%20Committee%20Rule%2045%20-%2001-24%20%281%29.pdf?VersionId=CHtkXrnyrwFBcQMAeHpCwxSMccZZHPkC",
             "attendance": [
@@ -574,6 +632,25 @@ RULE_45 = {
         },
     },
     "Committee on Pedestrian and Traffic Safety": {
+        "2024-03-13": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/March%20Rule%2045.pdf?VersionId=xYxK8KbAR8gKJWN91dPqXzwf82FudEnc",
+            "attendance": [
+                "La Spata",
+                "Hopkins",
+                "Robinson",
+                "Yancy",
+                "Chico",
+                "Quinn",
+                "Moore, David H.",
+                "Burnett",
+                "Ervin",
+                "Cruz",
+                "Knudsen",
+                "Lawson",
+                "Martin",
+                "Manaa-Hoppenworth",
+            ],
+        },
         "2024-02-06": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Feb%20Rule%2045.pdf?VersionId=x.VEc0Bjw5B8C26cKcYMvf6X3VdrkEXv",
             "attendance": [
@@ -698,6 +775,26 @@ RULE_45 = {
         },
     },
     "Committee on Police and Fire": {
+        "2024-03-18": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Rule%2045%20Report%20March%202024.pdf?VersionId=zYj6KpMTFcQ74QPeCYTVKtVs74_bWR9S",
+            "attendance": [
+                "Robinson",
+                "Hall",
+                "Mitchell",
+                "Lee",
+                "Curtis",
+                "Taylor",
+                "Nugent",
+                "Knudsen",
+                "Clay",
+                "Taliaferro",
+                "Mosley",
+                "Ervin",
+                "Sposato",
+                "Napolitano",
+                "Gardiner",
+            ],
+        },
         "2024-02-05": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Rule%2045%20Report%20February%202024.pdf?VersionId=a2DbFJRb2vxjxXE0YLnjBqAqyd_0MXv2",
             "attendance": [
@@ -780,6 +877,26 @@ RULE_45 = {
         },
     },
     "Committee on Economic, Capital and Technology Development": {
+        "2024-03-14": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/ECTD%20Rule%2045%20Report%20March%202024.pdf?VersionId=41xAAxMfaT800I7moJ8b0MYb_zOI6pbC",
+            "attendance": [
+                "Villegas",
+                "Mosley",
+                "La Spata",
+                "Hall",
+                "Mitchell",
+                "Chico",
+                "Lee",
+                "Gutierrez",
+                "Tabares",
+                "Cruz",
+                "Cardona",
+                "Waguespack",
+                "Mitts",
+                "Napolitano",
+                "Manaa-Hoppenworth",
+            ],
+        },
         "2024-02-13": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/ECTD%20RULE%2045%20REPORT%20%E2%80%94%20February%202024.pdf?VersionId=CijEOySWaO4lVJq8an45zbNXkRjXNGWr",
             "attendance": [
@@ -931,6 +1048,25 @@ RULE_45 = {
         },
     },
     "Committee on Immigrant and Refugee Rights": {
+        "2024-03-28": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/240328_CIRR_Rule-45.pdf?VersionId=UOBmR5htxytG6gtJi7nWT6q214feUX8q",
+            "attendance": [
+                "Vasquez",
+                "Dowell",
+                "Gutierrez",
+                "Rodriguez",
+                "Fuentes",
+                "Taliaferro",
+                "Cruz",
+                "Cardona",
+                "Rodriguez Sanchez",
+                "Knudsen",
+                "Manaa-Hoppenworth",
+                "Taylor",
+                "Hadden",
+                "Ramirez-Rosa",
+            ],
+        },
         "2024-01-30": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/240130_CIRR_Rule-45-v2%20%281%29.pdf?VersionId=h6X5MY435N.ENrcgk8jSdSWzh7LB.aAw",
             "attendance": [
@@ -1427,6 +1563,25 @@ RULE_45 = {
         },
     },
     "Committee on Public Safety": {
+        "2023-03-14": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/Rule45_CommiteeOnPublicSafety_20240314.pdf?VersionId=zMCcTyDTG73vwvJCavVAOpx48qYQggaN",
+            "attendance": [
+                "Hopkins",
+                "Yancy",
+                "Chico",
+                "Gutierrez",
+                "Curtis",
+                "Sigcho-Lopez",
+                "Fuentes",
+                "Sposato",
+                "Vasquez",
+                "Martin",
+                "Manaa-Hoppenworth",
+                "Tabares",
+                "Gardiner",
+                "Hadden",
+            ],
+        },
         "2023-12-08": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/PS%20Dec.Rule45.pdf?VersionId=q7F.nD93awwa_hpzZlATaeFUjEJJmkb1",
             "attendance": [
@@ -1826,6 +1981,24 @@ RULE_45 = {
         },
     },
     "Committee on Ethics and Government Oversight": {
+        "2024-03-22": {
+            "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/3_22_2024%20Rule%2045%20Ethics%20Committee.pdf?VersionId=EPxWCjP.B1LXlE57GoElCiBsQNrFqjmQ",
+            "attendance": [
+                "Martin",
+                "Lee",
+                "O'Shea",
+                "Taylor",
+                "Tabares",
+                "Taliaferro",
+                "Waguespack",
+                "Nugent",
+                "Lawson",
+                "Scott, Monique L.",
+                "Vasquez",
+                "Hadden",
+                "Sposato",
+            ],
+        },
         "2024-01-18": {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/1_18_2024%20Rule%2045%20Ethics%20Committee.pdf?VersionId=jkCViEmEGNtcw54W7fpZmT4CFiK6RvBi",
             "attendance": [
@@ -1898,7 +2071,7 @@ RULE_45 = {
             "source": "https://chicityclerk.s3.us-west-2.amazonaws.com/s3fs-public/reports/RULE%2045%20JAN%202024.pdf?VersionId=yZ00k1iLylgEfDn4taQV3.ZblhqZgoLa",
             "attendance": [
                 "Lawson",
-                "LaSpata",
+                "La Spata",
                 "Hopkins",
                 "Dowell",
                 "Hall",
