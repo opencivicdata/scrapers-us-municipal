@@ -105,13 +105,12 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 if record_number.startswith("S"):
                     original_record_number = normalize_substitute(record_number)
                     if original_record_number in legacy_cases:
-                        legacy_cases[original_record_number]["matter_id"] = matter_id
-                        legacy_cases[original_record_number]["dupes"].add(record_number)
-                    else:
-                        legacy_cases[record_number] = {
-                            "matter_id": matter_id,
-                            "dupes": set(original_record_number),
-                        }
+                        del legacy_cases[original_record_number]
+
+                    legacy_cases[record_number] = {
+                        "matter_id": matter_id,
+                        "dupes": set(original_record_number),
+                    }
                 else:
                     substitute_record_number = "S" + record_number
                     if substitute_record_number in legacy_cases:
@@ -169,6 +168,8 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                         duplicate_identifier
                     )
                     alternate_identifiers.add(original_duplicate_identifier)
+
+            alternate_identifiers.discard(identifier)
 
             actions, introduction_failure_mode = self.repair_actions(
                 matter["actions"].copy(), matter["introductionDate"]
