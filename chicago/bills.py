@@ -1,10 +1,11 @@
 import datetime
 import itertools
+import re
 
 import pytz
+import scrapelib
 from pupa.scrape import Bill, Scraper, VoteEvent
 from pupa.utils import _make_pseudo_id
-import scrapelib
 
 from .base import ElmsAPI
 
@@ -57,6 +58,9 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
         formatted_start = n_days_ago.isoformat()
         seen_ids = set()
         legacy_cases = {}
+
+        NEW_SERIAL_PATTERN = re.compile(r"^\d{7}$")
+
         for matter in self._paginate(
             self._endpoint("/matter"),
             {
@@ -69,21 +73,21 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             },
         ):
             matter_id = matter["matterId"]
-            serial = matter["recordNumber"].split("-")[-1]
-            if len(serial) > 5:
+            if matter_id in seen_ids:
+                continue
+            seen_ids.add(matter_id)
 
-                if matter_id in seen_ids:
-                    continue
-
-                seen_ids.add(matter_id)
-
+            record_number = matter["recordNumber"]
+            serial = record_number.split("-")[-1]
+            if NEW_SERIAL_PATTERN.match(serial):
                 # sometimes the new system has duplicate identifiers
                 # that point to the same legacy identifier, so we'll
                 # collect these types of bills and process them them
                 # once we've seen everything we are going to scrape
                 if legacy_id := matter["legacyRecordNumber"]:
                     if legacy_id in legacy_cases:
-                        legacy_cases[legacy_id]["dupes"].add(matter["recordNumber"])
+                        legacy_cases[legacy_id]["matter_id"] = matter_id
+                        legacy_cases[legacy_id]["dupes"].add(record_number)
                     else:
                         legacy_cases[legacy_id] = {
                             "matter_id": matter_id,
@@ -97,11 +101,28 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 detailed_matter["duplicate_identifiers"] = []
                 yield detailed_matter
 
-            elif matter_id not in legacy_cases:
-                legacy_cases[matter_id] = {
-                    "matter_id": matter_id,
-                    "dupes": set(),
-                }
+            elif record_number not in legacy_cases:
+                if record_number.startswith("S"):
+                    original_record_number = normalize_substitute(record_number)
+                    if original_record_number in legacy_cases:
+                        legacy_cases[original_record_number]["matter_id"] = matter_id
+                        legacy_cases[original_record_number]["dupes"].add(record_number)
+                    else:
+                        legacy_cases[record_number] = {
+                            "matter_id": matter_id,
+                            "dupes": set(original_record_number),
+                        }
+                else:
+                    substitute_record_number = "S" + record_number
+                    if substitute_record_number in legacy_cases:
+                        legacy_cases[substitute_record_number]["dupes"].add(
+                            record_number
+                        )
+                    else:
+                        legacy_cases[record_number] = {
+                            "matter_id": matter_id,
+                            "dupes": set(),
+                        }
 
         for data in legacy_cases.values():
             matter_id = data["matter_id"]
@@ -125,6 +146,7 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 "CL2023-0003775",
                 "CL2023-0003676",
                 "O2023-0002113",
+                "Or2011-189",
             }:
                 continue
 
@@ -132,25 +154,21 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
                 raise
 
             original_identifier = normalize_substitute(identifier)
-
-            alternate_identifiers = []
-            if original_identifier != identifier:
-                alternate_identifiers.append(original_identifier)
+            alternate_identifiers = {identifier, original_identifier}
 
             if legacy_identifier := matter["legacyRecordNumber"]:
                 legacy_identifier = legacy_identifier.strip()
+                alternate_identifiers.add(legacy_identifier)
+
                 original_legacy_identifier = normalize_substitute(legacy_identifier)
-                alternate_identifiers.append(original_legacy_identifier)
-                if original_legacy_identifier != legacy_identifier:
-                    alternate_identifiers.append(legacy_identifier)
+                alternate_identifiers.add(original_legacy_identifier)
 
                 for duplicate_identifier in matter["duplicate_identifiers"]:
+                    alternate_identifiers.add(duplicate_identifier)
                     original_duplicate_identifier = normalize_substitute(
                         duplicate_identifier
                     )
-                    alternate_identifiers.append(original_duplicate_identifier)
-                    if original_duplicate_identifier != duplicate_identifier:
-                        alternate_identifiers.append(duplicate_identifier)
+                    alternate_identifiers.add(original_duplicate_identifier)
 
             actions, introduction_failure_mode = self.repair_actions(
                 matter["actions"].copy(), matter["introductionDate"]
@@ -177,9 +195,6 @@ class ChicagoBillScraper(ElmsAPI, Scraper):
             )
             for alt_identifier in alternate_identifiers:
                 bill.add_identifier(alt_identifier)
-
-            if identifier not in alternate_identifiers:
-                bill.add_identifier(identifier)
 
             bill_detail_url = self._endpoint(f"/matter/{matter_id}")
             bill.add_source(bill_detail_url, note="elms_api")
