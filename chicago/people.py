@@ -139,6 +139,11 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
                 
                 try:
                     person = alders[person_name]
+                except KeyError as error:
+                    if "vacant" in person_name.lower():
+                        continue
+                    self.warning("Problem adding to Committee:", person_name)
+                else:
                     person.add_membership(
                         org,
                         role=term["memberType"],
@@ -147,12 +152,7 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
                         ).date(),
                         end_date=datetime.datetime.fromisoformat(term["endDate"]).date(),
                     )
-                except KeyError as error:
-                    if "vacant" in person_name.lower():
-                        continue
-                    
-                    print("Problem adding to Committee:")
-                    print(error)
+                
 
             yield org
 
