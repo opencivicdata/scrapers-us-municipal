@@ -2,8 +2,8 @@ https://github.com/opencivicdata/python-opencivicdata-django/zipball/master
 pupa==0.10.1
 https://github.com/opencivicdata/python-legistar-scraper/zipball/master
 lxml
-sh 
-pytest==4.2.0
-pytest-mock==1.10.1
-requests-mock==1.5.2
+sh
+pytest==6.2.5
+pytest-mock==3.12.0
+requests-mock==1.11.0
 https://github.com/jamesturk/scrapelib/archive/refs/heads/main.zip

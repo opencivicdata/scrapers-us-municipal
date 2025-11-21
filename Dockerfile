@@ -1,4 +1,4 @@
-FROM python:3.6-slim-stretch
+FROM python:3.9-slim
 LABEL maintainer "DataMade <info@datamade.us>"
 
 ENV PYTHONUNBUFFERED=1
