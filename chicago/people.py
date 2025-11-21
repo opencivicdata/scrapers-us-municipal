@@ -136,15 +136,23 @@ class ChicagoPersonScraper(ElmsAPI, Scraper):
                     person_name = "Rodriguez Sanchez, Rossana"
                 elif person_name in {"Willie B., Cochran", "Willie B. Cochran"}:
                     person_name = "Cochran, Willie B."
-                person = alders[person_name]
-                person.add_membership(
-                    org,
-                    role=term["memberType"],
-                    start_date=datetime.datetime.fromisoformat(
-                        term["startDate"]
-                    ).date(),
-                    end_date=datetime.datetime.fromisoformat(term["endDate"]).date(),
-                )
+                
+                try:
+                    person = alders[person_name]
+                    person.add_membership(
+                        org,
+                        role=term["memberType"],
+                        start_date=datetime.datetime.fromisoformat(
+                            term["startDate"]
+                        ).date(),
+                        end_date=datetime.datetime.fromisoformat(term["endDate"]).date(),
+                    )
+                except KeyError as error:
+                    if "vacant" in person_name.lower():
+                        continue
+                    
+                    print("Problem adding to Committee:")
+                    print(error)
 
             yield org
 
