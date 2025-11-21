@@ -22,10 +22,16 @@ class Chicago(Jurisdiction):
 
     legislative_sessions = [
         {
+            "identifier": "2023",
+            "name": "2023 Regular Session",
+            "start_date": "2023-05-15",
+            "end_date": "2027-05-15",
+        },
+        {
             "identifier": "2019",
             "name": "2019 Regular Session",
             "start_date": "2019-05-20",
-            "end_date": "2023-05-19",
+            "end_date": "2023-05-14",
         },
         {
             "identifier": "2015",
@@ -49,6 +55,7 @@ class Chicago(Jurisdiction):
 
     def get_organizations(self):
         org = Organization(name="Chicago City Council", classification="legislature")
+        org.add_name("City Council")
         for x in range(1, 51):
             org.add_post(
                 "Ward {}".format(x),
@@ -90,6 +97,7 @@ class Chicago(Jurisdiction):
             "Mayor",
             "executive",
             start_date=datetime.date(2011, 5, 16),
+            end_date=datetime.date(2019, 5, 20),
             appointment=True,
         )
         emanuel.add_source("https://chicago.legistar.com/People.aspx")
@@ -100,10 +108,21 @@ class Chicago(Jurisdiction):
             "Mayor",
             "executive",
             start_date=datetime.date(2019, 5, 20),
+            end_date=datetime.date(2023, 5, 15),
             appointment=True,
         )
         lightfoot.add_source("https://chicago.legistar.com/People.aspx")
         yield lightfoot
+
+        johnson = Person(name="Johnson, Brandon")
+        johnson.add_term(
+            "Mayor",
+            "executive",
+            start_date=datetime.date(2023, 5, 15),
+            appointment=True,
+        )
+        johnson.add_source("https://chicago.legistar.com/People.aspx")
+        yield johnson
 
         mendoza = Person(name="Mendoza, Susana A.")
         mendoza.add_term(

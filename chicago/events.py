@@ -1,178 +1,181 @@
 import datetime
-from collections import defaultdict
 
-import lxml
-import lxml.etree
-import pytz
-import requests
-from legistar.events import LegistarAPIEventScraper
 from pupa.scrape import Event, Scraper
 from pupa.utils import _make_pseudo_id
 
+from .base import ElmsAPI
+from .rule_forty_five import RULE_45
 
-class ChicagoEventsScraper(LegistarAPIEventScraper, Scraper):
-    BASE_URL = "http://webapi.legistar.com/v1/chicago"
-    WEB_URL = "https://chicago.legistar.com/"
-    EVENTSPAGE = "https://chicago.legistar.com/Calendar.aspx"
-    TIMEZONE = "America/Chicago"
 
-    def scrape(self, window=3):
-        n_days_ago = datetime.datetime.utcnow() - datetime.timedelta(float(window))
-        for api_event, web_event in self.events(n_days_ago):
+class ChicagoEventsScraper(ElmsAPI, Scraper):
+    def _events(self, n_days_ago):
 
-            when = api_event["start"]
-            location = api_event["EventLocation"]
+        for event in self._paginate(
+            self._endpoint("/meeting"),
+            {"filter": f"date gt {n_days_ago.isoformat()}", "sort": "date asc"},
+        ):
+            detailed_event = self.get(self._endpoint(f'/meeting/{event["meetingId"]}'))
+            yield detailed_event.json()
 
-            extracts = self._parse_comment(api_event["EventComment"])
-            description, room, status, invalid_event = extracts
+    def scrape(self, window=7):
+        n_days_ago = datetime.datetime.now().astimezone() - datetime.timedelta(
+            float(window)
+        )
+        for event in self._events(n_days_ago):
 
-            if invalid_event:
+            when = datetime.datetime.fromisoformat(event["date"])
+            location = event["location"]
+            if not location:
+                location = None
+
+            if (event["comment"] or "").lower() == "wrong meeting date":
                 continue
 
-            if room:
-                location = room + ", " + location
+            status = self.infer_status(event, when)
 
-            if not status:
-                status = api_event["status"]
+            e = Event(
+                name=event["body"],
+                start_date=when,
+                location_name=location,
+                status=status,
+            )
 
-            if description:
-                e = Event(
-                    name=api_event["EventBodyName"],
-                    start_date=when,
-                    description=description,
-                    location_name=location,
-                    status=status,
+            e.pupa_id = str(event["meetingId"])
+
+            if video_links := event["videoLink"]:
+                for link in video_links.split():
+                    e.add_media_link(
+                        note="Recording",
+                        url=link,
+                        type="recording",
+                        media_type="text/html",
+                    )
+
+            for document in event["files"]:
+                e.add_document(
+                    note=document["attachmentType"],
+                    url=document["path"],
+                    media_type="application/pdf",
                 )
-            else:
-                e = Event(
-                    name=api_event["EventBodyName"],
-                    start_date=when,
-                    location_name=location,
-                    status=status,
-                )
 
-            e.pupa_id = str(api_event["EventId"])
-
-            if web_event["Meeting video"] != "Not\xa0available":
-                e.add_media_link(
-                    note="Recording",
-                    url=web_event["Meeting video"]["url"],
-                    type="recording",
-                    media_type="text/html",
-                )
-            self.addDocs(e, web_event, "Published agenda")
-            self.addDocs(e, web_event, "Meeting Extra1")
-            self.addDocs(e, web_event, "Published summary")
-            if "Captions" in web_event:
-                self.addDocs(e, web_event, "Captions")
-
-            participant = api_event["EventBodyName"]
+            participant = event["body"]
             if participant == "City Council":
                 participant = "Chicago City Council"
-            elif (
-                participant
-                == "Committee on Energy, Environmental Protection and Public Utilities (inactive)"
-            ):
-                participant = (
-                    "Committee on Energy, Environmental Protection and Public Utilities"
-                )
-
             e.add_participant(name=participant, type="organization")
 
-            for item in self.agenda(api_event):
-                agenda_item = e.add_agenda_item(item["EventItemTitle"])
-                bill_identifier = None
-                if item["EventItemMatterFile"]:
-                    bill_identifier = item["EventItemMatterFile"]
-                    agenda_item.add_bill(bill_identifier)
-                    if (
-                        item["EventItemRollCallFlag"] is not None
-                        and item["EventItemPassedFlag"] is not None
-                        and item["EventItemActionText"] is not None
-                    ):
-
-                        agenda_item["related_entities"].append(
-                            {
-                                "vote_event_id": _make_pseudo_id(
-                                    motion_text=item["EventItemActionText"],
-                                    start_date=str(when.date()),
-                                    organization__name=participant,
-                                    bill__identifier=bill_identifier,
-                                ),
-                                "entity_type": "vote_event",
-                                "note": "consideration",
-                            }
-                        )
-
             participants = set()
-            for call in self.rollcalls(api_event):
-                if call["RollCallValueName"] == "Present":
-                    participants.add(call["RollCallPersonName"])
+            for attendance in event["attendance"]:
+                for call in attendance["votes"]:
+                    if call["vote"] == "Present":
+                        participants.add(call["voterName"].strip())
+
+            rule_45 = RULE_45.get(participant, {}).get(str(when.date()))
+
+            if rule_45:
+                if rule_45["source"]:
+                    e.add_document(
+                        note="Rule 45 Report",
+                        url=rule_45["source"],
+                        media_type="application/pdf",
+                    )
+                if not participants and rule_45["attendance"]:
+                    participants.update(rule_45["attendance"])
 
             for person in participants:
                 e.add_participant(name=person, type="person")
 
-            e.add_source(
-                self.BASE_URL + "/events/{EventId}".format(**api_event), note="api"
-            )
+            for item in event["agenda"]:
+                if not (matterTitle := item["matterTitle"]):
+                    continue
 
-            e.add_source(web_event["Meeting Name"]["url"], note="web")
+                agenda_item = e.add_agenda_item(matterTitle)
+                if bill_identifier := item["recordNumber"]:
+                    bill_identifier = bill_identifier.strip()
+
+                    agenda_item.add_bill(bill_identifier)
+
+                    response = self.get(
+                        self._endpoint(
+                            f'/meeting/{event["meetingId"]}/matter/{item["matterId"]}/votes'
+                        )
+                    )
+                    votes = response.json()
+                    if votes:
+                        if item["actionText"]:
+                            agenda_item["related_entities"].append(
+                                {
+                                    "vote_event_id": _make_pseudo_id(
+                                        motion_text=item["actionText"],
+                                        start_date=str(when.date()),
+                                        organization__name=participant,
+                                        bill__other_identifiers__identifier=bill_identifier,
+                                    ),
+                                    "entity_type": "vote_event",
+                                    "note": "consideration",
+                                }
+                            )
+                        else:
+                            agenda_item["related_entities"].append(
+                                {
+                                    "vote_event_id": _make_pseudo_id(
+                                        start_date=str(when.date()),
+                                        organization__name=participant,
+                                        bill__other_identifiers__identifier=bill_identifier,
+                                    ),
+                                    "entity_type": "vote_event",
+                                    "note": "consideration",
+                                }
+                            )
+
+            e.add_source(
+                self._endpoint(f'/matter/{event["meetingId"]}'), note="elms_api"
+            )
+            e.add_source(
+                f"https://chicityclerkelms.chicago.gov/Meeting/?meetingId={event['meetingId']}",
+                note="web",
+            )
 
             yield e
 
-    def _parse_comment(self, comment):
-        description = None
-        room = None
-        status = None
-        invalid_event = False
+    def infer_status(self, event, when):
+        raw_status = event["status"]
 
-        comment = comment if comment else ""
-        comment = comment.lower().replace("--em--", "").strip()
+        if raw_status == "Scheduled":
+            if when > datetime.datetime.now().astimezone():
+                return "confirmed"
+            else:
+                return "passed"
+        elif raw_status in {"Recessed", "Reconvened", "Rescheduled"}:
+            return "passed"
+        elif raw_status == "Cancelled":
+            return "cancelled"
+        elif not raw_status and not event["comment"]:
+            return "passed"
+
+        comment = event["comment"]
+        if comment is None:
+            comment = ""
+        else:
+            comment = comment.lower()
 
         if any(
             phrase in comment
             for phrase in (
                 "rescheduled to",
                 "postponed to",
-                "reconvened to",
                 "rescheduled to",
-                "meeting recessed",
-                "recessed meeting",
                 "postponed to",
-                "recessed until",
                 "deferred",
                 "time change",
                 "date change",
-                "recessed meeting - reconvene",
                 "cancelled",
                 "new date and time",
                 "rescheduled indefinitely",
                 "rescheduled for",
             )
         ):
-            status = "cancelled"
-        elif comment in ("rescheduled", "recessed"):
-            status = "cancelled"
-        elif comment in (
-            "meeting reconvened",
-            "reconvened meeting",
-            "recessed meeting",
-            "reconvene meeting",
-            "rescheduled hearing",
-            "rescheduled meeting",
-            "amended notice of meeting",
-            "room change",
-            "amended notice",
-            "change of location",
-            "revised - meeting date and time",
-        ):
-            pass
-        elif "room" in comment:
-            room = comment
-        elif comment in ("wrong meeting date",):
-            invalid_event = True
+            return "cancelled"
+        elif comment in {"rescheduled", "recessed"}:
+            return "cancelled"
         else:
-            self.info(comment)
-            description = comment
-
-        return description, room, status, invalid_event
+            return "passed"
