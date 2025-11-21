@@ -42,5 +42,4 @@ jobs:
         pip install -r requirements.txt
     - name: Test with pytest
       run: |
-        echo "TOKEN='faketoken'" > lametro/secrets.py 
         pytest -sv
